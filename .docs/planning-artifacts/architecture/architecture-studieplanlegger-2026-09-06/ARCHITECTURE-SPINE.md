@@ -193,7 +193,7 @@ Open `http://studieplan.localhost/`; keep the terminal running and stop with Ctr
 | Safe, usable UI | Playwright: HTML-like title stays text; 100 tasks remain operable. Manual keyboard/focus and 360/1280 px walkthrough, empty/error states, core interaction and storage explanation; record observed results |
 | Build | `npm.cmd test`, `npm.cmd run test:e2e`, `npm.cmd run build`; investigate failures before marking stories done |
 
-**Current evidence:** [VERIFICATION.md](../../../../studieplanlegger/VERIFICATION.md) records actual technical runs; [project-reflection.md](../../../implementation-artifacts/project-reflection.md) records sourced KI/BMAD events, and [trial-log.md](../../../implementation-artifacts/trial-log.md) keeps personal use explicitly unstarted. Historical feature specifications, evidence and handover lists remain in pre-cleanup commit `1a39aaf` and are not new test passes or acceptance of the changed interface. The package has no separate lint or typecheck script.
+**Current evidence:** [VERIFICATION.md](../../../../studieplanlegger/VERIFICATION.md) records actual technical runs, while [development-process.md](../../../implementation-artifacts/development-process.md) records sourced AI/BMAD events and the absence of a completed personal-use month. Historical feature specifications, evidence and handover lists remain in pre-cleanup commit `1a39aaf` and are not new test passes or acceptance of the changed interface. The package has no separate lint or typecheck script.
 
 ## Deferred
 

@@ -48,7 +48,7 @@ context:
 - `studieplanlegger/tests/unit/storage.test.js`, `connected-backup-privacy.test.js`, `connected-review-history.test.js` — reuse linked-envelope, idempotency, rollback and privacy fixtures.
 - `studieplanlegger/tests/e2e/connected-root-acceptance.spec.js`, `capacity-lifecycle.spec.js`, `subjects-import.spec.js` — adapt helpers to isolated API databases and cover persisted browser flows.
 - `studieplanlegger/Dockerfile`, `.dockerignore`, `compose.yaml`, `.env.example` — new locked build, local runtime, named volume and safe configuration.
-- `studieplanlegger/README.md`, planning brief/architecture, `WORK-STATUS.md`, `VERIFICATION.md`, `.docs/implementation-artifacts/project-reflection.md` — record actual architecture, commands, evidence, failures and student-only reflection questions without parallel reports.
+- `studieplanlegger/README.md`, planning brief/architecture, `WORK-STATUS.md`, `VERIFICATION.md`, `.docs/implementation-artifacts/development-process.md` — record actual architecture, commands, evidence, failures and the boundary between technical evidence and personal reflection without parallel reports.
 
 ## Tasks & Acceptance
 
@@ -58,7 +58,7 @@ context:
 - [x] Add previewed same-origin legacy migration with fingerprint receipts/raw archive, plus the existing portable export/import bridge for changed origins.
 - [x] Add multi-stage Docker/Compose delivery using `npm ci`, automatic migrations, `/data/studieplan.sqlite`, named volume, explicit optional seed and default `127.0.0.1:8088` publication.
 - [x] Add focused repository/API/migration/browser tests, then verify a clean delivery copy and volume-backed container recreation without touching port 80 or real user storage. The isolated clean-copy build, healthy runtime, two-browser UI acceptance, backup/restore and same-volume service recreation completed on 2026-09-20.
-- [x] Update existing product, architecture, operation, verification and reflection documents from observed results only.
+- [x] Update existing product, architecture, operation, verification and development-process documents from observed results only.
 
 **Acceptance Criteria:**
 - Given an empty or existing persistent volume, when the documented Compose command starts the app, then schema setup is automatic and the app is usable locally without host paths, preinstalled dependencies or a manual database.
@@ -75,8 +75,6 @@ context:
 - Same-origin transition validates and counts the raw v1 envelope, asks for explicit confirmation, archives exact raw input with a SHA-256 receipt and never edits/deletes browser data. Existing portable backup/restore remains the changed-origin bridge.
 - Docker uses a multi-stage Node 24 build, locked `npm ci`, non-root runtime, automatic SQLite migration, `/data/studieplan.sqlite`, named volume, explicit empty-only JSON seed and `127.0.0.1:8088` host publication.
 - The previously blocked Docker runtime acceptance later completed under Compose project `studieplan-docker-accept-20260920-01` on loopback port 18088. A forced service recreation changed the container ID while retaining the same isolated volume; a separate Chromium process read identical course/task/session IDs and relations from SQLite. UI backup/restore advanced revision 8 to 9 and preserved the pre-restore state in recovery. No product code change was required.
-
-## Spec Change Log
 
 ## Review Triage Log
 
