@@ -109,4 +109,4 @@ Forhåndsvisning og lagring bruker samme importbeslutning. Uttrykkelig utvalg/ut
 
 Sikkerhetskopi skjer bare til lokal fil. Eksporten utelater tilkoblingshemmeligheter; etter gjenoppretting kan en kalenderkilde be om lenken på nytt. Åpne kildens tilkoblingsdetaljer, angi kalenderlenken, velg «Lagre tilkobling» og «Oppdater nå». Denne flyten er kontrollert med ekte NTNU-undervisning og beholdt de samme 14 hendelses-ID-ene uten duplikater.
 
-Se `WORK-STATUS.md`, `VERIFICATION.md` og `IMPORT-COVERAGE.md` for datert status og faktiske kildebegrensninger. Appen sender ikke private oppgaver, notater eller sikkerhetskopier til importtjenestene.
+Se `VERIFICATION.md` og `IMPORT-COVERAGE.md` for datert status og faktiske kildebegrensninger. Appen sender ikke private oppgaver, notater eller sikkerhetskopier til importtjenestene.
