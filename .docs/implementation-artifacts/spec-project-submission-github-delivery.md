@@ -52,10 +52,10 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `G37-yilmaz/` — kopier det eksplisitte leveranseutvalget og herd ignore-reglene uten genererte/private data.
-- [ ] `G37-yilmaz/README.md`, `brief.md` og utvalgte `.docs/**/*.md` — rett utdaterte statuser, absolutte stier, lenker og refleksjonsmerking.
-- [ ] Kandidat-treet og historikken — skann filnavn/innhold for data og hemmeligheter, kontroller lenker, diff og ignore-adferd.
-- [ ] Ren checkout av kandidat-commit — kjør relevante tester og Docker-akseptanse med eget prosjektnavn, testvolum og ledig loopback-port; kontroller API/UI, backup/restore og persistens fra ny nettleserprofil.
+- [x] `G37-yilmaz/` — kopier det eksplisitte leveranseutvalget og herd ignore-reglene uten genererte/private data.
+- [x] `G37-yilmaz/README.md`, `brief.md` og utvalgte `.docs/**/*.md` — rett utdaterte statuser, absolutte stier, lenker og refleksjonsmerking.
+- [x] Kandidat-treet og historikken — skann filnavn/innhold for data og hemmeligheter, kontroller lenker, diff og ignore-adferd.
+- [x] Ren checkout av kandidat-commit — kjør relevante tester og Docker-akseptanse med eget prosjektnavn, testvolum og ledig loopback-port; kontroller API/UI, backup/restore og persistens fra ny nettleserprofil.
 - [ ] Git — commit med tydelig melding, hent remote på nytt, push uten force til tillatt branch, og bekreft commit og dokumentlenker på GitHub.
 
 **Acceptance Criteria:**
@@ -65,6 +65,11 @@ context:
 - Given GitHub-repositoryet, when pushen er ferdig, then riktig commit finnes på tillatt branch og README, brief og refleksjonsutkast er tilgjengelige; ingen deployment er utløst.
 
 ## Implementation Notes
+
+- Lokal implementering ble samlet i commit `37fdfc5`; en egen oppryddingscommit `e5ad5be` fjernet lokale skjermbilder/resultatfiler og rettet refleksjons- og importdokumentasjonen uten å endre produktkode.
+- Ren clone av `e5ad5be` bestod 1195/1195 enhetstester, 68-modulers bygg, healthy Docker-start, 2/2 produksjons-Chromiumtester og same-volume container-recreate. En fersk Chromium-kontekst uten localStorage viste samme ID-er og relasjoner fra SQLite.
+- Filnavn-, innholds-, ignore- og lenkekontroller fant ingen faktisk database, privat miljøfil eller reell hemmelighet. Treff på `PRIVATE_SECRET_9182` og `ADDITIONAL_SECRET_9182` er uttrykkelig syntetiske negativtestverdier under `tests/` og bruker domenet `example.invalid`.
+- Ekstern fetch/push og GitHub-kontroll gjenstår til etter BMAD-review; ingen force-push eller deployment skal brukes.
 
 ## Spec Change Log
 
