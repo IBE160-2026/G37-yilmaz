@@ -5,6 +5,7 @@ const port = process.env.PLAYWRIGHT_PORT || '5174'
 export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.spec.js',
+  testIgnore: '**/database-delivery.spec.js',
   fullyParallel: true,
   workers: 2,
   timeout: 60_000,

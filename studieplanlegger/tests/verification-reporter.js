@@ -7,9 +7,14 @@ export default class VerificationReporter {
     this.results.push({ title: test.title, file: test.location.file, line: test.location.line, status: result.status, duration: result.duration, errors: result.errors.map(error => error.message || String(error)) })
     const complete = this.results.length === this.expected
     const successful = complete && this.results.every(row => ['passed', 'skipped'].includes(row.status))
-    this.save(successful ? 'passed' : complete ? 'failed' : 'running')
-    if (result.status !== 'passed') console.log(`\nFAILED ${test.location.file}:${test.location.line}\n${result.errors.map(error => error.message).join('\n')}`)
+    const skipped = successful && this.results.some(row => row.status === 'skipped')
+    this.save(skipped ? 'passed-with-skips' : successful ? 'passed' : complete ? 'failed' : 'running')
+    if (!['passed', 'skipped'].includes(result.status)) console.log(`\nFAILED ${test.location.file}:${test.location.line}\n${result.errors.map(error => error.message).join('\n')}`)
   }
-  onEnd(result) { this.save(result.status); console.log(`Verification: ${this.results.filter(r => r.status === 'passed').length}/${this.expected} passed; ${this.path}`) }
+  onEnd(result) {
+    const skipped = this.results.some(row => row.status === 'skipped')
+    this.save(result.status === 'passed' && skipped ? 'passed-with-skips' : result.status)
+    console.log(`Verification: ${this.results.filter(r => r.status === 'passed').length}/${this.expected} passed; ${this.path}`)
+  }
   save(status) { mkdirSync(resolve('artifacts'), { recursive: true }); writeFileSync(this.path, JSON.stringify({ status, startedAt: this.startedAt, recordedAt: new Date().toISOString(), expected: this.expected, results: this.results }, null, 2)) }
 }

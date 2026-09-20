@@ -29,7 +29,7 @@ export function createCalendarViewport(host, viewport, getEntries, entryButton, 
       for (const block of day.querySelectorAll('.calendar-timeline .calendar-entry, .calendar-duration-marker')) {
         const rect = block.getBoundingClientRect(), key = keyOf(block)
         const visible = rect.bottom > top + .5 && rect.top < bottom - .5 &&
-          rect.right > bounds.left + viewport.clientTop && rect.left < bounds.right
+          rect.right > bounds.left + viewport.clientLeft && rect.left < bounds.right
         const before = visible && rect.top < top - .5, after = visible && rect.bottom > bottom + .5
         block.classList.toggle('viewport-continues-before', before)
         block.classList.toggle('viewport-continues-after', after)

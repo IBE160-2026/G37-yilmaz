@@ -61,6 +61,23 @@ test('viewport clipping follows scroll and resize without changing duration, foc
   await testInfo.attach('viewport-state.json', { body: JSON.stringify({ metrics: await metrics(page), before: before.planner, after: after.planner }), contentType: 'application/json' })
 })
 
+test('horizontal visibility starts after the viewport left border', async ({ page }) => {
+  await boot(page)
+  const control = page.locator('[data-viewport-entry="event:clipped"]')
+  await expect(control).toContainText('Starter f\u00f8r synlig tidsrom')
+  await page.locator('[data-calendar-key="event:clipped"]').evaluate(block => {
+    const viewport = block.closest('.full-calendar-viewport')
+    viewport.style.borderLeft = '24px solid transparent'
+    const original = block.getBoundingClientRect.bind(block)
+    Object.defineProperty(block, 'getBoundingClientRect', { configurable: true, value: () => {
+      const rect = original(), bounds = viewport.getBoundingClientRect()
+      return { ...rect.toJSON(), top: rect.top, bottom: rect.bottom, left: bounds.left + 2, right: bounds.left + 20, width: 18, height: rect.height, x: bounds.left + 2, y: rect.y }
+    } })
+    viewport.dispatchEvent(new Event('scroll'))
+  })
+  await expect(control.locator('.entry-viewport-continuation')).toBeHidden()
+})
+
 function dense() {
   return data([long, event('short', '2026-09-08T08:00:00Z', '2026-09-08T08:05:00Z', 'Fem minutter med fullstendig tittel'),
     event('overlap', '2026-09-08T08:00:00Z', '2026-09-08T09:30:00Z', 'Overlappende undervisning'),

@@ -257,6 +257,12 @@ export class StateDatabase {
         if (!validEnvelope(value)) throw new TypeError('unreadable-recovery')
         update.run(json(purgeWorkHistory(value)), row.id)
       }
+      const updateArchive = this.db.prepare('UPDATE legacy_archives SET raw=? WHERE fingerprint=?')
+      for (const row of this.db.prepare('SELECT fingerprint,raw FROM legacy_archives').all()) {
+        let value
+        try { value = parse(row.raw) } catch { continue }
+        if (validEnvelope(value, { relations: true })) updateArchive.run(json(purgeWorkHistory(value)), row.fingerprint)
+      }
       this.db.exec('COMMIT')
       return { revision: nextRevision, envelope: purged }
     } catch (error) { this.db.exec('ROLLBACK'); throw error }

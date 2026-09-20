@@ -14,7 +14,7 @@ const database = new StateDatabase(process.env.STUDIEPLAN_DB || '/data/studiepla
   seedEnvelope: process.env.STUDIEPLAN_SEED_JSON ? JSON.parse(process.env.STUDIEPLAN_SEED_JSON) : undefined,
 })
 const state = stateMiddleware(database)
-const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json; charset=utf-8' }
+const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.json': 'application/json; charset=utf-8' }
 
 async function staticFiles(req, res) {
   if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405); return res.end() }
