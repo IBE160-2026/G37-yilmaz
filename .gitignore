@@ -80,6 +80,8 @@ traces/
 # Locally archived historical delivery material (kept outside Git after 2026-09-20 cleanup)
 /.docs/implementation-artifacts/assistant-reflection-support.md
 /.docs/implementation-artifacts/assistant-trial-report.md
+/.docs/implementation-artifacts/project-reflection.md
+/.docs/implementation-artifacts/trial-log.md
 /.docs/implementation-artifacts/capacity-evidence.md
 /.docs/implementation-artifacts/spec-1-2-opprette-oppgaver-og-beholde-dem-trygt.md
 /.docs/implementation-artifacts/spec-1-3-rette-og-slette-egne-oppgaver.md

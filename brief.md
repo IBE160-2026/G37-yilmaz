@@ -68,7 +68,7 @@ The delivered production path uses SQLite as authoritative storage behind the lo
 
 Support for universities and university colleges across Norway is a delivery requirement, dependent on available and permitted data sources. Coverage must be reported honestly. Manual and file import provide continuity but do not establish direct institutional integration; detailed evidence belongs in the import documentation.
 
-**Delivery evidence.** Project evidence must document AI-assisted development, the BMAD process, and quality assurance. These delivery-evidence requirements are distinct from Studieplan's runtime behavior, which uses registered data, rules, and local statistics rather than generative AI.
+**Delivery evidence.** The [development-process record](.docs/implementation-artifacts/development-process.md) documents AI-assisted development, the BMAD process, and quality assurance. These delivery-evidence requirements are distinct from Studieplan's runtime behavior, which uses registered data, rules, and local statistics rather than generative AI.
 
 **Out of scope.** The scope excludes public hosting, accounts, payments, cloud synchronization, automatic contact, attendance monitoring, automatic submission, and automatic confirmation from an institution's systems. The student can still confirm manually that an assignment has been submitted. An expired study session does not prove work was performed, and finished work does not prove submission.
 
