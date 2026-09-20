@@ -55,6 +55,8 @@ volumes/
 local-backups/
 backups/
 recovery/
+*backup*.json
+*recovery*.json
 private-data/
 local-documents/
 local-cache/

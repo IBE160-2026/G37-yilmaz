@@ -23,6 +23,8 @@ tests
 *.db-*
 backups
 recovery
+*backup*.json
+*recovery*.json
 browser-profile
 browser-profiles
 profiles

@@ -70,10 +70,31 @@ context:
 - Ren clone av `e5ad5be` bestod 1195/1195 enhetstester, 68-modulers bygg, healthy Docker-start, 2/2 produksjons-Chromiumtester og same-volume container-recreate. En fersk Chromium-kontekst uten localStorage viste samme ID-er og relasjoner fra SQLite.
 - Filnavn-, innholds-, ignore- og lenkekontroller fant ingen faktisk database, privat miljøfil eller reell hemmelighet. Treff på `PRIVATE_SECRET_9182` og `ADDITIONAL_SECRET_9182` er uttrykkelig syntetiske negativtestverdier under `tests/` og bruker domenet `example.invalid`.
 - Ekstern fetch/push og GitHub-kontroll gjenstår til etter BMAD-review; ingen force-push eller deployment skal brukes.
+- Reviewrettelsene er samlet i `670b2ab` og `b817b52`. En ny ren checkout av `b817b52` bestod 1196/1196 enhetstester, 68-modulers bygg, 2/2 produksjonsdatabasetester og Docker recreate med identisk revisjon 8, stabile relasjoner og en fersk Chromium-kontekst uten localStorage.
 
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Severity | Verdict | Evidence / disposition |
+|---|---|---|---|---|
+| 1 | Overdue calculation can differ outside the stored Oslo/local-wall-time assumption. | Low | Deferred | Existing documented same-timezone limitation; broader travel/timezone semantics require a product and migration decision. |
+| 2 | Week bounds can differ across timezone changes. | Low | Deferred | Same root cause and scope as #1; recorded in `deferred-work.md`. |
+| 3 | Subject-agenda deadline parsing can differ across timezone changes. | Low | Deferred | Same root cause and scope as #1; recorded in `deferred-work.md`. |
+| 4 | Calendar scroll persistence writes synchronously on every scroll event. | Medium | Deferred | A debounced/async storage redesign is broader than the approved submission fixes; recorded with #7. |
+| 5 | Calendar scroll-position keys are not explicitly bounded. | Low | Rejected | Keys derive from the bounded rendered calendar scope; no demonstrated everyday failure, and an arbitrary cap would add a new retention policy. |
+| 6 | Data-tools render called the recovery endpoint twice. | Low | Fixed | `b817b52` caches one `actions.recovery()` result per render; full unit and production database suites pass. |
+| 7 | Server storage uses synchronous XMLHttpRequest. | Medium | Deferred | Existing architecture; converting the complete storage contract safely is a wider change. Recorded with #4. |
+| 8 | An indivisible task may ignore an alternative free period when a reservation exists. | Medium | Rejected | Scheduling remediation tests explicitly preserve indivisible/retained locks and use eligible free time without combining short fragments. |
+| 9 | The regular Playwright config could run the production database suite against Vite. | Medium | Fixed | `670b2ab` excludes it from the regular config and adds `npm run test:e2e:database`; clean run passed 2/2. |
+| 10 | `.woff2` lacked an explicit MIME mapping under `nosniff`. | Low | Fixed | `670b2ab` serves `font/woff2`; clean Chromium verified the response. |
+| 11 | Collections and text fields have no practical size limits. | Medium | Deferred | Limits affect product contracts, imports and migration; recorded for a separate bounded design decision. |
+| 12 | Calendar horizontal viewport calculation used `clientTop`. | Low | Fixed | `670b2ab` uses `clientLeft`; focused viewport regression passed 5/5. |
+| 13 | Privacy purge did not scrub work logs inside valid `legacy_archives.raw`. | Medium | Fixed | `670b2ab` purges valid archives in the same transaction and adds database coverage. |
+| 14 | Invalid explicit `PORT` values are not replaced by a custom validation message. | Low | Rejected | Node fails fast before serving on invalid explicit configuration; this is safe and preferable to silently choosing another port. |
+| 15 | Malformed optional seed JSON terminates startup. | Low | Rejected | Startup fails before database mutation, while documented seed examples are valid; fail-fast preserves existing data. |
+| 16 | Production-storage E2E was not wired to a repeatable production runner. | Medium | Fixed | Duplicate root cause of #9; the dedicated build/server/test runner passed 2/2 in the clean checkout. |
+| 17 | The custom reporter could label a run with skipped suites as passed. | Medium | Fixed | `670b2ab` reports `passed-with-skips`; reporter unit checks and the full 1196-test suite pass. |
 
 ## Verification
 
