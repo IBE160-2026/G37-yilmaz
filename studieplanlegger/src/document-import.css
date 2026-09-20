@@ -1,0 +1,22 @@
+.document-import { min-width: 0; }
+.document-import form, .document-import label { display: grid; gap: .6rem; }
+.document-import form { gap: 1rem; }
+.document-import input:not([type=checkbox]), .document-import select, .document-import textarea { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+.document-import input[type=checkbox] { width: 1.25rem; height: 1.25rem; }
+.document-import label:has(input[type=checkbox]) { display: flex; align-items: center; min-height: 44px; }
+.document-preview-rows { display: grid; gap: 1rem; }
+.document-preview-row { border: 1px solid var(--border, #d9d4c9); border-radius: 12px; padding: 1rem; background: var(--surface, #fffdf8); min-width: 0; }
+.document-preview-row summary { min-height: 44px; cursor: pointer; overflow-wrap: anywhere; }
+.document-preview-row blockquote { margin: .5rem 0 1rem; padding: .75rem; border-left: 3px solid #8c9c7a; background: #f3f2e9; overflow-wrap: anywhere; white-space: pre-wrap; }
+.document-preview-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 1rem; }
+.document-preview-fields p { grid-column: 1 / -1; overflow-wrap: anywhere; }
+.document-conflict { margin-top: 1rem; padding: .75rem; border: 1px solid #ad8042; border-radius: 8px; overflow-wrap: anywhere; }
+.document-import button, .document-import select, .document-import input:not([type=checkbox]) { min-height: 44px; }
+.document-import .form-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.document-import [role=alert] { color: #922c20; overflow-wrap: anywhere; }
+.document-field-error { color: #922c20; overflow-wrap: anywhere; }
+.document-preview-row:has([aria-invalid=true]) { border-color: #922c20; }
+.document-import [aria-invalid=true] { border: 2px solid #922c20; }
+.document-source-evidence { overflow-wrap: anywhere; }
+.document-preview-fields label:has(textarea) { grid-column: 1 / -1; }
+@media (max-width: 480px) { .document-preview-row { padding: .75rem; } .document-import .form-actions > button { flex: 1 1 100%; } }

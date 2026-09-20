@@ -37,6 +37,31 @@ htmlcov/
 coverage.xml
 test-results/
 playwright-report/
+artifacts/
+
+# Runtime databases, persistent volumes and recovery material
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.db-shm
+*.db-wal
+.data/
+data/
+volumes/
+local-backups/
+backups/
+recovery/
+private-data/
+local-documents/
+local-cache/
+
+# Browser profiles and generated traces/screenshots
+browser-profile/
+browser-profiles/
+profiles/
+trace.zip
+traces/
 
 # Secrets and local environment; keep example files
 .env

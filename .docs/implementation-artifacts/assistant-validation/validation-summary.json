@@ -1,0 +1,63 @@
+{
+  "sourceRoot": "C:/IBE160/2026/studieplanlegger",
+  "outputRoot": "C:\\Users\\dzfgd\\AppData\\Local\\Temp\\studieplan-assistant-800c069d\\checks",
+  "checkedAt": "2026-09-07T15:42:12.278Z",
+  "unit": {
+    "passed": 308,
+    "failed": 0,
+    "total": 308,
+    "success": true,
+    "name": "unit",
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-09-07T15:37:27.574Z",
+    "durationMs": 2503
+  },
+  "browser": {
+    "startTime": "2026-09-07T15:40:50.051Z",
+    "duration": 73212.06499999999,
+    "expected": 86,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "name": "browser",
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-09-07T15:40:49.458Z",
+    "finishedAt": "2026-09-07T15:42:03.295Z",
+    "durationMs": 73837,
+    "browserName": "chromium",
+    "timezoneId": "Europe/Oslo",
+    "workers": 3,
+    "unassistedTeardown": true
+  },
+  "build": {
+    "name": "build",
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-09-07T15:37:27.591Z",
+    "durationMs": 957,
+    "bundler": "Vite 8.2.2",
+    "modules": 12,
+    "bundlerDurationMs": 218,
+    "outDir": "C:\\Users\\dzfgd\\AppData\\Local\\Temp\\studieplan-assistant-800c069d\\checks/dist"
+  },
+  "totalAutomatedTests": 394,
+  "limitations": [
+    "Existing automated tests with synthetic data; not a month of real student use.",
+    "Chromium only. Mobile coverage uses browser viewport sizes, not a physical device.",
+    "Initial sandbox run completed all 86 test bodies but stalled when stopping its own Vite server. Only that owned server was manually stopped; full browser run was repeated with approved escalation and no app/config workaround.",
+    "Production build output and all generated logs/screenshots/caches were redirected to the temporary checks directory. Source tests/config/code were not changed."
+  ],
+  "artifacts": {
+    "unit": "unit-results.json",
+    "browser": "browser-results.json",
+    "logs": [
+      "unit.log",
+      "browser.log",
+      "build.log"
+    ],
+    "sandboxBrowser": "browser-results-sandbox.json",
+    "sandboxLog": "browser-sandbox.log"
+  }
+}

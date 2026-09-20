@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Samle fristene dine og finn neste steg i studiearbeidet." />
+    <title>Studieplan</title>
+    <link rel="stylesheet" href="/fonts/manrope.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#hovedinnhold">Hopp til hovedinnhold</a>
+    <aside class="app-sidebar" aria-label="Hovednavigasjon">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+          <rect width="40" height="40" rx="12" fill="currentColor"/>
+          <path d="M11 12h7a5 5 0 0 1 5 5v12a7 7 0 0 0-5-2h-7V12Zm18 0h-3a5 5 0 0 0-3 1" fill="none" stroke="#fffdf7" stroke-width="2" stroke-linejoin="round"/>
+          <path d="m27 21 3 3 5-6" fill="none" stroke="#d5eaa8" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <p class="brand-name">Studieplan</p>
+          <p class="brand-subline">Løft hverdagen din.</p>
+        </div>
+      </div>
+      <nav class="view-actions" aria-label="Oppgavevisning">
+        <button id="view-overview" type="button" data-icon="home" aria-pressed="true">Oversikt</button>
+        <button id="view-calendar" type="button" data-icon="calendar" aria-pressed="false">Kalender</button>
+        <button id="view-week" type="button" data-icon="calendar" aria-pressed="false">Denne uken</button>
+        <button id="view-all" type="button" data-icon="list" aria-pressed="false">Alle oppgaver</button>
+        <button id="view-time" type="button" data-icon="timer" aria-pressed="false">Hva kan jeg gjøre nå?</button>
+        <button id="view-capacity" type="button" data-icon="chart" aria-pressed="false">Kapasitet</button>
+        <button id="view-subjects" type="button" data-icon="book" aria-pressed="false">Mine emner</button>
+        <button id="view-settings" type="button" data-icon="settings" aria-pressed="false">Innstillinger</button>
+      </nav>
+      <footer>
+        <span>Lagret på denne enheten</span>
+        <p>Skalering, kalender og oppgaveforslag bygger på lokal data.</p>
+      </footer>
+    </aside>
+    <div class="page">
+            <header class="app-header">
+        <div class="page-heading">
+          <h1 id="page-heading">Oversikt</h1>
+          <p id="today-label" class="today-chip" aria-live="polite"></p>
+        </div>
+        <button id="new-task" type="button" disabled><span aria-hidden="true">+</span> Ny oppgave</button>
+      </header>
+      <main id="hovedinnhold" tabindex="-1">
+        <noscript>
+          <p>Aktiver JavaScript i nettleseren for å vise og opprette oppgaver. Lagrede data er ikke endret.</p>
+        </noscript>
+        <div id="read-error" class="error-panel" role="alert" hidden>
+          <p>Vi får ikke åpnet oppgavene. Lagrede data er beholdt. Prøv å lese dem på nytt.</p>
+          <button id="retry-read" type="button">Prøv igjen</button>
+        </div>
+        <div id="feedback-bar" class="feedback-bar" hidden>
+          <p id="feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+          <button id="feedback-next-step" type="button" class="text-button" hidden>Legg til neste steg <span aria-hidden="true">→</span></button>
+        </div>
+        <div id="completion-badge" class="completion-badge" hidden aria-hidden="true">
+          <span class="completion-check">✓</span><span>Oppdatert</span>
+        </div>
+        <form id="task-form" class="editor panel reveal-section" novalidate hidden aria-labelledby="form-heading">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Gi arbeidet en plass</p>
+              <h2 id="form-heading">Ny oppgave</h2>
+            </div>
+            <span class="form-note">* Obligatoriske felt</span>
+          </div>
+          <p id="draft-info" class="muted" hidden>Lagre eller avbryt før du endrer andre oppgaver.</p>
+          <div class="form-grid">
+            <div class="field field-wide">
+              <label for="title">Tittel *</label>
+              <input id="title" name="title" type="text" required aria-label="Tittel" aria-describedby="title-error" placeholder="Hva skal du jobbe med?" />
+              <p class="field-error" id="title-error"></p>
+            </div>
+            <div class="field">
+              <label for="course">Emne *</label>
+              <input id="course" name="course" type="text" required aria-label="Emne" aria-describedby="course-error" placeholder="For eksempel IBE160" />
+              <p class="field-error" id="course-error"></p>
+            </div>
+            <div class="field" hidden>
+              <label for="courseId">Emnekobling</label>
+              <select id="courseId" name="courseId"><option value="">Bruk emneteksten over</option></select>
+            </div>
+            <fieldset class="deadline-fields">
+              <legend>Frist *</legend>
+              <div class="date-time-fields">
+                <div>
+                  <label for="deadlineDate">Dato</label>
+                  <input id="deadlineDate" type="date" lang="nb" aria-describedby="deadlineLocal-error" />
+                </div>
+                <div>
+                  <label for="deadlineTime">Klokkeslett (24 timer)</label>
+                  <input id="deadlineTime" type="text" placeholder="20:30" maxlength="5" aria-describedby="deadlineLocal-error" />
+                </div>
+              </div>
+              <input id="deadlineLocal" name="deadlineLocal" type="hidden" />
+              <p class="field-error" id="deadlineLocal-error"></p>
+            </fieldset>
+            <div class="field">
+              <label for="priority">Prioritet</label>
+              <select id="priority" name="priority"><option value="">Normal</option><option value="3">Høy</option><option value="2">Normal</option><option value="1">Lav</option></select>
+            </div>
+            <div class="field">
+              <label for="estimatedMinutes">Hele oppgaven (minutter) *</label>
+              <input id="estimatedMinutes" name="estimatedMinutes" type="text" aria-label="Estimat (minutter)" aria-describedby="estimatedMinutes-error" inputmode="numeric" placeholder="For eksempel 120" />
+              <p class="field-error" id="estimatedMinutes-error"></p>
+            </div>
+            <div class="field">
+              <label for="remainingMinutes">Gjenstående arbeid (minutter)</label>
+              <input id="remainingMinutes" name="remainingMinutes" type="text" inputmode="numeric" aria-describedby="remainingMinutes-help remainingMinutes-error" placeholder="Tomt bruker hele estimatet" />
+              <p id="remainingMinutes-help" class="muted">Tomt bruker hele estimatet. 0 endrer ikke arbeidsstatus. Oppdater selv etter arbeid eller neste steg.</p>
+              <p class="field-error" id="remainingMinutes-error"></p>
+            </div>
+          </div>
+          <div class="field">
+            <label class="completion-control" for="requiresSubmission">
+              <input id="requiresSubmission" name="requiresSubmission" type="checkbox" aria-describedby="submission-info requiresSubmission-error" />Krever innlevering
+            </label>
+            <p id="submission-info" class="muted">Ferdig med arbeidet og levert bekreftes hver for seg.</p>
+            <p id="submission-locked" class="muted" hidden>Angre levering før du endrer innleveringskravet.</p>
+            <p class="field-error" id="requiresSubmission-error"></p>
+          </div>
+          <div class="actions">
+            <button type="submit">Lagre</button>
+            <button id="cancel-task" type="button" class="secondary">Avbryt</button>
+          </div>
+        </form>
+        <form id="step-form" class="editor panel" novalidate hidden aria-labelledby="step-form-heading">
+          <p class="eyebrow">En liten handling er nok</p>
+          <h2 id="step-form-heading">Neste steg</h2>
+          <p id="step-task-title" class="muted"></p>
+          <p class="muted">Ett aktivt steg om gangen. Oppgavens status og estimat beholdes når steget er gjort.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label for="step-description">Beskrivelse av neste steg</label>
+              <input id="step-description" name="description" type="text" required aria-describedby="step-description-error" placeholder="For eksempel: Les oppgaveteksten" />
+              <p class="field-error" id="step-description-error"></p>
+            </div>
+            <div class="field">
+              <label for="step-estimatedMinutes">Estimat for neste steg (minutter)</label>
+              <input id="step-estimatedMinutes" name="estimatedMinutes" type="text" inputmode="numeric" required aria-describedby="step-estimatedMinutes-error" placeholder="20" />
+              <p class="field-error" id="step-estimatedMinutes-error"></p>
+            </div>
+          </div>
+          <div class="actions">
+            <button type="submit">Lagre neste steg</button>
+            <button id="cancel-step" type="button" class="secondary">Avbryt</button>
+          </div>
+        </form>
+        <form id="session-form" class="editor panel" novalidate hidden aria-labelledby="session-form-heading">
+          <p class="eyebrow">Sett av tid til arbeidet</p>
+          <h2 id="session-form-heading">Ny studieøkt</h2>
+          <p class="muted">Norsk tid. Slutt må være etter start; velg sluttdato for økter over midnatt. Tvetydige eller ugyldige klokkeslett ved sommertid avvises. Oppgavereservasjoner endrer ikke gjenstående arbeid.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label for="session-dateLocal">Dato for studieøkt</label>
+              <input id="session-dateLocal" name="dateLocal" type="date" required aria-describedby="session-error" />
+            </div>
+            <div class="field">
+              <label for="session-startTime">Start (24 timer)</label>
+              <input id="session-startTime" name="startTime" type="text" maxlength="5" placeholder="10:00" required aria-describedby="session-error" />
+            </div>
+            <div class="field">
+              <label for="session-endTime">Slutt (24 timer)</label>
+              <input id="session-endTime" name="endTime" type="text" maxlength="5" placeholder="11:00" required aria-describedby="session-error" />
+            </div>
+            <div class="field"><label for="session-endDateLocal">Sluttdato (valgfritt, for natt og tidsskifte)</label><input id="session-endDateLocal" name="endDateLocal" type="date" /></div>
+            <div class="field"><label for="session-taskId">Reserver for oppgave (valgfritt)</label><select id="session-taskId" name="taskId"><option value="">Ufordelt studieøkt</option></select></div>
+          </div>
+          <p id="session-error" class="field-error" role="alert"></p>
+          <div class="actions">
+            <button type="submit">Lagre studieøkt</button>
+            <button id="cancel-session" type="button" class="secondary">Avbryt</button>
+          </div>
+        </form>
+        <div id="workspace" class="workspace" hidden>
+          <div class="work-area">
+            <section id="empty-dashboard" class="empty-dashboard panel reveal-section" hidden aria-live="polite">
+              <div class="empty-dashboard-copy">
+                <p class="eyebrow">Kom i gang</p>
+                <h2>Gjør plass til en enklere studieuke.</h2>
+                <p id="empty-dashboard-text">Samle emner, undervisning og oppgaver. Få oversikt over hva som passer å gjøre nå.</p>
+                <div class="actions">
+                  <button id="empty-onboard-task" type="button">Legg til første oppgave</button>
+                  <button id="empty-onboard-subject" type="button" class="secondary">Legg til emne</button>
+                </div>
+              </div>
+              <div class="empty-dashboard-visual" aria-hidden="true">
+                <img src="/study-focus-v2.png" alt="" width="260" height="260" loading="lazy" />
+              </div>
+            </section>
+            <div class="onboarding-steps" aria-label="Slik kommer du i gang">
+              <div class="onboarding-step"><span>01</span><div><h3>Samle emnene</h3><p>Legg til selv eller importer emner og undervisning.</p></div></div>
+              <div class="onboarding-step"><span>02</span><div><h3>Få fristene på plass</h3><p>Registrer oppgaver og tiden som gjenstår.</p></div></div>
+              <div class="onboarding-step"><span>03</span><div><h3>Finn en oppgave som passer</h3><p>Velg tiden du har, og få et konkret forslag.</p></div></div>
+            </div>
+            <div id="overview-summary" class="summary-grid reveal-section" aria-label="Fristoppsummering" style="--reveal-delay: 40ms">
+              <button id="summary-week" type="button" class="summary-card">
+                <span class="summary-icon" aria-hidden="true">↗</span><strong id="summary-week-count">0</strong><span>Gjenstående denne uken</span>
+              </button>
+              <button id="summary-overdue" type="button" class="summary-card">
+                <span class="summary-icon overdue-icon" aria-hidden="true">!</span><strong id="summary-overdue-count">0</strong><span>Forfalte frister</span>
+              </button>
+              <button id="summary-ready" type="button" class="summary-card">
+                <span class="summary-icon ready-icon" aria-hidden="true">✓</span><strong id="summary-ready-count">0</strong><span>Klare til levering</span>
+              </button>
+            </div>
+            <section id="focus-panel" class="focus-panel reveal-section" aria-labelledby="focus-heading" style="--reveal-delay: 90ms">
+              <div class="focus-intro">
+                <div>
+                  <p class="eyebrow">Fra oversikt til handling</p>
+                  <h2 id="focus-heading">Hva kan jeg gjøre nå?</h2>
+                  <p>Finpuss planleggingen med én tydelig handling.</p>
+                </div>
+                <div class="focus-visual" aria-hidden="true">
+                  <svg viewBox="0 0 84 84" role="img" aria-label="">
+                    <defs>
+                      <linearGradient id="paper-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ecf7ee" />
+                        <stop offset="100%" stop-color="#fcefdc" />
+                      </linearGradient>
+                    </defs>
+                    <rect x="2" y="8" width="62" height="46" rx="9" fill="url(#paper-grad)" />
+                    <path d="M9 19h48M9 26h46M9 33h50M9 40h44" stroke="#5f6470" stroke-width="2.2" stroke-linecap="round" />
+                    <ellipse cx="28" cy="66" rx="15" ry="6" fill="#ffe6ce" />
+                    <rect x="56" y="32" width="23" height="33" rx="11" fill="#f2dbbd" />
+                    <path d="M56 38c4 2 9 2 13 2M56 45h13M56 52h12M56 59h8" stroke="#5c7086" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="68" cy="24" r="12" fill="#d8deff" />
+                    <path d="M64 24h8M68 20v8" stroke="#3f4ca8" stroke-width="2" stroke-linecap="round" />
+                    <path d="M60 72 63 72 66 76 72 70 76 74" fill="none" stroke="#5f6ec4" stroke-width="2.6" stroke-linejoin="round" />
+                  </svg>
+                </div>
+              </div>
+              <form id="time-form" novalidate aria-label="Velg tilgjengelig tid">
+                <div class="quick-times" aria-label="Hurtigvalg av studietid">
+                  <button type="button" data-minutes="15">15 min</button>
+                  <button type="button" data-minutes="30" aria-pressed="true">30 min</button>
+                  <button type="button" data-minutes="45">45 min</button>
+                  <button type="button" data-minutes="60">60 min</button>
+                </div>
+                <div class="custom-time">
+                  <div class="field">
+                    <label for="available-minutes">Tilgjengelig tid (minutter)</label>
+                    <input id="available-minutes" name="availableMinutes" type="text" inputmode="numeric" required value="30" aria-describedby="available-minutes-error" />
+                    <p class="field-error" id="available-minutes-error"></p>
+                  </div>
+                  <button type="submit" class="light-button">Vis forslag <span aria-hidden="true">→</span></button>
+                </div>
+                <p id="filter-summary" aria-live="polite" aria-atomic="true"></p>
+              </form>
+              <div class="focus-results">
+                <div id="suggestion-empty" class="empty-state" hidden>
+                  <span class="empty-symbol" aria-hidden="true">↗</span>
+                  <p id="suggestion-empty-text"></p>
+                  <div class="actions">
+                    <button id="suggestion-new" type="button">Ny oppgave</button>
+                    <button id="suggestion-minutes" type="button" class="secondary">Endre minutter</button>
+                    <button id="suggestion-step" type="button" class="secondary">Legg til et mindre neste steg</button>
+                    <button id="suggestion-all" type="button" class="secondary">Alle oppgaver</button>
+                  </div>
+                </div>
+                <ul id="dashboard-suggestions" class="task-list"></ul>
+                <div id="focus-list-mount"></div>
+                <button id="toggle-alternatives" type="button" class="text-button" aria-expanded="false" hidden>Vis alternativer</button>
+              </div>
+            </section>
+            <section id="capacity-panel" class="panel reveal-section" hidden aria-labelledby="capacity-heading" style="--reveal-delay: 170ms">
+              <div class="section-heading">
+                <div><p class="eyebrow">Arbeid og tilgjengelig tid</p><h2 id="capacity-heading">Kapasitet før fristene</h2></div>
+                <button id="new-session" type="button">Ny studieøkt</button>
+              </div>
+              <p class="muted">Forslagene fordeler gjenstående arbeid etter nærmeste frist. Neste steg er en del av oppgaven. Planen bekrefter verken utført arbeid eller levering.</p>
+              <p id="capacity-summary" class="capacity-summary"></p>
+              <p id="capacity-warnings" class="capacity-warning" hidden></p>
+              <h3>Studieøktene dine</h3>
+              <p id="sessions-empty" class="muted">Ingen studieøkter ennå. Legg til tid du faktisk har tilgjengelig.</p>
+              <ul id="session-list" class="session-list"></ul>
+              <h3>Arbeid før hver frist</h3>
+              <p id="capacity-empty" class="muted">Ingen oppgaver ennå. Legg til en oppgave for å sammenligne arbeid og tid.</p>
+              <ul id="capacity-task-list" class="capacity-task-list"></ul>
+            </section>
+            <section id="tasks-panel" class="panel reveal-section" aria-labelledby="tasks-heading" style="--reveal-delay: 130ms">
+              <div class="section-heading">
+                <div><p class="eyebrow" id="tasks-eyebrow">Hold fristene i sikte</p><h2 id="tasks-heading">Frister å følge opp</h2></div>
+                <button id="overview-all" type="button" class="text-button">Se alle oppgaver <span aria-hidden="true">→</span></button>
+              </div>
+              <div id="week-info" class="week-info" hidden>
+                <p id="week-range"></p>
+                <div>
+                  <p id="overdue-count" aria-live="polite" aria-atomic="true"></p>
+                  <button id="overdue-all" type="button" class="text-button">Alle oppgaver</button>
+                </div>
+              </div>
+              <div id="task-content">
+                <div id="empty-tasks" class="empty-state">
+                  <span class="empty-symbol" aria-hidden="true">✓</span>
+                  <p id="empty-text"></p>
+                  <div class="actions">
+                    <button id="empty-create" type="button">Ny oppgave</button>
+                    <button id="empty-minutes" type="button" class="secondary" hidden>Endre minutter</button>
+                    <button id="empty-all" type="button" class="secondary">Alle oppgaver</button>
+                    <button id="empty-step" type="button" class="secondary" hidden>Legg til et mindre neste steg</button>
+                  </div>
+                </div>
+                <div id="task-list-mount"><ul id="task-list" class="task-list"></ul></div>
+              </div>
+            </section>
+          </div>
+          <aside id="calendar-panel" class="calendar-panel panel reveal-section" aria-labelledby="calendar-heading" style="--reveal-delay: 160ms">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Det som venter</p>
+                <h2 id="calendar-heading">Kalender</h2>
+              </div>
+              <span class="calendar-badge" aria-hidden="true">▦</span>
+            </div>
+            <div id="calendar-host"></div>
+            <p class="calendar-note">Frist = innlevering eller oppgavefrist. Studieøkt = tid du har satt av til arbeid.</p>
+          </aside>
+        </div>
+      </main>
+      <footer>
+        <span>Et lite steg videre.</span>
+        <details class="local-help">
+          <summary>Hjelp og lokal lagring</summary>
+          <div>
+            <h2>Bruk på din datamaskin</h2>
+            <p>Åpne <a href="http://studieplan.localhost/">studieplan.localhost</a> mens den lokale serveren kjører. Bruk samme adresse og nettleserprofil hver gang.</p>
+            <p>Har du brukt den gamle adressen? Tidligere oppgaver ligger fortsatt på <a href="http://localhost:5173/">den gamle siden</a> mens den serveren kjører. De flyttes ikke automatisk til den nye adressen.</p>
+            <p>Oppgavene lagres i nettleseren, uten konto eller synkronisering. Sletting av nettleserdata kan slette oppgavene. Bruk én redigerende fane og samme tidssone.</p>
+            <p>Frister bruker lokal dato og klokkeslett i 24-timersformat. Kalenderen viser frister og studieøkter. Kapasitet foreslår arbeid innen øktene før hver frist; gjenstående tid oppdaterer du selv.</p>
+          </div>
+        </details>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

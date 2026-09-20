@@ -1,0 +1,15 @@
+{
+  "tokenStatus": 0,
+  "wheel": {
+    "id": "785f9490-a381-4b22-bec1-b87456035453",
+    "name": "H&#248;yskolen Barratt Dues Undervisningskalender",
+    "timezone": null,
+    "publicSharingVisibleRings": [],
+    "displayDates": { "type": 0, "monthsToDisplay": 12, "fixedStartDate": "2025-08-01T22:00:00+00:00", "fixedEndDate": "2026-07-31T22:00:00+00:00" },
+    "rings": [{ "id": "public-fixture-ring", "active": true, "calendarRingDetails": { "meetings": [
+      { "id": "65041d59-a3fa-e932-98fe-328679cbe119", "title": "Offisiell &#229;pning studie&#229;ret", "start": "2026-08-19T00:00:00+00:00", "end": "2026-08-20T00:00:00+00:00", "allDay": true, "timezone": "Europe/Oslo", "updated": "2026-08-03T10:26:23.5764933+00:00", "recurringRule": null, "location": "" },
+      { "id": "06388168-df94-952d-9261-1f61b31762e0", "title": "Ofisiell åpning studieåret", "start": "2025-08-20T10:00:00+00:00", "end": "2025-08-20T13:00:00+00:00", "allDay": false, "timezone": "Europe/Oslo", "updated": "2025-06-26T08:42:56.6481094+00:00", "recurringRule": null, "location": "" },
+      { "id": "3d0d3860-3912-c453-dce3-b3796e67d42d", "title": "Vitnemålsutdeling", "start": "2027-06-18T00:00:00+00:00", "end": "2027-06-19T00:00:00+00:00", "allDay": true, "timezone": "Europe/Oslo", "updated": "2026-04-16T12:43:53.7413572+00:00", "recurringRule": null, "location": "" }
+    ] } }]
+  }
+}

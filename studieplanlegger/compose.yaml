@@ -1,0 +1,25 @@
+services:
+  studieplan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PORT: "8080"
+      HOST: "0.0.0.0"
+      STUDIEPLAN_DB: /data/studieplan.sqlite
+      STUDIEPLAN_SEED: ${STUDIEPLAN_SEED:-false}
+      STUDIEPLAN_SEED_JSON: ${STUDIEPLAN_SEED_JSON:-}
+    ports:
+      - "127.0.0.1:${STUDIEPLAN_PORT:-8088}:8080"
+    volumes:
+      - studieplan-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  studieplan-data:

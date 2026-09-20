@@ -1,0 +1,507 @@
+{
+  "performedAt": "2026-09-07T15:37:59.967Z",
+  "kind": "KI-test med syntetiske data, ikke studentens bruk",
+  "clock": "2026-09-08T08:00:00+02:00",
+  "checks": [
+    "Fem oppgaver og ett neste steg registrert med faktiske skjemaer; vanlig fullføring og klar-til-levering valgt i grensesnittet.",
+    "Hurtigforslag 15, 30 og egendefinert 20 minutter velger rapportens 15-minutterssteg; hele oppgaven trenger fortsatt 90 minutter.",
+    "Overlapp 10:30–11:30 avvist; de to lagrede øktene beholdt.",
+    "Alle fem oppgaver, statuser, neste steg og gjenværende økter beholdt ved omlasting.",
+    "Mobilvisning 360 px: kalender med frist/økt, ingen horisontal sideskrolling; tastatur åpner øktskjema og gir fokus til dato.",
+    "Simulert neste steg fullført: gjenstående beholdes på 90; manuell oppdatering til 75 gir 15 minutter mangel før rapportfristen.",
+    "Simulert levering og angre: levertflagget endres separat; arbeid forblir ferdig. Ingen virkelig innlevering utført."
+  ],
+  "snapshots": [
+    {
+      "name": "01-to-okter",
+      "summary": "195 min arbeid · 120 min foreslått · 75 min mangler · 0 min ledig i øktene.",
+      "tasks": [
+        "IBE160 · TEST Rapport i programmeringFrist: 8. september 2026 kl. 11:30 · Ikke fullførtGjenstående: 90 min · Foreslått: 90 min · Mangler: 0 minDet registrerte arbeidet får plass før fristen.8. september 2026 kl. 10:00–11:00: 60 min · 8. september 2026 kl. 11:00–11:30: 30 minOppdater arbeid",
+        "MAT110 · TEST RegneøvingFrist: 8. september 2026 kl. 13:00 · Ikke fullførtGjenstående: 60 min · Foreslått: 30 min · Mangler: 30 minAndre oppgaver med tidligere eller lik frist bruker tid først. 30 min er tilgjengelig før denne fristen; 30 min mangler.8. september 2026 kl. 11:30–12:00: 30 minOppdater arbeid",
+        "Metode · TEST Lesing i metodeFrist: 9. september 2026 kl. 12:00 · Ikke fullførtGjenstående: 45 min · Foreslått: 0 min · Mangler: 45 minAndre oppgaver med tidligere eller lik frist bruker tid først. 0 min er tilgjengelig før denne fristen; 45 min mangler.Oppdater arbeid",
+        "IBE160 · TEST Ferdig øvingFrist: 8. september 2026 kl. 10:30 · FullførtGjenstående: 0 min · Foreslått: 0 min · Mangler: 0 minArbeidet er ferdig. Ingen arbeidstid er fordelt.Oppdater arbeid",
+        "IBE160 · TEST Klar til leveringFrist: 8. september 2026 kl. 11:00 · Klar til leveringGjenstående: 0 min · Foreslått: 0 min · Mangler: 0 minArbeidet er ferdig. Ingen arbeidstid er fordelt.Oppdater arbeid"
+      ],
+      "data": {
+        "schemaVersion": 1,
+        "tasks": [
+          {
+            "id": "9ae079f4-fc4d-4170-89c7-77b2d3ec026b",
+            "title": "TEST Rapport i programmering",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T11:30",
+            "estimatedMinutes": 120,
+            "completed": false,
+            "remainingMinutes": 90,
+            "requiresSubmission": true,
+            "submitted": false,
+            "nextStep": {
+              "description": "TEST Les oppgaveteksten og skriv tre stikkord",
+              "estimatedMinutes": 15
+            }
+          },
+          {
+            "id": "6c8d2667-1a33-4170-9a82-8447ae03c7e9",
+            "title": "TEST Regneøving",
+            "course": "MAT110",
+            "deadlineLocal": "2026-09-08T13:00",
+            "estimatedMinutes": 60,
+            "completed": false,
+            "remainingMinutes": 60,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "988c8c28-8963-47dd-b343-dd66cfb76f3f",
+            "title": "TEST Lesing i metode",
+            "course": "Metode",
+            "deadlineLocal": "2026-09-09T12:00",
+            "estimatedMinutes": 45,
+            "completed": false,
+            "remainingMinutes": 45,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "3fe4239e-581e-4f10-ba49-c387eae3512d",
+            "title": "TEST Ferdig øving",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T10:30",
+            "estimatedMinutes": 30,
+            "completed": true,
+            "remainingMinutes": 30,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "6cbf886e-dbf9-48d2-ab5f-7d6dbcb7f1e0",
+            "title": "TEST Klar til levering",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T11:00",
+            "estimatedMinutes": 20,
+            "completed": true,
+            "remainingMinutes": 20,
+            "requiresSubmission": true,
+            "submitted": false
+          }
+        ],
+        "sessions": [
+          {
+            "id": "3b495b1a-85b1-4330-ae22-50a2eb1dadfb",
+            "dateLocal": "2026-09-08",
+            "startTime": "10:00",
+            "endTime": "11:00"
+          },
+          {
+            "id": "e7f0d1d1-2388-47a0-be92-2ba422ddd287",
+            "dateLocal": "2026-09-08",
+            "startTime": "11:00",
+            "endTime": "12:00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "02-flyttet-okt",
+      "summary": "195 min arbeid · 120 min foreslått · 75 min mangler · 0 min ledig i øktene.",
+      "tasks": [
+        "IBE160 · TEST Rapport i programmeringFrist: 8. september 2026 kl. 11:30 · Ikke fullførtGjenstående: 90 min · Foreslått: 60 min · Mangler: 30 minStudieøktene gir 60 hele framtidige minutter før fristen, men oppgaven trenger 90 min. 30 min mangler.8. september 2026 kl. 10:00–11:00: 60 minOppdater arbeid",
+        "MAT110 · TEST RegneøvingFrist: 8. september 2026 kl. 13:00 · Ikke fullførtGjenstående: 60 min · Foreslått: 60 min · Mangler: 0 minDet registrerte arbeidet får plass før fristen.8. september 2026 kl. 12:00–13:00: 60 minOppdater arbeid",
+        "Metode · TEST Lesing i metodeFrist: 9. september 2026 kl. 12:00 · Ikke fullførtGjenstående: 45 min · Foreslått: 0 min · Mangler: 45 minAndre oppgaver med tidligere eller lik frist bruker tid først. 0 min er tilgjengelig før denne fristen; 45 min mangler.Oppdater arbeid",
+        "IBE160 · TEST Ferdig øvingFrist: 8. september 2026 kl. 10:30 · FullførtGjenstående: 0 min · Foreslått: 0 min · Mangler: 0 minArbeidet er ferdig. Ingen arbeidstid er fordelt.Oppdater arbeid",
+        "IBE160 · TEST Klar til leveringFrist: 8. september 2026 kl. 11:00 · Klar til leveringGjenstående: 0 min · Foreslått: 0 min · Mangler: 0 minArbeidet er ferdig. Ingen arbeidstid er fordelt.Oppdater arbeid"
+      ],
+      "data": {
+        "schemaVersion": 1,
+        "tasks": [
+          {
+            "id": "9ae079f4-fc4d-4170-89c7-77b2d3ec026b",
+            "title": "TEST Rapport i programmering",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T11:30",
+            "estimatedMinutes": 120,
+            "completed": false,
+            "remainingMinutes": 90,
+            "requiresSubmission": true,
+            "submitted": false,
+            "nextStep": {
+              "description": "TEST Les oppgaveteksten og skriv tre stikkord",
+              "estimatedMinutes": 15
+            }
+          },
+          {
+            "id": "6c8d2667-1a33-4170-9a82-8447ae03c7e9",
+            "title": "TEST Regneøving",
+            "course": "MAT110",
+            "deadlineLocal": "2026-09-08T13:00",
+            "estimatedMinutes": 60,
+            "completed": false,
+            "remainingMinutes": 60,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "988c8c28-8963-47dd-b343-dd66cfb76f3f",
+            "title": "TEST Lesing i metode",
+            "course": "Metode",
+            "deadlineLocal": "2026-09-09T12:00",
+            "estimatedMinutes": 45,
+            "completed": false,
+            "remainingMinutes": 45,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "3fe4239e-581e-4f10-ba49-c387eae3512d",
+            "title": "TEST Ferdig øving",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T10:30",
+            "estimatedMinutes": 30,
+            "completed": true,
+            "remainingMinutes": 30,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "6cbf886e-dbf9-48d2-ab5f-7d6dbcb7f1e0",
+            "title": "TEST Klar til levering",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T11:00",
+            "estimatedMinutes": 20,
+            "completed": true,
+            "remainingMinutes": 20,
+            "requiresSubmission": true,
+            "submitted": false
+          }
+        ],
+        "sessions": [
+          {
+            "id": "3b495b1a-85b1-4330-ae22-50a2eb1dadfb",
+            "dateLocal": "2026-09-08",
+            "startTime": "10:00",
+            "endTime": "11:00"
+          },
+          {
+            "id": "e7f0d1d1-2388-47a0-be92-2ba422ddd287",
+            "dateLocal": "2026-09-08",
+            "startTime": "12:00",
+            "endTime": "13:00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "03-slettet-okt",
+      "summary": "195 min arbeid · 60 min foreslått · 135 min mangler · 0 min ledig i øktene.",
+      "tasks": [
+        "IBE160 · TEST Rapport i programmeringFrist: 8. september 2026 kl. 11:30 · Ikke fullførtGjenstående: 90 min · Foreslått: 60 min · Mangler: 30 minStudieøktene gir 60 hele framtidige minutter før fristen, men oppgaven trenger 90 min. 30 min mangler.8. september 2026 kl. 10:00–11:00: 60 minOppdater arbeid",
+        "MAT110 · TEST RegneøvingFrist: 8. september 2026 kl. 13:00 · Ikke fullførtGjenstående: 60 min · Foreslått: 0 min · Mangler: 60 minAndre oppgaver med tidligere eller lik frist bruker tid først. 0 min er tilgjengelig før denne fristen; 60 min mangler.Oppdater arbeid",
+        "Metode · TEST Lesing i metodeFrist: 9. september 2026 kl. 12:00 · Ikke fullførtGjenstående: 45 min · Foreslått: 0 min · Mangler: 45 minAndre oppgaver med tidligere eller lik frist bruker tid først. 0 min er tilgjengelig før denne fristen; 45 min mangler.Oppdater arbeid",
+        "IBE160 · TEST Ferdig øvingFrist: 8. september 2026 kl. 10:30 · FullførtGjenstående: 0 min · Foreslått: 0 min · Mangler: 0 minArbeidet er ferdig. Ingen arbeidstid er fordelt.Oppdater arbeid",
+        "IBE160 · TEST Klar til leveringFrist: 8. september 2026 kl. 11:00 · Klar til leveringGjenstående: 0 min · Foreslått: 0 min · Mangler: 0 minArbeidet er ferdig. Ingen arbeidstid er fordelt.Oppdater arbeid"
+      ],
+      "data": {
+        "schemaVersion": 1,
+        "tasks": [
+          {
+            "id": "9ae079f4-fc4d-4170-89c7-77b2d3ec026b",
+            "title": "TEST Rapport i programmering",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T11:30",
+            "estimatedMinutes": 120,
+            "completed": false,
+            "remainingMinutes": 90,
+            "requiresSubmission": true,
+            "submitted": false,
+            "nextStep": {
+              "description": "TEST Les oppgaveteksten og skriv tre stikkord",
+              "estimatedMinutes": 15
+            }
+          },
+          {
+            "id": "6c8d2667-1a33-4170-9a82-8447ae03c7e9",
+            "title": "TEST Regneøving",
+            "course": "MAT110",
+            "deadlineLocal": "2026-09-08T13:00",
+            "estimatedMinutes": 60,
+            "completed": false,
+            "remainingMinutes": 60,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "988c8c28-8963-47dd-b343-dd66cfb76f3f",
+            "title": "TEST Lesing i metode",
+            "course": "Metode",
+            "deadlineLocal": "2026-09-09T12:00",
+            "estimatedMinutes": 45,
+            "completed": false,
+            "remainingMinutes": 45,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "3fe4239e-581e-4f10-ba49-c387eae3512d",
+            "title": "TEST Ferdig øving",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T10:30",
+            "estimatedMinutes": 30,
+            "completed": true,
+            "remainingMinutes": 30,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "6cbf886e-dbf9-48d2-ab5f-7d6dbcb7f1e0",
+            "title": "TEST Klar til levering",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T11:00",
+            "estimatedMinutes": 20,
+            "completed": true,
+            "remainingMinutes": 20,
+            "requiresSubmission": true,
+            "submitted": false
+          }
+        ],
+        "sessions": [
+          {
+            "id": "3b495b1a-85b1-4330-ae22-50a2eb1dadfb",
+            "dateLocal": "2026-09-08",
+            "startTime": "10:00",
+            "endTime": "11:00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "04-senere-ledig-tid",
+      "summary": "195 min arbeid · 105 min foreslått · 90 min mangler · 75 min ledig i øktene.",
+      "tasks": [
+        "IBE160 · TEST Rapport i programmeringFrist: 8. september 2026 kl. 11:30 · Ikke fullførtGjenstående: 90 min · Foreslått: 60 min · Mangler: 30 minStudieøktene gir 60 hele framtidige minutter før fristen, men oppgaven trenger 90 min. 30 min mangler.8. september 2026 kl. 10:00–11:00: 60 minOppdater arbeid",
+        "MAT110 · TEST RegneøvingFrist: 8. september 2026 kl. 13:00 · Ikke fullførtGjenstående: 60 min · Foreslått: 0 min · Mangler: 60 minAndre oppgaver med tidligere eller lik frist bruker tid først. 0 min er tilgjengelig før denne fristen; 60 min mangler.Oppdater arbeid",
+        "Metode · TEST Lesing i metodeFrist: 9. september 2026 kl. 12:00 · Ikke fullførtGjenstående: 45 min · Foreslått: 45 min · Mangler: 0 minDet registrerte arbeidet får plass før fristen.9. september 2026 kl. 10:00–10:45: 45 minOppdater arbeid",
+        "IBE160 · TEST Ferdig øvingFrist: 8. september 2026 kl. 10:30 · FullførtGjenstående: 0 min · Foreslått: 0 min · Mangler: 0 minArbeidet er ferdig. Ingen arbeidstid er fordelt.Oppdater arbeid",
+        "IBE160 · TEST Klar til leveringFrist: 8. september 2026 kl. 11:00 · Klar til leveringGjenstående: 0 min · Foreslått: 0 min · Mangler: 0 minArbeidet er ferdig. Ingen arbeidstid er fordelt.Oppdater arbeid"
+      ],
+      "data": {
+        "schemaVersion": 1,
+        "tasks": [
+          {
+            "id": "9ae079f4-fc4d-4170-89c7-77b2d3ec026b",
+            "title": "TEST Rapport i programmering",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T11:30",
+            "estimatedMinutes": 120,
+            "completed": false,
+            "remainingMinutes": 90,
+            "requiresSubmission": true,
+            "submitted": false,
+            "nextStep": {
+              "description": "TEST Les oppgaveteksten og skriv tre stikkord",
+              "estimatedMinutes": 15
+            }
+          },
+          {
+            "id": "6c8d2667-1a33-4170-9a82-8447ae03c7e9",
+            "title": "TEST Regneøving",
+            "course": "MAT110",
+            "deadlineLocal": "2026-09-08T13:00",
+            "estimatedMinutes": 60,
+            "completed": false,
+            "remainingMinutes": 60,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "988c8c28-8963-47dd-b343-dd66cfb76f3f",
+            "title": "TEST Lesing i metode",
+            "course": "Metode",
+            "deadlineLocal": "2026-09-09T12:00",
+            "estimatedMinutes": 45,
+            "completed": false,
+            "remainingMinutes": 45,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "3fe4239e-581e-4f10-ba49-c387eae3512d",
+            "title": "TEST Ferdig øving",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T10:30",
+            "estimatedMinutes": 30,
+            "completed": true,
+            "remainingMinutes": 30,
+            "requiresSubmission": false,
+            "submitted": false
+          },
+          {
+            "id": "6cbf886e-dbf9-48d2-ab5f-7d6dbcb7f1e0",
+            "title": "TEST Klar til levering",
+            "course": "IBE160",
+            "deadlineLocal": "2026-09-08T11:00",
+            "estimatedMinutes": 20,
+            "completed": true,
+            "remainingMinutes": 20,
+            "requiresSubmission": true,
+            "submitted": false
+          }
+        ],
+        "sessions": [
+          {
+            "id": "3b495b1a-85b1-4330-ae22-50a2eb1dadfb",
+            "dateLocal": "2026-09-08",
+            "startTime": "10:00",
+            "endTime": "11:00"
+          },
+          {
+            "id": "5e748e76-5b09-4c25-aea7-ce79e4894e80",
+            "dateLocal": "2026-09-09",
+            "startTime": "10:00",
+            "endTime": "12:00"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "initialData": {
+    "schemaVersion": 1,
+    "tasks": [
+      {
+        "id": "9ae079f4-fc4d-4170-89c7-77b2d3ec026b",
+        "title": "TEST Rapport i programmering",
+        "course": "IBE160",
+        "deadlineLocal": "2026-09-08T11:30",
+        "estimatedMinutes": 120,
+        "completed": false,
+        "remainingMinutes": 90,
+        "requiresSubmission": true,
+        "submitted": false,
+        "nextStep": {
+          "description": "TEST Les oppgaveteksten og skriv tre stikkord",
+          "estimatedMinutes": 15
+        }
+      },
+      {
+        "id": "6c8d2667-1a33-4170-9a82-8447ae03c7e9",
+        "title": "TEST Regneøving",
+        "course": "MAT110",
+        "deadlineLocal": "2026-09-08T13:00",
+        "estimatedMinutes": 60,
+        "completed": false,
+        "remainingMinutes": 60,
+        "requiresSubmission": false,
+        "submitted": false
+      },
+      {
+        "id": "988c8c28-8963-47dd-b343-dd66cfb76f3f",
+        "title": "TEST Lesing i metode",
+        "course": "Metode",
+        "deadlineLocal": "2026-09-09T12:00",
+        "estimatedMinutes": 45,
+        "completed": false,
+        "remainingMinutes": 45,
+        "requiresSubmission": false,
+        "submitted": false
+      },
+      {
+        "id": "3fe4239e-581e-4f10-ba49-c387eae3512d",
+        "title": "TEST Ferdig øving",
+        "course": "IBE160",
+        "deadlineLocal": "2026-09-08T10:30",
+        "estimatedMinutes": 30,
+        "completed": true,
+        "remainingMinutes": 30,
+        "requiresSubmission": false,
+        "submitted": false
+      },
+      {
+        "id": "6cbf886e-dbf9-48d2-ab5f-7d6dbcb7f1e0",
+        "title": "TEST Klar til levering",
+        "course": "IBE160",
+        "deadlineLocal": "2026-09-08T11:00",
+        "estimatedMinutes": 20,
+        "completed": true,
+        "remainingMinutes": 20,
+        "requiresSubmission": true,
+        "submitted": false
+      }
+    ]
+  },
+  "finalData": {
+    "schemaVersion": 1,
+    "tasks": [
+      {
+        "id": "9ae079f4-fc4d-4170-89c7-77b2d3ec026b",
+        "title": "TEST Rapport i programmering",
+        "course": "IBE160",
+        "deadlineLocal": "2026-09-08T11:30",
+        "estimatedMinutes": 120,
+        "completed": false,
+        "remainingMinutes": 75,
+        "requiresSubmission": true,
+        "submitted": false
+      },
+      {
+        "id": "6c8d2667-1a33-4170-9a82-8447ae03c7e9",
+        "title": "TEST Regneøving",
+        "course": "MAT110",
+        "deadlineLocal": "2026-09-08T13:00",
+        "estimatedMinutes": 60,
+        "completed": false,
+        "remainingMinutes": 60,
+        "requiresSubmission": false,
+        "submitted": false
+      },
+      {
+        "id": "988c8c28-8963-47dd-b343-dd66cfb76f3f",
+        "title": "TEST Lesing i metode",
+        "course": "Metode",
+        "deadlineLocal": "2026-09-09T12:00",
+        "estimatedMinutes": 45,
+        "completed": false,
+        "remainingMinutes": 45,
+        "requiresSubmission": false,
+        "submitted": false
+      },
+      {
+        "id": "3fe4239e-581e-4f10-ba49-c387eae3512d",
+        "title": "TEST Ferdig øving",
+        "course": "IBE160",
+        "deadlineLocal": "2026-09-08T10:30",
+        "estimatedMinutes": 30,
+        "completed": true,
+        "remainingMinutes": 30,
+        "requiresSubmission": false,
+        "submitted": false
+      },
+      {
+        "id": "6cbf886e-dbf9-48d2-ab5f-7d6dbcb7f1e0",
+        "title": "TEST Klar til levering",
+        "course": "IBE160",
+        "deadlineLocal": "2026-09-08T11:00",
+        "estimatedMinutes": 20,
+        "completed": true,
+        "remainingMinutes": 20,
+        "requiresSubmission": true,
+        "submitted": false
+      }
+    ],
+    "sessions": [
+      {
+        "id": "3b495b1a-85b1-4330-ae22-50a2eb1dadfb",
+        "dateLocal": "2026-09-08",
+        "startTime": "10:00",
+        "endTime": "11:00"
+      },
+      {
+        "id": "5e748e76-5b09-4c25-aea7-ce79e4894e80",
+        "dateLocal": "2026-09-09",
+        "startTime": "10:00",
+        "endTime": "12:00"
+      }
+    ]
+  },
+  "status": "passed",
+  "finishedAt": "2026-09-07T15:38:20.109Z"
+}

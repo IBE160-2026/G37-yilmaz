@@ -1,6 +1,6 @@
 ---
 title: "Product Brief: Studieplan"
-status: draft
+status: implemented
 created: 2026-09-06
 updated: 2026-09-20
 ---
@@ -13,7 +13,7 @@ Studieplan is a study planner for students at Norwegian universities and univers
 
 Studieplan connects confirmed imports and manually entered tasks with teaching, deadlines, and study sessions in one calendar. Guided onboarding and quick capture let the student begin before every detail is known, while explained suggestions support useful and feasible next actions.
 
-The student records work outcomes, and Studieplan can propose adjustments when time is lost or the student's needs change. The current implementation includes a local browser interface and a loopback-only back-end import service, while primary study-plan data remains in browser storage. The planned complete delivery will add database-backed durable storage, any necessary back-end extensions, and a documented Docker setup. These planned capabilities are not yet claimed as implemented or verified. Suggestions use registered information, rules, dependencies, and local work history; they do not require generative AI or change the plan without the student's confirmation.
+The student records work outcomes, and Studieplan can propose adjustments when time is lost or the student's needs change. The delivered implementation includes a local browser interface, a loopback-only Node API, durable SQLite storage and a documented Docker Compose setup. The database schema is created automatically and a named volume preserves data across container recreation. Suggestions use registered information, rules, dependencies, and local work history; they do not require generative AI or change the plan without the student's confirmation.
 
 ## The Problem
 
@@ -64,7 +64,7 @@ The agreed first complete delivery covers the product areas required for one con
 - local and private operation through the existing browser interface and import service, extended as needed for durable database storage; and
 - source code, support for data recovery, and a documented Docker setup for running the required components locally with persistent storage.
 
-Current project evidence shows that primary study-plan data is stored in the browser and that a back-end import service already handles requests to supported public sources. Database-backed persistence, any back-end extension required for that persistence, and the Docker setup remain planned delivery requirements, not capabilities claimed as implemented or verified. The database technology has not yet been selected; startup commands and configuration belong in the README.
+The delivered production path uses SQLite as authoritative storage behind the local Node API. Complete state changes are validated, revision-checked and written transactionally. Docker Compose binds only to `127.0.0.1`, creates the schema automatically and keeps the database in a named volume. Browser storage remains available in the separate Vite development mode and as an explicitly confirmed migration source. Startup, health, test and recovery instructions are documented in the README and verification record.
 
 Support for universities and university colleges across Norway is a delivery requirement, dependent on available and permitted data sources. Coverage must be reported honestly. Manual and file import provide continuity but do not establish direct institutional integration; detailed evidence belongs in the import documentation.
 
