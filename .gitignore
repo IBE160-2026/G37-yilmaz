@@ -43,9 +43,12 @@ artifacts/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+*.sqlite3
+*.sqlite3-*
 *.db
 *.db-shm
 *.db-wal
+*.db-*
 .data/
 data/
 volumes/
@@ -62,6 +65,8 @@ browser-profiles/
 profiles/
 trace.zip
 traces/
+.docs/**/assistant-validation/
+.docs/**/*screenshots/
 
 # Secrets and local environment; keep example files
 .env

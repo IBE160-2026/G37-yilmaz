@@ -32,16 +32,11 @@ Observerte detaljer ble rettet under denne kontrollen: linjeskift i kalenderens 
 
 Bevarte skjermbilder:
 
-- Stor skjerm: [tom oversikt](ui-calendar-screenshots/desktop-empty.png) og [oversikt med testoppgaver](ui-calendar-screenshots/desktop-overview.png).
-- Mobil: [oversikt](ui-calendar-screenshots/mobile-overview.png), [første skjermbilde](ui-calendar-screenshots/mobile-first-screen.png), [agenda](ui-calendar-screenshots/mobile-agenda.png) og [oppgaveskjema](ui-calendar-screenshots/mobile-form.png).
-- Lange ord ved 360 px: [lang tittel og emnenavn](ui-calendar-screenshots/mobile-long-title.png).
+- Stor skjerm, mobiloversikt, agenda, oppgaveskjema og lange ord ved 360 px ble inspisert lokalt. Skjermbildene er utelatt fra GitHub-leveransen.
 
 Åtte bilder fra de beståtte nettleserprøvene er også arkivert. Arkivet ble oppdatert etter den siste etterkontrollen, og SHA-256 er sammenlignet mot de genererte testfilene:
 
-- Dashboard med 0 oppgaver: [360 px](ui-calendar-screenshots/dashboard-0-tasks-360.png), [1280 px](ui-calendar-screenshots/dashboard-0-tasks-1280.png).
-- Dashboard med 1 oppgave: [360 px](ui-calendar-screenshots/dashboard-1-tasks-360.png), [1280 px](ui-calendar-screenshots/dashboard-1-tasks-1280.png).
-- Dashboard med 12 oppgaver: [360 px](ui-calendar-screenshots/dashboard-12-tasks-360.png), [1280 px](ui-calendar-screenshots/dashboard-12-tasks-1280.png).
-- [Norsk 24-timersklokke i en-US-nettleser](ui-calendar-screenshots/24-hour-en-US.png) og [mobilagenda etter tastaturnavigasjon](ui-calendar-screenshots/mobile-agenda-navigation.png).
+- Dashboard med 0, 1 og 12 oppgaver ble kontrollert ved 360 og 1280 px. Norsk 24-timersklokke i en-US-nettleser og mobilagenda etter tastaturnavigasjon ble også kontrollert. De lokale skjermbildene er ikke med i leveransen.
 
 Dette er agentens nettleser-/skjermbildeinspeksjon med emulerte vindusstørrelser og automatiserte nettleserprøver. Det er ikke studentens fysiske tastatur-/mobilgjennomgang eller måling av faktisk brukernytte.
 

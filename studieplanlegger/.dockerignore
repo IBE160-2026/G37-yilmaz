@@ -17,3 +17,13 @@ local-cache
 tests
 *.sqlite
 *.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+backups
+recovery
+browser-profile
+browser-profiles
+profiles
+traces

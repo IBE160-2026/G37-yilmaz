@@ -76,16 +76,7 @@ Dette er vurderinger basert på testflyt og skjermbilder, ikke studentens egne m
 
 ## Etterprøvbar dokumentasjon
 
-- [To opprinnelige økter](assistant-validation/01-to-okter.png)
-- [Andre økt flyttet](assistant-validation/02-flyttet-okt.png)
-- [Andre økt slettet](assistant-validation/03-slettet-okt.png)
-- [Ledig tid etter fristen](assistant-validation/04-senere-ledig-tid.png)
-- [Mobilagenda](assistant-validation/05-mobil.png)
-- [Data, kontroller og faktisk kjøretid](assistant-validation/walkthrough-result.json)
-- [Skript for den praktiske prøven](assistant-validation/walkthrough.mjs)
-- [Oppsummering av automatiserte kontroller](assistant-validation/validation-summary.json)
-
-Skriptet bruker prosjektets eksisterende Vite og Playwright fra C:/IBE160/2026/studieplanlegger. Ved ny kjøring trenger det en ledig port 5186 og et skrivbart arbeidsområde. Det lager isolerte testdata og skriver nye resultater i en egen walkthrough-mappe ved skriptet.
+Resultatene ovenfor er bevart som et tekstlig, datert prosessgrunnlag. Lokale skjermbilder, maskinspesifikke resultatfiler og prøveskript er med vilje utelatt fra GitHub-leveransen av hensyn til et ryddig og personvernsikkert filutvalg. Den nåværende automatiserte og Docker-baserte kontrollen står i [VERIFICATION.md](../../studieplanlegger/VERIFICATION.md).
 
 ## Hva som fortsatt trenger opplysninger fra studenten
 

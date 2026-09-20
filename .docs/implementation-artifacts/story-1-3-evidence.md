@@ -36,7 +36,7 @@ Instrumentert setItem kontrollerer én komplett skriving før synlig ny liste/su
 
 ## Skjermbilder og menneskelig kontroll
 
-Root har inspisert feil ved [360 px](story-1-3-screenshots/edit-errors-360.png) og [1280 px](story-1-3-screenshots/edit-errors-1280.png), [skjema ved 1280](story-1-3-screenshots/edit-form-1280.png), [fokus etter lagring ved 360](story-1-3-screenshots/edited-task-360.png), [skrivefeil ved Lagre](story-1-3-screenshots/edit-write-failure.png) og [slettefeil ved valgt oppgave](story-1-3-screenshots/delete-write-failure.png). Norske tegn, leselig tekst, synlig tastaturfokus og brukbar bredde er observert. De to siste er faktiske viewport-bilder på henholdsvis 360×500 og 360×900; både feil og relevant knapp er synlige.
+Root har inspisert feil, skjema, fokus etter lagring og skrive-/slettefeil ved 360 og 1280 px. Norske tegn, leselig tekst, synlig tastaturfokus og brukbar bredde er observert. Skjermbildene er utelatt fra GitHub-leveransen; den tekstlige kontrollbeskrivelsen er beholdt.
 
 Dette er agentobservasjoner fra byggingen. Ved avsluttet bygging gjenstod fysisk tastaturprøve, forståelighet og studentens godkjenning av de nye handlingene. Studenten bekreftet deretter hele [overtakelseskontrollen](story-1-3-handover-check.md) 2026-09-06; se toppnotatet og den ordrette bekreftelsen i kontrollen. Ingen fysisk skjermleserprøve påstås. Godkjenningen gjelder nå uttrykkelig 1.3.
 
@@ -48,7 +48,7 @@ To skjermleserpåstander ble vurdert som ubekreftede med lav mulig konsekvens og
 
 Root fant før review at slettefeil ved toppen av siden lå utenfor viewport i en lang liste. Implementasjonsagenten reproduserte feilen (viewport-ratio 0), flyttet feilen til valgt oppgave og fikk samme regresjon til å bestå. Review fant tilsvarende problem ved redigering i et lavt vindu; root-proben ved 360×500 målte meldingens top -333,45 / bottom -256,67 mens «Lagre» hadde fokus. Etter retting kontrollerer sluttprøven at både melding og knapp er helt synlige og at nytt forsøk lykkes.
 
-Den opprinnelige implementasjonsagenten ble gjenkontaktet med byggeflytens pålagte patchprompt, men stoppet på bruksgrensen. Root fullførte rettingene under flytens uttrykkelige reservevei og kjørte hele sluttkontrollen. Root leste hele kodediffen før review og alle etterfølgende patchendringer. Endelig komplett kodediff: `C:/Users/dzfgd/AppData/Local/Temp/story-1-3-review-aKpgyh/changes.diff`, 54 009 byte.
+Den opprinnelige implementasjonsagenten ble gjenkontaktet med byggeflytens pålagte patchprompt, men stoppet på bruksgrensen. Root fullførte rettingene under flytens uttrykkelige reservevei og kjørte hele sluttkontrollen. Root leste hele kodediffen før review og alle etterfølgende patchendringer. Den lokale midlertidige diffen var 54 009 byte og er med vilje ikke del av leveransen.
 
 ## Verktøyhistorikk og avgrensning
 

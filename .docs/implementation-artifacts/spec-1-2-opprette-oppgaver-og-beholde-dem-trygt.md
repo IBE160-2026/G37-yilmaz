@@ -91,7 +91,7 @@ context:
 | V1: cleared draft/errors on reopen untested | medium: pre-verified regression gap; removing reset/errors from close would leave current tests green and risk accidental copies. | patch: assert blank fields/cleared errors after cancel and successful save |
 | E1: timezone travel blocks list at new-zone DST gap | low: independently verified same outcome as B1; raw label is preserved, not converted or overwritten. Rare travel case needs separate validation semantics. | reject: same rare low-impact complexity rule as B1 |
 
-All six patch findings resolved by the original implementation agent and checked by root. Final verification: 43/43 unit tests (269 ms), 14/14 browser tests (6.5 s, normal exit), production build exit 0 (111 ms). The noscript test initially targeted filtered text; corrected to the visible paragraph and passed. Final full diff: `C:/Users/dzfgd/AppData/Local/Temp/story-1-2-review-qhczq5/changes.diff`. No findings deferred, no review loopback, no commit. Spec done records completed build/review; sprint and source story remain review pending human acceptance.
+All six patch findings resolved by the original implementation agent and checked by root. Final verification: 43/43 unit tests (269 ms), 14/14 browser tests (6.5 s, normal exit), production build exit 0 (111 ms). The noscript test initially targeted filtered text; corrected to the visible paragraph and passed. The full diff was read from a local temporary review file that is intentionally not part of the delivery. No findings deferred, no review loopback, no commit. Spec done records completed build/review; sprint and source story remain review pending human acceptance.
 
 ## Design Notes
 

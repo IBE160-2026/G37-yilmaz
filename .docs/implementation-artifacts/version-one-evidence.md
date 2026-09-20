@@ -70,12 +70,7 @@ En separat dokumentkontroll 2026-09-07 bekreftet at alle 33 akseptansekriterier 
 
 ## Skjermbilder og forståelige feil
 
-26 skjermbilder fra den endelige nettleserkjøringen er bevart i `version-one-screenshots/`. Hovedagenten har inspisert ukevisning og tidsfilter ved 360/1280 px, ugyldig tidsvalg og fullføring/angre ved skrivefeil; etter siste retting er også ny ukevisning, angrevisning, feltfeil og fullføringsfeil inspisert. Innholdet brytes innenfor siden, fokus er synlig, og feilen står ved kontrollen for nytt forsøk. Dette er agentens inspeksjon av automatiserte skjermbilder, ikke studentens fysiske overtakelse.
-
-- Ukevisning: [360 px](version-one-screenshots/week-view-360.png), [1280 px](version-one-screenshots/week-view-1280.png).
-- Tidsfilter: [360 px](version-one-screenshots/time-filter-360.png), [1280 px](version-one-screenshots/time-filter-1280.png).
-- Ugyldige minutter: [360 px](version-one-screenshots/time-filter-error-360.png), [1280 px](version-one-screenshots/time-filter-error-1280.png).
-- Skrivefeil: [fullføring](version-one-screenshots/completion-write-failure.png), [angre](version-one-screenshots/undo-write-failure.png), [redigering](version-one-screenshots/edit-write-failure.png), [sletting](version-one-screenshots/delete-write-failure.png).
+26 skjermbilder fra den endelige nettleserkjøringen ble inspisert lokalt. Hovedagenten kontrollerte ukevisning og tidsfilter ved 360/1280 px, ugyldig tidsvalg og fullføring/angre ved skrivefeil; etter siste retting ble også ny ukevisning, angrevisning, feltfeil og fullføringsfeil inspisert. Innholdet brytes innenfor siden, fokus er synlig, og feilen står ved kontrollen for nytt forsøk. Dette er agentens inspeksjon av automatiserte skjermbilder, ikke studentens fysiske overtakelse. Skjermbildene er utelatt fra GitHub-leveransen.
 
 Feilmeldinger studenten kan vurdere uten å injisere feil i personlige data:
 
