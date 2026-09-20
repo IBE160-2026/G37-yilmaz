@@ -45,9 +45,7 @@ Teknisk implementering og tilgjengelige kontroller er ferdige. Story/spesifikasj
 
 Seks skjermbilder fra sluttkontrollen er bevart utenfor den midlertidige testmappen:
 
-- Neste-steg-skjema: [360 px](study-actions-screenshots/next-step-form-360.png), [1280 px](study-actions-screenshots/next-step-form-1280.png).
-- Hovedforslag med neste steg: [360 px](study-actions-screenshots/next-step-suggestion-360.png), [1280 px](study-actions-screenshots/next-step-suggestion-1280.png).
-- Klar til levering: [360 px](study-actions-screenshots/ready-for-delivery-360.png), [1280 px](study-actions-screenshots/ready-for-delivery-1280.png).
+- Neste-steg-skjema, hovedforslag og «Klar til levering» ble inspisert lokalt ved 360 og 1280 px. Skjermbildene er utelatt fra GitHub-leveransen; den tekstlige kontrollbeskrivelsen er beholdt.
 
 Inspeksjonen er agentens vurdering av automatiserte skjermbilder, ikke studentens fysiske gjennomgang eller en måling av brukereffekt.
 

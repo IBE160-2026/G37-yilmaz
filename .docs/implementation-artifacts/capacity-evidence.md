@@ -57,7 +57,7 @@ Krysskontrollen fant ingen ytterligere konkrete feil i oppgave-/lagringsreglene 
 
 ## Bilder og begrensninger
 
-Fire bilder fra isolerte nettlesertester er bevart: [kapasitet 360 px](capacity-screenshots/capacity-view-360.png), [kapasitet 1280 px](capacity-screenshots/capacity-view-1280.png), [øktskjema 360 px](capacity-screenshots/capacity-form-360.png) og [øktskjema 1280 px](capacity-screenshots/capacity-form-1280.png). Root inspiserte begge kapasitetsbildene etter retting. Bildene viser fiktive kontrolloppgaver.
+Fire bilder fra isolerte nettlesertester ble inspisert lokalt ved 360 og 1280 px. De inneholdt fiktive kontrolloppgaver, men er ikke tatt med i GitHub-leveransen; den tekstlige kontrollbeskrivelsen er beholdt.
 
 Produksjonsbygget er en pakkekontroll; prosjektet har ingen egen lint- eller typekontrollkommando. Nettleserkontrollene bruker Chromium, ikke fysisk mobil eller studentens egne nettleserdata. Ingen menneskelig utprøving, tilgjengelighetsvurdering med skjermleser eller faktisk innlevering er utført på studentens vegne.
 

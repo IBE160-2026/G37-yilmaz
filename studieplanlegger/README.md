@@ -36,7 +36,7 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-Installasjonen trenger normalt internett. Stopp en server du selv har startet før du installerer pakker, fordi Windows kan låse filer. Åpne **http://studieplan.localhost** når serveren er klar. Terminalen må stå åpen; Ctrl+C stopper serveren. Neste gang holder det å kjøre `npm.cmd run dev`. Snarveien `Studieplan.url` åpner samme adresse.
+Installasjonen trenger normalt internett. Stopp en server du selv har startet før du installerer pakker, fordi Windows kan låse filer. Åpne **http://studieplan.localhost** når serveren er klar. Terminalen må stå åpen; Ctrl+C stopper serveren. Neste gang holder det å kjøre `npm.cmd run dev` fra appmappen.
 
 Port 80 er fast. Ved opptatt port stopper oppstarten; den velger ikke en ny adresse. Ingen endring i Windows' hosts-fil er nødvendig i Chrome/Edge. Ikke dobbeltklikk `index.html`.
 
@@ -58,7 +58,7 @@ En oppgave trenger bare **tittel**. Frist, emne, prioritet, avhengigheter og opp
 
 ## Importer en bekreftbar plan
 
-«Mine emner → Importer emner og plan» gir valg mellom lærested, dokument/tekst og kalender. Appen har 47 registrerte programadaptere og en datert oversikt over 49 norske institusjoner. Dette er **ikke full nasjonal dekning**: AHO mangler fortsatt en offentlig verifisert program–emne-kobling, og det slettede Ekko-foretaket mangler en gjeldende selvstendig kullkatalog. [Importoversikten](IMPORT-COVERAGE.md) oppgir faktisk støtte, kilde, dato og begrensning for hver datatype. Et prøvd program eller emne beviser bare den prøvde flyten.
+«Mine emner → Importer emner og plan» gir valg mellom lærested, dokument/tekst og kalender. Appen har 48 registrerte programadaptere og en datert oversikt over 49 norske institusjoner. Dette er **ikke full nasjonal dekning**: AHO har en avgrenset, verifisert programflyt, mens det slettede Ekko-foretaket fortsatt mangler en gjeldende selvstendig kullkatalog. [Importoversikten](IMPORT-COVERAGE.md) oppgir faktisk støtte, kilde, dato og begrensning for hver datatype. Et prøvd program eller emne beviser bare den prøvde flyten.
 
 Velg publisert programutgave, opptakskull, studiesemester og kalendersemester uttrykkelig. Avklar valgemner, campus og publisert timeplanvalg; gruppetilhørighet utledes ikke fra navn. Emner og tilgjengelig undervisning forhåndsvises før felles bekreftelse. Offentlig undervisning kan også hentes for et emne som allerede er lagret, selv når programimport mangler.
 
