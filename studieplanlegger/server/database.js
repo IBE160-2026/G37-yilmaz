@@ -22,55 +22,67 @@ export class StateDatabase {
     mkdirSync(dirname(filename), { recursive: true })
     this.db = new DatabaseSync(filename)
     this.db.exec('PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA synchronous = FULL; PRAGMA busy_timeout = 5000')
-    this.migrate()
-    if (seed && this.isEmpty()) {
-      if (seedEnvelope) this.seedEnvelope(seedEnvelope)
-      else if (seedFile) this.seed(seedFile)
-      else throw new Error('STUDIEPLAN_SEED is true, but no explicit seed was provided.')
-    }
+    try {
+      this.migrate()
+      if (seed && this.isEmpty()) {
+        if (seedEnvelope) this.seedEnvelope(seedEnvelope)
+        else if (seedFile) this.seed(seedFile)
+        else throw new Error('STUDIEPLAN_SEED is true, but no explicit seed was provided.')
+      }
+    } catch (error) { this.db.close(); throw error }
   }
 
   migrate() {
-    this.db.exec(`
-      BEGIN IMMEDIATE;
-      CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS state_meta (singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL, preferences_json TEXT NOT NULL, shape_json TEXT NOT NULL DEFAULT '{}', updated_at TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS courses (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, provider TEXT, source_record_id TEXT, payload_json TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, completed INTEGER NOT NULL, payload_json TEXT NOT NULL);
-      CREATE INDEX IF NOT EXISTS tasks_course_id ON tasks(course_id);
-      CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, task_id TEXT REFERENCES tasks(id) ON DELETE RESTRICT, date_local TEXT, payload_json TEXT NOT NULL);
-      CREATE INDEX IF NOT EXISTS sessions_task_id ON sessions(task_id);
-      CREATE TABLE IF NOT EXISTS dependencies (task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, prerequisite_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE RESTRICT, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(task_id, prerequisite_id));
-      CREATE TABLE IF NOT EXISTS missing_dependencies (task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, missing_id TEXT NOT NULL, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(task_id, missing_id));
-      CREATE TABLE IF NOT EXISTS work_logs (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, task_id TEXT, operation_id TEXT UNIQUE, outcome TEXT, payload_json TEXT NOT NULL);
-      CREATE INDEX IF NOT EXISTS work_logs_task_id ON work_logs(task_id);
-      CREATE TABLE IF NOT EXISTS planner_events (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, source_id TEXT REFERENCES planner_sources(id) ON DELETE RESTRICT, start_at TEXT, payload_json TEXT NOT NULL);
-      CREATE INDEX IF NOT EXISTS planner_events_course_id ON planner_events(course_id);
-      CREATE TABLE IF NOT EXISTS planner_sources (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE RESTRICT, kind TEXT, payload_json TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS import_sources (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, kind TEXT, content_hash TEXT, payload_json TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS import_entries (source_id TEXT NOT NULL REFERENCES import_sources(id) ON DELETE CASCADE, entry_key TEXT NOT NULL, position INTEGER NOT NULL, target_id TEXT, kind TEXT, payload_json TEXT NOT NULL, PRIMARY KEY(source_id, entry_key));
-      CREATE TABLE IF NOT EXISTS windows (kind TEXT NOT NULL CHECK(kind IN ('work','busy')), id TEXT NOT NULL, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(kind,id));
-      CREATE TABLE IF NOT EXISTS history_state (singleton INTEGER PRIMARY KEY CHECK(singleton=1), payload_json TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS recovery_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, revision INTEGER NOT NULL, payload_json TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS legacy_archives (fingerprint TEXT PRIMARY KEY, imported_at TEXT NOT NULL, raw TEXT NOT NULL, revision INTEGER NOT NULL);
-      INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES (1, datetime('now'));
-      INSERT OR IGNORE INTO state_meta(singleton, revision, preferences_json, shape_json, updated_at) VALUES (1, 0, '{"schemaVersion":1}', '{}', datetime('now'));
-      COMMIT;
-    `)
-    if (!this.db.prepare("PRAGMA table_info('state_meta')").all().some(column => column.name === 'shape_json')) {
-      this.db.exec("ALTER TABLE state_meta ADD COLUMN shape_json TEXT NOT NULL DEFAULT '{}'")
-    }
-    if (this.db.prepare("PRAGMA foreign_key_list('tasks')").all().length === 0) this._upgradeForeignKeys()
-    else this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(2,datetime('now'))").run()
-    this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(3,datetime('now'))").run()
+    let transaction = false
+    this.db.exec('PRAGMA foreign_keys = OFF')
+    try {
+      this.db.exec('BEGIN IMMEDIATE')
+      transaction = true
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS state_meta (singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL, preferences_json TEXT NOT NULL, shape_json TEXT NOT NULL DEFAULT '{}', updated_at TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS courses (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, provider TEXT, source_record_id TEXT, payload_json TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, completed INTEGER NOT NULL, payload_json TEXT NOT NULL);
+        CREATE INDEX IF NOT EXISTS tasks_course_id ON tasks(course_id);
+        CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, task_id TEXT REFERENCES tasks(id) ON DELETE RESTRICT, date_local TEXT, payload_json TEXT NOT NULL);
+        CREATE INDEX IF NOT EXISTS sessions_task_id ON sessions(task_id);
+        CREATE TABLE IF NOT EXISTS dependencies (task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, prerequisite_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE RESTRICT, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(task_id, prerequisite_id));
+        CREATE TABLE IF NOT EXISTS missing_dependencies (task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, missing_id TEXT NOT NULL, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(task_id, missing_id));
+        CREATE TABLE IF NOT EXISTS work_logs (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, task_id TEXT, operation_id TEXT UNIQUE, outcome TEXT, payload_json TEXT NOT NULL);
+        CREATE INDEX IF NOT EXISTS work_logs_task_id ON work_logs(task_id);
+        CREATE TABLE IF NOT EXISTS planner_events (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, source_id TEXT REFERENCES planner_sources(id) ON DELETE RESTRICT, start_at TEXT, payload_json TEXT NOT NULL);
+        CREATE INDEX IF NOT EXISTS planner_events_course_id ON planner_events(course_id);
+        CREATE TABLE IF NOT EXISTS planner_sources (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE RESTRICT, kind TEXT, payload_json TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS import_sources (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, kind TEXT, content_hash TEXT, payload_json TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS import_entries (source_id TEXT NOT NULL REFERENCES import_sources(id) ON DELETE CASCADE, entry_key TEXT NOT NULL, position INTEGER NOT NULL, target_id TEXT, kind TEXT, payload_json TEXT NOT NULL, PRIMARY KEY(source_id, entry_key));
+        CREATE TABLE IF NOT EXISTS windows (kind TEXT NOT NULL CHECK(kind IN ('work','busy')), id TEXT NOT NULL, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(kind,id));
+        CREATE TABLE IF NOT EXISTS history_state (singleton INTEGER PRIMARY KEY CHECK(singleton=1), payload_json TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS recovery_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, revision INTEGER NOT NULL, payload_json TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS legacy_archives (fingerprint TEXT PRIMARY KEY, imported_at TEXT NOT NULL, raw TEXT NOT NULL, revision INTEGER NOT NULL);
+      `)
+      if (!this.db.prepare("PRAGMA table_info('state_meta')").all().some(column => column.name === 'shape_json')) {
+        this.db.exec("ALTER TABLE state_meta ADD COLUMN shape_json TEXT NOT NULL DEFAULT '{}'")
+      }
+      this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(1,datetime('now'))").run()
+      this.db.prepare("INSERT OR IGNORE INTO state_meta(singleton,revision,preferences_json,shape_json,updated_at) VALUES(1,0,'{\"schemaVersion\":1}','{}',datetime('now'))").run()
+      if (this.db.prepare("PRAGMA foreign_key_list('tasks')").all().length === 0) this._upgradeForeignKeys()
+      this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(2,datetime('now'))").run()
+      this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(3,datetime('now'))").run()
+      const violations = this.db.prepare('PRAGMA foreign_key_check').all()
+      if (violations.length) throw new Error(`Database migration failed foreign-key validation (${violations.length} violation${violations.length === 1 ? '' : 's'}).`)
+      this.db.exec('COMMIT')
+      transaction = false
+    } catch (error) {
+      if (transaction) this.db.exec('ROLLBACK')
+      throw error
+    } finally { this.db.exec('PRAGMA foreign_keys = ON') }
   }
 
   _upgradeForeignKeys() {
     const current = this.read()
-    this.db.exec('PRAGMA foreign_keys = OFF; BEGIN IMMEDIATE')
-    try {
-      for (const table of ['dependencies','missing_dependencies','sessions','work_logs','planner_events','planner_sources','import_entries','import_sources','tasks','courses','windows','history_state']) this.db.exec(`DROP TABLE IF EXISTS ${table}`)
-      this.db.exec(`
+    const { updated_at: updatedAt } = this.db.prepare('SELECT updated_at FROM state_meta WHERE singleton=1').get()
+    for (const table of ['dependencies','missing_dependencies','sessions','work_logs','planner_events','planner_sources','import_entries','import_sources','tasks','courses','windows','history_state']) this.db.exec(`DROP TABLE IF EXISTS ${table}`)
+    this.db.exec(`
         CREATE TABLE courses (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, provider TEXT, source_record_id TEXT, payload_json TEXT NOT NULL);
         CREATE TABLE tasks (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, completed INTEGER NOT NULL, payload_json TEXT NOT NULL);
         CREATE INDEX tasks_course_id ON tasks(course_id);
@@ -87,12 +99,9 @@ export class StateDatabase {
         CREATE TABLE import_entries (source_id TEXT NOT NULL REFERENCES import_sources(id) ON DELETE CASCADE, entry_key TEXT NOT NULL, position INTEGER NOT NULL, target_id TEXT, kind TEXT, payload_json TEXT NOT NULL, PRIMARY KEY(source_id, entry_key));
         CREATE TABLE windows (kind TEXT NOT NULL CHECK(kind IN ('work','busy')), id TEXT NOT NULL, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(kind,id));
         CREATE TABLE history_state (singleton INTEGER PRIMARY KEY CHECK(singleton=1), payload_json TEXT NOT NULL);
-      `)
-      this._replace(current.envelope, current.revision)
-      this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(2,datetime('now'))").run()
-      this.db.exec('COMMIT')
-    } catch (error) { this.db.exec('ROLLBACK'); throw error }
-    finally { this.db.exec('PRAGMA foreign_keys = ON') }
+    `)
+    this._replace(current.envelope, current.revision)
+    this.db.prepare('UPDATE state_meta SET updated_at=? WHERE singleton=1').run(updatedAt)
   }
 
   close() { this.db.close() }

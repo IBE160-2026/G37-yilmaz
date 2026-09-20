@@ -1,80 +1,67 @@
-# Slik virker studieplanleggeren
+# Slik virker Studieplan
 
-Appen er en lokal nettside skrevet med vanlig JavaScript, HTML og CSS. Reglene i appen er faste og forklarbare; den bruker ingen KI-tjeneste når du planlegger. KI har bidratt til å utvikle prosjektet. Din forståelse og dine erfaringer kan du beskrive med spørsmålene i [prosjektrefleksjonen](project-reflection.md).
+Studieplan er en lokal studieplanlegger skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet. Studentens egne erfaringer og vurderinger hører hjemme i [refleksjonsutkastet](project-reflection.md).
 
-## Fra skjema til lagret oppgave
+## To lokale kjøremåter
+
+| Kjøremåte | Autoritativ lagring | Bruksområde |
+| --- | --- | --- |
+| Docker/produksjon | Node-API og SQLite | Den komplette leveransen. Node serverer den bygde Vite-klienten, validerer alle endringer og skriver databasen transaksjonelt. Compose publiserer bare på `127.0.0.1` og beholder databasen i et navngitt volum. |
+| Vite-utvikling | Nettleserens `localStorage` | Rask lokal UI-utvikling og den vanlige nettlesertestsuiten. Denne modusen bruker ikke SQLite og er derfor ikke bevis for produksjonslagringen. |
+
+Ved første produksjonsstart kan en tom database tilby å kopiere gyldige eksisterende nettleserdata. Originalen i nettleseren beholdes. Flyttingen bruker fingeravtrykk og arkivkvittering, slik at samme datasett ikke importeres flere ganger. Eksport og validert gjenoppretting kan brukes når appen åpnes på en annen lokal adresse.
+
+## Fra brukerhandling til SQLite
 
 ```mermaid
 flowchart TD
-  Form[Du fyller ut skjemaet] --> UI[ui.js eller capacity-view.js leser feltene]
-  UI --> Main[main.js samler handlingen]
-  Main --> Rules[tasks.js eller capacity.js kontrollerer innholdet]
-  Rules --> Candidate[Gyldig kandidat: foreslåtte nye data]
-  Candidate --> Storage[storage.js kontrollerer og lagrer hele datasettet]
-  Storage -->|Lagring lykkes| State[main.js erstatter dataene i minnet]
-  State --> View[Lister, tidsforslag, kapasitetsplan og kalender oppdateres]
-  Rules -->|Ugyldig| Error[Feilmelding; utkastet beholdes]
-  Storage -->|Skrivefeil| Error
+  Form[Brukeren gjør en endring] --> UI[Visningen leser feltene]
+  UI --> Action[main.js bygger en kandidat]
+  Action --> Rules[Domenevalidering kontrollerer data og relasjoner]
+  Rules -->|Ugyldig| Error[Vis feil; behold utkast og tidligere data]
+  Rules --> State[Komplett tilstandskonvolutt]
+  State --> Storage[server-storage.js sender konvolutt og forventet revisjon]
+  Storage --> API[Node-API validerer på nytt]
+  API --> DB[SQLite skriver alle berørte tabeller i én transaksjon]
+  DB -->|Commit| Refresh[Ny revisjon og tilstand oppdaterer UI]
+  DB -->|Konflikt eller feil| Error
 ```
 
-Du skriver for eksempel «Les kapittel 3», emne, frist og 90 minutter. [Skjemaet](../../studieplanlegger/index.html) har separate felt for dato og klokkeslett. [ui.js](../../studieplanlegger/src/ui.js) setter dem sammen til for eksempel `2026-10-12T12:00` og sender handlingen til [main.js](../../studieplanlegger/src/main.js). [validateDraft i tasks.js](../../studieplanlegger/src/tasks.js) fjerner mellomrom rundt tittelen og kontrollerer blant annet at fristen finnes og minuttene er gyldige.
+En ny oppgave trenger bare et navn. Emne, frist, hovedestimat, gjenstående arbeid, prioritet, avhengigheter og innleveringskrav kan legges til når de er kjent. [tasks.js](../../studieplanlegger/src/tasks.js) normaliserer og validerer oppgaven. [storage.js](../../studieplanlegger/src/storage.js) velger lagringsadapter: Vite-/nettlesermodusen validerer den komplette konvolutten før `localStorage`, mens produksjonsadapteren sender kandidaten og forventet revisjon til [state-api.js](../../studieplanlegger/server/state-api.js). API-et validerer hele datasettet og relasjonene før [database.js](../../studieplanlegger/server/database.js) skriver SQLite.
 
-En *kandidat* er bare de nye dataene vi ønsker å lagre. Kontrolleren viser ikke «lagret» før [storage.js](../../studieplanlegger/src/storage.js) har lykkes. Deretter beregnes alle visninger fra samme data. Dette hindrer at kalenderen viser en vellykket endring som lagringen avviste. Rene regelfunksjoner leser verken skjermen eller lagringen; derfor kan de testes med små, kjente eksempler.
+Klienten sender revisjonen den sist leste. Hvis en annen endring allerede har økt revisjonen, svarer API-et med HTTP 409 i stedet for å overskrive nyere data. Den avviste kandidaten blir ikke delvis lagret; klienten må lese gjeldende tilstand og la brukeren prøve endringen på nytt. Vanlige flerfanekonflikter blir dermed oppdaget i produksjonsmodus. Vite-modus har ikke serverrevisjoner og er fortsatt en utviklingsbane, ikke den anbefalte varige leveransen.
 
-## To ulike slags tidsforslag
+## Tre forskjellige planleggingsfunksjoner
 
-**«Hva kan jeg gjøre nå?» velger én passende handling.** `selectTasksForMinutes` i [tasks.js](../../studieplanlegger/src/tasks.js) velger uferdige oppgaver der neste stegs estimat passer tiden. Gjenstående må være større enn null, også når et aktivt steg passer. Uten et aktivt steg brukes gjenstående tid, eller hovedestimatet hvis gjenstående ikke er angitt. Oppgavene sorteres etter frist, med opprinnelig rekkefølge ved lik frist. Første treff blir hovedforslaget; resten er alternativer, ikke en samlet arbeidsplan.
+**Oppgaveforslag («Hva kan jeg gjøre nå?»)** velger en startklar handling som passer den valgte tiden. [tasks.js](../../studieplanlegger/src/tasks.js) bruker blant annet neste steg eller gjenstående arbeid, frist, prioritet og avhengigheter. Ett forslag vises som hovedvalg; resten er alternativer. Et forslag registrerer verken tid eller arbeid.
 
-Eksempel: Hovedestimat 240 minutter, gjenstående 90 og neste steg «Les oppgaveteksten» på 20 minutter. Steget passer et tidsvalg på 30 minutter. Det betyr ikke at hele oppgaven rekker å bli ferdig. Forfalte oppgaver kan fortsatt foreslås her, slik at du kan ta tak i dem.
+**Kapasitetsberegning** vurderer om registrert gjenstående arbeid får plass i bekreftede arbeidsvinduer og eksisterende studieøkter. [work-capacity.js](../../studieplanlegger/src/work-capacity.js) tar hensyn til undervisning/opptatt tid, frister, avhengigheter, låste reservasjoner, delbarhet og økt-/pauseregler. Resultatet forklarer reservert, foreslått, manglende og ledig tid. Beregningen endrer ikke planen.
 
-**Kapasitetsplanen fordeler hele det gjenstående arbeidet.** [capacity.js](../../studieplanlegger/src/capacity.js) bruker registrerte studieøkter og nåværende klokkeslett:
+**Omplanlegging** lager et konkret forslag til framtidige studieøkter når planen ikke lenger passer. [replanning.js](../../studieplanlegger/src/replanning.js) bruker samme arbeidsvinduer, opptatt tid, frister, avhengigheter og regler, men produserer økter som brukeren kan kontrollere, redigere, godta eller forkaste. Forslaget har et fingeravtrykk av utgangspunktet og kan ikke godtas hvis dataene har endret seg i mellomtiden.
 
-1. Finn ledig tid fra nå av. Bare hele framtidige minutter brukes; det påbegynte minuttet rundes opp til neste minutt. Tid som allerede er gått, kan ikke brukes. Overlapp telles én gang.
-2. Sorter uferdige oppgaver etter nærmeste frist. Lik frist beholder oppgaverekkefølgen.
-3. Fyll de tidligste ledige minuttene fram til oppgavens frist. Del arbeidet mellom økter ved behov.
-4. Trekk de tildelte minuttene fra øktenes ledige tid før neste oppgave behandles.
-5. Vis `mangler = gjenstående − foreslåtte minutter før fristen`, med årsak.
+Ingen av funksjonene hevder at arbeid er utført. De bruker registrerte opplysninger og kan bare bli så presise som frister, estimater, arbeidsvinduer og avhengigheter tillater.
 
-Anta at begge øktene ligger i framtiden:
+## Planlagt tid, faktisk arbeid, ferdig og levert
 
-| Oppgave | Gjenstår / frist | Forslag ved økter 10–11 og 11:30–12:30 |
-| --- | --- | --- |
-| A | 90 min / kl. 12 | 60 min i første økt + 30 min kl. 11:30–12 |
-| B | 30 min / kl. 13 | 30 min kl. 12–12:30 |
-
-A får aldri tid etter kl. 12. Hvis A i stedet trenger 120 minutter, mangler den 30 minutter før fristen selv om det finnes senere studietid. B kan fortsatt bruke tiden etter kl. 12. Neste stegs 20 minutter legges ikke til A: steget er en del av de 90 eller 120 minuttene.
-
-Regelen er valgt fordi du kan kontrollere hvert valg. Den vurderer ikke vanskelighetsgrad, avhengigheter mellom oppgaver, pauser eller hvor krevende det er å bytte emne. Øktene må derfor beskrive tid du faktisk vil bruke til arbeid. Forslaget endres når tid går eller du endrer oppgaver og økter; det er ingen avtale eller gjennomføringshistorikk.
-
-## Forslag, utført arbeid og levering
-
-| Opplysning | Hva den betyr |
+| Opplysning | Betydning |
 | --- | --- |
-| Foreslåtte minutter | Tid algoritmen har funnet plass til. Arbeid er ikke registrert som gjort. |
-| Gjenstående minutter | Ditt oppdaterte anslag for hele oppgaven, inkludert neste steg. |
-| Ferdig med arbeidet / Fullført | Din manuelle bekreftelse på utført arbeid. Oppgaven trenger ingen kapasitet. |
-| Klar til levering | Arbeidet er ferdig, men levering er ikke bekreftet. Fristen følges fortsatt opp. |
-| Levert | Du har selv bekreftet levering. Appen kontrollerer ikke innleveringssystemet. |
+| Planlagt eller foreslått tid | En framtidig reservasjon eller beregnet mulighet. Den er ikke gjennomføringshistorikk. |
+| Faktisk arbeid | Minutter og utfall studenten registrerer etter arbeid. Arbeidsloggen kan brukes i frivillige, lokale estimatforslag. |
+| Gjenstående arbeid | Studentens nåværende anslag for det som fortsatt må gjøres. Det reduseres ikke bare fordi en økt er passert. |
+| Ferdig / fullført | Studenten har bekreftet at selve arbeidet er ferdig. Hvis oppgaven skal leveres, er den da «klar til levering». |
+| Levert | Studenten har separat bekreftet innlevering. Studieplan kontrollerer ikke lærestedets innleveringssystem. |
 
-«Neste steg gjort» fjerner steget. Det måler ikke faktisk tidsbruk og trekker ikke automatisk fra estimatet. Oppdater gjenstående tid etterpå. Null gjenstående fullfører heller ikke oppgaven automatisk: bekreft status selv. Et tidligere anslag beholdes ved fullføring, slik at du kan angre; gjennomgå anslaget hvis du åpner arbeidet igjen.
+«Neste steg gjort» fjerner det aktive steget, men registrerer ikke automatisk minutter og fullfører ikke hele oppgaven. Null gjenstående arbeid betyr heller ikke automatisk ferdig. Disse skillene gjør at kalenderen, arbeidsloggen og innleveringsstatusen ikke brukes som bevis for hverandre.
 
-## Ugyldige data og lagringsfeil
+## Feil, sikkerhetskopi og gjenoppretting
 
-Negative eller desimale minutter, en ugyldig dato og slutt før start gir feltfeil. Gjenstående kan være null; et hovedestimat og et stegestimat må være positive. Overlappende økter avvises i skjemaet og utkastet beholdes. Kalenderen skiller økter og frister med tekst og utforming, slik at farge alene ikke må tolkes.
+Ugyldige felt eller relasjoner avvises før skriving. En SQLite-endring som består av flere tabelloperasjoner kjøres i én transaksjon; enten lagres hele tilstanden med ny revisjon, eller så beholdes den forrige. Erstattende endringer lager et begrenset recovery-øyeblikksbilde. Innstillinger lar brukeren eksportere en portabel JSON-sikkerhetskopi og forhåndsvise en validert gjenoppretting før databasen erstattes. Recovery, angre og papirkurv er hjelp mot nylige brukerhandlinger, ikke en erstatning for en separat sikkerhetskopi ved diskfeil.
 
-Lagringen bruker samme nøkkel, `studieplanlegger:v1`, og versjon som tidligere. Nye felt er valgfrie: eldre oppgaver bruker hovedestimatet som gjenstående, og manglende økter betyr en tom øktliste. Innlesing skriver ikke om data, og gammel fullføring tolkes aldri som levering. Hele lagringskandidaten kontrolleres før skriving. Uleselig JSON eller ugyldige lagrede felt sperrer endringer og gir «Prøv igjen»; appen nullstiller ikke dataene.
+## Hva testene kontrollerer
 
-Ved skrivefeil beholdes tidligere lagring og skjemaets utkast. Du må prøve lagringen igjen; en feilmelding betyr at endringen ikke er lagret. Lokal lagring er valgt for å unngå konto og server. Begrensningene er at nettleserdata kan slettes, at data ikke synkroniseres, og at to redigerende faner kan overskrive hverandre. Bruk samme adresse, nettleserprofil og tidssone. Detaljer om klokkeoverganger og økter står i [README](../../studieplanlegger/README.md).
+- [Enhetstestene](../../studieplanlegger/tests/unit) dekker validering, relasjoner, forslag, kapasitet, omplanlegging, arbeidsstatus, SQLite-migrering, revisjonskonflikter, recovery og sikkerhetskopi.
+- [Nettlesertestene](../../studieplanlegger/tests/e2e) kontrollerer de synlige brukerflytene. Den vanlige suiten bruker Vite/localStorage.
+- `npm run test:e2e:database` bygger klienten, starter Node/SQLite med en midlertidig database på loopback og kjører den produksjonsrettede databaseflyten.
+- [VERIFICATION.md](../../studieplanlegger/VERIFICATION.md) skiller daterte, faktisk kjørte kontroller fra historiske eller utestede påstander.
 
-## Hva testene forteller
-
-| Testfiler | Hva de kontrollerer – og hvorfor |
-| --- | --- |
-| [tasks.test.js](../../studieplanlegger/tests/unit/tasks.test.js), [next-action.test.js](../../studieplanlegger/tests/unit/next-action.test.js) | Gyldige felt, stabile ID-er, steg og separat levering. Hindrer at én handling utilsiktet endrer andre opplysninger. |
-| [storage.test.js](../../studieplanlegger/tests/unit/storage.test.js) | Ugyldig lagring, skrivefeil, bevaring og nytt forsøk. Hindrer falsk lagringssuksess og stille tap av data. |
-| [remaining.test.js](../../studieplanlegger/tests/unit/remaining.test.js), [calendar.test.js](../../studieplanlegger/tests/unit/calendar.test.js) | Historiske frist-/tidsregler, lokal uke, sommertid og norsk klokke. Filnavnet `remaining.test.js` er eldre enn kapasitetsfunksjonen. |
-| [capacity.test.js](../../studieplanlegger/tests/unit/capacity.test.js) | Fordeling, kapasitetsmangel, overlapp, frist midt i økt, forfalt/ferdig arbeid og gamle estimater. Kontrollerer at ingen framtidig arbeidsplan bruker tid som ikke er tilgjengelig før fristen. |
-| [capacity-invariants.test.js](../../studieplanlegger/tests/unit/capacity-invariants.test.js) | Prøver varierte arbeidsmengder og kontrollerer hvert tildelte minutt mot økt, frist og øvrige tildelinger. En ekstra lik eller innestengt økt skal ikke skape mer kapasitet. |
-| [capacity.spec.js](../../studieplanlegger/tests/e2e/capacity.spec.js), [capacity-lifecycle.spec.js](../../studieplanlegger/tests/e2e/capacity-lifecycle.spec.js) og [andre nettlesertester](../../studieplanlegger/tests/e2e) | Skjema, lagring, omlasting og mobil/tastatur gjennom den faktiske nettsiden. Hele oppgaveløpet prøves med lagrede økter, også med skrivefeil og nytt forsøk. Regler alene beviser ikke at knappene virker sammen. |
-
-Testene bruker kunstige data og styrt klokke. Et produksjonsbygg kontrollerer at prosjektet kan pakkes; det beviser ikke at appen hjelper deg å starte eller huske levering. Faktisk kjørte kontroller står i [kapasitetsevidensen](capacity-evidence.md). Nytte og egen forståelse undersøker du med [utprøvingsloggen](trial-log.md) og [refleksjonsspørsmålene](project-reflection.md).
+Testene bruker syntetiske data. Et grønt bygg viser at den kontrollerte tekniske flyten virker; det dokumenterer ikke studentens opplevde nytte eller læring. Slike vurderinger må komme fra [utprøvingsloggen](trial-log.md) og studentens egne svar i [refleksjonsutkastet](project-reflection.md).
