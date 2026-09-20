@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
-import { RevisionConflict, StateDatabase } from '../../server/database.js'
+import { fingerprintLegacy, RevisionConflict, StateDatabase } from '../../server/database.js'
 import { exportBackup, previewBackup } from '../../src/backup.js'
 
 const directories = []
@@ -72,7 +72,12 @@ describe('SQLite state repository', () => {
     expected.workLogs = [log]
     expected.history = { version: 1, undo: [{ id: 'history-work', label: 'Work', at: '2026-09-20T08:00:00.000Z', plannerExisted: true,
       changes: [{ path: 'workLogs', id: log.id, index: 0, before: null, after: structuredClone(log), existed: false }] }], trash: [] }
-    db.save(expected, 0)
+    const raw = JSON.stringify(expected), preview = db.previewLegacy(raw)
+    db.importLegacy(raw, preview.fingerprint, 0)
+    const secondArchive = { ...expected, workLogs: [{ ...log, id: 'second-work-operation', operationId: 'second-operation' }] }
+    const secondRaw = JSON.stringify(secondArchive), secondFingerprint = fingerprintLegacy(secondRaw)
+    db.db.prepare("INSERT INTO legacy_archives(fingerprint,imported_at,raw,revision) VALUES(?,datetime('now'),?,?)").run(secondFingerprint, secondRaw, 1)
+    db.db.prepare("INSERT INTO legacy_archives(fingerprint,imported_at,raw,revision) VALUES('invalid',datetime('now'),'not-json',1)").run()
     const changed = { ...expected, tasks: expected.tasks.map(value => ({ ...value, remainingMinutes: 10 })) }
     db.save(changed, 1, { snapshot: true })
     expect(db.recovery().data).toEqual(expected)
@@ -82,6 +87,12 @@ describe('SQLite state repository', () => {
     expect(db.recovery().data.workLogs).toBeUndefined()
     expect(db.recovery().data.history).toEqual({ version: 1, undo: [], trash: [] })
     for (const row of db.db.prepare('SELECT payload_json FROM recovery_snapshots').all()) expect(JSON.parse(row.payload_json).workLogs).toBeUndefined()
+    const archives = db.db.prepare('SELECT fingerprint,raw FROM legacy_archives ORDER BY fingerprint').all()
+    for (const row of archives.filter(row => row.fingerprint !== 'invalid')) {
+      expect(JSON.parse(row.raw).workLogs).toBeUndefined()
+      expect(JSON.parse(row.raw).history).toEqual({ version: 1, undo: [], trash: [] })
+    }
+    expect(archives.find(row => row.fingerprint === 'invalid').raw).toBe('not-json')
     db.close()
   })
 

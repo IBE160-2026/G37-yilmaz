@@ -18,4 +18,19 @@ describe('verification reporter evidence', () => {
       reporter.onEnd({ status: 'failed' }); expect(log).toHaveBeenCalled(); log.mockRestore()
     } finally { rmSync(dir, { recursive: true, force: true }) }
   })
+
+  it('keeps completed runs with skipped tests distinct after onEnd', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'study-verification-'))
+    try {
+      const reporter = new VerificationReporter(); reporter.path = join(dir, 'result.json')
+      reporter.onBegin({}, { allTests: () => [{}, {}] })
+      const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+      reporter.onTestEnd({ title: 'runs', location: { file: 'a.spec.js', line: 1 } }, { status: 'passed', duration: 1, errors: [] })
+      reporter.onTestEnd({ title: 'skips', location: { file: 'b.spec.js', line: 2 } }, { status: 'skipped', duration: 0, errors: [] })
+      expect(JSON.parse(readFileSync(reporter.path, 'utf8')).status).toBe('passed-with-skips')
+      reporter.onEnd({ status: 'passed' })
+      expect(JSON.parse(readFileSync(reporter.path, 'utf8'))).toMatchObject({ status: 'passed-with-skips', results: [{ status: 'passed' }, { status: 'skipped' }] })
+      log.mockRestore()
+    } finally { rmSync(dir, { recursive: true, force: true }) }
+  })
 })
