@@ -8,8 +8,8 @@ review_loop_iteration: 0
 baseline_commit: 'NO_VCS'
 context:
   - '{project-root}/.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md'
-  - '{project-root}/.docs/planning-artifacts/briefs/brief-studieplanlegger-2026-09-06/brief.md'
-  - '{project-root}/.docs/implementation-artifacts/spec-studieplan-connected-planner.md'
+  - '{project-root}/brief.md'
+  - '{project-root}/studieplanlegger/IMPORT-COVERAGE.md'
 ---
 
 <frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
@@ -66,6 +66,8 @@ context:
 - Given UI CRUD, import, undo/trash, backup/restore and a forced invalid/stale write, when each flow is reloaded, then successful changes come from SQLite and failed changes leave both database and visible draft/state consistent.
 
 ## Implementation Notes
+
+- `baseline_commit: NO_VCS` is historical metadata from when this specification was approved before the delivery repository had a usable baseline commit; it is not a claim about the current Git state.
 
 - `server/database.js` owns schema migration, optimistic revision checks and one-transaction replacement of the complete validated envelope. Domain tables retain indexed IDs/relations/order plus complete JSON. Recovery snapshots and legacy raw archives are in the same SQLite file.
 - `server/state-api.js` applies local host/origin/fetch-metadata guards and exposes health, state, restore, recovery, purge and legacy preview/import routes. `server/app.js` composes these with the existing import middleware and static production client.

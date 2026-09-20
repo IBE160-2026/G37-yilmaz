@@ -10,12 +10,16 @@ created: 2026-09-06
 updated: 2026-09-20
 binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
-  - ../../prds/prd-studieplanlegger-2026-09-06/prd.md
-  - ../../prds/prd-studieplanlegger-2026-09-06/addendum.md
-companions: [next-chat.md]
+  - ../../../../brief.md
+  - ../../../implementation-artifacts/spec-fullstack-database-docker-delivery.md
+  - ../../../implementation-artifacts/solution-guide.md
 ---
 
 # Technical plan: Studieplanlegger
+
+## Historical requirement key
+
+The `FR`/`NFR` identifiers below are retained as traceability labels from the original planning baseline. FR-1 covers task creation; FR-2 editing/deletion; FR-3 work completion; FR-4 weekly overview; FR-5 time-fit suggestions; FR-6 durable reload of saved state; FR-7 one active next step; FR-8 separate manual submission confirmation; FR-9 the overview dashboard; and FR-10 the deadline calendar. NFR-1 is simple, accessible Norwegian use; NFR-2 is local privacy; and NFR-3 is predictable, safe rendering. Later decisions AD-8–AD-10 extend these contracts and supersede FR-6's original browser-only storage choice in the Docker/production delivery.
 
 ## AD-10 — Durable full-stack delivery, 2026-09-20
 
@@ -25,7 +29,7 @@ The existing v1 browser record is a read-only migration source in production, no
 
 ## AD-9 — Connected planner extension, 2026-09-09
 
-The approved [connected planner specification](../../../implementation-artifacts/spec-studieplan-connected-planner.md) supersedes older exclusions below concerning imports, work history, dependencies, backup, concurrency and capacity. The application remains vanilla JavaScript/Vite with one localStorage v1 envelope and no startup migration. The older decisions remain historical context where they conflict with this extension.
+The connected-planner extension supersedes older exclusions below concerning imports, work history, dependencies, backup, concurrency and capacity. Its detailed build record is preserved in pre-cleanup Git commit `1a39aaf`; current source scope is authoritative in [IMPORT-COVERAGE.md](../../../../studieplanlegger/IMPORT-COVERAGE.md). The application remains vanilla JavaScript/Vite with a localStorage v1 envelope in development and SQLite behind the Node API in production. The older decisions remain historical context where they conflict with AD-10 or this extension.
 
 - `main.js` owns the complete state and ordinary changes use `commitState` for one validated envelope write before updating memory. `storage.js` guards raw-read failures and concurrent storage changes. The explicit privacy purge first stages a scrubbed recovery journal, then commits the purged main envelope and reloads controller state; guarded rollback handles write failure without overwriting another writer. Unreadable recovery data causes refusal rather than false deletion success. `history.js` records compound changes to tasks, reservations, work logs, import sources, planner records and explicit preferences; undo/trash restores the operation together and rejects changed baselines.
 - Title is the sole required task input. Empty course and deadline are valid. `estimatedMinutes` is preserved for older tasks; absent `remainingMinutes` falls back to it, explicit null means unknown, a nonnegative number is a remaining estimate, and zero is independent of completion. Reopening completed work with zero remaining explicitly sets unknown; positive, absent and already unknown values stay intact. Undo restores the whole prior transaction. Untouched legacy fields are not migrated by opening or saving unrelated details.
@@ -44,11 +48,11 @@ The approved [connected planner specification](../../../implementation-artifacts
 - NHFH named semester rows have stable name-based source IDs. Explicit reimport can rebind an old semester-only ID only when provider, published programme URL/version, programme/study semester and original source name agree uniquely; local IDs and relations survive. Campus checks include both direct course metadata and the student's programme binding. Explicit source exclusions for an academic year block both corresponding calendar semesters; neither a generic current page nor a student clarification verifies an unpublished cohort.
 - Text intent uses Unicode word boundaries. VTODO recurrence properties, including RDATE, require explicit selection as one concrete task and retain incomplete-source evidence; calendar-level METHOD:CANCEL requires explicit status resolution. Source snippets place cancellation/recurrence evidence before potentially long descriptions. No recurrence or cancellation silently changes saved work.
 
-The 2026-09-07 capacity extension is specified in [spec-capacity-planning.md](../../../implementation-artifacts/spec-capacity-planning.md). AD-8 below extends the task and storage contracts and the derived calendar. Actual current verification belongs in [capacity-evidence.md](../../../implementation-artifacts/capacity-evidence.md); earlier evidence remains historical. The [Norwegian solution guide](../../../implementation-artifacts/solution-guide.md) explains the implementation with examples.
+AD-8 below records the 2026-09-07 capacity extension. Actual current verification belongs in [VERIFICATION.md](../../../../studieplanlegger/VERIFICATION.md); detailed earlier specifications and feature evidence remain available in pre-cleanup commit `1a39aaf`. The [Norwegian solution guide](../../../implementation-artifacts/solution-guide.md) explains the implementation with examples.
 
 ## Design paradigm
 
-Small layered browser application. Technical choices below are agent-selected defaults under the user's delegation, not individually confirmed choices. The original implementation and the next-step/submission additions exist with recorded tests. This contract now includes the authorized dashboard redesign and deadline calendar while preserving those task rules. D1–D8 retain local dates, safe whole minutes and deterministic suggestions; “Oversikt” replaces the old initial weekly view, and date/time entry becomes explicit date plus 24-hour `HH:mm`. Actual new verification belongs in the [redesign/calendar evidence](../../../implementation-artifacts/ui-calendar-evidence.md).
+Small layered browser application. Technical choices below are agent-selected defaults under the user's delegation, not individually confirmed choices. The original implementation and the next-step/submission additions exist with recorded tests. This contract includes the authorized dashboard redesign and deadline calendar while preserving those task rules. D1–D8 retain local dates, safe whole minutes and deterministic suggestions; “Oversikt” replaces the old initial weekly view, and date/time entry becomes explicit date plus 24-hour `HH:mm`. Current results are consolidated in [VERIFICATION.md](../../../../studieplanlegger/VERIFICATION.md).
 
 ```mermaid
 flowchart TD
@@ -189,11 +193,11 @@ Open `http://studieplan.localhost/`; keep the terminal running and stop with Ctr
 | Safe, usable UI | Playwright: HTML-like title stays text; 100 tasks remain operable. Manual keyboard/focus and 360/1280 px walkthrough, empty/error states, core interaction and storage explanation; record observed results |
 | Build | `npm.cmd test`, `npm.cmd run test:e2e`, `npm.cmd run build`; investigate failures before marking stories done |
 
-**Current evidence:** The [original version evidence](../../../implementation-artifacts/version-one-evidence.md) and [task-extension evidence](../../../implementation-artifacts/study-actions-evidence.md) preserve earlier checks and their distinct human-acceptance scope. The [redesign/calendar specification](../../../implementation-artifacts/spec-ui-calendar.md) adds AC1–9 for the new views and controls while retaining prior task rules. Record actual new commands and results in [redesign/calendar evidence](../../../implementation-artifacts/ui-calendar-evidence.md); historical results are not new test passes or acceptance of the changed interface. The package currently has no separate lint or typecheck script; report available checks and limits explicitly. The one-month trial has not started. During the trial, manually note forgotten deadlines, organization effort, estimation burden and whether the dashboard/calendar and next-step/status tools help; do not add tracking features or claim measured benefits.
+**Current evidence:** [VERIFICATION.md](../../../../studieplanlegger/VERIFICATION.md) records actual technical runs; [project-reflection.md](../../../implementation-artifacts/project-reflection.md) records sourced KI/BMAD events, and [trial-log.md](../../../implementation-artifacts/trial-log.md) keeps personal use explicitly unstarted. Historical feature specifications, evidence and handover lists remain in pre-cleanup commit `1a39aaf` and are not new test passes or acceptance of the changed interface. The package has no separate lint or typecheck script.
 
 ## Deferred
 
 - Exact helper signatures, CSS details and test fixtures: choose within these contracts during stories; code owns the structural seed thereafter.
 - Hosting, deployment automation and production monitoring: revisit only if public distribution is requested; first version runs locally.
-- Multi-tab concurrency, timezone-travel support and backup/import/export: revisit if personal use reveals a need; no new feature implied. On unreadable data, preserve it and retry; assisted recovery is separate work.
+- Cross-timezone travel remains limited. Production detects stale multi-client writes with expected revisions and HTTP 409; Vite/localStorage remains a development path without server revisions. Backup/export, validated restore and same-origin legacy import are implemented, but they do not protect against every disk or operator failure.
 - The original build and planning handoffs are historical. Use the shipped implementation specifications and verification evidence for the authorized additions and actual verification; do not recreate the app or restart completed planning.

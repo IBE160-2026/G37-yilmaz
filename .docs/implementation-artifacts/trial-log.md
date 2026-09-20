@@ -71,11 +71,11 @@ En måned med egne notater kan vise konkrete erfaringer. Den dokumenterer ikke a
 
 Automatiserte tester og produksjonsbygg dokumenteres i teknisk evidens, ikke som personlige loggnotater. Se [README med gjeldende kontroller](../../studieplanlegger/README.md#tester-og-bygg). Mine faktiske erfaringer skal først føres i loggen ovenfor.
 
-Grunnversjonen har [historisk menneskelig overtakelse](version-one-handover-check.md). Neste steg og levering har [egen evidens](study-actions-evidence.md) og [prøveliste](study-actions-handover-check.md); redesign og fristkalender har [separate kontroller](ui-calendar-evidence.md) og [prøveliste](ui-calendar-handover-check.md). Tidligere «Alt funket», eksempelflyten og skjermbildene gjelder avgrensede tidligere versjoner. De er ikke erfaringer fra denne måneden eller en godkjenning av kapasitetsplanleggingen.
+Grunnfunksjonene 1.2 og 1.3 ble bekreftet 6. september 2026, og grunnversjonen fikk meldingen «Alt funket» 7. september. Neste steg/levering fikk senere en kort prøvd eksempelflyt med to skjermbilder, men ikke full menneskelig sjekkliste. Ny menneskelig gjennomgang av redesign og fristkalender ble heller ikke registrert. Disse observasjonene gjelder avgrensede tidligere versjoner; de er ikke erfaringer fra denne måneden eller godkjenning av dagens komplette løsning. De detaljerte overtakelsesarkene finnes i Git-historikken ved commit [`1a39aaf`](https://github.com/IBE160-2026/G37-yilmaz/tree/1a39aaf450c3ff4a59908fd8caba9de10230b9a6).
 
 
 ## Utført KI-prøve, 7. september 2026
 
-Codex har gjennomført [den tekniske prøven med fem syntetiske oppgaver](assistant-trial-report.md). Oppgaver og studieøkter ble registrert med faktiske skjemaer; flytting, sletting, kapasitet, gjenåpning, neste steg og simulert levering/angre ble kontrollert. Rapporten har forventede og observerte regnestykker og skjermbilder.
+Codex gjennomførte 7. september 2026 en teknisk prøve med fem syntetiske oppgaver. Oppgaver og studieøkter ble registrert med faktiske skjemaer; flytting, sletting, kapasitet, gjenåpning, neste steg og simulert levering/angre ble kontrollert. Den historiske detaljrapporten finnes i commit `1a39aaf`; gjeldende tekniske resultater står i [VERIFICATION.md](../../studieplanlegger/VERIFICATION.md).
 
 Dette er en egen testlogg. Status, faktiske bruksdatoer, avkrysninger for egne oppgaver og personlige observasjoner ovenfor er beholdt åpne. Når studenten gir faktiske oppgaver eller daterte erfaringer, kan Codex hjelpe med registrering og formulering av loggnotater.
