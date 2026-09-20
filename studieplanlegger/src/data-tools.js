@@ -104,11 +104,12 @@ export function createDataTools(actions) {
     enabled.checked = model.personalization?.enabled !== false
     enabled.disabled = !model.readable || model.editing
     for (const control of personalization.querySelectorAll('button')) control.disabled = !model.readable || model.editing
-    const next = JSON.stringify([model.view, model.readable, model.editing, model.history, Boolean(actions.recovery())]); if (next === signature) return; signature = next
+    const hasRecovery = Boolean(actions.recovery())
+    const next = JSON.stringify([model.view, model.readable, model.editing, model.history, hasRecovery]); if (next === signature) return; signature = next
     for (const control of [undo, trash, save]) control.disabled = !model.readable || model.editing
     restore.disabled = recovery.disabled = model.editing
     undo.disabled ||= !model.history?.undo.length
-    recovery.disabled ||= !actions.recovery()
+    recovery.disabled ||= !hasRecovery
     trash.textContent = `Papirkurv (${model.history?.trash.length || 0})`
   } }
 }

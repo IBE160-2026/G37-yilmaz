@@ -108,10 +108,11 @@ Installer Playwrights testnettleser ved behov og kjør kontrollene fra prosjektm
 npx.cmd playwright install chromium
 npm.cmd run test:unit
 npm.cmd run test:e2e
+npm.cmd run test:e2e:database
 npm.cmd run build
 ```
 
-Nettlesertestene bruker isolerte kontekster og en server på **127.0.0.1:5174**. De bruker syntetiske studentdata. Prøver mot ekte offentlige kilder er egne opt-in-forløp og telles separat fra simulerte svar og offentlige fixturer. [VERIFICATION.md](VERIFICATION.md) dokumenterer de faktiske kjøringene, visuelle kontrollene og begrensningene.
+Den vanlige nettlesersuiten bruker isolerte kontekster og en Vite-server på **127.0.0.1:5174**. `test:e2e:database` bygger appen, velger en ledig loopback-port, starter den faktiske Node/SQLite-serveren med en midlertidig database og rydder databasen etterpå. Begge bruker syntetiske studentdata. Prøver mot ekte offentlige kilder er egne opt-in-forløp og telles separat fra simulerte svar og offentlige fixturer. [VERIFICATION.md](VERIFICATION.md) dokumenterer de faktiske kjøringene, visuelle kontrollene og begrensningene.
 
 `build` lager lokale filer i `dist/` og publiserer ingenting. Prosjektet har ingen egen lint- eller typekontrollkommando. Behold `package-lock.json`; `npm.cmd ci` installerer de låste avhengighetene.
 

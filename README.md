@@ -34,9 +34,10 @@ Kjør fra `studieplanlegger/`:
 npm ci
 npm run test:unit
 npm run build
+npm run test:e2e:database
 ```
 
-Nettlesertestene kan kjøres separat med `npm run test:e2e` etter at Chromium for Playwright er installert. Testene bruker syntetiske studentdata; kildeadaptrene testes også mot versjonerte fixturer fra offentlige kilder.
+`test:e2e:database` bygger appen og kjører den målrettede produksjonsflyten mot et midlertidig Node/SQLite-oppsett. Den vanlige Vite-baserte nettlesersuiten kan kjøres separat med `npm run test:e2e` etter at Chromium for Playwright er installert. Testene bruker syntetiske studentdata; kildeadaptrene testes også mot versjonerte fixturer fra offentlige kilder.
 
 ## Arkitektur og dokumentasjon
 
