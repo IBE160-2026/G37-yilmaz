@@ -1,0 +1,835 @@
+{
+  "nord": {
+    "url": "https://www.nord.no/studier/studieplaner",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "F",
+      "F",
+      "F",
+      "F",
+      "A"
+    ]
+  },
+  "nmbu": {
+    "url": "https://www.nmbu.no/studier",
+    "statuses": [
+      "F",
+      "V",
+      "U",
+      "U",
+      "V",
+      "U",
+      "U",
+      "V",
+      "V",
+      "L",
+      "V",
+      "U"
+    ]
+  },
+  "ntnu": {
+    "url": "https://www.ntnu.no/studier/alle",
+    "statuses": [
+      "F",
+      "F",
+      "F",
+      "F",
+      "V",
+      "F",
+      "F",
+      "V",
+      "V",
+      "V",
+      "V",
+      "A"
+    ]
+  },
+  "oslomet": {
+    "url": "https://www.oslomet.no/studier/studieoversikt",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "F",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "uit": {
+    "url": "https://uit.no/utdanning/emner",
+    "statuses": [
+      "U",
+      "L",
+      "U",
+      "U",
+      "L",
+      "U",
+      "U",
+      "L",
+      "F",
+      "L",
+      "U",
+      "U"
+    ]
+  },
+  "uia": {
+    "url": "https://www.uia.no/studier",
+    "statuses": [
+      "M",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "uib": {
+    "url": "https://www4.uib.no/studier/program",
+    "statuses": [
+      "F",
+      "F",
+      "F",
+      "F",
+      "V",
+      "F",
+      "F",
+      "V",
+      "F",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "inn": {
+    "url": "https://studiekatalog.edutorium.no/inn/nb/program/BAPEDD/2026",
+    "statuses": [
+      "F",
+      "F",
+      "F",
+      "F",
+      "F",
+      "F",
+      "F",
+      "F",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "uio": {
+    "url": "https://www.uio.no/studier/program/",
+    "statuses": [
+      "M",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "uis": {
+    "url": "https://www.uis.no/nb/studier",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "usn": {
+    "url": "https://www.usn.no/studier/",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "U",
+      "F",
+      "F",
+      "F",
+      "U"
+    ]
+  },
+  "aho": {
+    "url": "https://www.aho.no/",
+    "statuses": [
+      "M",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "mf": {
+    "url": "https://mf.no/en/Students/Practical-Information/Find-Your-Schedule",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "F",
+      "F",
+      "U",
+      "F",
+      "A"
+    ]
+  },
+  "bi": {
+    "url": "https://www.bi.no/studier-og-kurs/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "A"
+    ]
+  },
+  "himolde": {
+    "url": "https://www.himolde.no/studier/",
+    "statuses": [
+      "M",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "khio": {
+    "url": "https://khio.no/intranett/for-studenter/studieinformasjon",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "nhh": {
+    "url": "https://www.nhh.no/studier/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "nih": {
+    "url": "https://www.nih.no/studier/",
+    "statuses": [
+      "M",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "nmh": {
+    "url": "https://ansatt.nmh.no/undervisning/studieplanutvikling-og-kvalitet/studieplanarbeid",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "F",
+      "F",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "vid": {
+    "url": "https://www.vid.no/studier/",
+    "statuses": [
+      "F",
+      "F",
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "ansgar": {
+    "url": "https://ansgarhoyskole.no/",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "U",
+      "F",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "bas": {
+    "url": "https://bas.org/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "dmmh": {
+    "url": "https://studier.dmmh.no/nb/program?sem=2026&study_level=All&title_search=",
+    "statuses": [
+      "F",
+      "F",
+      "F",
+      "F",
+      "F",
+      "F",
+      "F",
+      "F",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "fih": {
+    "url": "https://fih.fjellhaug.no/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "fhs": {
+    "url": "https://www.forsvaret.no/om-forsvaret/organisasjon/FHS",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "hivolda": {
+    "url": "https://www.hivolda.no/",
+    "statuses": [
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "hiof": {
+    "url": "https://www.hiof.no/studier/",
+    "statuses": [
+      "M",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "hlt": {
+    "url": "https://hlt.no/batl/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "F",
+      "F",
+      "F",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "kristiania": {
+    "url": "https://www.kristiania.no/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "U",
+      "F",
+      "F",
+      "F",
+      "A"
+    ]
+  },
+  "hvl": {
+    "url": "https://www.hvl.no/studier/studieprogram/studietilbod/",
+    "statuses": [
+      "F",
+      "F",
+      "F",
+      "U",
+      "V",
+      "U",
+      "U",
+      "V",
+      "V",
+      "V",
+      "V",
+      "U"
+    ]
+  },
+  "ldh": {
+    "url": "https://ldh.no/student/semester-og-eksamensoversikt",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "F",
+      "F",
+      "U",
+      "F",
+      "F",
+      "F",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "nla": {
+    "url": "https://www.nla.no/your-studies/studieplan/4%C3%98KADM",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "F",
+      "F",
+      "F",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "phs": {
+    "url": "https://www.phs.no/",
+    "statuses": [
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "samas": {
+    "url": "https://samas.no/nb",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "steiner": {
+    "url": "https://www.steinerhoyskolen.no/for-studenter/ressurser/kategorier/emneplaner",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "F",
+      "F",
+      "U",
+      "F",
+      "F",
+      "F",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "barrattdue": {
+    "url": "https://barrattdue.no/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "ekko": {
+    "url": null,
+    "statuses": [
+      "Ø",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "hgut": {
+    "url": "https://hgut.no/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "hfdk": {
+    "url": "https://www.hfdk.no/for-studenter/studieplan-og-emner",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "hfy": {
+    "url": "https://hfy.no/bachelor-i-byggeplassledelse",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "krus": {
+    "url": "https://www.krus.no/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "limpi": {
+    "url": "https://limpimusic.com/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "nhfh": {
+    "url": "https://nhfh.no/pensumlister/",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "noroff": {
+    "url": "https://www.noroff.no/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "nbi": {
+    "url": "https://barnebokinstituttet.no/utdanninger-og-kurs/nettstudiet-i-samtidslitteratur/",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "U",
+      "U"
+    ]
+  },
+  "gestalt": {
+    "url": "https://gestalt.no/gestaltterapi-1",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "F",
+      "F",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "nski": {
+    "url": "https://www.nski.no/bachelor-i-skuespillerfag",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "onh": {
+    "url": "https://oslonyehoyskole.no/Studentinfo/Studieplaner",
+    "statuses": [
+      "F",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  },
+  "skrivekunst": {
+    "url": "https://www.skrivekunst.no/studieplan/",
+    "statuses": [
+      "F",
+      "U",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "F",
+      "U",
+      "U"
+    ]
+  }
+}

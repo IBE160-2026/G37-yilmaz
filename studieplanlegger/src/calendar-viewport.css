@@ -1,0 +1,50 @@
+/* Compact information bands, never inflated or repositioned duration blocks. */
+#full-calendar .full-calendar-toolbar > label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 0;
+}
+#full-calendar .calendar-readable-content {
+  display: flex;
+  align-items: stretch;
+  max-height: none;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  padding: 4px 4px 8px;
+}
+#full-calendar .calendar-readable-content .calendar-entry { flex: 0 0 260px; max-width: 100%; scroll-snap-align: start; }
+#full-calendar .calendar-readable-content.has-scroll::after { display: none; }
+#full-calendar .calendar-readable-content .calendar-entry { position: relative; }
+#full-calendar .calendar-readable-content .entry-continuation { position: absolute; top: 0; left: 0; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#full-calendar .calendar-readable-content .calendar-entry:has(.entry-continuation:not([hidden])) .entry-time::before { content: '\2195 '; font-weight: 700; }
+#full-calendar .calendar-time-grid > section > h3 { padding-top: 6px; padding-bottom: 6px; }
+#full-calendar :is(.calendar-points, .calendar-axis-points) { max-height: max(72px, 4.5rem); }
+#full-calendar .calendar-points { overflow: auto; }
+#full-calendar .calendar-timeline .viewport-continues-before { border-top-style: dashed; }
+#full-calendar .calendar-timeline .viewport-continues-after { border-bottom-style: dashed; }
+#full-calendar .entry-viewport-continuation { display: block; font-weight: 600; }
+#full-calendar .entry-viewport-continuation[hidden] { display: none; }
+#full-calendar .calendar-narrow-week-hint {
+  display: none;
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: .875rem;
+}
+@media (min-width: 1180px) {
+  #full-calendar .full-calendar-toolbar > label {
+    max-width: none;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+  }
+  #full-calendar .full-calendar-toolbar > label > :is(input, select) {
+    width: auto;
+    flex: 0 0 auto;
+  }
+}
+@media (max-width: 760px) {
+  #full-calendar:has(.full-calendar-viewport[data-mode='week']) .calendar-narrow-week-hint { display: block; }
+}

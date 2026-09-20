@@ -1,0 +1,950 @@
+{
+  "checkedAt": "2026-09-12T12:08:15.254Z",
+  "sources": [
+    {
+      "studyCode": "B-INF",
+      "record": "279505",
+      "id": "868804",
+      "label": "Studieplan Bachelor i informatikk, datamaskinsystemer gjeldende fra høsten 2025",
+      "url": "https://uit.no/Content/868804/cache=20263108124114/Studieplan%20Bachelor%20i%20informatikk%2C%20datamaskinsystemer%20gjeldende%20fra%20h%C3%B8sten%202025.pdf",
+      "cohort": "2025",
+      "pages": 8,
+      "courses": 16,
+      "models": [
+        {
+          "id": "table-1",
+          "name": "Publisert semesterfordeling",
+          "semesters": 6,
+          "firstCourses": [
+            {
+              "code": "INF-0101",
+              "name": "Innføring i programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "INF-0103",
+              "name": "Datamaskiners virkemåte og programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-0001",
+              "name": "Brukerkurs i matematikk",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "B-INF",
+      "record": "279505",
+      "id": "868803",
+      "label": "Studieplan Bachelor i informatikk, datamaskinsystemer gjeldende fra høsten 2021",
+      "url": "https://uit.no/Content/868803/cache=20263108124114/Studieplan%20Bachelor%20i%20informatikk%2C%20datamaskinsystemer%20gjeldende%20fra%20h%C3%B8sten%202021.pdf",
+      "cohort": "2021",
+      "pages": 7,
+      "courses": 15,
+      "models": [
+        {
+          "id": "table-1",
+          "name": "Publisert semesterfordeling",
+          "semesters": 6,
+          "firstCourses": [
+            {
+              "code": "INF-1100",
+              "name": "Innføring i programmering og datamaskiners virkemåte",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-0001",
+              "name": "Brukerkurs i matematikk",
+              "credits": 10,
+              "choice": "V"
+            },
+            {
+              "code": "MAT-1001",
+              "name": "Kalkulus 1",
+              "credits": 10,
+              "choice": "V"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "B-INF",
+      "record": "279505",
+      "id": "868801",
+      "label": "Studieplan Bachelor i informatikk, datamaskinsystemer gjeldende fra høsten 2018",
+      "url": "https://uit.no/Content/868801/cache=20263108124114/Studieplan%20Bachelor%20i%20informatikk%2C%20datamaskinsystemer%20gjeldende%20fra%20h%C3%B8sten%202018.pdf",
+      "cohort": "2018",
+      "pages": 7,
+      "courses": 16,
+      "models": [
+        {
+          "id": "table-1",
+          "name": "Publisert semesterfordeling",
+          "semesters": 6,
+          "firstCourses": [
+            {
+              "code": "INF-1100",
+              "name": "Innføring i programmering og datamaskiners virkemåte",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-0001",
+              "name": "Brukerkurs i matematikk",
+              "credits": 10,
+              "choice": "V"
+            },
+            {
+              "code": "MAT-1001",
+              "name": "Kalkulus 1",
+              "credits": 10,
+              "choice": "V"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "IMAT-INF",
+      "record": "279506",
+      "id": "933374",
+      "label": "Studieplan Sivilingeniør i informatikk gjeldende fra høsten 2024",
+      "url": "https://uit.no/Content/933374/cache=20263108124456/Studieplan%20Sivilingeni%C3%B8r%20i%20informatikk%20gjeldende%20fra%20h%C3%B8sten%202024.pdf",
+      "cohort": "2024",
+      "pages": 11,
+      "courses": 48,
+      "models": [
+        {
+          "id": "table-1",
+          "name": "Studieretning «Datamaskinsystemer»",
+          "semesters": 10,
+          "firstCourses": [
+            {
+              "code": "INF-1100",
+              "name": "Programmering og innføring i datamaskiners virkemåte",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1001",
+              "name": "Kalkulus I",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 9
+        },
+        {
+          "id": "table-2",
+          "name": "Studieretning «Medisinsk informatikk»",
+          "semesters": 10,
+          "firstCourses": [
+            {
+              "code": "INF-1100",
+              "name": "Programmering og innføring i datamaskiners virkemåte",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1001",
+              "name": "Kalkulus I",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 14
+        },
+        {
+          "id": "table-3",
+          "name": "Studieretning «Cybersikkerhet»",
+          "semesters": 10,
+          "firstCourses": [
+            {
+              "code": "INF-1100",
+              "name": "Programmering og innføring i datamaskiners virkemåte",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1001",
+              "name": "Kalkulus I",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 14
+        }
+      ]
+    },
+    {
+      "studyCode": "IMAT-INF",
+      "record": "279506",
+      "id": "933373",
+      "label": "Studieplan Sivilingeniør i informatikk gjeldende fra høsten 2025",
+      "url": "https://uit.no/Content/933373/cache=20263108124456/Studieplan%20Sivilingeni%C3%B8r%20i%20informatikk%20gjeldende%20fra%20h%C3%B8sten%202025.pdf",
+      "cohort": "2025",
+      "pages": 12,
+      "courses": 32,
+      "models": [
+        {
+          "id": "table-1",
+          "name": "Studieretning «Cybersikkerhet»",
+          "semesters": 10,
+          "firstCourses": [
+            {
+              "code": "INF-0101",
+              "name": "Innføring i programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "INF-0103",
+              "name": "Datamaskiners virkemåte og programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1010",
+              "name": "Kalkulus",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        },
+        {
+          "id": "table-2",
+          "name": "Studieretning «Datamaskinsystemer»",
+          "semesters": 10,
+          "firstCourses": [
+            {
+              "code": "INF-0101",
+              "name": "Innføring i programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "INF-0103",
+              "name": "Datamaskiners virkemåte og programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1010",
+              "name": "Kalkulus",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        },
+        {
+          "id": "table-3",
+          "name": "Studieretning «Medisinsk informatikk»",
+          "semesters": 10,
+          "firstCourses": [
+            {
+              "code": "INF-0101",
+              "name": "Innføring i programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "INF-0103",
+              "name": "Datamaskiners virkemåte og programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1010",
+              "name": "Kalkulus",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "IMAT-INF",
+      "record": "279506",
+      "id": "933372",
+      "label": "Studieplan Sivilingeniør i informatikk gjeldende fra høsten 2026",
+      "url": "https://uit.no/Content/933372/cache=20263108124456/Studieplan%20Sivilingeni%C3%B8r%20i%20informatikk%20gjeldende%20fra%20h%C3%B8sten%202026.pdf",
+      "cohort": "2026",
+      "pages": 12,
+      "courses": 32,
+      "models": [
+        {
+          "id": "table-1",
+          "name": "Studieretning «Cybersikkerhet»",
+          "semesters": 10,
+          "firstCourses": [
+            {
+              "code": "INF-0101",
+              "name": "Innføring i programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "INF-0103",
+              "name": "Datamaskiners virkemåte og programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1010",
+              "name": "Kalkulus",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        },
+        {
+          "id": "table-2",
+          "name": "Studieretning «Datamaskinsystemer»",
+          "semesters": 10,
+          "firstCourses": [
+            {
+              "code": "INF-0101",
+              "name": "Innføring i programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "INF-0103",
+              "name": "Datamaskiners virkemåte og programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1010",
+              "name": "Kalkulus",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        },
+        {
+          "id": "table-3",
+          "name": "Studieretning «Medisinsk informatikk»",
+          "semesters": 10,
+          "firstCourses": [
+            {
+              "code": "INF-0101",
+              "name": "Innføring i programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "INF-0103",
+              "name": "Datamaskiners virkemåte og programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1010",
+              "name": "Kalkulus",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "MAT-1005",
+              "name": "Diskret matematikk",
+              "credits": 10,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "B-SYKEPL",
+      "record": "661259",
+      "id": "876230",
+      "label": "Studieplan B-SYKEPL 2025",
+      "url": "https://uit.no/Content/876230/cache=20263108124242/Studieplan%20B-SYKEPL%202025.pdf",
+      "cohort": "2025",
+      "error": "PDF-en har lesbar løpende tekst, men selve emnetabellen mangler lesbar tekst og kan være lagret som bilde. Lim inn tabellteksten eller registrer emnene manuelt; en eldre plan erstatter ikke denne utgaven."
+    },
+    {
+      "studyCode": "B-SYKEPL",
+      "record": "661259",
+      "id": "860933",
+      "label": "B-SYKEPL 2024 med endrede opptakskrav",
+      "url": "https://uit.no/Content/860933/cache=20263108124242/B-SYKEPL%202024%20med%20endrede%20opptakskrav.pdf",
+      "cohort": "2024",
+      "pages": 14,
+      "courses": 23,
+      "models": [
+        {
+          "id": "matrix-8",
+          "name": "Publisert semesterfordeling",
+          "semesters": 6,
+          "firstCourses": [
+            {
+              "code": "SYP-1110",
+              "name": "Anatomi, fysiologi og biokjemi",
+              "credits": 12,
+              "choice": "O"
+            },
+            {
+              "code": "SYP-1121",
+              "name": "Grunnleggende sykepleie med sykdomslære og farmakologi",
+              "credits": 15,
+              "choice": "O"
+            },
+            {
+              "code": "SYP-1130",
+              "name": "Hygiene og mikrobiologi",
+              "credits": 3,
+              "choice": "O"
+            },
+            {
+              "code": "SYP-1180",
+              "name": "Praksisforberedelse 1",
+              "credits": 5,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "B-SYKEPL",
+      "record": "661259",
+      "id": "803726",
+      "label": "Studieplan B-SYKEPL 2020 og senere",
+      "url": "https://uit.no/Content/803726/cache=20263108124242/Studieplan%20B-SYKEPL%202020%20og%20senere.PDF",
+      "cohort": "2020",
+      "pages": 18,
+      "courses": 25,
+      "models": [
+        {
+          "id": "matrix-2020",
+          "name": "B-SYKEPL20 · publisert semesterfordeling",
+          "semesters": 6,
+          "firstCourses": [
+            {
+              "code": "SYP-1110",
+              "name": "Anatomi, fysiologi og biokjemi",
+              "credits": 12,
+              "choice": "O"
+            },
+            {
+              "code": "SYP-1120",
+              "name": "Grunnleggende sykepleie og sykdomslære til eldre",
+              "credits": 12,
+              "choice": "O"
+            },
+            {
+              "code": "SYP-1130",
+              "name": "Hygiene og mikrobiologi",
+              "credits": 3,
+              "choice": "O"
+            },
+            {
+              "code": "SYP-1180",
+              "name": "Praksisforberedelse 1",
+              "credits": 5,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "B-IE",
+      "record": "446226",
+      "id": "921058",
+      "label": "2026 Studieplan Ingeniør, Elektronikk - bachelor (ordinær, y-vei, 3-semesterordning, nettstudium), gjeldende fra kull 2026",
+      "url": "https://uit.no/Content/921058/cache=20263108124107/2026%20Studieplan%20Ingeni%C3%B8r%2C%20Elektronikk%20-%20bachelor%20%28ordin%C3%A6r%2C%20y-vei%2C%203-semesterordning%2C%20nettstudium%29%2C%20gjeldende%20fra%20kull%202026.pdf",
+      "cohort": "2026",
+      "pages": 12,
+      "courses": 27,
+      "models": [
+        {
+          "id": "year-table-1",
+          "name": "Ordinær , nettbasert og 3 - semester:",
+          "semesters": 3,
+          "firstCourses": [
+            {
+              "code": "TEK-1507",
+              "name": "Matematikk 1 for ingeniører",
+              "credits": 10,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1510",
+              "name": "Matematikk 1",
+              "credits": 10,
+              "choice": "V"
+            },
+            {
+              "code": "TEK-1516",
+              "name": "Matematikk 2 for ingeniører",
+              "credits": 10,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1502",
+              "name": "In nføring i ingeniørfag",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1504",
+              "name": "Fysikk",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "ELE-2501",
+              "name": "Introduksjon til elektriske kretser",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1505",
+              "name": "Kjemi",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1520",
+              "name": "Beregningsorientert programmering",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "ETE-2501",
+              "name": "Elektrisitetslære",
+              "credits": 10,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1501",
+              "name": "Introduksjon til sannsynlighetsregning og statistikk for ingeniører",
+              "credits": 5,
+              "choice": ""
+            }
+          ],
+          "unplaced": 0
+        },
+        {
+          "id": "year-table-2",
+          "name": "Y-vei:",
+          "semesters": 3,
+          "firstCourses": [
+            {
+              "code": "TEK-1509",
+              "name": "Teknisk realfag",
+              "credits": 20,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1502",
+              "name": "In nføring i ingeniørfag",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1505",
+              "name": "Kjemi",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1521",
+              "name": "Teknisk språkføring - Norsk",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1504",
+              "name": "Fysikk",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1522",
+              "name": "Teknisk språkføring",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "ETE-2501",
+              "name": "Elektrisitetslære",
+              "credits": 10,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1520",
+              "name": "Beregningsorientert programmering",
+              "credits": 5,
+              "choice": ""
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "B-IE",
+      "record": "446226",
+      "id": "870086",
+      "label": "2025 Studieplan Elektronikk ingeniør - bachelor ( ordinær IE y-vei BYIE 3-semesterordning BIE3S)",
+      "url": "https://uit.no/Content/870086/cache=20263108124107/2025%20Studieplan%20Elektronikk%20ingeni%C3%B8r%20-%20bachelor%20%28%20ordin%C3%A6r%20IE%20y-vei%20BYIE%203-semesterordning%20BIE3S%29.pdf",
+      "cohort": "2025",
+      "pages": 12,
+      "courses": 23,
+      "models": [
+        {
+          "id": "year-table-1",
+          "name": "Ordinær studie og 3-semester:",
+          "semesters": 3,
+          "firstCourses": [
+            {
+              "code": "TEK-1507",
+              "name": "Matematikk 1",
+              "credits": 10,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1510",
+              "name": "Matematikk 1",
+              "credits": 10,
+              "choice": "V"
+            },
+            {
+              "code": "TEK-1516",
+              "name": "Matematikk 2",
+              "credits": 10,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1502",
+              "name": "Ingeniørfaglig yrkesutøvelse og arbeidsmetoder",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1504",
+              "name": "Fysikk",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "ELE-2501",
+              "name": "Introduksjon til elektriske kretser",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1505",
+              "name": "Kjemi",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1520",
+              "name": "Beregningsorientert programmering",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "ETE-2501",
+              "name": "Elektrisitetslære",
+              "credits": 10,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1501",
+              "name": "Statistikk",
+              "credits": 5,
+              "choice": ""
+            }
+          ],
+          "unplaced": 0
+        },
+        {
+          "id": "year-table-2",
+          "name": "Y-vei:",
+          "semesters": 3,
+          "firstCourses": [
+            {
+              "code": "TEK-1509",
+              "name": "Teknisk realfag",
+              "credits": 20,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1502",
+              "name": "Ingeniørfaglig yrkesutøvelse og arbeidsmetoder",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1505",
+              "name": "Kjemi",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1504",
+              "name": "Fysikk",
+              "credits": 5,
+              "choice": ""
+            },
+            {
+              "code": "ETE-2501",
+              "name": "Elektrisitetslære",
+              "credits": 10,
+              "choice": ""
+            },
+            {
+              "code": "TEK-1520",
+              "name": "Beregningsorientert programmering",
+              "credits": 5,
+              "choice": ""
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "B-IE",
+      "record": "446226",
+      "id": "837518",
+      "label": "2024 Studieplan Elektronikk, ingeniør - bachelor_B-IE",
+      "url": "https://uit.no/Content/837518/cache=20263108124107/2024%20Studieplan%20Elektronikk%2C%20ingeni%C3%B8r%20-%20bachelor_B-IE.pdf",
+      "cohort": "2024",
+      "pages": 10,
+      "courses": 33,
+      "models": [
+        {
+          "id": "table-1",
+          "name": "Publisert semesterfordeling",
+          "semesters": 6,
+          "firstCourses": [
+            {
+              "code": "TEK-1502",
+              "name": "Ingeniørfaglig yrkesutøvelse og arbeidsmetoder",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "TEK-1507",
+              "name": "Matematikk 1",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "TEK-1520",
+              "name": "Beregningsorientert programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "ELE-2501",
+              "name": "Introduksjon til elektriske kretser",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "TEK-1501",
+              "name": "Statistikk",
+              "credits": 5,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "B-IE",
+      "record": "446226",
+      "id": "837390",
+      "label": "2023 Studieplan Elektronikk, ingeniør - bachelor_B-IE",
+      "url": "https://uit.no/Content/837390/cache=20263108124107/2023%20Studieplan%20Elektronikk%2C%20ingeni%C3%B8r%20-%20bachelor_B-IE.pdf",
+      "cohort": "2023",
+      "pages": 10,
+      "courses": 33,
+      "models": [
+        {
+          "id": "table-1",
+          "name": "Publisert semesterfordeling",
+          "semesters": 6,
+          "firstCourses": [
+            {
+              "code": "TEK-1502",
+              "name": "Ingeniørfaglig yrkesutøvelse og arbeidsmetoder",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "TEK-1507",
+              "name": "Matematikk 1",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "TEK-1520",
+              "name": "Beregningsorientert programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "ELE-2501",
+              "name": "Introduksjon til elektriske kretser",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "TEK-1501",
+              "name": "Statistikk",
+              "credits": 5,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    },
+    {
+      "studyCode": "B-IE",
+      "record": "446226",
+      "id": "763294",
+      "label": "Studieplan Elektronikk, ingeniør - bachelor_B-IE (gjelder kull 2021 og kull 2022)",
+      "url": "https://uit.no/Content/763294/cache=20263108124107/Studieplan%20Elektronikk%2C%20ingeni%C3%B8r%20-%20bachelor_B-IE%20%28gjelder%20kull%202021%20og%20kull%202022%29.pdf",
+      "cohort": "2021",
+      "pages": 10,
+      "courses": 35,
+      "models": [
+        {
+          "id": "table-1",
+          "name": "Publisert semesterfordeling",
+          "semesters": 6,
+          "firstCourses": [
+            {
+              "code": "TEK-1502",
+              "name": "Ingeniørfaglig yrkesutøvelse og arbeidsmetoder",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "TEK-1507",
+              "name": "Matematikk 1",
+              "credits": 10,
+              "choice": "O"
+            },
+            {
+              "code": "TEK-1500",
+              "name": "Beregningsorientert programmering",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "ELE-2501",
+              "name": "Introduksjon til elektriske kretser",
+              "credits": 5,
+              "choice": "O"
+            },
+            {
+              "code": "TEK-1501",
+              "name": "Statistikk",
+              "credits": 5,
+              "choice": "O"
+            }
+          ],
+          "unplaced": 0
+        }
+      ]
+    }
+  ]
+}

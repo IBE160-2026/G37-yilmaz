@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+  <html lang="nb">
+  <head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="application-name" content="TimeEdit"/>
+<meta name="msapplication-TileColor" content="#00824c"/>
+<meta name="msapplication-TileImage" content="/static/9.69.4_1613/iepinned.png"/>
+<link rel="icon" type="image/png" href="/static/9.69.4_1613/iepinned.png"/>
+<meta name="theme-color" content="#00824c"/><meta id="iosviewport" name = "viewport" content = "width = 480, user-scalable=no, user-scalable=0">
+<title>Samisk Høgskole - Sámi allaskuvla </title>
+<link rel="stylesheet" href="/static/9.69.4_1613/css/min.css" type="text/css">
+
+
+
+<style type="text/css">
+   #weekContainer, .text {
+      font-size:14px;
+   }
+
+   .tBottom {
+     position: absolute;
+     top: 0;
+     right: 0;
+     margin: 0 !important;
+   }
+
+   .dateLimitUsed {
+     margin-left: 1em;
+   }
+
+    .weekDay {
+       width: 20.0%;
+    }
+
+
+  .weekDayHeader {
+    position: sticky;
+    top: 0;
+    z-index: 809;
+    border: 1px solid #B0B0B0;border-right: 2px solid #656565;;
+    background-color: #FFF;
+    color: #595959;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    overflow: hidden;
+    white-space: nowrap;
+
+     height: 32px;
+  }
+
+
+  .weekDayHeaderFirst {
+
+    text-align: center;
+  }
+
+.weekDiv {
+    text-align: left;
+    position: relative;
+    border: 1px solid #B0B0B0;border-right: 2px solid #656565;;
+    border-top: 0;
+    vertical-align: bottom;
+    *float:left;
+      background-color: white;
+
+}
+
+.slotfree, .slotfree2 {
+   width: 100%;
+   position: absolute;
+   top: 0;
+   left: 0;
+}
+
+.slotfreetarget {
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: transparent;
+   font-size: 12px;
+}
+
+.slotfreetarget:focus {
+  color: #555;
+}
+
+.zoomedIn .slotfreetarget:focus::after {
+   content: 'Reserver';
+   color: #555;
+   background-image: url('/static/9.69.4_1613/linkg.svg');
+   background-position: right center;
+   background-size: 12px;
+   background-repeat: no-repeat;
+   padding-right: 16px;
+   padding-left: 4px;
+}
+
+.weekDivGrey {
+   background-color: #CCCCCC;
+}
+
+
+.grouptitle {
+    background-color: #f3f3f3;
+    display: flex;
+    flex-direction: column;
+}
+
+.groupbox {
+    margin: auto;
+    text-align: center;
+    color: #0F1818;
+    font-size: 16px;
+}
+    .groupbox {
+       margin: auto 8px;
+       overflow: hidden;
+    }
+
+
+.weekDivFirst {
+    width: 32px;
+    background-color: white;
+    overflow: hidden;
+}
+
+.hourlist {
+    z-index: -900;
+    position: absolute;
+    left: -32px;
+}
+
+.weekContainer {
+    page-break-after: always;
+    page-break-inside: avoid;
+    padding-left:32px;
+    clear: both;
+}
+
+.hour {
+    text-align: center;
+    vertical-align: top;
+    border-top: 1px solid #B0B0B0;
+    overflow: hidden;
+    padding-top: 3px;
+    height: 20px;
+    box-sizing: border-box;
+}
+
+.hourLine {
+   border-top: 1px solid #CCC;
+}
+
+.hourFirst {
+    border-top: 0;
+}
+
+.hourLast {
+    height: 15px;
+}
+
+.hourlisttop {
+  font-size: 11px;
+  position: relative;
+  top: 20px;
+  left:0;
+}
+
+.hourlisttopsmall .hourlisttop {
+  font-size: 7px;
+}
+
+.hourlisttopsmaller .hourlisttop {
+  font-size: 5px;
+}
+
+.hourtop {
+  position: absolute;
+  bottom: 0;
+  text-align: left;
+  background: white;
+  color: #595959;
+}
+
+.hourtopinside {
+  border-left: 1px solid #CCC;
+  border-top: 1px solid #CCC;
+  padding: 0 0 2px 1px;
+  white-space:nowrap;
+  overflow: hidden;
+  text-align: center
+}
+
+.topline {
+    position: absolute;
+    border-right: 1px solid #B0B0B0;
+    background: transparent;
+    height: 180px;
+}
+
+.hourtopFirst {
+  border-left: 0 solid #CCC;
+}
+
+#objectselectionresult .zoomedIn .daytext {
+  display: none;
+}
+
+#objectselectionresult .zoomedIn .hourlisttop {
+  top: 0;
+}
+
+#objectselectionresult .zoomedIn .hourtop {
+  top: -3px;
+}
+
+#objectselectionresult .zoomedIn .hourtopinside {
+  border-top: none;
+  height: 180px;
+  padding-top: 6px;
+  padding-left: 4px;
+}
+.zoomedIn .dateIsTodayHeader, .zoomedIn .dateIsToday {
+  background: #FFF !important;
+  color: #595959 !important;
+}
+
+.weekHourLine {
+  position: relative;
+
+}
+
+.bookingDiv {
+    background-color: #6CAFB6;
+    border: 1px solid #156F79;
+    border-right: 1px solid #555;
+    border-bottom: 1px solid #555;
+
+    font-size:12px;
+    padding-top: 6px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.bgDiv {
+    opacity: 0.6;
+}
+  .bookingDiv { background-color: #6CAFB6; background: rgba(108,175,182,0.95) !important; }
+
+.cA { background: rgba(192,252,255,0.95) !important; border-color: #4F8081; }
+
+
+
+
+
+
+  .occupiedBefore { border-top: 3px dotted #000000 !important; }
+  .occupiedAfter { border-bottom: 3px dotted #000000 !important; }
+
+.weeks { font-weight: bold; font-size:13px; }
+
+.headerFirst { font-size: 12px; }
+
+  .groupbox {
+    font-size: 14px;
+  }
+  .headlinebottom2, .hour, .weekDayHeader, .headerFirst  {
+    font-size: 11px;
+  }
+
+
+.c-55 { background: rgba(255,215,207,0.95) !important; border-color: #FFD7CF; border-left-color: #FFD7CF !important; border-right-color: #FFD7CF !important;  }
+.c-70 { background: #B2B4B4 !important;}
+
+
+.c116, .c117, .c118, .c119, .c120, .c121, .c122, .c123, .c124, .c125, .c126, .c127, .c128, .c129, .c130, .c131, .c132, .c133, .c134, .c135, .c136, .c137, .c138, .c139, .c140, .c141, .c142, .c143, .c144, .c145, .c146, .c147, .c148, .c149, .c150,  .c117
+{ background-color: #D2D4D4 !important; background: rgba(210,212,212,0.95) !important;  border-color:#717676 !important; }
+.c0 { background-color: rgba(210,212,212,0.95) !important; background: rgba(210,212,212,0.95) !important; border-color: #717676 !important; }
+.c1 { background-color: rgba(172,218,148,0.95) !important; background: rgba(172,218,148,0.95) !important; border-color: #598541 !important; }
+.c2 { background-color: rgba(255,254,231,0.95) !important; background: rgba(255,254,231,0.95) !important; border-color: #C4B311 !important; }
+.c3 { background-color: rgba(147,185,238,0.95) !important; background: rgba(147,185,238,0.95) !important; border-color: #4D74AC !important; }
+.c4 { background-color: rgba(216,205,225,0.95) !important; background: rgba(216,205,225,0.95) !important; border-color: #9572B1 !important; }
+.c5 { background-color: rgba(199,235,224,0.95) !important; background: rgba(199,235,224,0.95) !important; border-color: #41B190 !important; }
+.c6 { background-color: rgba(246,180,81,0.95) !important; background: rgba(246,180,81,0.95) !important; border-color: #CA7A03 !important; }
+.c7 { background-color: rgba(249,152,131,0.95) !important; background: rgba(249,152,131,0.95) !important; border-color: #E35435 !important; }
+.c8 { background-color: rgba(170,216,232,0.95) !important; background: rgba(170,216,232,0.95) !important; border-color: #4A8DA4 !important; }
+.c9 { background-color: rgba(255,234,150,0.95) !important; background: rgba(255,234,150,0.95) !important; border-color: #D0A900 !important; }
+.c10 { background-color: rgba(250,214,222,0.95) !important; background: rgba(250,214,222,0.95) !important; border-color: #D76D85 !important; }
+.c11 { background-color: rgba(216,231,53,0.95) !important; background: rgba(216,231,53,0.95) !important; border-color: #99A700 !important; }
+.c12 { background-color: rgba(171,167,125,0.95) !important; background: rgba(171,167,125,0.95) !important; border-color: #68633C !important; }
+.c13 { background-color: rgba(200,112,112,0.95) !important; background: rgba(200,112,112,0.95) !important; border-color: #8C3535 !important; }
+.c14 { background-color: rgba(201,255,146,0.95) !important; background: rgba(201,255,146,0.95) !important; border-color: #66B514 !important; }
+.c15 { background-color: rgba(230,181,219,0.95) !important; background: rgba(230,181,219,0.95) !important; border-color: #BF65AB !important; }
+.c16 { background-color: rgba(219,192,163,0.95) !important; background: rgba(219,192,163,0.95) !important; border-color: #AE875E !important; }
+.c17, .c101 { background-color: rgba(172,218,148,0.95) !important; background: rgba(172,218,148,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #598541 !important; }
+.c18, .c102 { background-color: rgba(255,254,231,0.95) !important; background: rgba(255,254,231,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #C4B311 !important; }
+.c19, .c103 { background-color: rgba(147,185,238,0.95) !important; background: rgba(147,185,238,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #4D74AC !important; }
+.c20, .c104 { background-color: rgba(216,205,225,0.95) !important; background: rgba(216,205,225,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #9572B1 !important; }
+.c21, .c105 { background-color: rgba(199,235,224,0.95) !important; background: rgba(199,235,224,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #41B190 !important; }
+.c22, .c106 { background-color: rgba(246,180,81,0.95) !important; background: rgba(246,180,81,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #CA7A03 !important; }
+.c23, .c107 { background-color: rgba(249,152,131,0.95) !important; background: rgba(249,152,131,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #E35435 !important; }
+.c24, .c108 { background-color: rgba(170,216,232,0.95) !important; background: rgba(170,216,232,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #4A8DA4 !important; }
+.c25, .c109 { background-color: rgba(255,234,150,0.95) !important; background: rgba(255,234,150,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #D0A900 !important; }
+.c26, .c110 { background-color: rgba(250,214,222,0.95) !important; background: rgba(250,214,222,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #D76D85 !important; }
+.c27, .c111 { background-color: rgba(216,231,53,0.95) !important; background: rgba(216,231,53,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #99A700 !important; }
+.c28, .c112 { background-color: rgba(171,167,125,0.95) !important; background: rgba(171,167,125,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #68633C !important; }
+.c29, .c113 { background-color: rgba(200,112,112,0.95) !important; background: rgba(200,112,112,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #8C3535 !important; }
+.c30, .c114 { background-color: rgba(201,255,146,0.95) !important; background: rgba(201,255,146,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #66B514 !important; }
+.c31, .c115 { background-color: rgba(230,181,219,0.95) !important; background: rgba(230,181,219,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #BF65AB !important; }
+.c32, .c116 { background-color: rgba(219,192,163,0.95) !important; background: rgba(219,192,163,0.95) repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px) !important; border-color: #AE875E !important; }
+.c10001 { background-color: rgba(108,175,182,0.95) !important; background: rgba(108,175,182,0.95) !important; border-color: #156F79 !important; }
+.c10002 { background-color: rgba(147,185,238,0.95) !important; background: rgba(147,185,238,0.95) !important; border-color: #4D74AC !important; }
+.c10003 { background-color: rgba(249,152,131,0.95) !important; background: rgba(249,152,131,0.95) !important; border-color: #E35435 !important; }
+.c11001 { background-color: rgba(40,45,45,0.95) !important; background: rgba(40,45,45,0.95) !important; border-color: #0F1818 !important; }
+.c11002 { background-color: rgba(210,212,212,0.95) !important; background: rgba(210,212,212,0.95) !important; border-color: #717676 !important; }
+.c12001 { background-color: rgba(243,243,243,0.95) !important; background: rgba(243,243,243,0.95) !important; border-color: #F3F3F3 !important; }
+.c12002 { background-color: rgba(255,215,207,0.95) !important; background: rgba(255,215,207,0.95) !important; border-color: #FFD7CF !important; }
+.c12003 { background-color: rgba(255,246,210,0.95) !important; background: rgba(255,246,210,0.95) !important; border-color: #FFF6D2 !important; }
+.c13001 { background-color: rgba(205,226,228,0.95) !important; background: rgba(205,226,228,0.95) !important; border-color: #156F79 !important; }
+.c-90 { background:  rgba(40,45,45,0.95) !important; border-color: #0F1818 !important; color: #FFF; }
+.c-95 { background: rgba(205,226,228,0.95) !important;
+  background-image:
+  radial-gradient(#F3F3F3 20%, transparent 13%),
+  radial-gradient(#F3F3F3 20%, transparent 13%) !important;
+  background-size: 12px 12px !important;
+  background-position: 0px 0px, 6px 6px !important;
+  border-color: #156F79 !important;
+  color: #0F1818;
+}
+.multicolor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 16px;
+}
+.c-100 { background: rgba(108,175,182,0.95) !important;  border-color:  #156F79  !important; }
+.c12345, .c-80
+{ background-color: #D2D4D4 !important; background: rgba(210,212,212,0.95) !important;  border-color:#717676 !important; }
+.cNone, .c-2
+{ background-color: #D2D4D4 !important; background: rgba(210,212,212,0.95) !important;  border-color:#717676 !important; }
+.strikecancelled, .c-70, .statusrejected {
+   background: #B2B4B4 !important;
+   color: #FFF;
+   border-color: #B2B4B4;
+     background-image:
+       linear-gradient(to bottom right,  transparent calc(50% - 1px), #FFF, transparent calc(50% + 1px)),
+       linear-gradient(to top right,  transparent calc(50% - 1px), #FFF, transparent calc(50% + 1px)) !important;
+     text-decoration: none;
+}
+.msieworkaround .strikecancelled, .msieworkaround .c-70, .msieworkaround .statusrejected {
+     background-image:
+       linear-gradient(to bottom right,  transparent 49%, #FFF, transparent 50%),
+       linear-gradient(to top right,  transparent 49%, #FFF, transparent 50%) !important;
+}
+.timeDiv.strikecancelled {
+ background-image: none !important;
+ text-decoration: line-through;
+}
+.cAutoNeed, .cAutoLocked {
+  background-color: #D2D4D4 !important;
+  background: rgba(210,212,212,0.95) !important;
+  font-style: italic;
+  border: 1px dotted #555 !important;
+}
+
+</style>
+
+</head>
+<body class="desktop ">
+<div class="overlay" id="tipsoverlay" onclick="hideTips();return false;"></div>
+
+
+
+<span class="hidden" id="links_base" data-base="https://cloud.timeedit.net/sahg/web/student/ri.html?h=t&amp;sid=12&amp;p=0.m%2C0.n"></span>
+<div id="header" class="ui-widget-header">
+<div id="pageHeader" role="banner" class="topbar pageHeader t4">
+<div class="wrapcentertop wraptopbar" >
+
+<span class="pageHeaderLink adminmenu pageMenuButton pageMenuLogo">
+<span class="topicon tesolid"></span>
+</span>
+
+<ul id="jsddm" class="pageMenuDrop">
+    <li id="pageMenuButtonItem" class="pageMenuButton ac">
+        <a href="#" id="pageMenuButtonLink" class="pageMenu hoverlink  tooltip tooltipheader" aria-label="Konto" data-tip="Konto" aria-haspopup="true" aria-expanded="false"><span class="topicon teaccount"></span><span class="ht3">Konto</span></a>
+        <ul id="pageHeaderMenuList" class="ui-state-default">
+            <li><h3>Konto</h3></li>
+
+
+            <li><span class="jsddmText" style="padding-top:0"><div id="utimezone" style="padding-top:0"></div></span></li>
+
+
+            <li><a href="#inlineAbout" id="showtech">Om TimeEdit</a></li>
+
+
+        </ul>
+    </li>
+</ul>
+
+<div class="pageHeaderLink adminmenu pageMenuButton ac langdropdown">
+     <button onclick="PageMenu.showLangDrop()"  aria-haspopup="true" aria-expanded="false" class="pageHeaderLink adminmenu clickable tooltip tooltipheader langdropdownbutton" aria-label="" data-tip=""><span class="topicon teflag"></span><span class="ht2"></span></button>
+  <div id="langdroplist" class="langdroplist">
+  <h3>Velg språk</h3>
+  </div>
+</div>
+
+<div class="ohfixed">
+<a href="/sahg/web/?en=t">
+  <img height="32" src="https://samas.no/sites/default/files/logo-jubileum_0.png" alt="" class="pageHeaderLogo">
+<div class="pageHeaderLink nohover customerName ">Samisk Høgskole - Sámi allaskuvla</div>
+</a>
+</div>
+</div>
+
+<nav class="pageHeaderNav">
+<div class="wrapcentertop ac">
+<a href="/sahg/web/?en=t" class="pageNav"><span class="pageHeaderProfile">Samisk Høgskole - Sámi allaskuvla </span></a>
+<span class="pageNav pageHeaderProfile">&nbsp; / &nbsp;</span><a href="/sahg/web/student/" class="pageNav pageHeaderCrum">Se timeplaner </a>
+<span class="pageNav">&nbsp; / &nbsp;</span>
+<a href="#" class="reset pageHeaderCrum pageHeaderCurrent clickable ac" aria-haspopup="true" aria-expanded="false">Diibmoplánat<span id="pageFav"></span></a>
+<div class="clearBoth"></div>
+</div>
+</nav>
+
+<div class="hidden">
+<div id="techinfo" data-copy="Kopier" data-about="Om TimeEdit" data-info="Viewer
+User: i_student, 24, i_student">
+</div>
+<div id="inlineAbout">
+<label>Om TimeEdit
+<textarea id="abouttext" spellcheck="false" data-defaultLocale="sv_SE" data-info-url="/sahg/web/timeedit/p/student/info">
+Version: 9.69.4 Date: 20260810 1613 Build: 8.69.1-570-gcf136bab. APIMethods: afaed69. API: 85c5a71.
+</textarea>
+</label>
+</div>
+
+<div id="inlineSupport" class="fancypadd">
+    <div class="zonetitle greenw">Brukerstøtte</div>
+</div>
+</div>
+</div>
+<div id="pageHeaderOverlay" class="overlay hidden"></div>
+<noscript><p class="message errormessage">For at denne siden skal fungere riktig må nettleseren støtte JavaScript.</p></noscript><nav class="flexWrap">
+  <div class="flexFixed">
+     <a class="leftHeader btrToday clickable btr btrFirst ac" href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0f6X0QY.html" aria-label="I dag. Gå til idag"><span>I dag</span><div class="help">Gå til idag</div></a>
+     <a class="leftHeader clickable btr  leftHeaderWeek iosinvisible ac" href="https://cloud.timeedit.net/sahg/web/student/ri13567y660630Q05WQ06101Z5.html" aria-label="Gå til forrige måned"><span class="btrLeft">&nbsp;</span><div class="help">Gå til forrige måned</div></a>
+  <label class="leftHeader clickable leftHeaderSmall perioddropwrap select2nocheck leftHeaderWeek iosinvisible ac" aria-label="Endre periode">
+     <select class="clickable perioddropsmall" data-text="Sep."><option value="">Sep.</option></select>
+     <div class="help">Endre periode</div>
+  </label>
+     <a class="leftHeader clickable btr  leftHeaderWeek iosinvisible ac" href="https://cloud.timeedit.net/sahg/web/student/ri10567y660605Q05WQ06151Z5.html" aria-label="Gå til neste måned"><span class="btrRight">&nbsp;</span><div class="help">Gå til neste måned</div></a>
+     <a class="leftHeader clickable openRangeButton ac" id="openStartRangeButton" href="#searchDivRangeStart" data-objectid="" aria-haspopup="true" aria-expanded="false" aria-label="Nå. Endre startdato">
+     <span>Nå</span>
+     <div class="help">Endre startdato</div>
+     </a>
+
+     <a class="leftHeader clickable openRangeButton ac" id="openEndRangeButton" href="#searchDivRangeEnd" data-objectid="" aria-haspopup="true" aria-expanded="false" aria-label="Hel måned. Endre sluttdato">
+      <span>Hel måned</span>
+
+     <div class="help">Endre sluttdato</div>
+     </a>
+     <a class="clickable leftHeader openSearchButton ac" id="openSearchButton" href="#searchDivContent" data-objectid="" aria-haspopup="true" aria-expanded="false" aria-label="Endre søk">
+       <span class="tesprite tesprite-search tespritefloatleft changesearchtext"></span>
+       <span class="flexFixed">Søk</span>
+       <div class="help">Endre søk</div>
+     </a>
+    </div>
+       <a href="#" id="searchTextWide" class="clickable leftHeader openSearchButton flexDynamic ac" aria-haspopup="true" aria-expanded="false"  aria-label="Endre søk. "><h1 id="mainh1" class="searchTextInside iosinvisible"></h1><span class="help">Endre søk</span></a>
+ <div class="flexFixed">
+  <div tabindex="0" role="button" class="rightHeader clickable tabSwitcher  ac" aria-haspopup="true" aria-expanded="false"><span class="tesprite tesprite-gear tespriteinlineblock"></span><span class="ht">Tilpass</span><div class="help">Tilpass</div></div>
+ </div>
+</nav>
+  <div class="clearBoth"></div>
+</div>
+<div id="topbar"></div>
+
+<div class="overlay" id="headlineTimeOverlay" style="display:none;"></div>
+<div class="overlay" id="datePickTimeOverlay" style="z-index:1300; display:none;"></div>
+<div id="headerPadder" class="clearBoth" style="height:119px">&nbsp;</div>
+      <div id="dateRange" class="ui-corner-all rangePickWrap smallScreenRangePick hidden topmenu">
+          <div class="quickperiodwrap">
+          <div class="hidden"><label><input type="checkbox" id="fullweeksCheckbox" checked="checked">Utvid valgt periode til hele uker</label></div>
+
+          </div>
+          <div class="rangePick rangePickStart" data-date="20260912">
+            <div class="rangePickHeader hidden">Start <span id="rangeStartNice">Nå</span><input type="hidden" id="txtRangeAltStart" value="20260912">
+             <input type="button" class="hidden" id="rangeTypeButtonStart" data-paramtext="0.m" value="Fra i dag" data-first="Kalender" data-second="Fra i dag">
+            </div>
+            <div id="flipStart" data-isRel="t">
+                <div id="txtRangeStart" data-date="20260912"></div>
+                <div id="txtRangeRelativeStart"><div class="ui-widget ui-widget-content ui-helper-clearfix ui-corner-all rangeRel ui-datepicker-inline">
+                <label class="bl rangeTitle">Relativ startdato</label>
+<div class="ui-widget-header datepicktop">
+<label><select class="te-ui-select ui-corner-all valueselect hidden" id="periodvaluestartRange" name="periodstartRange">
+        <option value="619" SELECTED>Nå</option>
+
+        <option value="0" >Gjeldende</option>
+        <option value="1" >+1</option>
+        <option value="2" >+2</option>
+        <option value="3" >+3</option>
+        <option value="4" >+4</option>
+        <option value="5" >+5</option>
+        <option value="6" >+6</option>
+        <option value="7" >+7</option>
+        <option value="8" >+8</option>
+        <option value="9" >+9</option>
+        <option value="10" >+10</option>
+    <option value="-1" >-1</option><option value="-2" >-2</option><option value="-3" >-3</option><option value="-4" >-4</option><option value="-5" >-5</option><option value="-6" >-6</option>
+</select></label>
+<label><select class="te-ui-select ui-corner-all timeselect" id="periodtimestartRange" name="periodstartRange">
+<option value="n"  data-plur="måneder" data-sing="måned">måneder</option><option value="w"  data-plur="uker" data-sing="uke">uker</option><option value="d"  data-plur="dager" data-sing="dag">dager</option><option value="h"  data-plur="timer" data-sing="time">timer</option>
+
+</select></label>
+</div>
+  <div class="ui-datepicker ui-widget ui-helper-clearfix" style="display: block;">
+    <table class="ui-datepicker-calendar picktable">
+    <tbody>
+    <tr>
+
+       <td onclick="selectPeriod('#periodvaluestartRange',-1);return false;"><a class="ui-state-default" href="#">-1</a></td>
+
+       <td onclick="selectPeriod('#periodvaluestartRange',-2);return false;"><a class="ui-state-default" href="#">-2</a></td>
+
+       <td onclick="selectPeriod('#periodvaluestartRange',-3);return false;"><a class="ui-state-default" href="#">-3</a></td>
+
+       <td onclick="selectPeriod('#periodvaluestartRange',-4);return false;"><a class="ui-state-default" href="#">-4</a></td>
+
+       <td onclick="selectPeriod('#periodvaluestartRange',-5);return false;"><a class="ui-state-default" href="#">-5</a></td>
+
+       <td onclick="selectPeriod('#periodvaluestartRange',-6);return false;"><a class="ui-state-default" href="#">-6</a></td>
+    </tr>
+    <tr>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',0);return false;"><a class="ui-state-default ui-state-active" href="#">+0</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',1);return false;"><a class="ui-state-default" href="#">+1</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',2);return false;"><a class="ui-state-default" href="#">+2</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',3);return false;"><a class="ui-state-default" href="#">+3</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',4);return false;"><a class="ui-state-default" href="#">+4</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',5);return false;"><a class="ui-state-default" href="#">+5</a></td>
+       </tr><tr>
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',6);return false;"><a class="ui-state-default" href="#">+6</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',7);return false;"><a class="ui-state-default" href="#">+7</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',8);return false;"><a class="ui-state-default" href="#">+8</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',9);return false;"><a class="ui-state-default" href="#">+9</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvaluestartRange',10);return false;"><a class="ui-state-default" href="#">+10</a></td>
+    </tr>
+    <tr><td colspan="8"> &nbsp; </td></tr>
+    <tr><td colspan="8" onclick="selectPeriod('#periodvaluestartRange',619);return false;"><a class="button" href="#">Starttidspunkt: nå</a></td></tr>
+    </tbody>
+    </table>
+  </div>
+                </div></div>
+            </div>
+            <label class="flipPeriod">Endre periode <select class="perioddrop"></select></label>
+            <a tabindex="0" class="flip flipStartButton clickable" href="#" data-first="Relativ startdato"  data-second="Kalender">Relativ startdato</a>
+          </div>
+          <div class="rangePick rangePickEnd">
+            <div class="rangePickHeader hidden">Slutt <span id="rangeEndNice">Hel måned</span><input type="hidden" id="txtRangeAltEnd" value="20260930">
+             <input type="button" class="hidden" id="rangeTypeButtonEnd"  data-paramtext="0.n" value="Lengde"  data-first="Kalender" data-second="Lengde">
+            </div>
+            <div id="flipEnd" data-isRel="t">
+                <div id="txtRangeEnd" data-date="20260930"></div>
+                <div id="txtRangeRelativeEnd"><div class="ui-widget ui-widget-content ui-helper-clearfix ui-corner-all rangeRel ui-datepicker-inline">
+                <label class="bl rangeTitle">Relativ sluttdato</label>
+<div class="ui-widget-header datepicktop">
+<label><select class="te-ui-select ui-corner-all valueselect hidden" id="periodvalueendRange" name="periodendRange">
+
+        <option value="0" SELECTED>Hel</option>
+        <option value="1" >+1</option>
+        <option value="2" >+2</option>
+        <option value="3" >+3</option>
+        <option value="4" >+4</option>
+        <option value="5" >+5</option>
+        <option value="6" >+6</option>
+        <option value="7" >+7</option>
+        <option value="8" >+8</option>
+        <option value="9" >+9</option>
+        <option value="10" >+10</option>
+        <option value="11" >+11</option>
+        <option value="12" >+12</option>
+        <option value="13" >+13</option>
+        <option value="14" >+14</option>
+        <option value="15" >+15</option>
+        <option value="16" >+16</option>
+        <option value="17" >+17</option>
+        <option value="18" >+18</option>
+        <option value="19" >+19</option>
+        <option value="20" >+20</option>
+
+</select></label>
+<label><select class="te-ui-select ui-corner-all timeselect" id="periodtimeendRange" name="periodendRange">
+<option value="n" SELECTED data-plur="måneder" data-sing="måned">måneder</option><option value="w"  data-plur="uker" data-sing="uke">uker</option><option value="d"  data-plur="dager" data-sing="dag">dager</option><option value="h"  data-plur="timer" data-sing="time">timer</option>
+
+</select></label>
+</div>
+  <div class="ui-datepicker ui-widget ui-helper-clearfix" style="display: block;">
+    <table class="ui-datepicker-calendar picktable">
+    <tbody>
+    <tr>
+
+       <td class="ui-datepicker-current-day" onclick="selectPeriod('#periodvalueendRange',0);return false;"><a class="ui-state-default ui-state-active" href="#">+0</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',1);return false;"><a class="ui-state-default" href="#">+1</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',2);return false;"><a class="ui-state-default" href="#">+2</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',3);return false;"><a class="ui-state-default" href="#">+3</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',4);return false;"><a class="ui-state-default" href="#">+4</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',5);return false;"><a class="ui-state-default" href="#">+5</a></td>
+       </tr><tr>
+       <td class="" onclick="selectPeriod('#periodvalueendRange',6);return false;"><a class="ui-state-default" href="#">+6</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',7);return false;"><a class="ui-state-default" href="#">+7</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',8);return false;"><a class="ui-state-default" href="#">+8</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',9);return false;"><a class="ui-state-default" href="#">+9</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',10);return false;"><a class="ui-state-default" href="#">+10</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',11);return false;"><a class="ui-state-default" href="#">+11</a></td>
+       </tr><tr>
+       <td class="" onclick="selectPeriod('#periodvalueendRange',12);return false;"><a class="ui-state-default" href="#">+12</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',13);return false;"><a class="ui-state-default" href="#">+13</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',14);return false;"><a class="ui-state-default" href="#">+14</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',15);return false;"><a class="ui-state-default" href="#">+15</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',16);return false;"><a class="ui-state-default" href="#">+16</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',17);return false;"><a class="ui-state-default" href="#">+17</a></td>
+       </tr><tr>
+       <td class="" onclick="selectPeriod('#periodvalueendRange',18);return false;"><a class="ui-state-default" href="#">+18</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',19);return false;"><a class="ui-state-default" href="#">+19</a></td>
+
+       <td class="" onclick="selectPeriod('#periodvalueendRange',20);return false;"><a class="ui-state-default" href="#">+20</a></td>
+    </tr>
+    <tr><td colspan="8"> &nbsp; </td></tr>
+    <tr><td colspan="8" onclick="selectPeriod('#periodvalueendRange',0);return false;"><a class="button" href="#">Sluttdato:Hel</a></td></tr>
+    </tbody>
+    </table>
+  </div>
+                </div></div>
+            </div>
+            <a tabindex="0" class="flip flipEndButton clickable" href="#" data-first="Relativ sluttdato"  data-second="Kalender">Relativ sluttdato</a>
+          </div>
+         <br class="clearBoth hidden">
+         <div class="rangeButtons hidden">
+         <label><select id="rangeTypeSelector" style="float:left" class="ui-corner-all basicSelect">
+                  <option value="0" selected>Kalender</option>
+                  <option value="1">Fra i dag</option>
+                  <option value="2">Fra i dag til dato</option>
+          </select></label><div>
+                <span id="changeRangeMessage" class="stacktraceError" data-text="Sluttdatoen er før startdato."></span>
+             </div> <span class="nobr">Ytre datogrenser 2020-01-06 - 2040-06-19</span>
+         </div>
+      </div>
+
+
+<div id="ajaxError" class="hidden"></div>
+
+
+
+
+<span id="linksdata"
+data-linksbase="https://cloud.timeedit.net/sahg/web/student/ri.html?h=t&amp;sid=12&amp;p=0.m%2C0.n"
+data-sid="12"
+data-lang="nb_NO"
+data-startLimit="20200106"
+data-endLimit="20400619"
+data-timeStep="0"
+data-flip="false"
+data-objectInfoLimited=""
+data-objectGroupField="0"
+data-preferedLength="60"
+data-urltitle=""
+data-SaveScheduleName="Angi navnet for å lagre favoritt"
+data-week="u "
+data-RemoveSchedule="Vil du fjerne denne favoritt fra listen over lagrede favoritter?"
+data-remove="Fjern"
+data-freeresources="Ledige"
+data-titleName="Reservasjonsinformasjon"
+data-myresources="Siste reserverte objekt"
+data-objectClickable="false"
+data-staticui="/static/9.69.4_1613/"
+data-searchids=""
+data-searchidsenc=""
+data-searchnames=""
+class="hidden"></span>
+
+<div class="topmenu"   data-showsearch="true"  id="searchDiv">
+<div id="searchDivContent2" class="fancyinside"><div id="objectMover" class="basketMover"></div>
+
+<div class="fancysearchwrap">
+
+<div class="fancyform fancysearchform" role="search">
+
+<label for="ffsearchname" class="bl searchTitle">Søk
+</label>
+<div class="ui-widget-header ui-corner-all adminFieldTableHead searchDivHeader searchAdvanced searchHeaderRow">
+  <div class="searchButtons">
+  <label>
+  <select class="" id="fancytypeselector" name="fancytypeselector" onchange="ObjectsSearcher.fieldSetsChange();">
+
+       <option value="8" SELECTED>Kull</option>
+       <option value="5" >Emne</option>
+       <option value="11" >Aktivitet</option>
+       <option value="4" >Rom</option>
+       <option value="3" >Lærer</option>
+       <option value="13" >Ekstern Lærer</option>
+  </select>
+  </label>
+  <span class="nobr">
+  <input type="search" class="ffinput ffsearchInput objectinputtext" id="ffsearchname" name="fftext" value="" placeholder="Søk" data-search="Søk" data-name="Fritekst"/><input class="ffsearchbutton objectsearchbutton objectinputsearchbutton" type="button" value="Søk">
+  </span>
+  <a href="#" class="clickable hoverlink showFieldsLink t4small " onclick="toggleFields(event)"  aria-haspopup="true" aria-expanded="false" data-show="no" data-alt-text="Skjul filter">Vis filter</a>
+  <a class="topclose searchClose" onclick="moveSearchDivBack();return false;"></a>
+  </div>
+</div>
+<form id="fancyformfieldsearch" name="fancyformfieldsearch" data-loadSelected="f">
+
+  <fieldset id="ffset8" class="fancyfieldset  fancyNoBorder">
+
+    <div class="searchAdvancedFields hidden">
+    <div class="clearBoth searchAdvancedFieldsButtons">
+
+        <a href="#" data-id="8" data-basename="Kull" data-name="Kull" data-addText="Legg til:" class="searchrescatlink shadedoutline tooltip tooltipunder" data-tip="﻿Kategoriplan. Legg til alle objektene som samsvarer med det aktuelle filteret.">Legg til: Kull</a>
+       <a href="#" data-id="-1" data-name="–" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Gjør et nytt søk med kriteriene under denne Skilletegn.">Skilletegn + </a>
+       <a href="#" data-id="-6" data-name="&&" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Reservasjoner må inneholde kriteriene under dette Filter.">Filter && </a>
+
+
+      <a href="#" style="float: right;padding-top: 0.5em;" class="t4small" onclick="return ObjectsSearcher.clearAllForms()">Nullstill</a>
+    </div>
+    </div>
+  </fieldset>
+  <fieldset id="ffset5" class="fancyfieldset hidden fancyNoBorder">
+
+    <div class="searchAdvancedFields hidden">
+    <div class="clearBoth searchAdvancedFieldsButtons">
+
+        <a href="#" data-id="5" data-basename="Emne" data-name="Emne" data-addText="Legg til:" class="searchrescatlink shadedoutline tooltip tooltipunder" data-tip="﻿Kategoriplan. Legg til alle objektene som samsvarer med det aktuelle filteret.">Legg til: Emne</a>
+       <a href="#" data-id="-1" data-name="–" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Gjør et nytt søk med kriteriene under denne Skilletegn.">Skilletegn + </a>
+       <a href="#" data-id="-6" data-name="&&" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Reservasjoner må inneholde kriteriene under dette Filter.">Filter && </a>
+
+
+      <a href="#" style="float: right;padding-top: 0.5em;" class="t4small" onclick="return ObjectsSearcher.clearAllForms()">Nullstill</a>
+    </div>
+    </div>
+  </fieldset>
+  <fieldset id="ffset11" class="fancyfieldset hidden fancyNoBorder">
+
+    <div class="searchAdvancedFields hidden">
+    <div class="clearBoth searchAdvancedFieldsButtons">
+
+        <a href="#" data-id="11" data-basename="Aktivitet" data-name="Aktivitet" data-addText="Legg til:" class="searchrescatlink shadedoutline tooltip tooltipunder" data-tip="﻿Kategoriplan. Legg til alle objektene som samsvarer med det aktuelle filteret.">Legg til: Aktivitet</a>
+       <a href="#" data-id="-1" data-name="–" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Gjør et nytt søk med kriteriene under denne Skilletegn.">Skilletegn + </a>
+       <a href="#" data-id="-6" data-name="&&" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Reservasjoner må inneholde kriteriene under dette Filter.">Filter && </a>
+
+
+      <a href="#" style="float: right;padding-top: 0.5em;" class="t4small" onclick="return ObjectsSearcher.clearAllForms()">Nullstill</a>
+    </div>
+    </div>
+  </fieldset>
+  <fieldset id="ffset4" class="fancyfieldset hidden fancyNoBorder">
+
+    <div class="searchAdvancedFields hidden">
+    <div class="clearBoth searchAdvancedFieldsButtons">
+
+        <a href="#" data-id="4" data-basename="Rom" data-name="Rom" data-addText="Legg til:" class="searchrescatlink shadedoutline tooltip tooltipunder" data-tip="﻿Kategoriplan. Legg til alle objektene som samsvarer med det aktuelle filteret.">Legg til: Rom</a>
+       <a href="#" data-id="-1" data-name="–" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Gjør et nytt søk med kriteriene under denne Skilletegn.">Skilletegn + </a>
+       <a href="#" data-id="-6" data-name="&&" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Reservasjoner må inneholde kriteriene under dette Filter.">Filter && </a>
+
+
+      <a href="#" style="float: right;padding-top: 0.5em;" class="t4small" onclick="return ObjectsSearcher.clearAllForms()">Nullstill</a>
+    </div>
+    </div>
+  </fieldset>
+  <fieldset id="ffset3" class="fancyfieldset hidden fancyNoBorder">
+
+    <div class="searchAdvancedFields hidden">
+    <div class="clearBoth searchAdvancedFieldsButtons">
+
+        <a href="#" data-id="3" data-basename="Lærer" data-name="Lærer" data-addText="Legg til:" class="searchrescatlink shadedoutline tooltip tooltipunder" data-tip="﻿Kategoriplan. Legg til alle objektene som samsvarer med det aktuelle filteret.">Legg til: Lærer</a>
+       <a href="#" data-id="-1" data-name="–" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Gjør et nytt søk med kriteriene under denne Skilletegn.">Skilletegn + </a>
+       <a href="#" data-id="-6" data-name="&&" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Reservasjoner må inneholde kriteriene under dette Filter.">Filter && </a>
+
+
+      <a href="#" style="float: right;padding-top: 0.5em;" class="t4small" onclick="return ObjectsSearcher.clearAllForms()">Nullstill</a>
+    </div>
+    </div>
+  </fieldset>
+  <fieldset id="ffset13" class="fancyfieldset hidden fancyNoBorder">
+
+    <div class="searchAdvancedFields hidden">
+    <div class="clearBoth searchAdvancedFieldsButtons">
+
+        <a href="#" data-id="13" data-basename="Ekstern Lærer" data-name="Ekstern Lærer" data-addText="Legg til:" class="searchrescatlink shadedoutline tooltip tooltipunder" data-tip="﻿Kategoriplan. Legg til alle objektene som samsvarer med det aktuelle filteret.">Legg til: Ekstern Lærer</a>
+       <a href="#" data-id="-1" data-name="–" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Gjør et nytt søk med kriteriene under denne Skilletegn.">Skilletegn + </a>
+       <a href="#" data-id="-6" data-name="&&" class="searchseparator shadedoutline tooltip tooltipunder" data-tip="﻿Reservasjoner må inneholde kriteriene under dette Filter.">Filter && </a>
+
+
+      <a href="#" style="float: right;padding-top: 0.5em;" class="t4small" onclick="return ObjectsSearcher.clearAllForms()">Nullstill</a>
+    </div>
+    </div>
+  </fieldset>
+</form>
+</div>
+<div id="searchLoader" class="searchani"></div>
+
+<div id="searchColumnWrapper" class="searchColumnBox searchAdvancedShow">
+<div class="middlewrapper">
+    <h2 class="ui-widget-header ui-corner-all adminFieldTableHead searchDivHeader searchAdvanced middlesearchwrap searchwraptitle">
+    <div class="middlesearchtitle"><span class="middlesearchname" data-name="Søkeresultat" data-relprefix="﻿for">Søkeresultat</span></span> <span id="searchTextLegend" class="hidden" data-nomatches="" data-result="" data-search=" Søker "></div>
+    </h2>
+    <div class="fancyform fancyresultform" id="fancyformfieldresult">
+        <div id="objectsearchresult"><div class="clicksearchicon"></div></div>
+    </div>
+</div>
+</div>
+<div class="fancyform fancyformInfo" id="fancyformLeft">
+<h2 class="ui-widget-header ui-corner-all adminFieldTableHead searchDivHeader searchAdvanced searchwraptitle"><span class="hasHelp">Mine valg
+<span class="helpicon"></span> <span class="linkhelp linkhelpsmall linkhelpbelow">Dra og slipp for å endre rekkefølge</span></span>
+<a href="#" id="leftclearbutton" class="leftclearbutton t4small hidden" onclick="return emptyBasketConfirm(this, '');" title="Tøm Mine valg" aria-label="Tøm Mine valg">Tøm</a>
+<a href="#" id="leftsortbutton" class="leftclearbutton t4small hidden" onclick="return sortBasket(this);" title="﻿Sortere Mine valg" aria-label="﻿Sortere Mine valg">﻿Sortere</a>
+</h2>
+<div class="favoritecontainer">
+<div id="baskettarget" class="objectbasketwrap searchAdvanced">
+  <div id="objectbaskettext"><div class="emptyBasketicon"></div>
+  <div id="basketSelectText" data-select="Velg minst ett objekt" data-none="Ingen valgte objekter." class="emptyBasket basketpadded">Ingen valgte objekter.</div>
+  </div>
+  <div id="objectbasket" class="basketpadded" data-title="Fjern"></div>
+  </div>
+    <input id="objectbasketgo" data-mandatory="yes" type="button" data-copy="Kopier" data-search="Vis timeplan" value="Vis timeplan">
+    </div>
+</div>
+<div class="clearBoth"></div>
+</div>
+<div class="clearBoth"></div>
+</div>
+  <hr class="searchsplit">
+    <div id="favoritewrap" class="favoritewrap dialog">
+      <h2 class="ui-widget-header ui-corner-all searchDivHeader searchAdvanced searchbottom"><span class="tesprite tesprite-history tespritetop"></span>Logg<a href="#" class="leftclearbutton t4small" onclick="return emptyHistory(this);" title="Tøm Logg" aria-label="Tøm Logg">Tøm</a></h2>
+      <ul class="historylist favoriteitems"><li></li></ul>
+    </div>
+  </div>
+
+
+<div class="overlay" id="footerOverlay" style="display:none;"></div>
+
+<div id="footer" class="topmenu topmenuright" style="display:none;">
+ <ul class="footerLinkList2 expBack" id="footerList">
+      <li tabindex="0" role="button" class="clickable exp expTab tabcount2" id="mergelinksElement2"><div class="expbox"><span class="tesprite tesprite-merge tespritecenter"></span>Layout</div></li>
+      <li tabindex="0" role="button" class="clickable exp expTab tabcount2" id="colorlinksElement2"><div class="expbox"><span class="tesprite tesprite-color_wheel tespritecenter"></span>Reservasjoner</div></li>
+  </ul>
+
+<div class="footer2" id="footer2">
+  <div class="flinks" id="colorlinksElement">
+    <div class="rescontenttitle">Farge</div>
+    <div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp headlineLink">
+<label  for="te_link_1"  class="bl" title="Fargelegg">
+
+Fargelegg
+<span class="helpicon"></span> <span class="linkhelp">Farger tildeles fra administrasjonsgrensesnittet i <b>Core</b>, etter <b>Type</b>. <br>Hvis objekter med en <b>Core</b>-farge tilordnet <b>Type</b> har en spesifikk farge, vil de få samme farge i <b>Viewer</b>. <br>Hvis objekter med en <b>Core</b>-farge tilordnet <b>Type</b> ikke har noen farge, vil de enten ikke få noen farge eller en tilfeldig farge i <b>Viewer</b>, i henhold til <b>Core</b>-administratorinnstillingene. <br>Objekter av typer uten tilordnet farge i det hele tatt i <b>Core</b> vil bli fullstendig tilfeldig.<br>
+
+Objekter må være synlige i timeplanen for å kunne velges i <b>Fargelegg</b></span>
+</label>
+</div>
+
+<select id="te_link_1" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZlQQ0.html#colorlinks">Standard</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZlQQg34.html#colorlinks">Svart-hvitt</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZlQQg40.html#colorlinks">Invertert</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZlQQg49.html#colorlinks">Tilgjengelighet</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZlQQg42.html#colorlinks">Status</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZlQQg45.html#colorlinks">Søkevilkår</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZlQQg46.html#colorlinks">Pågår</option>
+</select>
+
+
+</div><div class="footerLinkList"><select id="te_link_3" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Q50ZlXb06ZyQQYvu0Yw.html#colorlinks"></option>
+</select>
+
+
+</div><div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZlQQo.html#colorlinks" class="pagelock checkwrap  linkhelpleft bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZlQQo.html#colorlinks'" type="checkbox" name="n4" checked="checked"><span class="checkmark"></span>Fargelegg spesialreservasjoner</label>
+<span class="helpicon"></span> <span class="linkhelp">Markerer spesielle reservasjoner og obligatorisk undervisning eller tentamen med en egen farge.</span>
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZlQnQo.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZlQnQo.html#colorlinks'" type="checkbox" name="n4" checked="checked"><span class="checkmark"></span>Vis fargeforklaring</label>
+
+</a>
+</div>
+
+
+
+
+</div>
+    <div class="headlineLink">Fargelegg etter innhold</div>
+    <div class="footerLinkList footerColumns">
+
+
+</div>
+
+    <div class="rescontenttitle">Innhold</div>
+    <div class="footerLinkList" id="columnorder">
+
+
+
+<div data-id="" class="hasHelp headlineLink skipFor">
+<label  class="bl" title="Synlig informasjon">
+
+Synlig informasjon
+<span class="helpicon"></span> <span class="linkhelp">Tidligere benevnt <b>Synlige kolonner</b>. Vis og sorter hvilken informasjon som syns i reservasjonene.</span>
+</label>
+</div>
+
+
+
+
+
+<div data-id="" class="smallhelp">
+<label  class="bl" title="Dra og slipp for å endre rekkefølge">
+
+Dra og slipp for å endre rekkefølge
+
+</label>
+</div>
+
+
+
+
+
+<div data-id="8-14" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5v8yl0w650QYZlQqQ3WXZ.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5v8yl0w650QYZlQqQ3WXZ.html#colorlinks'" type="checkbox" name="n6" checked="checked"><span class="checkmark"></span>Kull: Name</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="5-8" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w630QYZlQqQ9WX.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w630QYZlQqQ9WX.html#colorlinks'" type="checkbox" name="n6" checked="checked"><span class="checkmark"></span>Emne: Name</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="5-19" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5v4yl0w650QYZlQqQ9WXZ.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5v4yl0w650QYZlQqQ9WXZ.html#colorlinks'" type="checkbox" name="n6" checked="checked"><span class="checkmark"></span>Emne: Code</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="11-27" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5v6yl0w6W0QYZlQqQ55XZ2.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5v6yl0w6W0QYZlQqQ55XZ2.html#colorlinks'" type="checkbox" name="n6" checked="checked"><span class="checkmark"></span>Aktivitet: Aktivitet</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="3-4.13-4" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vYyl7w680QYZlQ8Q7WXZ50Wq.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vYyl7w680QYZlQ8Q7WXZ50Wq.html#colorlinks'" type="checkbox" name="n6" checked="checked"><span class="checkmark"></span>Lærer: Name, Ekstern Lærer: Name</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="4-7" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w620QYZlQqQ8WX.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w620QYZlQqQ8WX.html#colorlinks'" type="checkbox" name="n6" checked="checked"><span class="checkmark"></span>Rom: Name</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="f1- .f3.f30" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vVylow6W0QYolQYQo5XZY07qZ70.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vVylow6W0QYolQYQo5XZY07qZ70.html#colorlinks'" type="checkbox" name="n6" checked="checked"><span class="checkmark"></span>Comment, Dochttp</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w6X0QYZlQqQ0.html#colorlinks" class="pagelock underlinedlink   ">
+
+Nullstill
+
+</a>
+</div>
+
+
+
+
+</div>
+    <div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp headlineLink skipFor">
+<label  class="bl" title="Vis ytterligere reservasjoner">
+
+Vis ytterligere reservasjoner
+<span class="helpicon"></span> <span class="linkhelp">I tillegg til vanlige reservasjoner går det også an å vise andre typer reservasjoner.</span>
+</label>
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyh0w6X0QYZvQQc.html#colorlinks" class="pagelock checkwrap   ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyh0w6X0QYZvQQc.html#colorlinks'" type="checkbox" name="n7" ><span class="checkmark"></span>Vis mine reservasjoner</label>
+<span class="helpicon"></span> <span class="linkhelp">Vis reservasjoner som jeg har foretatt selv.</span>
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyw0w6X0QYZrQoxQo.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyw0w6X0QYZrQoxQo.html#colorlinks'" type="checkbox" name="n7" checked="checked"><span class="checkmark"></span>Vis informasjonsreserveringer</label>
+<span class="helpicon"></span> <span class="linkhelp">Vis helligdager eller spesielle dager.</span>
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="headlineLink skipFor">
+<label  class="bl" title="Reservasjonsinformasjon">
+
+Reservasjonsinformasjon
+
+</label>
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZnQnQc.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZnQnQc.html#colorlinks'" type="checkbox" name="n7" checked="checked"><span class="checkmark"></span>Vis søkeobjekt i timeplan</label>
+<span class="helpicon"></span> <span class="linkhelp">Viser søkte objekter i skjemaet, dersom typen er valgt som synlig.</span>
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZbQQo.html#colorlinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZbQQo.html#colorlinks'" type="checkbox" name="n7" checked="checked"><span class="checkmark"></span>Vis start- og sluttidspunkter</label>
+<span class="helpicon"></span> <span class="linkhelp">Viser start- og sluttid på reservasjonen.</span>
+</a>
+</div>
+
+
+
+<div>
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZbQqQc.html#colorlinks" class="pagelock checkwrap radiowrap linksub ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZbQqQc.html#colorlinks'" type="radio" name="n7" ><span class="checkmark radiomark"></span>Kort: 12 (h)</label>
+
+</a>
+
+
+
+
+
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZbQqQo.html#colorlinks" class="pagelock checkwrap radiowrap linksub bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZbQqQo.html#colorlinks'" type="radio" name="n7" checked="checked"><span class="checkmark radiomark"></span>Langt: 12:34 (hh:mm)</label>
+
+</a>
+
+
+
+</div>
+
+</div>
+
+
+    <div class="rescontenttitle rescontentpadd">Stil</div>
+    <div class="footerLinkList">
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZpQQc.html#colorlinks" class="pagelock checkwrap   ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZpQQc.html#colorlinks'" type="checkbox" name="n8" ><span class="checkmark"></span>﻿Tilpass linjehøyden til skriftstørrelsen</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="headlineLink">
+<label  for="te_link_9"  class="bl" title="Tekstutseende">
+
+Tekstutseende
+
+</label>
+</div>
+
+<select id="te_link_9" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZkQQ0.html#colorlinks">Vis uten linjeskift</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QY.html#colorlinks" SELECTED>Vis med linjeskift</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZkQQk.html#colorlinks">Automatisk linjeskift pr. type</option>
+</select>
+
+
+</div>
+    <div class="footerLinkList">
+
+
+
+<div data-id="" class="headlineLink skipFor">
+<label  class="bl" title="Tekstjustering">
+
+Tekstjustering
+
+</label>
+</div>
+
+
+
+<div>
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZlQQo.html#colorlinks" class="pagelock checkwrap radiowrap  bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZlQQo.html#colorlinks'" type="radio" name="n10" checked="checked"><span class="checkmark radiomark"></span>Venstrejuster</label>
+
+</a>
+
+
+
+
+
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZlQQc.html#colorlinks" class="pagelock checkwrap radiowrap  ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyc0w6X0QYZlQQc.html#colorlinks'" type="radio" name="n10" ><span class="checkmark radiomark"></span>Sentrert</label>
+
+</a>
+
+
+
+</div>
+
+</div>
+    <div class="footerLinkList">
+
+
+
+<div data-id="" class="headlineLink skipFor">
+<label  class="bl" title="Skriftstørrelse 13">
+
+Skriftstørrelse 13
+
+</label>
+</div>
+
+
+
+
+
+<div data-id="" class="">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZoQQ51.html#colorlinks" class="pagelock underlinedlink   ">
+
+Øk skriftstørrelse
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZoQQ55.html#colorlinks" class="pagelock underlinedlink   ">
+
+Reduser skriftstørrelse
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZoQQ57.html#colorlinks" class="pagelock underlinedlink   ">
+
+Nullstill skriftstørrelse
+
+</a>
+</div>
+
+
+
+
+</div>
+  </div>
+  <div class="flinks" id="mergelinksElement">
+  <div class="rescontenttitle">Side</div>
+  <div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp headlineLink">
+<label  for="te_link_13"  class="bl" title="Grunnutseende">
+
+Grunnutseende
+<span class="helpicon"></span> <span class="linkhelp">Tidligere benevnt <b>Visninger</b>. Innstillinger avgjør hvordan reservasjoner vises. <br><b>Datovisning</b>: reservasjoner vises i en vanlig kalender, dag for dag.<br><b>Periodevisning</b>: viser alle reservasjoner for den valgte perioden, gruppert etter ukedag. <br><b>Ukevisning</b>: viser reservasjoner gruppert etter uker. <br><b>Månedsvisning</b>: viser reservasjoner gruppert etter måned. <br><b>Årsvisning</b>: viser reservasjoner gruppert etter år.</span>
+</label>
+</div>
+
+<select id="te_link_13" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QY.html#mergelinks" SELECTED>Datovisning</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QYZlQ5.html#mergelinks">Periodevisning</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QYZlQ6.html#mergelinks">Ukevisning</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QYZlQ7.html#mergelinks">Månedsvisning</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QYZlQ8.html#mergelinks">Årsvisning</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QYZlQ9.html#mergelinks">År &amp; Uke</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QYZlQ1.html#mergelinks">År &amp; Måned</option>
+</select>
+
+
+</div>
+  <div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyn0w6X0QYZbQQc.html#mergelinks" class="pagelock checkwrap   ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyn0w6X0QYZbQQc.html#mergelinks'" type="checkbox" name="n14" ><span class="checkmark"></span>Skjul tomme uker</label>
+<span class="helpicon"></span> <span class="linkhelp">Skjul uker som ikke har reservasjoner.</span>
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZyQQo.html#mergelinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyu0w6X0QYZyQQo.html#mergelinks'" type="checkbox" name="n14" checked="checked"><span class="checkmark"></span>Linjert</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w6X0QYZmQQc.html#mergelinks" class="pagelock checkwrap   ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w6X0QYZmQQc.html#mergelinks'" type="checkbox" name="n14" ><span class="checkmark"></span>Vis klokke</label>
+<span class="helpicon"></span> <span class="linkhelp">Viser aktuell tid i venstre hjørne nederst på siden.</span>
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyy0w6X0QYZyQQc.html#mergelinks" class="pagelock checkwrap   ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyy0w6X0QYZyQQc.html#mergelinks'" type="checkbox" name="n14" ><span class="checkmark"></span>En timeplan per søkevilkår</label>
+<span class="helpicon"></span> <span class="linkhelp">Oppretter et separat skjema for hvert objekt som ble valgt i søkeinnstillingene.</span>
+</a>
+</div>
+
+
+
+
+</div>
+  <div class="footerLinkList nomargin footerColumnTwo">
+
+
+
+<div data-id="" class="headlineLink">
+<label  for="te_link_16"  class="bl hasHelp " title="Radoverskrifter">
+
+Radoverskrifter
+<span class="helpicon"></span> <span class="linkhelp">Avgjør hva som vises som rader i skjemaet. <br> <b>Timer</b> er den vanligste innstillingen, den viser timer.<br><b>Søkeobjekter</b> viser bare de objekter som er søkt på, inklusive de som mangler reservasjoner.<br><b>Typer</b> viser alle objekter for valgt <b>Type</b>, men bare dersom det fins reservasjoner.</span>
+</label>
+
+
+<select id="te_link_16" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZxQnQ0.html#mergelinks" SELECTED>Timer</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZxQnQW5.html#mergelinks">Søkeobjekter</option>
+    </select>
+    </div>
+
+
+
+
+<div data-id="" class="headlineLink linkhelpleft">
+<label  for="te_link_17"  class="bl hasHelp " title="Kolonneoverskrifter">
+
+Kolonneoverskrifter
+<span class="helpicon"></span> <span class="linkhelp">Avgjør hva som vises som kolonner i skjemaet. <br>Viser dato, ukedager, ukenummer basert på <b>Grunnutseende</b>, men det går også an å legge til:<br><b>Søkeobjekter</b>, dersom timer har blitt valgt som radoverskrift, eller ukedager, ukenummer, dato, når <b>Typer</b> og <b>Søkeobjekter</b> har blitt valgt som rader.</span>
+</label>
+
+
+<select id="te_link_17" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vqyqcw6x0QYZxQ0Q0ZXZn0Qn.html#mergelinks">Dato</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZxQncQ0.html#mergelinks" SELECTED>Dato &amp; Søkeobjekter</option>
+</select>
+
+</div>
+<br class="clearBoth"></div>
+  <div class="footerLinkList">
+
+
+</div>
+  <div class="footerLinkList nomargin">
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZym0w6X0QYZkQQo.html#mergelinks" class="pagelock checkwrap  linkhelpleft bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZym0w6X0QYZkQQo.html#mergelinks'" type="checkbox" name="n18" checked="checked"><span class="checkmark"></span>Tilpass bredden til skjermen</label>
+<span class="helpicon"></span> <span class="linkhelp">Tidligere benevnelse <b>Ny linje for hver uke</b>.<br>Hvis valgt, justeres skjemaets bredde til skjermen og innstillingen <b>Kolonnebredde</b> ignoreres.<br>Viser opptil 5 kolonner dersom <b>Mandag - Fredag</b> er valgt under <b>Ukedager</b>, og opptil 7 kolonner dersom <b>Mandag - Søndag</b> er valgt under <b>Ukedager</b>.</span>
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyf0w6X0QYZbQqQc.html#mergelinks" class="pagelock checkwrap   ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyf0w6X0QYZbQqQc.html#mergelinks'" type="checkbox" name="n18" ><span class="checkmark"></span>﻿Horisontal rulling</label>
+<span class="helpicon"></span> <span class="linkhelp">﻿Horisontal rulling i tidsplanen.</span>
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyf0w6X0QYZbQqfQc.html#mergelinks" class="pagelock checkwrap  dimmed ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyf0w6X0QYZbQqfQc.html#mergelinks'" type="checkbox" name="n18" ><span class="checkmark"></span>Vis uker</label>
+<span class="helpicon"></span> <span class="linkhelp">Vis uker. ﻿Horisontal rulling i tidsplanen.</span>
+</a>
+</div>
+
+
+
+
+</div>
+  <form method="get" action="" id="gsizeform">
+   <div class="footerLinkList">
+    <table cellpadding=0 cellspacing=0><tr><td class="footertd">
+    <label for="gheigth">Radhøyde</label></td><td class="footertd">
+    <select name="gheigth" id="gheigth" onchange="updateSizelink('https://cloud.timeedit.net/sahg/web/student/ri.html?h=t&amp;sid=12&amp;p=0.m%2C0.n','#mergelinks')">
+      <option SELECTED value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option><option value="60">60</option><option value="70">70</option><option value="80">80</option><option value="90">90</option><option value="100">100</option><option value="110">110</option><option value="120">120</option><option value="130">130</option><option value="140">140</option><option value="150">150</option><option value="160">160</option><option value="170">170</option><option value="180">180</option><option value="190">190</option><option value="200">200</option><option value="210">210</option><option value="220">220</option><option value="230">230</option><option value="240">240</option><option value="250">250</option><option value="260">260</option><option value="270">270</option><option value="280">280</option><option value="290">290</option><option value="300">300</option><option value="350">350</option><option value="400">400</option><option value="450">450</option><option value="500">500</option><option value="550">550</option><option value="600">600</option><option value="650">650</option><option value="700">700</option><option value="750">750</option><option value="800">800</option><option value="900">900</option><option value="1000">1000</option><option value="1100">1100</option><option value="1200">1200</option>
+    </select>
+    </tr><tr><td class="footertd dimmed">
+    <label for="gwidth">Kolonnebredde</label></td><td class="footertd">
+    <select name="gwidth" id="gwidth" class=" dimmed" onchange="updateSizelink('https://cloud.timeedit.net/sahg/web/student/ri.html?h=t&amp;sid=12&amp;p=0.m%2C0.n','#mergelinks')">
+        <option  value="20">20</option>
+        <option  value="30">30</option>
+        <option  value="40">40</option>
+        <option  value="50">50</option>
+        <option  value="60">60</option>
+        <option  value="70">70</option>
+        <option  value="80">80</option>
+        <option  value="90">90</option>
+        <option  value="100">100</option>
+        <option  value="110">110</option>
+        <option  value="120">120</option>
+        <option SELECTED value="130">130</option>
+        <option  value="140">140</option>
+        <option  value="150">150</option>
+        <option  value="160">160</option>
+        <option  value="170">170</option>
+        <option  value="180">180</option>
+        <option  value="190">190</option>
+        <option  value="200">200</option>
+        <option  value="210">210</option>
+        <option  value="220">220</option>
+        <option  value="230">230</option>
+        <option  value="240">240</option>
+        <option  value="250">250</option>
+        <option  value="260">260</option>
+        <option  value="270">270</option>
+        <option  value="280">280</option>
+        <option  value="290">290</option>
+        <option  value="300">300</option>
+        <option  value="350">350</option>
+        <option  value="400">400</option>
+        <option  value="450">450</option>
+        <option  value="500">500</option>
+        <option  value="550">550</option>
+        <option  value="600">600</option>
+        <option  value="650">650</option>
+        <option  value="700">700</option>
+        <option  value="750">750</option>
+        <option  value="800">800</option>
+        <option  value="900">900</option>
+        <option  value="1000">1000</option>
+        <option  value="1100">1100</option>
+        <option  value="1200">1200</option>
+    </select>
+    </tr><tr><td class="footertd dimmed">
+    <label for="fwidth">Radoverskrifter bredde</label></td><td class="footertd">
+    <select name="fwidth" id="fwidth" class=" dimmed" onchange="updateSizelink('https://cloud.timeedit.net/sahg/web/student/ri.html?h=t&amp;sid=12&amp;p=0.m%2C0.n','#mergelinks')">
+      <option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option><option value="60">60</option><option value="70">70</option><option value="80">80</option><option value="90">90</option><option value="100">100</option><option value="110">110</option><option SELECTED value="120">120</option><option value="130">130</option><option value="140">140</option><option value="150">150</option><option value="160">160</option><option value="170">170</option><option value="180">180</option><option value="190">190</option><option value="200">200</option><option value="210">210</option><option value="220">220</option><option value="230">230</option><option value="240">240</option><option value="250">250</option><option value="260">260</option><option value="270">270</option><option value="280">280</option><option value="290">290</option><option value="300">300</option><option value="350">350</option><option value="400">400</option><option value="450">450</option><option value="500">500</option><option value="550">550</option><option value="600">600</option><option value="650">650</option><option value="700">700</option><option value="750">750</option><option value="800">800</option><option value="900">900</option><option value="1000">1000</option><option value="1100">1100</option><option value="1200">1200</option>
+    </select>
+    </td></tr></table>
+
+
+
+
+<div data-id="" class="">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QY.html#mergelinks" class="pagelock underlinedlink   ">
+
+Nullstill høyde og bredde
+
+</a>
+</div>
+
+
+
+
+   </div>
+   </form>
+  <div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp headlineLink">
+<label  for="te_link_22"  class="bl" title="Sorter reservasjoner i skjema">
+
+Sorter reservasjoner i skjema
+<span class="helpicon"></span> <span class="linkhelp">Sorterer reservasjoner i en kolonne basert på objektenes navn i alfabetisk rekkefølge.</span>
+</label>
+</div>
+
+<select id="te_link_22" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5v8yx0w650QYZbQlQ3WXZ.html#mergelinks">Kull</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w630QYZbQlQ9WX.html#mergelinks">Emne</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5v4yx0w650QYZbQlQ9WXZ.html#mergelinks">Emne</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5v6yx0w6W0QYZbQlQ55XZ2.html#mergelinks">Aktivitet</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w680QYZbQlQ7WX.html#mergelinks">Lærer, Ekstern Lærer</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w620QYZbQlQ8WX.html#mergelinks">Rom</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QY.html#mergelinks" SELECTED>Standard</option>
+</select>
+
+
+</div>
+  <div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp headlineLink">
+<label  for="te_link_24"  class="bl" title="﻿Maks. antall kolonner">
+
+﻿Maks. antall kolonner
+<span class="helpicon"></span> <span class="linkhelp">﻿Maks. antall kolonner før overlappende reservasjoner vises oppå hverandre.</span>
+</label>
+</div>
+
+<select id="te_link_24" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w6X0QYZbQbcQ0.html#mergelinks">Av</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w6X0QYZbQbcQ6.html#mergelinks">1</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w6X0QYZbQbcQ7.html#mergelinks">2</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w6X0QYZbQbcQ8.html#mergelinks">3</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w6X0QYZbQbcQ9.html#mergelinks">4</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w6X0QYZbQbcQ1.html#mergelinks">5</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w650QYZbQbcQ5X.html#mergelinks">10</option>
+</select>
+
+
+</div>
+
+  <div class="footerLinkList">
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QYZpQo.html#mergelinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyQ0w6X0QYZpQo.html#mergelinks'" type="checkbox" name="n24" checked="checked"><span class="checkmark"></span>Vis grafisk timeplan</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w6X0QYZmQQc.html#mergelinks" class="pagelock checkwrap   ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyx0w6X0QYZmQQc.html#mergelinks'" type="checkbox" name="n24" ><span class="checkmark"></span>Skrivebordsmodus</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZyQQ7.html#mergelinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZyQQ7.html#mergelinks'" type="checkbox" name="n24" checked="checked"><span class="checkmark"></span>Vis Topptekst</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZyQQ6.html#mergelinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZyQQ6.html#mergelinks'" type="checkbox" name="n24" checked="checked"><span class="checkmark"></span>Vis Bunntekst</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZbQoQ6.html#mergelinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZbQoQ6.html#mergelinks'" type="checkbox" name="n24" checked="checked"><span class="checkmark"></span>Vis Overskrift</label>
+
+</a>
+</div>
+
+
+
+
+</div>
+
+  <form method="get" action="" id="gtitle"  onsubmit="return false" class="clearBoth">
+   <div class="footerLinkList">
+    <label for="gtitlevalue" class="bl headlineLink hasHelp">Overskrift
+
+    </label>
+    <input type="text" name="title" id="gtitlevalue" value="" style="width:320px">
+    <input type="button" class="green" style="width:327px" id="titlegenerate" onclick="updateTitlelink('https://cloud.timeedit.net/sahg/web/student/ri.html?h=t&amp;sid=12&amp;p=0.m%2C0.n','#mergelinks')" title="Endre overskrift" value="Endre overskrift">
+   </div>
+  </form>
+
+  <div class="rescontenttitle">Tid</div>
+  <div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp headlineLink">
+<label  for="te_link_27"  class="bl" title="Ukedager">
+
+Ukedager
+<span class="helpicon"></span> <span class="linkhelp">Tidligere benevnelse <b>Vis lørdag og søndag</b>. Lar deg velge hvilke ukedager du vil vise.</span>
+</label>
+</div>
+
+<select id="te_link_27" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyf0w6X0QYZfQQo.html#mergelinks">Mandag - Søndag</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyf0w6X0QYZfQQ5.html#mergelinks" SELECTED>Mandag - Fredag</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vQyfXw6m0QY69QX8ZfXZ005QZX7XoXf.html#mergelinks">Mandag - Lørdag</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vQyf0w6m0QYZfQQoZfXZ0.html#mergelinks">Mandag</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vQyf0w6m0QYZfQQoZfXZ5.html#mergelinks">Tirsdag</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vQyf0w6m0QYZfQQoZfXZ6.html#mergelinks">Onsdag</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vQyf0w6m0QYZfQQoZfXZ7.html#mergelinks">Torsdag</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vQyf0w6m0QYZfQQoZfXZ8.html#mergelinks">Fredag</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vQyf0w6m0QYZfQQoZfXZ9.html#mergelinks">Lørdag</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vQyf0w6m0QYZfQQoZfXZ1.html#mergelinks">Søndag</option>
+    </select>
+
+
+
+<div>
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZym0w6X0QYZfQQ1.html#mergelinks" class="pagelock checkwrap radiowrap  bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZym0w6X0QYZfQQ1.html#mergelinks'" type="radio" name="n26" checked="checked"><span class="checkmark radiomark"></span>Vis lørdag &amp;amp; søndag om det fins reservasjoner</label>
+
+</a>
+
+
+
+
+
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vQym0w6f0QYZfQQ1ZfXZ5.html#mergelinks" class="pagelock checkwrap radiowrap  ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vQym0w6f0QYZfQQ1ZfXZ5.html#mergelinks'" type="radio" name="n26" ><span class="checkmark radiomark"></span>Vis bare reservasjoner for ukedagene</label>
+
+</a>
+
+
+
+</div>
+
+</div>
+  <div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyo0w6X0QYZjQfQo.html#mergelinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyo0w6X0QYZjQfQo.html#mergelinks'" type="checkbox" name="n27" checked="checked"><span class="checkmark"></span>Utvid valgt periode til hele uker</label>
+<span class="helpicon"></span> <span class="linkhelp">﻿Viser hele uken selv om bare en del av uken er valgt.</span>
+</a>
+</div>
+
+
+
+
+</div>
+  <form method="get" action="" id="gtimeform">
+    <div class="footerLinkList">
+    <div class="headlineLink hasHelp">Tidsintervall  <span class="helpicon"></span> <span class="linkhelp">Bestemmer mellom hvilke klokkeslett reservasjoner skal vises.</span></div>
+      <table cellpadding="0" cellspacing="0"><tr><td class="footertd">
+      <label for="gstarttime">Starttidspunkt</label></td><td class="footertd">
+    <select name="gstarttime" id="gstarttime"  onchange="updateTimelink('https://cloud.timeedit.net/sahg/web/student/ri.html?h=t&amp;sid=12&amp;p=0.m%2C0.n','#mergelinks')">
+      <option value="0.00">0</option><option value="1.00">1</option><option value="2.00">2</option><option value="3.00">3</option><option value="4.00">4</option><option value="5.00">5</option><option value="6.00">6</option><option value="7.00">7</option><option SELECTED value="8.00">8</option><option value="9.00">9</option><option value="10.00">10</option><option value="11.00">11</option><option value="12.00">12</option><option value="13.00">13</option><option value="14.00">14</option><option value="15.00">15</option><option value="16.00">16</option><option value="17.00">17</option><option value="18.00">18</option><option value="19.00">19</option><option value="20.00">20</option><option value="21.00">21</option><option value="22.00">22</option><option value="23.00">23</option><option value="24.00">24</option>
+    </select>
+    </td></tr><tr><td class="footertd"><label for="gendtime">Sluttidspunkt</label></td><td class="footertd">
+    <select name="gendtime" id="gendtime" onchange="updateTimelink('https://cloud.timeedit.net/sahg/web/student/ri.html?h=t&amp;sid=12&amp;p=0.m%2C0.n','#mergelinks')">
+      <option value="0.00">0</option><option value="1.00">1</option><option value="2.00">2</option><option value="3.00">3</option><option value="4.00">4</option><option value="5.00">5</option><option value="6.00">6</option><option value="7.00">7</option><option value="8.00">8</option><option value="9.00">9</option><option value="10.00">10</option><option value="11.00">11</option><option value="12.00">12</option><option value="13.00">13</option><option value="14.00">14</option><option value="15.00">15</option><option value="16.00">16</option><option SELECTED value="17.00">17</option><option value="18.00">18</option><option value="19.00">19</option><option value="20.00">20</option><option value="21.00">21</option><option value="22.00">22</option><option value="23.00">23</option><option value="24.00">24</option>
+    </select>
+    </td></tr>
+   </table>
+
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZjQQo.html#mergelinks" class="pagelock checkwrap   bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZjQQo.html#mergelinks'" type="checkbox" name="n28" checked="checked"><span class="checkmark"></span>Utvid start- og sluttidspunkter slik at alle reservasjoner vises.</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZjQoQc.html#mergelinks" class="pagelock checkwrap   ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZjQoQc.html#mergelinks'" type="checkbox" name="n28" ><span class="checkmark"></span>Vis bare reservasjoner innen start- og sluttidspunkt</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="lefttext">
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZjQobQc.html#mergelinks" class="pagelock checkwrap   ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyq0w6X0QYZjQobQc.html#mergelinks'" type="checkbox" name="n28" ><span class="checkmark"></span>﻿Vis bare reservasjoner som begynner innenfor start- og sluttidspunktet.</label>
+
+</a>
+</div>
+
+
+
+
+
+<div data-id="" class="headlineLink">
+<label  for="te_link_30"  class="bl" title="Relativ startdato">
+
+Relativ startdato
+
+</label>
+</div>
+
+<select id="te_link_30" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZya0w6X0QYZcQQ0.html#mergelinks">Av</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZya0w6X0QYZcQQ0Xo.html#mergelinks">Nå 0 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5voya0w6X0QYZcQQW50XZ.html#mergelinks">Nå -10 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5voya0w6X0QYZcQQW59XZ.html#mergelinks">Nå -15 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5voya0w6X0QYZcQQW60XZ.html#mergelinks">Nå -20 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5voya0w6X0QYZcQQW70XZ.html#mergelinks">Nå -30 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5voya0w6X0QYZcQQW80XZ.html#mergelinks">Nå -40 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5voya0w6X0QYZcQQW89XZ.html#mergelinks">Nå -45 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5voya0w6X0QYZcQQW90XZ.html#mergelinks">Nå -50 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5voya0w6X0QYZcQQW10XZ.html#mergelinks">Nå -60 minutter</option>
+    </select>
+
+
+
+
+
+<div data-id="" class="headlineLink">
+<label  for="te_link_31"  class="bl" title="Relativ sluttdato">
+
+Relativ sluttdato
+
+</label>
+</div>
+
+<select id="te_link_31" data-name=""  class="droplink ">
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZya0w6X0QYZcQQ0.html#mergelinks">Av</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZya0w6X0QYZcQQoX0.html#mergelinks">Nå +0 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZya0w690QYZcQQoX5X.html#mergelinks">Nå +15 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZya0w600QYZcQQoX7X.html#mergelinks">Nå +30 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZya0w690QYZcQQoX8X.html#mergelinks">Nå +45 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZya0w600QYZcQQoX1X.html#mergelinks">Nå +60 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZya0w600QYZcQQoX4X.html#mergelinks">Nå +90 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5v0ya0w660QYZcQQoX5XZ.html#mergelinks">Nå +120 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5v0ya0w680QYZcQQoX6XZ.html#mergelinks">Nå +240 minutter</option>
+
+<option value="https://cloud.timeedit.net/sahg/web/student/ri1Y5v0ya0w630QYZcQQoX8XZ.html#mergelinks">Nå +480 minutter</option>
+</select>
+
+
+   </div>
+   </form>
+
+  <div class="rescontenttitle">Tidsformat</div><div class="footerLinkList">
+
+
+
+<div data-id="" class="hasHelp headlineLink skipFor">
+<label  class="bl" title="Dato">
+
+Dato
+<span class="helpicon"></span> <span class="linkhelp">Tidligere benevnelse <b>Kort datoformat</b>.</span>
+</label>
+</div>
+
+
+
+<div>
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQQ5.html#mergelinks" class="pagelock checkwrap radiowrap  bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQQ5.html#mergelinks'" type="radio" name="n31" checked="checked"><span class="checkmark radiomark"></span>Kort: 12/9 (d/m)</label>
+
+</a>
+
+
+
+
+
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQQ0.html#mergelinks" class="pagelock checkwrap radiowrap  ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQQ0.html#mergelinks'" type="radio" name="n31" ><span class="checkmark radiomark"></span>Langt: 2026-09-12 (yyyy-mm-dd)</label>
+
+</a>
+
+
+
+
+
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQQ6.html#mergelinks" class="pagelock checkwrap radiowrap  ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQQ6.html#mergelinks'" type="radio" name="n31" ><span class="checkmark radiomark"></span>Sep. 12 (mmm d)</label>
+
+</a>
+
+
+
+
+
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQQ7.html#mergelinks" class="pagelock checkwrap radiowrap  ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQQ7.html#mergelinks'" type="radio" name="n31" ><span class="checkmark radiomark"></span>12 Sep. (d mmm)</label>
+
+</a>
+
+
+
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp headlineLink skipFor">
+<label  class="bl" title="Ukedag">
+
+Ukedag
+<span class="helpicon"></span> <span class="linkhelp">Tidligere benevnelse <b>Korte ukedagsnavn</b>.</span>
+</label>
+</div>
+
+
+
+<div>
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w6X0QYZcQmQc.html#mergelinks" class="pagelock checkwrap radiowrap  ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w6X0QYZcQmQc.html#mergelinks'" type="radio" name="n32" ><span class="checkmark radiomark"></span>Kort: Man., Tir., Ons., Tor., Fre.</label>
+
+</a>
+
+
+
+
+
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w6X0QYZcQmQo.html#mergelinks" class="pagelock checkwrap radiowrap  bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyl0w6X0QYZcQmQo.html#mergelinks'" type="radio" name="n32" checked="checked"><span class="checkmark radiomark"></span>Langt: Mandag, Tirsdag, Onsdag, Torsdag, Fredag</label>
+
+</a>
+
+
+
+</div>
+
+
+
+
+
+<div data-id="" class="hasHelp headlineLink skipFor">
+<label  class="bl" title="Timer">
+
+Timer
+<span class="helpicon"></span> <span class="linkhelp">Tidligere benevnelse <b>Kort tidsformat</b>.</span>
+</label>
+</div>
+
+
+
+<div>
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQqQc.html#mergelinks" class="pagelock checkwrap radiowrap  bthigh">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQqQc.html#mergelinks'" type="radio" name="n33" checked="checked"><span class="checkmark radiomark"></span>Kort: 12 (h)</label>
+
+</a>
+
+
+
+
+
+
+
+<a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQqQo.html#mergelinks" class="pagelock checkwrap radiowrap  ">
+
+<label><input aria-hidden="true" tabindex="-1" onClick="window.location='https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyb0w6X0QYZmQqQo.html#mergelinks'" type="radio" name="n33" ><span class="checkmark radiomark"></span>Langt: 12:34 (hh:mm)</label>
+
+</a>
+
+
+
+</div>
+
+
+
+
+</div>
+    </div>
+  <div class="flinks" id="adminlinksElement">
+  </div>
+</div>
+
+
+</div>
+
+    <div class="fullscreenheader text ac iosboxvisible"></div>
+<a href="#iCalDialogContent" class="iCalDialog clickable rightHeader headerbutton iCalDialogInside  ac iosboxvisible"><span class="tesprite tesprite-date tespriteinlineblock"></span><span>Abonnér</span></a>
+
+<div id="exporterwrap" class="topmenu topmenuright hidden">
+  <h3>Last ned</h3>
+  <div class="smallhelp"></div>
+       <a href="#printdialog" data-url="https://cloud.timeedit.net/sahg/web/student/ri.pdf?h=t&amp;sid=12&amp;p=0.m%2C0.n&amp;mw=300" data-name="PDF-dokument (Skriv ut)" data-create="Lag PDF" data-target="print" class="bl2 formatLinksItem printlink"><span class="tesprite tesprite-page_pdf tespritefloatleft"></span>PDF-dokument (Skriv ut)</a>
+       <a href="https://cloud.timeedit.net/sahg/web/student/ri.ics?sid=12&amp;p=0.m%2C0.n&amp;e=260912&amp;enol=t" class="bl2 formatLinksItem" title="iCal"><span class="tesprite tesprite-page_ical tespritefloatleft"></span> iCal</a>
+       <a href="#printdialog" data-excel="y" data-url="https://cloud.timeedit.net/sahg/web/student/ri.xlsx?h=t&amp;sid=12&amp;p=0.m%2C0.n&amp;mw=300" data-name="Excel (xlsx)" data-create="Lage Excel (xlsx)" data-base="https://cloud.timeedit.net/sahg/web/student/ri.xlsx?h=t&amp;sid=12&amp;p=0.m%2C0.n&amp;mw=300" data-target="print" class="bl2 formatLinksItem  printlink"><span class="tesprite tesprite-page_white_excel tespritefloatleft"></span> Excel (xlsx)</a>
+       <a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vZyf0w6X0QYZvQQ700.txt" class="bl2 formatLinksItem" target="_blank" aria-label="Åpne i eget vindu" title="Tekst"><span class="tesprite tesprite-page_txt tespritefloatleft"></span> Tekst</a>
+       <a href="https://cloud.timeedit.net/sahg/web/student/ri1Y5vfyn7w6v0QYZbQ0QXZXZQ00y.csv" class="bl2 formatLinksItem" target="_blank" aria-label="Åpne i eget vindu" title="CSV"><span class="tesprite tesprite-page_csv tespritefloatleft"></span> CSV</a>
+       <a href="https://cloud.timeedit.net/sahg/web/student/ri.html?h=f&amp;sid=12&amp;p=0.m%2C0.n&amp;h2=2" class="bl2 formatLinksItem" target="_blank" aria-label="Åpne i eget vindu" title="Fullskjerm"><span class="tesprite tesprite-fullscreen tespritefloatleft"></span> Fullskjerm</a>
+       <a href="#printdialog" data-excel="y" data-url="https://cloud.timeedit.net/sahg/web/student/ri.xls?h=t&amp;sid=12&amp;p=0.m%2C0.n&amp;mw=300" data-name="Excel &#39;97 (xls)" data-create="Lage Excel &#39;97 (xls)" data-base="https://cloud.timeedit.net/sahg/web/student/ri.xls?h=t&amp;sid=12&amp;p=0.m%2C0.n&amp;mw=300" data-target="print" class="bl2 formatLinksItem smallhelp printlink"><span class="tesprite tesprite-page_white_excel tespritefloatleft"></span> Excel &#39;97 (xls)</a>
+</div>
+
+<div id="filterwrap" class="topmenu topmenuright hidden">
+  <h3>Filter</h3>
+   <ul class="footerLinkList">
+     <li>Du kan ikke filtrere skjemaet dersom søket inneholder noe av følgende:</li>
+     <li class="listDisc">Mer enn 20 søkeobjekter.</li>
+     <li class="listDisc">Kategoritimeplan</li>
+     <li class="listDisc">Skilletegn (+)</li>
+  </ul>
+</div>
+
+<div id="printwrap" class="topmenu topmenuright hidden">
+   <form id="printdialog" onsubmit="$('#pdfgenerate').click();return false;" method="get" action="" target="_blank">
+    <h3 id="printdialogtitle">PDF-dokument (Skriv ut)</h3>
+    <div class="printsectionlong"><label for="pdftitle" class="bl printtitle">Overskrift</label>
+       <input type="text" name="title" id="pdftitle" value="">
+    </div>
+    <div class="printsection printpdf"><label for="pdfpagesize" class="printtitle">Papirformat</label>
+    <select name="pdfpagesize" id="pdfpagesize" class="selectMedium">
+         <option  value="A1">A1</option>
+         <option  value="A2">A2</option>
+         <option  value="A3">A3</option>
+         <option SELECTED value="A4">A4</option>
+         <option  value="A5">A5</option>
+    </select>
+    </div>
+    <div class="printsection printpdf"><label for="pdfstanding" class="printtitle">Retning</label>
+    <select name="pdfstanding" id="pdfstanding" class="selectMedium">
+        <option value="t">Stående</option>
+        <option selected value="f">Liggende</option>
+    </select>
+    </div>
+    <div class="printsection printpdf"><label for="pdflined" class="printtitle">Linjert</label>
+    <select name="pdflined" id="pdflined" class="selectMedium">
+        <option  value="0">Av</option>
+        <option  selected  value="1">Linjert</option>
+
+    </select>
+    </div>
+    <div class="printsection printpdf"><label for="pdffontsize" class="printtitle">Skriftstørrelse</label>
+    <select name="pdffontsize" id="pdffontsize" class="selectMedium">
+        <option  value="5">5</option>
+        <option  value="6">6</option>
+        <option  value="7">7</option>
+        <option  value="8">8</option>
+        <option  selected  value="9">9</option>
+        <option  value="10">10</option>
+        <option  value="11">11</option>
+        <option  value="12">12</option>
+        <option  value="13">13</option>
+    </select>
+    </div>
+    <div class="printsection printpdf"><label for="pdfcolor" class="printtitle">Farge</label>
+    <select name="pdfcolor" id="pdfcolor" class="selectMedium">
+        <option selected value="x89">Svart-hvitt</option>
+        <option  value="x90">Invertert</option>
+        <option value="">Ja</option>
+    </select>
+    </div>
+    <div class="printsection"><label for="pdfheader" class="printtitle">Topptekst og bunntekst</label>
+    <select name="pdfheader" id="pdfheader" class="selectMedium">
+        <option selected value="0">Begge deler</option>
+        <option value="1">Topptekst</option>
+        <option value="2">Bunntekst</option>
+        <option value="3">Av</option>
+    </select>
+    </div>
+    <div class="printsection printpdf"><label for="pdfweeksperpage" class="printtitle">Uker per side</label>
+    <select name="pdfweeksperpage" id="pdfweeksperpage" class="selectMedium">
+        <option selected value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+    </select>
+    </div>
+    <div class="printsection printpdf"><label for="pdfcolumns" class="printtitle">Kolonner per side</label>
+    <select name="pdfcolumns" id="pdfcolumns" class="selectMedium">
+        <option selected value="">Standard</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+        <option value="40">40</option>
+        <option value="50">50</option>
+        <option value="60">60</option>
+        <option value="70">70</option>
+        <option value="80">80</option>
+        <option value="90">90</option>
+        <option value="100">100</option>
+    </select>
+    </div>
+    <input type="button" id="pdfgenerate" class="greenbottom" onclick="updatePdflink('https://cloud.timeedit.net/sahg/web/student/ri.pdf?h=t&amp;sid=12&amp;p=0.m%2C0.n&amp;mw=300','')" value="Lag PDF">
+   </form>
+</div>
+
+<div class="headerbutton btrFirst2 iosboxvisible">
+<a class="leftHeader clickable btr  ac" href="https://cloud.timeedit.net/sahg/web/student/ri13567y660630Q05WQ06101Z5.html" aria-label="Gå til forrige måned"><span class="btrLeft">&nbsp;</span><div class="help">Gå til forrige måned</div></a>
+  <label class="leftHeader perioddropwrap select2nocheck leftHeaderSmall ac" aria-label="Endre periode">
+     <select class="clickable perioddropsmall" data-text="Sep."><option value="">Sep.</option></select>
+     <div class="help">Endre periode</div>
+  </label>
+<a class="leftHeader clickable btr  ac" href="https://cloud.timeedit.net/sahg/web/student/ri10567y660605Q05WQ06151Z5.html" aria-label="Gå til neste måned"><span class="btrRight">&nbsp;</span><div class="help">Gå til neste måned</div></a>
+<br class="clearBoth">
+</div>
+
+
+ <div id="iCalDialogContent" class="topmenu topmenuright hidden">
+     <h3>Abonnér</h3>
+     <label class="bl4">Tid <select class="te-ui-select ui-corner-all timeselect" id="periodical" name="periodical">
+        <option value="https://cloud.timeedit.net/sahg/web/student/ri615nZyQ806Q6QZ4.ics" selected="SELECTED" data-url="https://cloud.timeedit.net/sahg/web/student/ri615nZyQ806Q6QZ4.ics">Rulling 4 uker</option>
+        <option value="https://cloud.timeedit.net/sahg/web/student/ri6Y5vZyQ0w6X0QYZnQ6104.ics"  data-url="https://cloud.timeedit.net/sahg/web/student/ri6Y5vZyQ0w6X0QYZnQ6104.ics">Nå - Hel måned</option>
+     </select></label>
+     <label id="icaltext" for="icalurl"><span class="bl3">Kopier og lim inn følgende adresse i et kalenderprogram.</span></label>
+     <div class="icalflex"><input id="icalurl" onfocus="this.select();" class="icalurl" type="text" value="https://cloud.timeedit.net/sahg/web/student/ri615nZyQ806Q6QZ4.ics">
+       <button class="shaded icalcopy" onclick="TEInfo.copy('#icalurl')">Kopier</button>
+     </div>
+     <div id="gcalwrap" class="gcal hidden">
+     <label for="icalurlgoogle" class="icalsubtext">OBS! Google Calendar støtter ikke adresser som er lengre enn 255 tegn, bruk adressen nedenfor i stedet.</label>
+     <div class="icalflex"><input id="icalurlgoogle" onfocus="this.select();" class="icalurl" type="text" value="https://cloud.timeedit.net/sahg/web/student/ri615nZyQ806Q6QZ4.ics">
+       <button class="shaded icalcopy" onclick="TEInfo.copy('#icalurlgoogle')">Kopier</button>
+     </div>
+     </div>
+     <div class="smallhelp">Rulling 4 uker: ﻿iCal-abonnementet viser timeplanen for fire uker fremover.<br>Reservasjoner som er eldre enn 14 dager kommer ikke med i kalenderen.</div>
+     <a id="icalurl2" href="https://cloud.timeedit.net/sahg/web/student/ri615nZyQ806Q6QZ4.ics" class="icalsublink shaded">Kobling for abonnement</a>
+
+ </div>
+
+
+
+<div id="contents" role="main" class="ewrap expandtab2content" aria-labelledby="mainh1" data-hourwidth="32" data-linktores="">
+
+</div>
+
+
+
+<div id="customweeks" data-weeks=''></div>
+
+<script type="text/javascript">
+window.timers = window.timers || [];
+window.beforeload = window.beforeload || (new Date()).getTime();
+
+function loadScript(url, callback){
+    timers.push('loadscript ' + ((new Date()).getTime() - beforeload) + 'ms');
+    var script = document.createElement("script")
+    script.type = "text/javascript";
+    if (script.readyState){
+        script.onreadystatechange = function(){
+            if (script.readyState == "loaded" ||
+                    script.readyState == "complete"){
+                script.onreadystatechange = null;
+                callback();
+            }
+        };
+    } else {
+        script.onload = function(){
+            callback();
+        };
+    }
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+}
+
+var loadMyRes = function() {
+    var sid = Qt.join('&sid', $('#linksdata').attr('data-sid'));
+    var url = 'my.html?so=5&p=0.m,0.n&max=5&part=t&step=3&g=f&ph=f' + sid;
+    $('#myreservationslist').load(url, function() { initEditField(); });
+    $('#myreservationsconfirmlist').load(url + '&conf=t', function() { initEditField(); });
+}
+
+var PageLoaderNext;
+function initAutoPager(nr, callback) {
+    var pages = $('#pagesData' + nr).attr('data-pagesjson');
+    try {
+        pages = jQuery.parseJSON(pages);
+    } catch(e) {
+        $("#errorPage" + nr).html('Invalid auto page info.' + e).fadeIn();
+    }
+    if(!pages) {
+       return;
+    }
+    var loading = false;
+    var loadOK = true;
+    var next = pages.start;
+
+    function nextUrl() {
+        var link = $('#linksdata' + nr).attr('data-linksbase');
+        var url = link.split('?');
+        var path = url[1].split('&');
+        if (nr == "_o") {
+            setParam(path, 'start', next);
+        } else {
+            setParam(path, 'wls', next);
+        }
+        if ((next + pages.max) >= pages.total) {
+          setParam(path, 'end', '1');
+        }
+        var data = $('.skipids');
+        if(data.length > 0) {
+          var color = $(data[data.length -1]);
+          setParam(path, 'colorids', color.attr('data-colorids'));
+        }
+        return url[0] + '?' + path.join('&') + '&part=t&media=html';
+    }
+
+
+
+    function page() {
+        return (1 + next / pages.max);
+    }
+
+
+
+    function loadCompleted(nextDiv) {
+        var nextButton = $('#nextPageButton' + nr);
+        nextButton.html('' + nextButton.attr('data-text'));
+        if (callback) {
+            callback();
+        }
+        var m = next + pages.max;
+        var more = $('#nextPage' + nr + m);
+        nextButton.show();
+        var addAll = $('.addallwrap');
+        addAll.hide();
+        $('#searchTextLegend').hide();
+        if(more.length != 1) {
+           addAll.show();
+           nextButton.hide();
+        }
+        if ((next + pages.max) >= pages.total) {
+          nextButton.fadeOut();
+           addAll.show();
+        }
+        adjustHeaderPadder();
+        if (!loadOK) {
+            return;
+        }
+        $('#pageLinkId' + nr + page()).addClass('cur');
+        $('#pagesResultText' + nr).html('Viser ' + Math.max(1, pages.start) + ' - ' + Math.min(pages.total, next + (pages.max - 1)) + ' av ' + pages.total);
+        loading = false;
+    }
+
+
+
+    function loadNext() {
+        var nextDiv = $('#nextPage' + nr + next);
+        if (nextDiv.length != 1) {
+            return;
+        }
+        if (loadOK) {
+            $('#nextPageButton' + nr).html('<img src="/static/9.69.4_1613/loading.svg" alt="Loading..." width="16" height="16"> Henter side ' + page());
+        }
+        $('.userObjectsOnly').hide();
+        var url = nextUrl();
+        if(url=='x') {
+          return;
+        }
+        nextDiv.load(url, function(response, status, xhr) {
+            if (xhr.status == 200) {
+                loadOK = true;
+                $('#colorExplanationList').append(nextDiv.find('.colorInnerWrapper'));
+            } else {
+                loadOK = false;
+                $("#errorPage" + nr).html("Unable to load page: " + page() + " (Error code:" + xhr.status + ")").fadeIn();
+            }
+            var used = [];
+            $('#objectsearchresult .searchObject').each(function(index, g) {
+                var object = $(g);
+                var id = object.attr('data-id');
+                if(isEmpty(id)) {
+                   return;
+                }
+                if(jQuery.inArray(id, used) !== -1) {
+                   object.addClass('hidden');
+                   return;
+                }
+                used.push(id);
+             });
+            loadCompleted(nextDiv);
+        }).fadeIn("", function() {
+        });
+    }
+
+
+    function check(e) {
+        stop(e);
+        if (loading) {
+            return;
+        }
+        if ((next + pages.max) < pages.total) {
+            loading = true;
+            next += pages.max;
+            loadNext();
+        }
+    }
+
+   return check;
+}
+var postInits = [];
+var select2Locale = 'nb';
+
+function initFooter() {
+objectSearcherFF = 'osFF/sahg/web12_24';
+
+initSwitcher({locale: 'nb_NO', showWeek: true, firstDay: 1, dateFormat: 'yy-mm-dd'});
+if(typeof initPersonsSendMail === "function") { initPersonsSendMail(); }
+timers.push('Footer ' + ((new Date()).getTime() - beforeload) + 'ms');
+postInits.push(function() {
+    initEditField();
+});
+
+setTimeout(function() { for (var i = 0; i < postInits.length; i++) { postInits[i](); } }, 200);
+}
+
+function makeDoubleDelegate(first, second) {
+    return function() {
+        if (first) {
+            first();
+        }
+        if (second) {
+            second();
+        }
+    }
+}
+
+window.onload = makeDoubleDelegate(window.onload, function() { loadScript('/static/9.69.4_1613/min.js', initFooter); loadScript('/static/9.69.4_1613/javascript/authorize.js', function() {}); } );
+timers.push('PageEnd ' + ((new Date()).getTime() - beforeload) + 'ms');
+</script>
+<br><br><br>
+</body>
+</html>

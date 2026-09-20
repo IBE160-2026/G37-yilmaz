@@ -1,0 +1,3500 @@
+[
+  {
+    "page": 10,
+    "items": [
+      {
+        "str": "5.5",
+        "dir": "ltr",
+        "width": 18.996251148,
+        "height": 15.96,
+        "transform": [
+          13.715704800000001,
+          0,
+          0,
+          15.96,
+          70.824,
+          748.06
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 4.845061383788326,
+        "height": 0,
+        "transform": [
+          13.715704800000001,
+          0,
+          0,
+          15.96,
+          89.82025114799998,
+          748.06
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Skjematisk gjennomføringsmodell med emneoversikt for",
+        "dir": "ltr",
+        "width": 387.4860378480001,
+        "height": 15.96,
+        "transform": [
+          14.214454800000002,
+          0,
+          0,
+          15.96,
+          93.984,
+          748.06
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": true
+      },
+      {
+        "str": "utdanningen - heltid",
+        "dir": "ltr",
+        "width": 137.41759668320006,
+        "height": 15.96,
+        "transform": [
+          14.214454800000002,
+          0,
+          0,
+          15.96,
+          90.024,
+          728.14
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          90.024,
+          690.7
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": true
+      },
+      {
+        "str": "År",
+        "dir": "ltr",
+        "width": 11.194560000000006,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          90.024,
+          690.7
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 37.161439999999985,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          101.21856000000001,
+          690.7
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Sem.",
+        "dir": "ltr",
+        "width": 23.764560000000007,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          138.38,
+          690.7
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 45.86544000000001,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          162.14455999999998,
+          690.7
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Emnekode",
+        "dir": "ltr",
+        "width": 50.37768000000004,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          208.01,
+          690.7
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 88.24232,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          258.38768,
+          690.7
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Emnenavn",
+        "dir": "ltr",
+        "width": 50.48723999999997,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          346.63,
+          690.7
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 95.34276000000006,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          397.1172399999999,
+          690.7
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Ant. stp",
+        "dir": "ltr",
+        "width": 37.147800000000046,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          492.46,
+          689.26
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          70.704,
+          612.79
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "1. studieår",
+        "dir": "ltr",
+        "width": 46.493280000000006,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          70.704,
+          612.79
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 39.30271999999998,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          117.19728000000002,
+          612.79
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "1-2",
+        "dir": "ltr",
+        "width": 14.417760000000015,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          156.5,
+          612.79
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          664.9
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB1000",
+        "dir": "ltr",
+        "width": 37.70076000000002,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          664.9
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 25.17924000000002,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          244.27075999999997,
+          664.9
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Realfaglig redskap",
+        "dir": "ltr",
+        "width": 82.66800000000003,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          664.78
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 146.34199999999998,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          352.118,
+          664.78
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          498.46,
+          665.98
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          645.7
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB1001",
+        "dir": "ltr",
+        "width": 37.70076000000002,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          645.7
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 25.17924000000002,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          244.27075999999997,
+          645.7
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Yrkesrettet kommunikasjon",
+        "dir": "ltr",
+        "width": 120.3964799999999,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          645.58
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 108.61352000000005,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          389.84647999999993,
+          645.58
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          498.46,
+          646.66
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          626.5
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB 1002",
+        "dir": "ltr",
+        "width": 40.44084000000002,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          626.5
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 22.439160000000015,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          247.01083999999997,
+          626.5
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Bedriftsledelse",
+        "dir": "ltr",
+        "width": 65.47703999999995,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          626.26
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 163.53296,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          334.92704,
+          626.26
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          498.46,
+          627.46
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          607.15
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB 2000",
+        "dir": "ltr",
+        "width": 40.44084000000002,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          607.15
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 22.439160000000015,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          247.01083999999997,
+          607.15
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Energi og miljø i bygg",
+        "dir": "ltr",
+        "width": 95.94468000000006,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          607.03
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 133.78532000000007,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          365.39467999999994,
+          607.03
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          608.11
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          591.67
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB 2001",
+        "dir": "ltr",
+        "width": 40.44084000000002,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          591.67
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 22.439160000000015,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          247.01083999999997,
+          591.67
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Sanitæranlegg og brannslokking med",
+        "dir": "ltr",
+        "width": 165.47543999999982,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          591.55
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "bærekraftig faglig ledelse",
+        "dir": "ltr",
+        "width": 111.57596,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          580.03
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          591.67
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          591.67
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          560.47
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB 2002",
+        "dir": "ltr",
+        "width": 40.44084000000002,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          560.47
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 22.439160000000015,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          247.01083999999997,
+          560.47
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Byggesaken – for tekniske fag",
+        "dir": "ltr",
+        "width": 133.92776,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          560.23
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 95.80223999999993,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          403.3777600000001,
+          560.23
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          560.47
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          73.464,
+          487.39
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "2. studieår",
+        "dir": "ltr",
+        "width": 46.627080000000014,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          73.464,
+          487.39
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          149.42,
+          518.95
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "3",
+        "dir": "ltr",
+        "width": 5.537760000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          149.42,
+          518.95
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          529.15
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB2003",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          529.15
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 25.181400000000025,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          244.26859999999996,
+          529.15
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Varmeanlegg med bærekraftig faglig ledelse",
+        "dir": "ltr",
+        "width": 196.04551999999993,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          529.15
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 33.684480000000065,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          465.49551999999994,
+          529.15
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          530.35
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          510.67
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB2004",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          510.67
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 25.181400000000025,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          244.26859999999996,
+          510.67
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Luftbehandling og komfortkjøling med",
+        "dir": "ltr",
+        "width": 166.45152,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          510.67
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "bærekraftig faglig ledelse",
+        "dir": "ltr",
+        "width": 111.57596,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          499.27
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          511.87
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          511.87
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          485.71
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB2005",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          485.71
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 25.181400000000025,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          244.26859999999996,
+          485.71
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Elektro og automatisering med bærekraftig",
+        "dir": "ltr",
+        "width": 188.86723999999992,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          485.71
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "faglig ledelse",
+        "dir": "ltr",
+        "width": 58.176359999999924,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          474.31
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          486.91
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          486.91
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          148.7,
+          450.65
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "4",
+        "dir": "ltr",
+        "width": 5.537760000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          148.7,
+          450.65
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          460.85
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB3000",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          460.85
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 25.181400000000025,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          244.26859999999996,
+          460.85
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Bærekraftig energiledelse",
+        "dir": "ltr",
+        "width": 113.7830399999999,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          269.45,
+          460.85
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 115.9469600000001,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          383.2330399999999,
+          460.85
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "30",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          462.05
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          76.224,
+          416.33
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "3. studieår",
+        "dir": "ltr",
+        "width": 46.62276000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          76.224,
+          416.33
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 26.573239999999956,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          122.84676000000003,
+          416.33
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "5",
+        "dir": "ltr",
+        "width": 5.537760000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          149.42,
+          411.17
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          437.21
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB3001",
+        "dir": "ltr",
+        "width": 37.69776000000003,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          437.21
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 27.462240000000037,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          244.26775999999998,
+          437.21
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Bærekraftig ledelse av integrerte",
+        "dir": "ltr",
+        "width": 144.37019999999984,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          271.73,
+          437.09
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "tekniske bygningsinstallasjoner",
+        "dir": "ltr",
+        "width": 137.5973999999999,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          271.73,
+          425.57
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          437.09
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "30",
+        "dir": "ltr",
+        "width": 11.057759999999993,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          437.09
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          149.42,
+          373.73
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "6",
+        "dir": "ltr",
+        "width": 5.537760000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          149.42,
+          373.73
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          397.73
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB3002",
+        "dir": "ltr",
+        "width": 37.69776000000003,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          206.57,
+          397.73
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 27.462240000000037,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          244.26775999999998,
+          397.73
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Forskning og utvikling, bacheloroppgave",
+        "dir": "ltr",
+        "width": 178.7919599999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          271.73,
+          397.61
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "og praktiske utprøvinger",
+        "dir": "ltr",
+        "width": 107.06544000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          271.97,
+          386.09
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          398.69
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "30",
+        "dir": "ltr",
+        "width": 11.057759999999993,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          499.18,
+          398.69
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          13.715704800000001,
+          0,
+          0,
+          15.96,
+          70.824,
+          317.33
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": true
+      },
+      {
+        "str": "5.6",
+        "dir": "ltr",
+        "width": 18.996251148,
+        "height": 15.96,
+        "transform": [
+          13.715704800000001,
+          0,
+          0,
+          15.96,
+          70.824,
+          317.33
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 4.845061383788326,
+        "height": 0,
+        "transform": [
+          13.715704800000001,
+          0,
+          0,
+          15.96,
+          89.82025114799998,
+          317.33
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Skjematisk gjennomføringsmodell med emneoversikt for",
+        "dir": "ltr",
+        "width": 387.4860378480001,
+        "height": 15.96,
+        "transform": [
+          14.214454800000002,
+          0,
+          0,
+          15.96,
+          93.984,
+          317.33
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": true
+      },
+      {
+        "str": "utdanningen – deltid",
+        "dir": "ltr",
+        "width": 140.65131232160005,
+        "height": 15.96,
+        "transform": [
+          14.214454800000002,
+          0,
+          0,
+          15.96,
+          90.024,
+          297.5
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          91.464,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": true
+      },
+      {
+        "str": "År",
+        "dir": "ltr",
+        "width": 11.074440000000006,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          91.464,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 39.081559999999996,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          102.53844000000001,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Sem.",
+        "dir": "ltr",
+        "width": 23.764560000000007,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          141.62,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 23.305440000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          165.38456,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Emnekode",
+        "dir": "ltr",
+        "width": 50.37768000000004,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          188.69,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 97.24232,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          239.06768,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Emnenavn",
+        "dir": "ltr",
+        "width": 50.48723999999997,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          336.31,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 101.70276000000007,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          386.79723999999993,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "Ant. stp",
+        "dir": "ltr",
+        "width": 37.13999999999996,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          488.5,
+          265.34
+        ],
+        "fontName": "g_d1_f2",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          70.704,
+          207.26
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "1.studieår",
+        "dir": "ltr",
+        "width": 43.73760000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          70.704,
+          207.26
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          146.3,
+          195.74
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "1-2",
+        "dir": "ltr",
+        "width": 14.417760000000015,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          146.3,
+          195.74
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          230.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB1000",
+        "dir": "ltr",
+        "width": 37.69776000000006,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          230.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          241.82
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "Realfaglig redskap",
+        "dir": "ltr",
+        "width": 82.66800000000003,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          241.82
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 164.22199999999998,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          337.358,
+          241.82
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          241.82
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          218.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB1001",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          218.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 33.10140000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          221.58859999999996,
+          218.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Yrkesrettet kommunikasjon",
+        "dir": "ltr",
+        "width": 120.3964799999999,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          218.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 126.49352000000005,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          375.08647999999994,
+          218.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          218.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          200.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB1002",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          200.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 33.10140000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          221.58859999999996,
+          200.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Bedriftsledelse",
+        "dir": "ltr",
+        "width": 65.47703999999995,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          200.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 181.41296,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          320.16704,
+          200.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          200.3
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          182.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB2000",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          182.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 33.10140000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          221.58859999999996,
+          182.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Energi og miljø i bygg",
+        "dir": "ltr",
+        "width": 95.94468000000006,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          182.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 150.94532000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          350.63467999999995,
+          182.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          182.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          70.704,
+          141.12
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "2.studieår",
+        "dir": "ltr",
+        "width": 43.73436,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          70.704,
+          141.12
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          146.3,
+          129.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "3-4",
+        "dir": "ltr",
+        "width": 14.417760000000015,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          146.3,
+          129.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          152.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB2001",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          152.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          164.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "Sanitæranlegg og brannslokking med",
+        "dir": "ltr",
+        "width": 165.47543999999982,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          164.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "bærekraftig faglig ledelse",
+        "dir": "ltr",
+        "width": 111.57596,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          152.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          164.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          164.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          140.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB2002",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          140.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 33.10140000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          221.58859999999996,
+          140.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Byggesaken for tekniske fag",
+        "dir": "ltr",
+        "width": 125.53584000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          140.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 121.35415999999992,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          380.22584000000006,
+          140.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          140.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          128.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB2003",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          128.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 33.10140000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          221.58859999999996,
+          128.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Varmeanlegg med bærekraftig faglig ledelse",
+        "dir": "ltr",
+        "width": 196.04551999999993,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          128.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 50.84448000000003,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          450.73551999999995,
+          128.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          128.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          116.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB2004",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          116.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 33.10140000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          221.58859999999996,
+          116.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Luftbehandling og komfortkjøling med",
+        "dir": "ltr",
+        "width": 166.45152,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          116.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "bærekraftig faglig ledelse",
+        "dir": "ltr",
+        "width": 111.57596,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          105.12
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          116.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          116.64
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          72.264,
+          70.08
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "3.studieår",
+        "dir": "ltr",
+        "width": 43.73436,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          72.264,
+          70.08
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 30.301639999999992,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          115.99836000000002,
+          70.08
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "5-6",
+        "dir": "ltr",
+        "width": 14.417760000000015,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          146.3,
+          70.08
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          93.12
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB2005",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          93.12
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 33.10140000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          221.58859999999996,
+          93.12
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Elektro og automatisering med bærekraftig",
+        "dir": "ltr",
+        "width": 188.86723999999992,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          93.12
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "faglig ledelse",
+        "dir": "ltr",
+        "width": 58.176359999999924,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          81.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 188.7136400000001,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          312.8663599999999,
+          81.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "10",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          81.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          69.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB3000",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          69.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 33.10140000000004,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          221.58859999999996,
+          69.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "Bærekraftig energiledelse",
+        "dir": "ltr",
+        "width": 113.7830399999999,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          69.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 133.10696000000007,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          368.4730399999999,
+          69.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "30",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          69.6
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      }
+    ]
+  },
+  {
+    "page": 11,
+    "items": [
+      {
+        "str": "4.studieår",
+        "dir": "ltr",
+        "width": 43.73436,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          72.264,
+          730.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 30.301639999999992,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          115.99836000000002,
+          730.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "7-8",
+        "dir": "ltr",
+        "width": 14.417760000000015,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          146.3,
+          730.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          741.7
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB3001",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          741.7
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          753.22
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "Ledelse av tekniske og bærekraftige ITB-",
+        "dir": "ltr",
+        "width": 182.16667999999987,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          753.22
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "prosesser",
+        "dir": "ltr",
+        "width": 43.86383999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          741.7
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          753.22
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "30",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          753.22
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          72.264,
+          695.14
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "5.studieår",
+        "dir": "ltr",
+        "width": 43.73436,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          72.264,
+          695.14
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": " ",
+        "dir": "ltr",
+        "width": 27.541639999999973,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          115.99836000000002,
+          695.14
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "9-10",
+        "dir": "ltr",
+        "width": 19.937720000000024,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          143.54,
+          695.14
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          706.66
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "ITB3002",
+        "dir": "ltr",
+        "width": 37.69860000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          183.89,
+          706.66
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          718.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "Forskning og utvikling, bacheloroppgave og",
+        "dir": "ltr",
+        "width": 192.7160399999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          718.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "praktiske utprøvinger",
+        "dir": "ltr",
+        "width": 93.15588000000001,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          254.69,
+          706.66
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      },
+      {
+        "str": "",
+        "dir": "ltr",
+        "width": 0,
+        "height": 0,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          718.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": true
+      },
+      {
+        "str": "30",
+        "dir": "ltr",
+        "width": 11.05771999999998,
+        "height": 9.96,
+        "transform": [
+          9.96,
+          0,
+          0,
+          9.96,
+          501.58,
+          718.18
+        ],
+        "fontName": "g_d1_f8",
+        "hasEOL": false
+      }
+    ]
+  }
+]

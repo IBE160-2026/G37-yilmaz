@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]><html class="lt-ie9 lt-ie8 lt-ie7" lang="en" dir="ltr"><![endif]-->
+<!--[if IE 7]><html class="lt-ie9 lt-ie8" lang="en" dir="ltr"><![endif]-->
+<!--[if IE 8]><html class="lt-ie9" lang="en" dir="ltr"><![endif]-->
+<!--[if gt IE 8]><!--><html lang="en" dir="ltr"><!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<meta name="Generator" content="Drupal 7 (http://drupal.org)" />
+<link rel="shortcut icon" href="https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/eac_nuc/assets/favicon.png" type="image/png" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="MobileOptimized" content="width" />
+<meta name="HandheldFriendly" content="1" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>Bachelor in Cyber Security | Studiekatalog NUC</title>
+<style type="text/css" media="all">
+@import url("https://studiekatalog.edutorium.no/nuc/modules/system/system.base.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/modules/system/system.menus.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/modules/system/system.messages.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/modules/system/system.theme.css?s1oun7");
+</style>
+<style type="text/css" media="all">
+@import url("https://studiekatalog.edutorium.no/nuc/modules/comment/comment.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/eac_cd/eac_cd.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/eac_cm/eac_cm.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/eac_nuc/eac_nuc.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/eac_nuc/eac_nuc_theme_switcher.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/eac_nuc/eac_nuc_dark.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/eac_pd/eac_pd.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/edcat/edcat.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/edcat_cron/edcat_cron.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/edutorium_reading_list/edutorium_reading_list.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/emweb_admin/emweb_admin.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/emweb_api/emweb_api.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/modules/field/theme/field.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/modules/node/node.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/modules/user/user.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/contrib/views/css/views.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/contrib/ckeditor/css/ckeditor.css?s1oun7");
+</style>
+<style type="text/css" media="all">
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/modules/contrib/ctools/css/ctools.css?s1oun7");
+</style>
+<style type="text/css" media="screen">
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/themes/contrib/at_core/css/at.layout.css?s1oun7");
+</style>
+<style type="text/css" media="all">
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/styles.base.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/styles.settings.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/styles.modules.css?s1oun7");
+@import url("https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/styles.custom.css?s1oun7");
+</style>
+<link type="text/css" rel="stylesheet" href="https://studiekatalog.edutorium.no/nuc/sites/default/files/adaptivetheme/eac_bi_theme_files/eac_bi_theme.responsive.layout.css?s1oun7" media="only screen" />
+<link type="text/css" rel="stylesheet" href="https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/responsive.custom.css?s1oun7" media="only screen" />
+<link type="text/css" rel="stylesheet" href="https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/responsive.smartphone.portrait.css?s1oun7" media="only screen and (max-width:320px)" />
+<link type="text/css" rel="stylesheet" href="https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/responsive.smartphone.landscape.css?s1oun7" media="only screen and (min-width:321px) and (max-width:580px)" />
+<link type="text/css" rel="stylesheet" href="https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/responsive.tablet.portrait.css?s1oun7" media="only screen and (min-width:581px) and (max-width:768px)" />
+<link type="text/css" rel="stylesheet" href="https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/responsive.tablet.landscape.css?s1oun7" media="only screen and (min-width:769px) and (max-width:1024px)" />
+<link type="text/css" rel="stylesheet" href="https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/css/responsive.desktop.css?s1oun7" media="only screen and (min-width:1025px)" />
+
+<!--[if lt IE 9]>
+<style type="text/css" media="screen">
+@import url("https://studiekatalog.edutorium.no/nuc/sites/default/files/adaptivetheme/eac_bi_theme_files/eac_bi_theme.lt-ie9.layout.css?s1oun7");
+</style>
+<![endif]-->
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/misc/jquery.js?v=1.4.4"></script>
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/misc/jquery-extend-3.4.0.js?v=1.4.4"></script>
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/misc/jquery-html-prefilter-3.5.0-backport.js?v=1.4.4"></script>
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/misc/jquery.once.js?v=1.2"></script>
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/misc/drupal.js?s1oun7"></script>
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/misc/form.js?v=7.87"></script>
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/eac_nuc/js/theme_switcher.js?s1oun7"></script>
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/misc/collapse.js?v=7.87"></script>
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/js/eq.js?s1oun7"></script>
+<script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/sites/all/themes/custom/eac_bi_theme/js/eq-gp.js?s1oun7"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, {"basePath":"\/nuc\/","pathPrefix":"en\/","setHasJsCookie":0,"ajaxPageState":{"theme":"eac_bi_theme","theme_token":"3tOzdvqiN-bNgVLvGap6dSRkjjcO-NIFQGWK4TGou5c","js":{"sites\/all\/modules\/custom\/edutorium_reading_list\/edutoriumReadingList.js":1,"misc\/jquery.js":1,"misc\/jquery-extend-3.4.0.js":1,"misc\/jquery-html-prefilter-3.5.0-backport.js":1,"misc\/jquery.once.js":1,"misc\/drupal.js":1,"misc\/form.js":1,"sites\/all\/modules\/custom\/eac_nuc\/js\/theme_switcher.js":1,"misc\/collapse.js":1,"sites\/all\/themes\/custom\/eac_bi_theme\/js\/eq.js":1,"sites\/all\/themes\/custom\/eac_bi_theme\/js\/eq-gp.js":1},"css":{"modules\/system\/system.base.css":1,"modules\/system\/system.menus.css":1,"modules\/system\/system.messages.css":1,"modules\/system\/system.theme.css":1,"modules\/comment\/comment.css":1,"sites\/all\/modules\/custom\/eac_cd\/eac_cd.css":1,"sites\/all\/modules\/custom\/eac_cm\/eac_cm.css":1,"sites\/all\/modules\/custom\/eac_nuc\/eac_nuc.css":1,"sites\/all\/modules\/custom\/eac_nuc\/eac_nuc_theme_switcher.css":1,"sites\/all\/modules\/custom\/eac_nuc\/eac_nuc_dark.css":1,"sites\/all\/modules\/custom\/eac_pd\/eac_pd.css":1,"sites\/all\/modules\/custom\/eac_user\/eac_user.css":1,"sites\/all\/modules\/custom\/edcat\/edcat.css":1,"sites\/all\/modules\/custom\/edcat_cron\/edcat_cron.css":1,"sites\/all\/modules\/custom\/edutorium_reading_list\/edutorium_reading_list.css":1,"sites\/all\/modules\/custom\/emweb_admin\/emweb_admin.css":1,"sites\/all\/modules\/custom\/emweb_api\/emweb_api.css":1,"modules\/field\/theme\/field.css":1,"modules\/node\/node.css":1,"modules\/user\/user.css":1,"sites\/all\/modules\/contrib\/views\/css\/views.css":1,"sites\/all\/modules\/contrib\/ckeditor\/css\/ckeditor.css":1,"sites\/all\/modules\/contrib\/ctools\/css\/ctools.css":1,"sites\/all\/themes\/contrib\/at_core\/css\/at.layout.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/styles.base.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/styles.settings.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/styles.modules.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/styles.custom.css":1,"public:\/\/adaptivetheme\/eac_bi_theme_files\/eac_bi_theme.responsive.layout.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/responsive.custom.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/responsive.smartphone.portrait.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/responsive.smartphone.landscape.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/responsive.tablet.portrait.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/responsive.tablet.landscape.css":1,"sites\/all\/themes\/custom\/eac_bi_theme\/css\/responsive.desktop.css":1,"public:\/\/adaptivetheme\/eac_bi_theme_files\/eac_bi_theme.lt-ie9.layout.css":1}},"currentPath":"programme\/BCYSE\/2026-autumn","currentPathIsAdmin":false,"adaptivetheme":{"eac_bi_theme":{"layout_settings":{"bigscreen":"three-col-grail","tablet_landscape":"three-col-grail","tablet_portrait":"one-col-vert","smalltouch_landscape":"one-col-vert","smalltouch_portrait":"one-col-stack"},"media_query_settings":{"bigscreen":"only screen and (min-width:1025px)","tablet_landscape":"only screen and (min-width:769px) and (max-width:1024px)","tablet_portrait":"only screen and (min-width:581px) and (max-width:768px)","smalltouch_landscape":"only screen and (min-width:321px) and (max-width:580px)","smalltouch_portrait":"only screen and (max-width:320px)"}}}});
+//--><!]]>
+</script>
+<!--[if lt IE 9]>
+<script src="https://studiekatalog.edutorium.no/nuc/sites/all/themes/contrib/at_core/scripts/html5.js?s1oun7"></script>
+<![endif]-->
+</head>
+<body class="html not-front not-logged-in no-sidebars page-programme page-programme-bcyse page-programme-bcyse-2026-autumn noroff i18n-en site-name-hidden atr-7.x-3.0 atv-7.x-3.2 lang-en site-name-studiekatalog-nuc section-programme">
+  <div id="skip-link" class="nocontent">
+    <a href="#main-content" class="element-invisible element-focusable">Skip to main content</a>
+  </div>
+    <div id="page-wrapper">
+  <div id="page" class="page">
+
+    <div id="header-wrapper" class="no-header-region">
+      <div class="container clearfix">
+
+        <div id="region-header-wrapper" class="clearfix">
+                  </div>
+
+        <header id="header" class="clearfix" role="banner">
+
+                      <div id="branding" class="branding-elements clearfix">
+
+              <!-- Logo -->
+                              <div id="logo"><a href="/nuc/en"><img class="site-logo" src="https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/eac_nuc/assets/logo-noroff.png" alt="Studiekatalog NUC" /></a></div>
+
+                              <div class="element-invisible h-group" id="name-and-slogan">
+
+                                    <h1 class="element-invisible" id="site-name"><a href="/nuc/en" title="Home page">Studiekatalog NUC</a></h1>
+
+
+               </div><!-- /end #name-and-slogan -->
+
+            </div><!-- /end #branding -->
+
+                      <div id="menu-wrapper">
+              <div id="menu-bar" class="nav clearfix"><div class="item-list"><ul id="edcat_simple_menu"><li class="odd first"><a href="/nuc/en/course">Course</a></li><li class="even"><a href="/nuc/en/programme">Programme</a></li><li class="odd"><a href="https://www.noroff.no/en">Noroff.no</a></li><li class="even last">
+<div class="theme-switch">
+  <input type="checkbox" class="checkbox" id="checkbox" />
+  <label for="checkbox" class="label">
+    <svg class="moon" width="24" height="24" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 11.5066C3 16.7497 7.25034 21 12.4934 21C16.2209 21 19.4466 18.8518 21 15.7259C12.4934 15.7259 8.27411 11.5066 8.27411 3C5.14821 4.55344 3 7.77915 3 11.5066Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <svg class="sun" width="24" height="24" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 12L23 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 2V1" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 23V22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M20 20L19 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M20 4L19 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4 20L5 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4 4L5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M1 12L2 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="ball"></div>
+  </label>
+</div>
+  </li></ul></div><div class="item-list item-list-language-selector"></div></div>            </div>
+
+        </header>
+      </div>
+    </div>
+
+
+        <div id="top-wrapper"></div>
+    <div id="content-wrapper">
+      <div class="container">
+        <div id="columns">
+          <div class="columns-inner clearfix">
+            <div id="content-column">
+              <div class="content-inner">
+
+
+
+
+                <section id="main-content">
+
+                                                        <header class="clearfix">
+                      <h1 id="page-title">Bachelor in Cyber Security</h1>
+                    </header>
+
+
+                  <!-- region: Main Content -->
+                                      <div id="content">
+                      <div id="block-system-main" class="block block-system no-title odd first last block-count-1 block-region-content block-main" >
+
+  <fieldset class="collapsible collapsed semesters-top form-wrapper"><legend><span class="fieldset-legend">Start semesters</span></legend><div class="fieldset-wrapper"><div class="item-list"><ul><li class="odd first"><a href="/nuc/en/programme/BCYSE/2026-autumn" class="active">2026 Autumn</a></li><li class="even"><a href="/nuc/en/programme/BCYSE/2025-autumn">2025 Autumn</a></li><li class="odd"><a href="/nuc/en/programme/BCYSE/2024-autumn">2024 Autumn</a></li><li class="even"><a href="/nuc/en/programme/BCYSE/2023-autumn">2023 Autumn</a></li><li class="odd"><a href="/nuc/en/programme/BCYSE/2022-autumn">2022 Autumn</a></li><li class="even last"><a href="/nuc/en/programme/BCYSE/2021-autumn">2021 Autumn</a></li></ul></div></div></fieldset>
+<div id="node-598" class="node node-pd clearfix">
+
+
+
+
+          <h2>Bachelor in Cyber Security</h2>
+
+
+
+  <div class="sidebar-node">
+      <div id="toc-container"><div class="label">Table of Contents</div><div class="item-list"><ul id="toc"><li class="first"><a href="#Aims-of-the-Degree-Programme">Aims of the Degree Programme</a></li>
+<li><a href="#Course-Model">Course Model</a></li>
+<li><a href="#Programme-Learning-Outcomes">Programme Learning Outcomes</a></li>
+<li><a href="#Teaching-and-Learning">Teaching and Learning</a></li>
+<li><a href="#Assessment">Assessment</a></li>
+<li><a href="#Entry-Requirements">Entry Requirements</a></li>
+<li class="last"><a href="#Opportunities-for-Further-Studies">Opportunities for Further Studies</a></li>
+</ul></div></div>  </div>
+  <div class="content">
+
+    <div id="facts-toc">
+      <div id="facts-containter"><div class="item-list"><ul id="facts"><li class="facts first last"><div class="label">Study Facts</div><div class="item-list"><ul class="facts"><li class="first"><div class="facts-label">Area of Study</div><div class="facts-item">Computing</div></li>
+<li><div class="facts-label">ECTS</div><div class="facts-item">180</div></li>
+<li><div class="facts-label">NQF Level</div><div class="facts-item">Bachelor&#039;s degree (Level 6 1. Cycle)</div></li>
+<li><div class="facts-label">Campus</div><div class="facts-item">OnlinePLUS - Bergen, OnlinePLUS - Oslo, Online</div></li>
+<li><div class="facts-label">Study Mode</div><div class="facts-item">OnlinePLUS, Full-time, Online</div></li>
+<li><div class="facts-label">Entry Requirements</div><div class="facts-item"><a href="#Entry-Requirements">Entry Requirements</a></div></li>
+<li class="last"><div class="facts-label">Study Programme Leader</div><div class="facts-item">Rayne Reid</div></li>
+</ul></div></li>
+</ul></div></div>    </div>
+
+    <div class="field-introduction label-above"><div class="label"><a id="Introduction"></a>Introduction</div><div class="item"><p>Noroff University College (NUC) offers awards that specialise in the utilisation of digital technology. The objective of the Bachelor in Cyber Security to provide you with a background in the dynamic field of computer and information security; developing the knowledge needed as a computer security professional along with enabling you to explore and expand your knowledge within the cybersecurity domain. Cyber Security is a growing concern for all organisations – with cyber-crime and other disruptive activities having a significant impact across a wide range of industries. Recent examples of this are the ‘Revil ransomware attack’ exploiting Kaseya software; the ‘Solarwinds attacks’; and the ‘Colonial pipeline attack’ in early 2021. Defending industries against cyber-attacks is a complex task, balancing security requirements with many other issues.</p>
+<p>Malicious organisations are connected, not just in terms of networks and technology, but also information and services. An attack on a single element of an infrastructure has the potential to affect the whole infrastructure. It can be difficult to distinguish between civilian and what may be considered legitimate military targets in a cyber-attack. At the organisational and planning level, a security specialist needs to be aware not just of the ways in which the network can be compromised, but to understand the possible source, cause, and motivation of the attack.</p>
+<p>This degree programme recognises the interconnected nature of technology. With many companies now forming critical parts of a national infrastructure, exposing themselves to a broader range of threats. The programme therefore explores issues relating to cyber-attacks and cyber warfare including Computer Network Operations; composed of the two broad domains of Computer Network Attack (CNA) and Computer Network Defence (CND). As a result, graduates obtain the knowledge of how malicious attacks are launched at networked systems and consequently be prepared and effective in a variety of system defence approaches and tactics. </p>
+<p>The degree programme also prepare you for a professional career within Cyber Security, working with small consultancies or large organisations, both in the public and private sectors. Upon graduation, students will have developed a high level of competency in a variety of specific tools and techniques, along with a solid foundation of knowledge, skills, and competence to support them in lifelong learning throughout their careers.</p>
+</div></div><div class="field-program-content label-above"><div class="label"><a id="Aims-of-the-Degree-Programme"></a>Aims of the Degree Programme</div><div class="item"><p>This degree programme aims to develop a holistic approach to key principles and procedures of computer compromise and computer security practices. The programme provides students with a blend of knowledge and skills in securing computer systems and networks with a holistic understanding of key best practice, principles and procedures within the cyber security domain, and their interaction with each other. Throughout the programme there is a strong emphasis on the technology and tools as well as legal and ethical requirements relevant to this fast-moving, technically challenging domain. The Cyber Security domain is very broad, and therefore students are prepared for further specialisation and entry into a range of potential career fields and job roles. A solid knowledge and skills foundation is provided to enable students to pursue further postgraduate study -- both in Cyber Security specific degrees, as well as several closely related disciplines. The subject material will enable graduates to go on to postgraduate study in the area and will also enable them to fulfil several distinct employment titles.</p>
+<p>The core concepts addressed in the degree programme are:</p>
+<ul>
+<li><strong>Computer Network Operations</strong>: Tools, techniques and approaches for network and system security.</li>
+<li><strong>Security Vulnerabilities</strong>: Identification, development, and remediation</li>
+<li><strong>Penetration Testing</strong>: Methodologies, tools, techniques, practice, and procedures.</li>
+<li><strong>Information Security Management</strong>: Policies, procedures, risk management, legal, ethical, and social issues of security.</li>
+</ul>
+<p>Graduates will have a high level of proficiency in a wide range of skills in problem-solving, network infrastructures, system design, operating systems, vulnerability assessment and penetration testing. The programme has been specifically designed to equip students with the conceptual understanding and principles of computer security, to produce a well-rounded, employment ready, graduate.</p>
+</div></div><a id="Course-Model"></a><fieldset class="collapsible collapsed group-pcm field-group-fieldset form-wrapper"><legend><span class="fieldset-legend">Course Model</span></legend><div class="fieldset-wrapper"><div class="field-cm-selector-row label-hidden"><div class="item"><fieldset class="collapsible cm-selector form-wrapper"><legend><span class="fieldset-legend">BCYSE - Cyber Security H26</span></legend><div class="fieldset-wrapper"><div id="node-537" class="node node-cm clearfix">
+
+
+
+
+  <div class="content">
+    <div class="field-course-model-information label-hidden"><div class="item"><p>This bachelor's degree is a <strong>full-time </strong>programme of study, based on a <strong>40-hour per week study schedule. </strong>The degree consists of six semesters which are delivered over three academic years (each of a 10-month duration), with each year providing 60 ECTS of educational material and qualification. This results in a 30 ECTS workload per semester and <strong>total of 180 ECTS</strong> for the full bachelor’s degree, which equates to 1,500-1,800 hours of work. The table shows how distribution of ECTS fits across the programme.</p>
+<p>Each year the programme and their courses are reviewed to ensure the programme continues to be appropriate for this subject area. Some courses may span semesters and the credit value is only awarded in the semester they are completed. The courses that comprise this programme are therefore subject to minor changes each academic year. A description of the courses can be found by clicking the course name in the Course Model.</p>
+</div></div><div class="field-cm-row label-hidden"><div class="item"><table id="course-model" class="course-model sticky-enabled">
+ <thead><tr><th>Course</th><th class="course-context">Type</th><th class="semester-th small">26 A</th><th class="semester-th small">27 S</th><th class="semester-th small">27 A</th><th class="semester-th small">28 S</th><th class="semester-th small">28 A</th><th class="semester-th small">29 S</th> </tr></thead>
+<tbody>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC1AS105/2026-autumn">UC1AS105 Academic Skills 1</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td>5</td><td></td><td></td><td></td><td></td><td></td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC1ICT05/2026-autumn">UC1ICT05 ICT Fundamentals</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td>5</td><td></td><td></td><td></td><td></td><td></td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC1IPR10/2026-autumn">UC1IPR10 Introduction to Programming</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td>10</td><td></td><td></td><td></td><td></td><td></td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC1MA110/2026-autumn">UC1MA110 Mathematics 1</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td>10</td><td></td><td></td><td></td><td></td><td></td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC1PRD10/2027-spring">UC1PRD10  Programming and Databases</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td></td><td>10</td><td></td><td></td><td></td><td></td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC1NFU10/2027-spring">UC1NFU10 Network Fundamentals</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td></td><td>10</td><td></td><td></td><td></td><td></td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC1ACR05/2027-spring">UC1ACR05 Applied Cryptography</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td></td><td>5</td><td></td><td></td><td></td><td></td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC1IIS05/2027-spring">UC1IIS05 Introduction to Information Security</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td></td><td>5</td><td></td><td></td><td></td><td></td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC2OPS10/2027-autumn">UC2OPS10 Operating Systems</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td></td><td></td><td>10</td><td></td><td></td><td></td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC2PEN10/2027-autumn">UC2PEN10 Penetration Testing: Practice and Procedure</a></div></td><td class="cm-course-type"><div class='ifd'>Core</div></td><td></td><td></td><td>10</td><td></td><td></td><td></td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC2ISM10/2027-autumn">UC2ISM10 Information Security Management</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td></td><td></td><td>10</td><td></td><td></td><td></td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC2CCC10/2028-spring">UC2CCC10 Crime and Conflict in Cyberspace </a></div></td><td class="cm-course-type"><div class='ifd'>Core</div></td><td></td><td></td><td></td><td>10</td><td></td><td></td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC2NSE10/2028-spring">UC2NSE10 Network Security</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td></td><td></td><td></td><td>10</td><td></td><td></td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC2AS205/2028-spring">UC2AS205 Academic Skills 2</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td></td><td></td><td></td><td>5</td><td></td><td></td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC2INP05/2028-spring">UC2INP05 Industry Project</a></div></td><td class="cm-course-type"><div class='ifd'>Shared</div></td><td></td><td></td><td></td><td>5</td><td></td><td></td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC3CND10/2028-autumn">UC3CND10 Computer Network Defence</a></div></td><td class="cm-course-type"><div class='ifd'>Core</div></td><td></td><td></td><td></td><td></td><td>10</td><td></td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC3CNA10/2028-autumn">UC3CNA10 Computer Network Attack</a></div></td><td class="cm-course-type"><div class='ifd'>Core</div></td><td></td><td></td><td></td><td></td><td>10</td><td></td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd text'>Elective Courses</div></td><td class="cm-course-type"><div class='ifd'></div></td><td></td><td></td><td></td><td></td><td></td><td>15</td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class="indentation">&nbsp;</div><div class='ifd'>EC05 Elective Course</div></td><td class="cm-course-type"><div class='ifd'>Elective Course</div></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model">5</td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class="indentation">&nbsp;</div><div class='ifd'>EC05 Elective Course</div></td><td class="cm-course-type"><div class='ifd'>Elective Course</div></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model">5</td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class="indentation">&nbsp;</div><div class='ifd'>EC05 Elective Course</div></td><td class="cm-course-type"><div class='ifd'>Elective Course</div></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model"></td><td class="sub-model">5</td> </tr>
+ <tr class="even"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC3VUL05/2029-spring">UC3VUL05 Vulnerabilities</a></div></td><td class="cm-course-type"><div class='ifd'>Core</div></td><td></td><td></td><td></td><td></td><td></td><td>5</td> </tr>
+ <tr class="odd"><td class="cm-row-first"><div class='ifd'><a href="/nuc/en/course/UC3BCS20/2028-autumn">UC3BCS20 Bachelor Project</a></div></td><td class="cm-course-type"><div class='ifd'>Spesialism</div></td><td></td><td></td><td></td><td></td><td>0</td><td>20</td> </tr>
+ <tr class="footer even"><td>Sum (180 total)</td><td></td><td>30</td><td>30</td><td>30</td><td>30</td><td>20</td><td>40</td> </tr>
+</tbody>
+</table>
+</div></div>  </div>
+
+
+
+
+</div>
+</div></fieldset>
+</div></div></div></fieldset>
+<a id="Programme-Learning-Outcomes"></a><fieldset class="collapsible collapsed group-plub field-group-fieldset form-wrapper"><legend><span class="fieldset-legend">Programme Learning Outcomes</span></legend><div class="fieldset-wrapper"><div class="field-learning-outcome label-hidden"><div class="item"><p>A <em>Programme Learning Outcome </em>(PLO) is essentially a statement that describes what the student has achieved upon successfully completing the degree. Each course description has its own set of learning outcomes, which contribute to the achievement of Programme Learning Outcomes. The PLOs for this degree are based on the Norwegian Qualifications Framework for Lifelong Learning (NQF) at bachelor level. The NQF levels are formulated on the basis of what a person know, can do and is capable of doing as a result of a learning process. The outcomes of the completed learning process are described in the categories: “knowledge”, “skills” and “general competences”.</p>
+<p><strong>Knowledge</strong>: Understanding of theories, facts, principles, procedures in subject areas and/or occupations.<br />
+<strong>Skills</strong>: Ability to utilise knowledge to solve problems or tasks (cognitive, practical, creative and communication skills).<br />
+<strong>General Competence</strong>: Ability to utilise knowledge and skills in an independent manner in different situations.</p>
+<p>Students who are awarded a <em>Bachelor in Cyber Security</em> have attained:</p>
+</div></div><div class="field-learning-outcome-knowledge label-above"><div class="label"><a id="Knowledge"></a>Knowledge</div><div class="item"><p>The candidate ... </p>
+<table border="1" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<th scope="row" style="width:20px">K1</th>
+<td style="white-space:nowrap">has a broad knowledge of cyber defence and attack techniques, technologies and tools in order to implement appropriate technical and non-technical solutions to prepare for, defend against, and recover from cyber intrusion.</td>
+</tr>
+<tr>
+<th scope="row">K2</th>
+<td>is familiar with appropriate and current procedures and standards for managing cyber risks and threats, undertaking penetration testing and ensuring network security.</td>
+</tr>
+<tr>
+<th scope="row">K3</th>
+<td>has knowledge of the legal and ethical issues and responsibilities pertaining to cyber security activities with regard to the impact of the cyber intrusion on society, industry, national infrastructure and national security.</td>
+</tr>
+<tr>
+<th scope="row">K4</th>
+<td>is familiar with current and emerging research and development in the field of cyber security and related disciplines.</td>
+</tr>
+<tr>
+<th scope="row">K5</th>
+<td>is able to update their knowledge in the area of cyber security through academic study, research and professional development.</td>
+</tr>
+<tr>
+<th scope="row">K6</th>
+<td>is familiar with the current and developing state of cyber criminality and cyber warfare threats, vulnerabilities and defensive tools and techniques.</td>
+</tr>
+<tr>
+<th scope="row">K7</th>
+<td>has knowledge of the history and development of cyber security, cybercrime and cyber warfare, its impact on safety and security of digital environments and infrastructures, alongside the resulting effects on society.</td>
+</tr>
+<tr>
+<th scope="row">K8</th>
+<td>is familiar with various computational tools, techniques and practices that underpin secure computing.</td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="field-learning-outcome-skills label-above"><div class="label"><a id="Skills"></a>Skills</div><div class="item"><p>The candidate ... </p>
+<table border="1" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<th scope="row" style="text-align:left; width:20px">S1</th>
+<td style="white-space:nowrap">is able to critically assess the threat level to a digital environment and select and apply appropriate computer system security and penetration tools and techniques in order to secure a computer network.</td>
+</tr>
+<tr>
+<th scope="row">S2</th>
+<td>can critically select and apply a range of analytical and methodological problem solving and investigative techniques including system profiling and vulnerability analysis, based on research and to be able to interpret the solutions and present results appropriately.</td>
+</tr>
+<tr>
+<th scope="row">S3</th>
+<td>is able to reflect on their own academic practice and development as a security professional, identify areas for improvement and adapt to future cyber security tools, techniques, technology and threats.</td>
+</tr>
+<tr>
+<th scope="row">S4</th>
+<td>is able to find, distil and evaluate relevant academic, commercial and non-commercial information assets then apply this information in resolving digital security problems.</td>
+</tr>
+<tr>
+<th scope="row">S5</th>
+<td>is able to identify stakeholders of cyber security and defence-related issues and communicate, network and collaborate with these stakeholders according to their individual requirements.</td>
+</tr>
+<tr>
+<th scope="row">S6</th>
+<td>can apply mathematical and software development theories, tools and techniques to computational challenges.</td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="field-learning-outcome-reflec label-above"><div class="label"><a id="General-Competence"></a>General Competence</div><div class="item"><p>The candidate ... </p>
+<table border="1" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<th scope="row" style="width:20px">G1</th>
+<td style="white-space:nowrap">is able to identify and appropriately act on complex ethical and social issues arising within academic and professional practice as a cyber security professional, whilst being aware of the greater implications of their actions and decisions.</td>
+</tr>
+<tr>
+<th scope="row">G2</th>
+<td>is able to plan, execute and manage a variety of activities and cyber security-related projects over time, alone or as part of a collaborative team to successful conclusion and in accordance with relevant legal and ethical requirements and principles.</td>
+</tr>
+<tr>
+<th scope="row">G3</th>
+<td>can distil and communicate cyber security-related theories, concepts, problems and solutions, with a variety of relevant stakeholders, through the selection and application of appropriate methods of communication.</td>
+</tr>
+<tr>
+<th scope="row">G4</th>
+<td>can exchange opinions, experiences and ideas with others with background and/or experience in cyber security and defence, through the selection and application of appropriate methods of communication, thereby contributing to the development of good practice within the cyber security community of practice.</td>
+</tr>
+<tr>
+<th scope="row">G5</th>
+<td>is familiar with, and can critically evaluate, current and evolving processes and disruptive technologies within the field of cyber security.</td>
+</tr>
+<tr>
+<th scope="row">G6</th>
+<td>is able to identify appropriate stakeholders and communicate, network and collaborate with these stakeholders at an appropriate level while considering security and confidentiality.</td>
+</tr>
+<tr>
+<th scope="row">G7</th>
+<td>is able to engage in critical self-reflection, and reflect upon relevant ethical and professional issues, as part of the lifelong learning strategy required of a cyber security professional.</td>
+</tr>
+</tbody>
+</table>
+</div></div></div></fieldset>
+<a id="Teaching-and-Learning"></a><fieldset class="collapsible collapsed group-ptal field-group-fieldset form-wrapper"><legend><span class="fieldset-legend">Teaching and Learning</span></legend><div class="fieldset-wrapper"><div class="field-work-learn-methods-assess label-above"><div class="label"><a id="Learning-Activities"></a>Learning Activities</div><div class="item"><p>All study programmes use a variety of teaching and learning activities to encourage students to actively explore and apply new knowledge, along with developing skills and competencies. Each course will incorporate a range of teaching and learning methods according to which are most appropriate for that course – determined through a process of constructive alignment. The primary aim of these methods is to support the students’ learning process and facilitate the achievement of the learning outcomes. The applicable teaching and learning methods include, but are not limited to, the following:</p>
+<table border="0.1" cellpadding="0" cellspacing="0.1" style="width:500px">
+<tbody>
+<tr>
+<th colspan="2">Teacher-Led Activities (TLA)</th>
+</tr>
+<tr>
+<td style="width:250px">
+<ul>
+<li>Lectures and video lectures</li>
+<li>Online lessons</li>
+<li>Tutorials</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Seminars</li>
+<li>Presentations</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="0.1" cellpadding="0" cellspacing="0.1" style="width:500px">
+<tbody>
+<tr>
+<th colspan="2">Teacher-Supported Work (TSW) </th>
+</tr>
+<tr>
+<td style="width:250px">
+<ul>
+<li>Practical Work</li>
+<li>Workshops</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Scheduled guidance</li>
+<li>Group work</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="0.1" cellpadding="0" cellspacing="0.1" style="width:500px">
+<tbody>
+<tr>
+<th colspan="2">Self-Study (SST)</th>
+</tr>
+<tr>
+<td style="width:250px">
+<ul>
+<li>Research</li>
+<li>Reflection</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Group work (Individual)</li>
+<li>Virtual Laboratory Work</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="field-learning-resources label-above"><div class="label"><a id="Learning-Resources"></a>Learning Resources</div><div class="item"><p>Key information for the degree is delivered in lectures, normally in one of the Campus auditoriums and as a live stream. Tutorials and supported study are delivered through laboratory-based sessions. All educational material is accessible through the LMS, which forms part of the Virtual Learning Environment (VLE), illustrated in <a href="https://bit.ly/3VOGqHl" target="_blank">Figure 1</a>.</p>
+<p>The LMS provides a central location for the distribution of all educational content and learning resources related to all courses throughout the program of study:</p>
+<table border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td>
+<ul>
+<li>Study Plan</li>
+<li>Course Descriptions</li>
+<li>Lecture slides</li>
+<li>Recorded lectures</li>
+<li>Reading lists</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Student Handbook</li>
+<li>Tutorial exercises</li>
+<li>Supplementary notes</li>
+<li>Self-study material</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The dates and times for all educational sessions for every course, including lectures and tutorials, can be found in the online timetabling system (<a href="https://cloud.timeedit.net/noroff/web/student/">TimeEdit</a>).</p>
+</div></div><div class="field-workload label-above"><div class="label"><a id="Study-Workload"></a>Study Workload</div><div class="item"><p>The student workload has been carefully considered for each course to include an appropriate combination of activities suitable for the subject area.</p>
+<p>Information and details about a specific course can be found in the respective Course Description. However, each course comprises a selection of lectures, tutorials, and other appropriate sessions. These are timetabled based on a full-time study schedule of 08:00 to 16:00, Monday to Friday.</p>
+<p>At the start of each academic year, a Study Schedule is published and made accessible. It contains the planned start and end dates for all courses in the degree. The schedule also includes dedicated study time to work on projects and extra-curricular sessions, including seminars, workshops, and guest speakers from industry. If the schedule is updated, students are promptly informed.</p>
+</div></div><div class="field-reading-list label-above"><div class="label"><a id="Reading-List"></a>Reading List</div><div class="item"><p>Reading lists for a study programme, and especially for a course within a study programme, is annually revised. In some cases, where the field is rapidly changing, the reading list may be complete closer to course start-up. The reading list will be shared close to semester start, or upon request by contacting the Study Programme Leader.</p>
+</div></div></div></fieldset>
+<a id="Assessment"></a><fieldset class="collapsible collapsed group-pass field-group-fieldset form-wrapper"><legend><span class="fieldset-legend">Assessment</span></legend><div class="fieldset-wrapper"><div class="field-evaluation label-above"><div class="label"><a id="Grading-of-Assessments"></a>Grading of Assessments</div><div class="item"><p>Each course in the programme of study comprises of several graded (summative) assessments, where students can demonstrate their achievements and abilities. Information about assessments for each course is provided via the course pages on the LMS. When assessments are released, students are encouraged to always read through the instructions fully and carefully, to ensure the greatest chance of success. If anything is unclear, please contact the relevant Course Leader as soon as possible.</p>
+<p>A course is successfully completed once the student has obtained a passing grade for that course. Every assessment has a specific completion deadline comprising a date and time. Work can be submitted any time up to the stated deadline. Students must be able to clearly demonstrate the extent to which they have met the learning outcomes of that course in order to pass. Students will encounter a variety of assessments, which may be used for formative and summative purposes, to ensure that students meet or exceeded the PLOs.</p>
+<p>Specific assessment strategies for each course, and instructions for submitting course work, are detailed in the LMS course pages. Please see the regulations available on <a href="http://www.noroff.no/en/about/school-regulations" target="_blank">www.noroff.no/en</a>.</p>
+<table border="0.1" cellpadding="0" cellspacing="0.1">
+<tbody>
+<tr>
+<th colspan="2"><strong>Assessment Methods</strong></th>
+</tr>
+<tr>
+<td><u>Formative</u></td>
+<td>
+<ul>
+<li>Continuous Assessment</li>
+<li>Online Test</li>
+<li>Interactive Online Test</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><u>Summative</u></td>
+<td>
+<ul>
+<li>Presentation of Practical Work</li>
+<li>Portfolio of Work</li>
+<li>Projects</li>
+<li>Online Exams</li>
+<li>Reports</li>
+<li>Term Paper</li>
+<li>Oral Test</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="field-assessment-grading label-above"><div class="label"><a id="Grading-Scale"></a>Grading Scale</div><div class="item"><p>Assessments are graded according to the standard university grading scale, described in the table below.</p>
+<table border="1" cellpadding="1" cellspacing="1">
+<tbody>
+<tr>
+<th style="text-align:left; width:100px"><strong>Grade Letter</strong></th>
+<th style="text-align:left; width:125px"><strong>Quality Indicator</strong></th>
+<th style="text-align:left"><strong>Definition</strong></th>
+</tr>
+<tr>
+<td>A</td>
+<td>Excellent</td>
+<td>An excellent performance, clearly outstanding. Shows a high degree of independence.</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Very good</td>
+<td>A very good performance, above average. Shows a certain degree of independence.</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Good</td>
+<td>An average performance, satisfactory in most areas.</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Satisfactory</td>
+<td>A performance below average, with significant shortcomings.</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Sufficient</td>
+<td>A performance that meets the minimum criteria, but no more.</td>
+</tr>
+<tr>
+<td>F</td>
+<td>Fail</td>
+<td>A performance that does not meet the minimum criteria.</td>
+</tr>
+</tbody>
+</table>
+</div></div></div></fieldset>
+<div class="field-requirements label-above"><div class="label"><a id="Entry-Requirements"></a>Entry Requirements</div><div class="item"><p><strong>For general admission</strong> it is required to document the following criteria as passed:</p>
+<ul>
+<li>Higher Education Entrance Qualification, and </li>
+<li>Candidates must be able to document proficiency in the English language. <a href="https://www.samordnaopptak.no/english/language-requirements">Language requirements</a> by <em>Samordna Opptak</em></li>
+</ul>
+<p><strong>Special admission requirements</strong><br />
+In addition to the general admission requirements, it is required to document the following:</p>
+<ul>
+<li>Mathematics R1 (or S1+S2)</li>
+</ul>
+<p><strong>For admission on basis of prior learning and work experience:</strong><br />
+Admission based on prior experience requires a written application for evaluation. Applicable candidates must be at least 25 years of age in the year of admission.</p>
+<p><strong>For candidates with foreign education the requirements for Higher Education are: </strong></p>
+<ul>
+<li>The country must be recognized by HKdir, specified in the <a href="https://hkdir.no/en/foreign-education/lists-and-databases/higher-education-entrance-qualification-gsu">GSU-list</a>.</li>
+<li>Candidates must be able to document proficiency in the English language. <a href="https://www.samordnaopptak.no/english/language-requirements">Language requirements</a> by <em>Samordna Opptak</em></li>
+</ul>
+<p><strong>For further information</strong>, please see the admission requirements: <a href="https://www.noroff.no/en/admission/admission-requirements">https://www.noroff.no/en/admission/admission-requirements</a></p>
+</div></div><div class="field-campus-online-study label-above"><div class="label"><a id="Campus-and-Online-Study"></a>Campus and Online Study</div><div class="item"><p>All students follow the same progression according to their education plan, irrespective of whether they study online or on campus. All students study the courses at the same time, with the same delivery and workload, following identical assessment strategies for every course. At the study level no distinction is therefore made between campus and online students. All students are required to engage in live education sessions (such as lectures) and undertake all required educational activities.</p>
+<p>Students are encouraged to interact with each other via online forums and chat systems, enabling discussions to take place involving both online and campus students. Each student cohort is therefore a single learning community, concurrently engaging in all educational activities irrespective of actual physical location. Throughout all educational sessions course staff actively encourage participation from campus and online students simultaneously, and do not focus solely on those who are physically present.</p>
+<p>This tight integration of campus and online ensures students will be part of a cohesive learning community throughout their study. As a result, this also means that should students personal situations change during their studies, and they must change their mode of study from online to campus (or vice versa) this can be done with little to no disruption to their studies.</p>
+</div></div><div class="field-internationalisation label-above"><div class="label"><a id="Opportunities-for-Further-Studies"></a>Opportunities for Further Studies</div><div class="item"><p>Undertaking some period of study at an international educational institution can result in many benefits to those who take part, including:</p>
+<ul>
+<li>Language and general competence in the destination country and culture</li>
+<li>Development of personal and professional networks in other parts of the world</li>
+<li>Personal growth and holistic development.</li>
+</ul>
+<p>All students are eligible to apply to undertake a period of study at an international university. All international study opportunities are subject to the application processes and admissions requirements of the international institution, in addition to an evaluation of the suitability of the proposed study exchange within the students’ study at NUC. Full details of international study opportunities and the application process is available to all students within the LMS.</p>
+</div></div><div class="field-accreditation label-above"><div class="label"><a id="Accredited"></a>Accredited</div><div class="item">June 27th, 2018</div></div><div class="clearfix field-last-revision-date label-inline"><div class="label"><a id="Last-revision-date"></a>Last revision date:&nbsp;</div><div class="item">June 2026</div></div>  </div>
+
+
+
+
+</div>
+
+  </div>                    </div>
+
+
+                </section>
+
+                <!-- Two column 2x50 -->
+
+
+              </div>
+            </div>
+
+
+            </div>
+        </div>
+      </div>
+    </div>
+
+
+
+          <div id="scrolltotop"><a href="#" title="Scroll To Top" class="scrolltotop"></a></div>
+      <div id="footer-wrapper">
+        <div class="container clearfix">
+          <footer id="footer" class="clearfix" role="contentinfo">
+                      </footer>
+       </div>
+    </div>
+
+  </div>
+</div>
+  <script type="text/javascript" src="https://studiekatalog.edutorium.no/nuc/sites/all/modules/custom/edutorium_reading_list/edutoriumReadingList.js?s1oun7"></script>
+</body>
+</html>
