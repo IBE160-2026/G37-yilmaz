@@ -3,9 +3,13 @@ title: 'Product Brief: Studieplan'
 status: draft
 created: 2026-09-06
 updated: 2026-09-20
+document_role: historical-snapshot
+superseded_by: ../../../../brief.md
 ---
 
 # Product Brief: Studieplan
+
+> **Historisk planleggingskopi.** Dette dokumentet bevares med BMAD-metadata som grunnlag fra 6. september 2026. Den gjeldende innleveringsbriefen er [brief.md i repository-roten](../../../../brief.md). Der er implementert fullstackstatus og skillet mellom automatisk bekreftelse fra lærestedet (utenfor scope) og studentens manuelle innleveringsbekreftelse (implementert) beskrevet korrekt. Påstander nedenfor i framtidsform eller den generelle utelukkelsen av «submission confirmation» skal derfor ikke leses som dagens produktstatus.
 
 ## Executive Summary
 

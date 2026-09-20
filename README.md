@@ -28,16 +28,19 @@ Stopp med `docker compose down`. Ikke bruk `-v` hvis dataene skal beholdes. Tjen
 
 ## Tester og produksjonsbygg
 
-Kjør fra `studieplanlegger/`:
+Docker-oppstarten ovenfor krever ikke en lokal Node-installasjon. For lokal utvikling og npm-testene trenger du **Node.js 24** (låsefilen er kontrollert med npm 11). Kjør fra `studieplanlegger/`:
 
 ```powershell
 npm ci
+npx playwright install chromium
 npm run test:unit
 npm run build
 npm run test:e2e:database
 ```
 
-`test:e2e:database` bygger appen og kjører den målrettede produksjonsflyten mot et midlertidig Node/SQLite-oppsett. Den vanlige Vite-baserte nettlesersuiten kan kjøres separat med `npm run test:e2e` etter at Chromium for Playwright er installert. Testene bruker syntetiske studentdata; kildeadaptrene testes også mot versjonerte fixturer fra offentlige kilder.
+`npx playwright install chromium` kreves før både `npm run test:e2e` og `npm run test:e2e:database`. Databasekommandoen bygger appen, velger en ledig loopback-port og kjører den målrettede produksjonsflyten mot en midlertidig Node/SQLite-database; den trenger ikke Docker eller en eksisterende server. Den vanlige Vite-baserte nettlesersuiten kan kjøres separat med `npm run test:e2e` og bruker `localStorage`, ikke SQLite. Testene bruker syntetiske studentdata; kildeadaptrene testes også mot versjonerte fixturer fra offentlige kilder.
+
+På en ren Linux-maskin kan Playwrights systembiblioteker også mangle. Bruk da `npx playwright install --with-deps chromium` med nødvendige lokale administratorrettigheter i stedet for den vanlige installasjonskommandoen.
 
 ## Arkitektur og dokumentasjon
 

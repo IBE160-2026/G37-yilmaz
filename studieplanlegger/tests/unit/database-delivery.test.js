@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdtempSync, renameSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
@@ -31,7 +31,152 @@ const state = () => ({
   calendarPreferences: { version: 1, view: 'agenda', date: '2026-09-20', courseId: 'course', kinds: [], completed: true, cancelled: false, scroll: {} },
 })
 
+function createPreShapeDatabase(filename, { orphanCourse = false } = {}) {
+  const envelope = state()
+  const course = { ...envelope.planner.courses[0], sourceProvider: 'legacy-provider', sourceRecordId: 'legacy-course' }
+  const preferences = {
+    schemaVersion: 1,
+    __legacyExtension: envelope.__legacyExtension,
+    calendarPreferences: envelope.calendarPreferences,
+    __hasSessions: true,
+    __hasPlanner: true,
+    __planner: {},
+  }
+  const legacy = new DatabaseSync(filename)
+  legacy.exec(`
+    PRAGMA foreign_keys = OFF;
+    CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
+    CREATE TABLE state_meta (singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL, preferences_json TEXT NOT NULL, updated_at TEXT NOT NULL);
+    CREATE TABLE courses (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, provider TEXT, source_record_id TEXT, payload_json TEXT NOT NULL);
+    CREATE TABLE tasks (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT, completed INTEGER NOT NULL, payload_json TEXT NOT NULL);
+    CREATE TABLE sessions (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, task_id TEXT, date_local TEXT, payload_json TEXT NOT NULL);
+    CREATE TABLE dependencies (task_id TEXT NOT NULL, prerequisite_id TEXT NOT NULL, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(task_id, prerequisite_id));
+    CREATE TABLE recovery_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, revision INTEGER NOT NULL, payload_json TEXT NOT NULL);
+    CREATE TABLE legacy_archives (fingerprint TEXT PRIMARY KEY, imported_at TEXT NOT NULL, raw TEXT NOT NULL, revision INTEGER NOT NULL);
+  `)
+  legacy.prepare('INSERT INTO schema_migrations(version,applied_at) VALUES(1,?)').run('2026-09-01T08:00:00Z')
+  legacy.prepare('INSERT INTO state_meta(singleton,revision,preferences_json,updated_at) VALUES(1,7,?,?)').run(JSON.stringify(preferences), '2026-09-01T08:00:00Z')
+  if (!orphanCourse) legacy.prepare('INSERT INTO courses(id,position,provider,source_record_id,payload_json) VALUES(?,?,?,?,?)')
+    .run('course', 0, 'legacy-provider', 'legacy-course', JSON.stringify(course))
+  envelope.tasks.slice(0, 2).forEach((value, position) => legacy.prepare('INSERT INTO tasks(id,position,course_id,completed,payload_json) VALUES(?,?,?,?,?)')
+    .run(value.id, position, orphanCourse ? 'missing-course' : value.courseId, value.completed ? 1 : 0, JSON.stringify(orphanCourse ? { ...value, courseId: 'missing-course' } : value)))
+  legacy.prepare('INSERT INTO dependencies(task_id,prerequisite_id,position,payload_json) VALUES(?,?,?,?)').run('second', 'first', 0, JSON.stringify('first'))
+  legacy.prepare('INSERT INTO sessions(id,position,task_id,date_local,payload_json) VALUES(?,?,?,?,?)')
+    .run('session', 0, 'first', envelope.sessions[0].dateLocal, JSON.stringify(envelope.sessions[0]))
+  legacy.prepare('INSERT INTO recovery_snapshots(created_at,revision,payload_json) VALUES(?,?,?)')
+    .run('2026-09-01T07:00:00Z', 6, JSON.stringify({ schemaVersion: 1, tasks: [] }))
+  legacy.prepare('INSERT INTO legacy_archives(fingerprint,imported_at,raw,revision) VALUES(?,?,?,?)')
+    .run('legacy-fingerprint', '2026-09-01T08:00:00Z', JSON.stringify({ schemaVersion: 1, tasks: [] }), 7)
+  legacy.close()
+  return {
+    revision: 7,
+    envelope: {
+      schemaVersion: 1,
+      __legacyExtension: envelope.__legacyExtension,
+      calendarPreferences: envelope.calendarPreferences,
+      tasks: orphanCourse ? envelope.tasks.slice(0, 2).map(value => ({ ...value, courseId: 'missing-course' })) : envelope.tasks.slice(0, 2),
+      sessions: envelope.sessions,
+      planner: { courses: orphanCourse ? [] : [course], events: [], sources: [] },
+    },
+  }
+}
+
 describe('SQLite state repository', () => {
+  it('upgrades a pre-shape database losslessly and remains idempotent across reopen', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'studieplan-pre-shape-')); directories.push(directory)
+    const filename = join(directory, 'state.sqlite'), expected = createPreShapeDatabase(filename)
+    const upgraded = new StateDatabase(filename)
+    expect(upgraded.read()).toEqual(expected)
+    expect(upgraded.db.prepare("PRAGMA table_info('state_meta')").all().some(column => column.name === 'shape_json')).toBe(true)
+    expect(upgraded.db.prepare("PRAGMA foreign_key_list('tasks')").all().length).toBeGreaterThan(0)
+    expect(upgraded.db.prepare('PRAGMA foreign_keys').get().foreign_keys).toBe(1)
+    expect(upgraded.db.prepare('PRAGMA foreign_key_check').all()).toEqual([])
+    expect(upgraded.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }])
+    expect(upgraded.db.prepare('SELECT applied_at FROM schema_migrations WHERE version=1').get().applied_at).toBe('2026-09-01T08:00:00Z')
+    expect(upgraded.db.prepare('SELECT revision,updated_at FROM state_meta').get()).toEqual({ revision: 7, updated_at: '2026-09-01T08:00:00Z' })
+    expect(upgraded.db.prepare('SELECT provider,source_record_id FROM courses WHERE id=?').get('course')).toEqual({ provider: 'legacy-provider', source_record_id: 'legacy-course' })
+    expect(upgraded.db.prepare('SELECT revision,payload_json FROM recovery_snapshots').get()).toEqual({ revision: 6, payload_json: JSON.stringify({ schemaVersion: 1, tasks: [] }) })
+    expect(upgraded.db.prepare('SELECT fingerprint,imported_at,raw,revision FROM legacy_archives').get()).toEqual({ fingerprint: 'legacy-fingerprint', imported_at: '2026-09-01T08:00:00Z', raw: JSON.stringify({ schemaVersion: 1, tasks: [] }), revision: 7 })
+    upgraded.close()
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const reopened = new StateDatabase(filename)
+      expect(reopened.read()).toEqual(expected)
+      expect(reopened.db.prepare('SELECT version FROM schema_migrations').all()).toHaveLength(3)
+      reopened.close()
+    }
+  })
+
+  it('rolls back every schema change when a legacy upgrade fails validation', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'studieplan-pre-shape-invalid-')); directories.push(directory)
+    const filename = join(directory, 'state.sqlite')
+    createPreShapeDatabase(filename, { orphanCourse: true })
+    const before = new DatabaseSync(filename)
+    const schemaBefore = before.prepare("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name").all()
+    before.close()
+
+    expect(() => new StateDatabase(filename)).toThrow('Database migration failed foreign-key validation')
+
+    const unchanged = new DatabaseSync(filename)
+    expect(unchanged.prepare("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name").all()).toEqual(schemaBefore)
+    expect(unchanged.prepare("PRAGMA table_info('state_meta')").all().some(column => column.name === 'shape_json')).toBe(false)
+    expect(unchanged.prepare("PRAGMA foreign_key_list('tasks')").all()).toEqual([])
+    expect(unchanged.prepare('SELECT revision,preferences_json,updated_at FROM state_meta').get()).toMatchObject({ revision: 7, updated_at: '2026-09-01T08:00:00Z' })
+    expect(unchanged.prepare('SELECT id,course_id FROM tasks ORDER BY position').all()).toEqual([
+      { id: 'first', course_id: 'missing-course' },
+      { id: 'second', course_id: 'missing-course' },
+    ])
+    expect(unchanged.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }])
+    expect(unchanged.prepare('SELECT COUNT(*) count FROM recovery_snapshots').get().count).toBe(1)
+    expect(unchanged.prepare('SELECT COUNT(*) count FROM legacy_archives').get().count).toBe(1)
+    unchanged.close()
+    const moved = `${filename}.moved`
+    renameSync(filename, moved)
+    renameSync(moved, filename)
+  })
+
+  it('adds shape metadata without rebuilding an already constrained schema', () => {
+    const { db, filename } = database(), expected = state()
+    db.save(expected, 0)
+    db.close()
+
+    const intermediate = new DatabaseSync(filename)
+    intermediate.exec(`
+      PRAGMA foreign_keys = OFF;
+      BEGIN IMMEDIATE;
+      CREATE TABLE state_meta_without_shape (singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL, preferences_json TEXT NOT NULL, updated_at TEXT NOT NULL);
+      INSERT INTO state_meta_without_shape(singleton,revision,preferences_json,updated_at)
+        SELECT singleton,revision,preferences_json,updated_at FROM state_meta;
+      DROP TABLE state_meta;
+      ALTER TABLE state_meta_without_shape RENAME TO state_meta;
+      DELETE FROM schema_migrations WHERE version >= 3;
+      COMMIT;
+    `)
+    intermediate.close()
+
+    const upgraded = new StateDatabase(filename)
+    expect(upgraded.read()).toEqual({ revision: 1, envelope: expected })
+    expect(upgraded.db.prepare("PRAGMA table_info('state_meta')").all().some(column => column.name === 'shape_json')).toBe(true)
+    expect(upgraded.db.prepare("PRAGMA foreign_key_list('tasks')").all().length).toBeGreaterThan(0)
+    expect(upgraded.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }])
+    upgraded.close()
+
+    const reopened = new StateDatabase(filename)
+    expect(reopened.read()).toEqual({ revision: 1, envelope: expected })
+    reopened.close()
+  })
+
+  it('creates the complete current schema for a new empty database', () => {
+    const { db } = database()
+    expect(db.read()).toEqual({ revision: 0, envelope: { schemaVersion: 1, tasks: [] } })
+    expect(db.db.prepare("PRAGMA table_info('state_meta')").all().some(column => column.name === 'shape_json')).toBe(true)
+    expect(db.db.prepare("PRAGMA foreign_key_list('tasks')").all().length).toBeGreaterThan(0)
+    expect(db.db.prepare('PRAGMA foreign_keys').get().foreign_keys).toBe(1)
+    expect(db.db.prepare('PRAGMA foreign_key_check').all()).toEqual([])
+    expect(db.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }])
+    db.close()
+  })
+
   it('round-trips linked payloads losslessly and rejects stale writes atomically', () => {
     const { db } = database(), expected = state()
     const saved = db.save(expected, 0)
