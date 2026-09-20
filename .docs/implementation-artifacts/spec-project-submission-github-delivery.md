@@ -2,7 +2,7 @@
 title: 'Klargjør og lever Studieplan til utdelt GitHub-repository'
 type: 'chore'
 created: '2026-09-20'
-status: 'in-progress'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'bf1fe35713c8df34d2bd16a26bb60a472d7458fe'
@@ -56,7 +56,7 @@ context:
 - [x] `G37-yilmaz/README.md`, `brief.md` og utvalgte `.docs/**/*.md` — rett utdaterte statuser, absolutte stier, lenker og refleksjonsmerking.
 - [x] Kandidat-treet og historikken — skann filnavn/innhold for data og hemmeligheter, kontroller lenker, diff og ignore-adferd.
 - [x] Ren checkout av kandidat-commit — kjør relevante tester og Docker-akseptanse med eget prosjektnavn, testvolum og ledig loopback-port; kontroller API/UI, backup/restore og persistens fra ny nettleserprofil.
-- [ ] Git — commit med tydelig melding, hent remote på nytt, push uten force til tillatt branch, og bekreft commit og dokumentlenker på GitHub.
+- [x] Git — commit med tydelig melding, hent remote på nytt, push uten force til tillatt branch, og bekreft commit og dokumentlenker på GitHub.
 
 **Acceptance Criteria:**
 - Given en ren checkout av levert commit, when README-instruksene følges, then appen bygger, blir healthy og er tilgjengelig lokalt uten absolutte utviklermaskinstier.
@@ -69,7 +69,7 @@ context:
 - Lokal implementering ble samlet i commit `37fdfc5`; en egen oppryddingscommit `e5ad5be` fjernet lokale skjermbilder/resultatfiler og rettet refleksjons- og importdokumentasjonen uten å endre produktkode.
 - Ren clone av `e5ad5be` bestod 1195/1195 enhetstester, 68-modulers bygg, healthy Docker-start, 2/2 produksjons-Chromiumtester og same-volume container-recreate. En fersk Chromium-kontekst uten localStorage viste samme ID-er og relasjoner fra SQLite.
 - Filnavn-, innholds-, ignore- og lenkekontroller fant ingen faktisk database, privat miljøfil eller reell hemmelighet. Treff på `PRIVATE_SECRET_9182` og `ADDITIONAL_SECRET_9182` er uttrykkelig syntetiske negativtestverdier under `tests/` og bruker domenet `example.invalid`.
-- Ekstern fetch/push og GitHub-kontroll gjenstår til etter BMAD-review; ingen force-push eller deployment skal brukes.
+- Remote var uendret på baseline `bf1fe35`, fast-forward-kontrollen bestod, og den kontrollerte leveransen ble pushet ordinært til `main`. Repositoryet hadde ingen workflow, Pages-oppsett, regler eller branchbeskyttelse som utløste deployment eller krevde pull request.
 - Reviewrettelsene er samlet i `670b2ab` og `b817b52`. En ny ren checkout av `b817b52` bestod 1196/1196 enhetstester, 68-modulers bygg, 2/2 produksjonsdatabasetester og Docker recreate med identisk revisjon 8, stabile relasjoner og en fersk Chromium-kontekst uten localStorage.
 
 ## Spec Change Log
