@@ -1,6 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { toInstant, osloLocal, eventBlocksTime, OSLO } from './planner.js'
-import { getRemainingMinutes } from './tasks.js'
+import { getRemainingMinutes, getRemainingRange } from './tasks.js'
 import { taskBlockers } from './task-dependencies.js'
 import { capacityPlanningNote, validPlanningRules } from './planning-rules.js'
 
@@ -62,7 +62,11 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
   const totalCapacityMinutes = intervalMinutes(available)
   let reservedCovered = [], free = available
   const reservedIntervals = new Map(tasks.map(task => [task.id, []]))
-  const entries = tasks.map(task => ({ taskId: task.id, requiredMinutes: getRemainingMinutes(task) ?? 0, allocatedMinutes: 0, reservedMinutes: 0, missingMinutes: 0, allocations: [], reasons: [], state: 'unplanned' }))
+  const entries = tasks.map(task => {
+    const range = getRemainingRange(task)
+    return { taskId: task.id, requiredMinutes: range?.maxMinutes ?? null, requiredMinMinutes: range?.minMinutes ?? null, requiredMaxMinutes: range?.maxMinutes ?? null,
+      allocatedMinutes: 0, reservedMinutes: 0, availableBeforeMinutes: null, missingMinutes: 0, missingMinMinutes: 0, missingMaxMinutes: 0, allocations: [], reasons: [], state: 'unplanned' }
+  })
   // Make conflicting reservations explicit and count each minute for at most one task.
   for (const reservation of reservations.filter(r => r.taskId).sort((a, b) => a.start - b.start || a.sessionId.localeCompare(b.sessionId))) {
     const index = tasks.findIndex(t => t.id === reservation.taskId), task = tasks[index], entry = entries[index]
@@ -81,11 +85,11 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
   }
   free = subtractIntervals(available, reservedCovered)
   for (const { task, index } of tasks.map((task, index) => ({ task, index })).sort((a, b) => (a.task.deadlineLocal || '9999').localeCompare(b.task.deadlineLocal || '9999'))) {
-    const entry = entries[index], required = getRemainingMinutes(task)
+    const entry = entries[index], range = getRemainingRange(task), required = range?.maxMinutes ?? null
     if (task.completed || task.submitted) { entry.state = 'done'; continue }
     const blockers = taskBlockers(task, tasks)
-    if (blockers.length) { entry.state = 'blocked'; entry.missingMinutes = required ?? 0; entry.reasons.push(...blockers.map(item => item.reason)); continue }
-    if (required === null) { entry.state = 'unknown'; entry.reasons.push('Gjenstående arbeid er ukjent. Legg til et estimat.'); continue }
+    if (blockers.length) { entry.state = 'blocked'; entry.missingMinutes = required ?? 0; entry.missingMinMinutes = range?.minMinutes ?? 0; entry.missingMaxMinutes = required; entry.reasons.push(...blockers.map(item => item.reason)); continue }
+    if (required === null) { entry.state = 'unknown'; entry.missingMinMinutes = range?.minMinutes ?? 0; entry.missingMaxMinutes = null; entry.reasons.push(range ? `Minst ${range.minMinutes} min gjenstår, men øvre grense er ukjent.` : 'Gjenstående arbeid er ukjent. Legg til et estimat.'); continue }
     const indivisible = task.splittable === false
     const ownReservations = reservations.filter(item => item.taskId === task.id && item.end > floor)
     const reservedFits = indivisible ? ownReservations.length === 1 && Boolean(contiguousWorkInterval(reservedIntervals.get(task.id), required)) : entry.reservedMinutes >= required
@@ -93,6 +97,7 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     let need = required - entry.allocatedMinutes, deadline = Infinity
     try { if (task.deadlineLocal) deadline = Date.parse(toInstant(task.deadlineLocal)) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig eller ugyldig. Ingen tid foreslås.'); }
     const retainedReservation = ownReservations.length > 0
+    if (known && Number.isFinite(deadline)) entry.availableBeforeMinutes = entry.reservedMinutes + intervalMinutes(free.map(item => ({ start: item.start, end: Math.min(item.end, deadline) })))
     if (indivisible && need > 0) entry.reasons.push(`Arbeidet kan ikke deles: ${required} min må få plass sammenhengende${retainedReservation ? '. Kontroller reservasjonene; atskilte deler kan ikke fullføre oppgaven' : ''}.`)
     const exceedsMaximum = indivisible && need > 0 && validPlanningRules(planningRules) && need > planningRules.maximumMinutes
     if (exceedsMaximum) entry.reasons.push(`${need} min må holdes samlet, mer enn valgt maksimal øktlengde ${planningRules.maximumMinutes} min.`)
@@ -104,9 +109,16 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
       interval.start += take * minute; need -= take; entry.allocatedMinutes += take
     }
     entry.missingMinutes = need
+    entry.missingMinMinutes = Math.max(0, (range?.minMinutes ?? 0) - entry.allocatedMinutes)
+    entry.missingMaxMinutes = need
     entry.state = !known && !reservedFits ? 'unknown' : need > 0 ? 'insufficient' : reservedFits ? 'planned' : 'unplanned'
     entry.reasons.push({ unknown: 'Tilgjengelig arbeidstid er ukjent. Registrer arbeidstidsvinduer.', insufficient: `${need} min mangler før fristen i registrert arbeidstid.`, planned: 'Arbeidet har reservert tid. Oppdater gjenstående arbeid selv etter økten.', unplanned: capacityPlanningNote(planningRules) }[entry.state])
   }
   const sum = field => Math.min(Number.MAX_SAFE_INTEGER, entries.reduce((n, e) => n + e[field], 0))
-  return { tasks: entries, known, unknownTaskCount: tasks.filter(task => getRemainingMinutes(task) === null).length, totalCapacityMinutes, totalRequiredMinutes: sum('requiredMinutes'), totalAllocatedMinutes: sum('allocatedMinutes'), totalReservedMinutes: intervalMinutes(reservedCovered), totalMissingMinutes: sum('missingMinutes'), spareMinutes: intervalMinutes(free), totalLostMinutes: 0, warnings: [...new Set(warnings)] }
+  const openRequired = entries.some(entry => entry.requiredMaxMinutes === null && entry.requiredMinMinutes !== null)
+  const openMissing = entries.some(entry => entry.missingMaxMinutes === null && entry.missingMinMinutes !== null)
+  return { tasks: entries, known, unknownTaskCount: tasks.filter(task => getRemainingRange(task)?.maxMinutes == null).length, totalCapacityMinutes,
+    totalRequiredMinutes: sum('requiredMinutes'), totalRequiredMinMinutes: sum('requiredMinMinutes'), totalRequiredMaxMinutes: openRequired ? null : sum('requiredMinutes'),
+    totalAllocatedMinutes: sum('allocatedMinutes'), totalReservedMinutes: intervalMinutes(reservedCovered), totalMissingMinutes: sum('missingMinutes'),
+    totalMissingMinMinutes: sum('missingMinMinutes'), totalMissingMaxMinutes: openMissing ? null : sum('missingMaxMinutes'), spareMinutes: intervalMinutes(free), totalLostMinutes: 0, warnings: [...new Set(warnings)] }
 }

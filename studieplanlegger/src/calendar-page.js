@@ -2,7 +2,7 @@ import { Temporal } from '@js-temporal/polyfill'
 import { calendarToday, calendarRange, calendarEntries, entriesForDay, collisionLanes, dayBounds, timeLabel, addDays } from './calendar-model.js'
 import { OSLO } from './planner.js'
 import { calendarAxis, axisSegments } from './calendar-axis.js'
-import { formatDay, formatDeadline } from './calendar.js'
+import { courseColor, formatDay, formatDeadline } from './calendar.js'
 import './calendar-page.css'
 import { createCalendarViewport } from './calendar-viewport.js'
 
@@ -98,11 +98,13 @@ export function createCalendarPage(actions) {
     const control = button('', () => showDetails(entry, control), `calendar-entry entry-${entry.kind}${entry.cancelled ? ' is-cancelled' : ''}${entry.point ? ' is-point' : ''}`)
     control.dataset.calendarKey = entry.key
     control.dataset.calendarFocusKey = entry.key
-    const course = model.planner?.courses.find(c => c.id === entry.courseId), context = [course?.code || course?.name || entry.course, entry.location].filter(Boolean).join(' · ')
+    const course = model.planner?.courses.find(c => c.id === entry.courseId), code = course?.code || entry.courseCode || '', context = [code || course?.name || entry.course, entry.location].filter(Boolean).join(' · ')
+    if (code) control.style.setProperty('--course-color', courseColor(code))
     const when = date ? `${formatDay(date, { year: true })} · ${timeLabel(entry)}` : timeLabel(entry)
     const kindLabel = `${kinds[entry.kind]}${context ? ` · ${context}` : ''}`
     const whenClass = compact ? 'entry-time entry-time-compact' : 'entry-time'
-    control.append(el('span', when, whenClass), el('strong', entry.title), el('span', kindLabel, 'entry-kind'))
+    const title = code && !entry.title.toLocaleUpperCase('nb').startsWith(code.toLocaleUpperCase('nb')) ? `${code} · ${entry.title}` : entry.title
+    control.append(el('span', when, whenClass), el('strong', title), el('span', kindLabel, 'entry-kind'))
     if (compact) control.classList.add('is-short')
     const continuation = [entry.start < entry.clippedStart ? 'Fortsetter fra forrige dag' : '', entry.end > entry.clippedEnd ? 'Fortsetter neste dag' : ''].filter(Boolean).join(' · ')
     if (continuation) control.append(el('span', continuation, 'entry-continuation'))

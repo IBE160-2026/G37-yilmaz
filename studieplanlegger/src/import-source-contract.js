@@ -14,7 +14,7 @@ export function boundedImportWarnings(warnings = []) {
 }
 export const IMPORT_FIELDS = {
   course: ['name', 'code', 'university', 'semester', 'year', 'credits', 'description'],
-  task: ['title', 'course', 'courseId', 'deadlineLocal', 'remainingMinutes', 'requiresSubmission'],
+  task: ['title', 'course', 'courseId', 'deadlineLocal', 'remainingMinutes', 'remainingEstimate', 'deadlinePromptDismissed', 'requiresSubmission'],
   event: ['title', 'courseId', 'start', 'end', 'location', 'description', 'allDay', 'cancelled', 'transparent', 'information'],
 }
 const record = value => value && typeof value === 'object' && !Array.isArray(value)
@@ -24,7 +24,8 @@ const date = value => string(value) && /(?:Z|[+-]\d\d:\d\d)$/.test(value) && Num
 const sourceKeys = ['id', 'kind', 'format', 'name', 'contentHash', 'revision', 'createdAt', 'lastUpdated', 'entries', 'complete', 'warnings']
 const entryKeys = ['key', 'kind', 'targetId', 'sourceBase', 'snippet', 'position', 'matchKey', 'calendarUid', 'calendarOccurrence', 'reference']
 function validBaseField(key, value) {
-  if (['allDay', 'cancelled', 'transparent', 'information', 'requiresSubmission'].includes(key)) return typeof value === 'boolean'
+  if (['allDay', 'cancelled', 'transparent', 'information', 'requiresSubmission', 'deadlinePromptDismissed'].includes(key)) return typeof value === 'boolean'
+  if (key === 'remainingEstimate') return record(value) && Number.isSafeInteger(value.minMinutes) && value.minMinutes >= 0 && (value.maxMinutes === null || Number.isSafeInteger(value.maxMinutes) && value.maxMinutes >= value.minMinutes)
   if (key === 'remainingMinutes') return value === null || Number.isSafeInteger(value) && value >= 0
   if (key === 'credits') return value === null || Number.isFinite(value) && value >= 0
   if (key === 'year') return value === null || Number.isInteger(value) && value >= 1900 && value <= 2200

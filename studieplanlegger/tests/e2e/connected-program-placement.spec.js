@@ -19,7 +19,7 @@ test('source course type stays intact while a missing study semester requires an
   await host.locator('[name=program]').selectOption('0');await host.locator('[name=cohort]').selectOption('0')
   await host.getByRole('button',{name:'Hent studieplan',exact:true}).click()
   await host.locator('[name=model]').selectOption('profile');await host.locator('[name=studySemester]').selectOption('unplaced')
-  await host.locator('[name=clarifiedYear]').fill('2026');await host.locator('[name=clarifiedSemester]').selectOption('autumn');await host.locator('[name=programCampus]').selectOption('__unknown')
+  await host.locator('[name=clarifiedYear]').fill('2026');await host.locator('[name=clarifiedSemester]').selectOption('autumn');await expect(host.locator('[name=programCampus]')).toBeHidden()
   const choice=host.getByRole('checkbox',{name:/TEST101.*Obligatorisk.*Bekreft plassering/})
   await expect(choice).not.toBeChecked();await choice.check()
   await host.getByRole('button',{name:'Forhåndsvis valgte emner',exact:true}).click()

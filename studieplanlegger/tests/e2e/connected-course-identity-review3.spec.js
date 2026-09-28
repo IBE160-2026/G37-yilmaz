@@ -71,13 +71,13 @@ for (const reverse of [false, true]) test(`R11 saved NHFH identity survives a tw
   reversed = !reversed
   const repeat = await prepare(page)
   await repeat.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
-  await expect(repeat.getByRole('status')).toContainText('2 emner og valgte undervisningsøkter er lagret')
+  await expect(repeat.getByRole('status')).toContainText('2 emner er lagret samlet')
   const second = await saved(page)
   expect(second.planner.courses.map(course => course.id)).toEqual(first.planner.courses.map(course => course.id))
   expect(second.planner.events).toEqual(original.planner.events); expect(second.tasks).toEqual(original.tasks)
   if (!reverse) {
     await navigate(page, 'settings')
-    const menu = page.locator('#settings-panel .data-menu'); if (!await menu.evaluate(node => node.open)) await menu.locator(':scope > summary').click()
+    const menu = page.locator('#settings-panel .data-menu').filter({ hasText: 'Data og sikkerhetskopi' }); if (!await menu.evaluate(node => node.open)) await menu.locator(':scope > summary').click()
     const downloading = page.waitForEvent('download')
     await menu.getByRole('button', { name: 'Eksporter sikkerhetskopi', exact: true }).click()
     const download = await downloading, bytes = await readFile(await download.path())

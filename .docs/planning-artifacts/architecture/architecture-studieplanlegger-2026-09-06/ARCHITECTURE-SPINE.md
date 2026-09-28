@@ -7,7 +7,7 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-09-20
+updated: 2026-09-26
 binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
   - ../../../../brief.md
@@ -16,6 +16,16 @@ sources:
 ---
 
 # Technical plan: Studieplanlegger
+
+## AD-11 — Unified study setup and teaching refresh, 2026-09-26
+
+The programme journey owns the initial study context and prepares programme courses, a contextual missing course and available teaching before one reviewed state commit. Programme evidence remains distinct from student clarification and manual records. Providers preserve source-owned required courses and alternative groups; the selection model accepts exactly one complete published branch and never infers a branch from credits, list order or a target total. Student-added courses are scoped to programme model/period and calendar term so a same-term programme change cannot reuse them silently.
+
+Teaching retrieval is course-local and partial-safe. Optional validated `teachingCheck` records the latest attempt separately from the latest success and distinguishes success, empty, timeout, transport error, invalid response, access required and unsupported. A failed or incomplete refresh retains prior events and source identity. Source-scoped `groups`, `excludedKeys`, `allGroups`, `commonGroups` and `pendingGroups` preserve explicit activity and exception choices through local storage, SQLite, history and portable backup. Exact source-code matching may reuse one unique object; ambiguous objects or personal groups require student choice. HiMolde uses a request-local anonymous TP bootstrap with cookies restricted to the verified `/himolde/` origin/path boundary; existing NTNU and other adapters retain their contracts.
+
+Import views snapshot only the rebuilt region's open disclosures, focused keyed control and inner scroll position, allowing the browser to preserve outer scrolling naturally. Stale async responses remain rejected. A semantic no-op requires equal content, identity, coverage, warnings, selections and exclusions with no pending group; it records the check and finishes without an unnecessary confirmation. Changed choices or source evidence remain reviewable. Calendar entries carry the full course code and a deterministic derived course color across teaching, deadlines and study sessions, while textual kind/status remains mandatory because color is not identity.
+
+Study-time preferences are separate from confirmed availability. A saved pattern can seed later task-adjacent planning, while “varies” and no-choice flows remain one-off assumptions. Daily guidance and replanning reuse the same validated capacity, dependency, deadline, revision, history and undo contracts; starting a suggestion is not proof of work, and session outcome, task completion and submission remain separate confirmations.
 
 ## Historical requirement key
 
@@ -173,7 +183,7 @@ npm.cmd install --save-dev --save-exact vite@8.2.2 vitest@5.0.0 @playwright/test
 npx.cmd playwright install chromium
 ```
 
-Current scripts are authoritative in `studieplanlegger/package.json`: `dev` uses `vite --host 127.0.0.1 --port 80 --strictPort`, `dev:legacy` uses localhost:5173, `test` uses Vitest, `test:e2e` uses Playwright and `build` uses Vite. Vitest selects unit tests; Playwright selects browser tests on strict port 5174. Existing dependencies are retained; app task/session handling remains browser-local.
+Current scripts are authoritative in `studieplanlegger/package.json`. The historical `dev` script still uses strict loopback port 80 and `dev:legacy` uses localhost:5173, but neither is required for the delivered Docker startup. `test:unit` uses Vitest, `verify:teaching` runs the offline fixture-backed teaching contracts, `test:e2e` runs the Vite/localStorage browser suite, `test:e2e:database` runs the production Node/SQLite flow, and `build` uses Vite. Production task, session, import and preference state is authoritative in SQLite under AD-10; browser-local state belongs to development regression and the explicit migration source.
 
 After implementation, run from `studieplanlegger/`:
 

@@ -11,8 +11,8 @@ test('every task lifecycle action preserves study sessions, including a failed a
     { id: 'morning', dateLocal: '2026-09-07', startTime: '10:00', endTime: '11:00' },
     { id: 'noon', dateLocal: '2026-09-07', startTime: '11:00', endTime: '12:00' },
   ]
-  const activeSummary = '90 min kjent arbeid · 90 min satt av · 0 min ikke planlagt · 30 min ledig i øktene.'
-  const doneSummary = '0 min kjent arbeid · 0 min satt av · 0 min ikke planlagt · 120 min ledig i øktene.'
+  const activeSummary = '90 min kjent arbeid · 90 min satt av · opptil 0 min ikke planlagt · 30 min ledig i øktene.'
+  const doneSummary = '0 min kjent arbeid · 0 min satt av · opptil 0 min ikke planlagt · 120 min ledig i øktene.'
   const action = caption => row(page, parent.title).getByRole('button', { name: `${caption} «${parent.title}»`, exact: true })
   const completed = () => row(page, parent.title).getByRole('checkbox', { name: `Ferdig med arbeidet «${parent.title}»`, exact: true })
 
@@ -53,7 +53,7 @@ test('every task lifecycle action preserves study sessions, including a failed a
   expect(created).toEqual({ id: expect.any(String), title: 'Kontroller én kilde', course: 'IBE160',
     deadlineLocal: '2026-09-07T14:00', estimatedMinutes: null, remainingMinutes: 20,
     completed: false, requiresSubmission: false, submitted: false })
-  await assertState([parent, created], '110 min kjent arbeid · 110 min satt av · 0 min ikke planlagt · 10 min ledig i øktene.')
+  await assertState([parent, created], '110 min kjent arbeid · 110 min satt av · opptil 0 min ikke planlagt · 10 min ledig i øktene.')
   await deleteTask(page, created.title)
   expect(await assertState([parent])).toBe(initialCapacity)
 

@@ -1,0 +1,7 @@
+{
+  "events": [
+    {"semesterid":"26h","courseid":"IBE160","terminnr":1,"id":"26H-IBE160-1-1-1-2","eventid":"26H-IBE160-1-1-1-2+34+4","dtstart":"2026-08-20T12:15:00+02","dtend":"2026-08-20T14:00:00+02","summary":"Lecture","summaryNb":"Forelesning","teachingMethodName":"Forelesning","status":"active","studentgroups":["LOG-ÅR-IT [1.sem] CAMPUS","LOG-ÅR-IT [1.sem] NETT"],"room":[{"id":"KVB138","roomname":"Auditorium B-138"}],"alerts":[],"staffnames":["B.I.A. Pettersen"],"curr":"<p>Publisert emneinformasjon</p>"},
+    {"semesterid":"26h","courseid":"IBE160","terminnr":1,"id":"26H-IBE160-1-1-1-3","eventid":"26H-IBE160-1-1-1-3+44+4","dtstart":"2026-10-29T14:15:00+01","dtend":"2026-10-29T16:00:00+01","summary":"Exercise","summaryNb":"Øvingstime","teachingMethodName":"Øving","status":"active","studentgroups":[],"room":null,"alerts":[],"staffnames":[],"curr":""},
+    {"semesterid":"26h","courseid":"IBE160","terminnr":1,"id":"26H-IBE160-1-1-1-1","eventid":"26H-IBE160-1-1-1-1+34+1","dtstart":"2026-08-17T14:15:00+02","dtend":"2026-08-17T16:00:00+02","summary":"Lecture","summaryNb":"Forelesning","teachingMethodName":"Forelesning","status":"cancelled","studentgroups":[],"room":null,"alerts":[{"message":"Flyttet til en annen dag"}],"staffnames":[],"curr":""}
+  ]
+}

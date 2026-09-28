@@ -15,14 +15,15 @@ export function calendarRange(date, view, weekMode = 'full') {
   return Array.from({ length: view === 'month' ? 42 : view === 'week' ? weekMode === 'workweek' ? 5 : 7 : 31 }, (_, i) => start.add({ days: i }).toString())
 }
 export function calendarEntries({ tasks = [], sessions = [], planner = {}, workWindows = [], busyWindows = [] }) {
-  const entries = (planner.events || []).filter(e => !e.deleted).map(e => ({ ...e, key: `event:${e.id}`, kind: e.transparent || e.information || e.transparency === 'TRANSPARENT' ? 'information' : 'teaching', start: Date.parse(e.start), end: Date.parse(e.end) }))
+  const courseCode = courseId => (planner.courses || []).find(course => course.id === courseId)?.code || ''
+  const entries = (planner.events || []).filter(e => !e.deleted).map(e => ({ ...e, courseCode: courseCode(e.courseId), key: `event:${e.id}`, kind: e.transparent || e.information || e.transparency === 'TRANSPARENT' ? 'information' : 'teaching', start: Date.parse(e.start), end: Date.parse(e.end) }))
   for (const task of tasks.filter(t => t.deadlineLocal)) {
     let start, warning = ''
     try { start = Date.parse(toInstant(task.deadlineLocal)) } catch { warning = 'Fristen har et tvetydig eller ugyldig klokkeslett i norsk tid. Rediger for å presisere.' }
-    entries.push({ ...task, key: `task:${task.id}`, kind: 'deadline', point: true, start, end: start, local: task.deadlineLocal, warning, done: task.completed && (!task.requiresSubmission || task.submitted) })
+    entries.push({ ...task, courseCode: courseCode(task.courseId), key: `task:${task.id}`, kind: 'deadline', point: true, start, end: start, local: task.deadlineLocal, warning, done: task.completed && (!task.requiresSubmission || task.submitted) })
   }
   for (const session of sessions) {
-    try { const interval = extendedSessionInterval(session), task = tasks.find(t => t.id === session.taskId); entries.push({ ...session, ...interval, key: `session:${session.id}`, kind: 'session', title: task ? `Studieøkt: ${task.title}` : 'Studieøkt', courseId: task?.courseId, course: task?.course }) } catch { /* Invalid legacy input stays in the editor. */ }
+    try { const interval = extendedSessionInterval(session), task = tasks.find(t => t.id === session.taskId); entries.push({ ...session, ...interval, key: `session:${session.id}`, kind: 'session', title: task ? `Studieøkt: ${task.title}` : 'Studieøkt', courseId: task?.courseId, courseCode: courseCode(task?.courseId), course: task?.course }) } catch { /* Invalid legacy input stays in the editor. */ }
   }
   for (const [kind, values] of [['work', workWindows], ['busy', busyWindows]]) for (const value of values) entries.push({ ...value, start: Date.parse(value.start), end: Date.parse(value.end), kind, key: `${kind}:${value.id}`, title: value.label || (kind === 'work' ? 'Arbeidstid' : 'Opptatt') })
   return entries

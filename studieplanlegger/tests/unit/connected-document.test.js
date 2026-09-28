@@ -108,6 +108,27 @@ describe('one atomic document plan with stable source/local revisions', () => {
     expect(repeat.state.tasks[0]).toMatchObject({ title: 'Min presise oppgave', remainingMinutes: 45 })
     expect(repeat.source.revision).toBe(1)
   })
+  it('keeps a dismissed missing-deadline prompt dismissed on a changed source revision', () => {
+    const state = empty(), firstPreview = preview(state, csv('id;tittel\n1;Oppgave uten frist'))
+    firstPreview.rows[0].deadlineMode = 'none'
+    firstPreview.rows[0].deadlinePromptDismissed = true
+    const first = commit(state, firstPreview).state
+    const changed = preview(first, csv('id;tittel\n1;Oppgave uten frist'), { sourceId: first.importSources[0].id, contentHash: 'b'.repeat(64) })
+    expect(changed.rows[0].deadlinePromptDismissed).toBe(true)
+    expect(commit(first, changed).state.tasks[0].deadlinePromptDismissed).toBe(true)
+  })
+  it('commits and revisions a selected remaining-work interval without conflicting exact minutes', () => {
+    const state = empty(), firstPreview = preview(state, csv('id;tittel;frist\n1;Intervalloppgave;2026-09-16T14:00'))
+    firstPreview.rows[0].remainingMinutes = null
+    firstPreview.rows[0].remainingEstimate = { minMinutes: 60, maxMinutes: 120 }
+    firstPreview.rows[0].estimateResolved = true
+    const firstResult = commit(state, firstPreview), first = firstResult.state
+    expect(first.tasks[0]).toMatchObject({ remainingMinutes: null, remainingEstimate: { minMinutes: 60, maxMinutes: 120 } })
+    expect(firstResult.source.entries[0].sourceBase.remainingEstimate).toBeUndefined()
+    const changed = preview(first, csv('id;tittel;frist\n1;Intervalloppgave;2026-09-17T14:00'), { sourceId: first.importSources[0].id, contentHash: 'b'.repeat(64) })
+    const revised = commit(first, changed)
+    expect(revised.state.tasks[0].remainingEstimate).toEqual({ minMinutes: 60, maxMinutes: 120 })
+  })
   it('shows three-way conflicts, preserves local values after explicit choice and applies unedited changes', () => {
     const firstParsed = csv('id;tittel;frist\n1;Les pensum;2026-09-16T14:00'), first = commit(empty(), preview(empty(), firstParsed)).state
     first.tasks[0].title = 'Min tittel'

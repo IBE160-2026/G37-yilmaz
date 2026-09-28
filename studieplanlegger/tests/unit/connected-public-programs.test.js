@@ -83,7 +83,8 @@ describe('national evidence and durable program provenance',()=>{
   expect(institutions.find(i=>i.id==='dmmh').capabilities.personalTimetable).toBe('requires-institution-access');expect(institutions.find(i=>i.id==='uio').capabilities.nationalCatalogue).toBe('optional-sikt-route')
   for(const key of ['campus','groups','personalTimetable'])expect(institutions.filter(item=>item.datatypes[key].status==='Ikke undersøkt')).toEqual([])
   expect(institutions.find(i=>i.id==='nih').datatypes.publicTeaching.status).toBe('Ekte import verifisert')
-  expect(institutions.find(i=>i.id==='himolde').datatypes.publicTeaching.status).toBe('Krever særskilt tilgang')
+  expect(institutions.find(i=>i.id==='himolde').datatypes.publicTeaching.status).toBe('Ekte import verifisert')
+  expect(institutions.find(i=>i.id==='himolde').datatypes.groups.status).toBe('Ikke implementert')
   expect(institutions.find(i=>i.id==='nmbu').capabilities.personalTimetable).toBe('no-suitable-anonymous-source')
  })
  it('preserves source binding, local notes and stable IDs through repeat import and validates bad provenance',()=>{

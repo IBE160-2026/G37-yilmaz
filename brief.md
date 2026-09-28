@@ -2,7 +2,7 @@
 title: "Product Brief: Studieplan"
 status: implemented
 created: 2026-09-06
-updated: 2026-09-20
+updated: 2026-09-26
 ---
 
 # Product Brief: Studieplan
@@ -14,6 +14,8 @@ Studieplan is a study planner for students at Norwegian universities and univers
 Studieplan connects confirmed imports and manually entered tasks with teaching, deadlines, and study sessions in one calendar. Guided onboarding and quick capture let the student begin before every detail is known, while explained suggestions support useful and feasible next actions.
 
 The student records work outcomes, and Studieplan can propose adjustments when time is lost or the student's needs change. The delivered implementation includes a local browser interface, a loopback-only Node API, durable SQLite storage and a documented Docker Compose setup. The database schema is created automatically and a named volume preserves data across container recreation. Suggestions use registered information, rules, dependencies, and local work history; they do not require generative AI or change the plan without the student's confirmation.
+
+The current implementation reduces repeated setup by reusing a confirmed study-time pattern and combining programme, course and available teaching preparation into one reviewed commit. Source-owned course alternatives remain explicit student choices. Teaching status is recorded per course, and saved activity, group and exclusion choices survive reload and refresh. Unchanged refreshes finish without an extra confirmation, while changed source data or choices remain reviewable. Course codes and deterministic colors keep related teaching, deadlines and study sessions recognizable without relying on color alone.
 
 ## The Problem
 

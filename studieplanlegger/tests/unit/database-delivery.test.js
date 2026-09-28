@@ -18,17 +18,18 @@ const state = () => ({
   schemaVersion: 1,
   __legacyExtension: { retained: true },
   tasks: [
-    task('first'),
+    task('first', { estimatedMinutes: null, remainingMinutes: null, remainingEstimate: { minMinutes: 241, maxMinutes: null }, deadlinePromptDismissed: true }),
     task('second', { dependencyIds: ['first'], requiresSubmission: true, completed: true, submitted: false }),
     task('blocked', { dependencyIds: ['deleted-prerequisite'], missingDependencyIds: ['deleted-prerequisite'] }),
   ],
   sessions: [{ id: 'session', taskId: 'first', dateLocal: '2026-09-22', startTime: '10:00', endTime: '10:30' }],
   planner: {
-    courses: [{ id: 'course', code: 'TEST101', name: 'Test course', university: 'Test', semester: 'autumn', year: 2026, notes: '', providerField: { retained: true } }],
+    courses: [{ id: 'course', code: 'TEST101', name: 'Test course', university: 'Test', semester: 'autumn', year: 2026, notes: '', teachingCheck: { status: 'transport-error', lastAttempt: '2026-09-25T08:00:00.000Z', lastSuccess: '2026-09-24T08:00:00.000Z', eventCount: 12, source: 'fixture' }, providerField: { retained: true } }],
     events: [{ id: 'event', title: 'Lecture', courseId: 'course', start: '2026-09-22T08:00:00Z', end: '2026-09-22T09:00:00Z', notes: '', providerExtra: 'exact' }],
     sources: [],
   },
   calendarPreferences: { version: 1, view: 'agenda', date: '2026-09-20', courseId: 'course', kinds: [], completed: true, cancelled: false, scroll: {} },
+  studyTimePreference: { kind: 'evening', label: 'På kvelden i ukedagene', days: [1, 2, 3, 4, 5], startTime: '18:00', endTime: '20:00' },
 })
 
 function createPreShapeDatabase(filename, { orphanCourse = false } = {}) {
@@ -223,7 +224,7 @@ describe('SQLite state repository', () => {
     const secondRaw = JSON.stringify(secondArchive), secondFingerprint = fingerprintLegacy(secondRaw)
     db.db.prepare("INSERT INTO legacy_archives(fingerprint,imported_at,raw,revision) VALUES(?,datetime('now'),?,?)").run(secondFingerprint, secondRaw, 1)
     db.db.prepare("INSERT INTO legacy_archives(fingerprint,imported_at,raw,revision) VALUES('invalid',datetime('now'),'not-json',1)").run()
-    const changed = { ...expected, tasks: expected.tasks.map(value => ({ ...value, remainingMinutes: 10 })) }
+    const changed = { ...expected, tasks: expected.tasks.map(value => ({ ...value, title: `${value.title} (endret)` })) }
     db.save(changed, 1, { snapshot: true })
     expect(db.recovery().data).toEqual(expected)
     const purged = db.purge(2)

@@ -11,7 +11,9 @@ export function capacityPlanningNote(rules) {
 }
 export function validConnectedPreferences(state) {
   if (state.planningPreferences !== undefined && !validPlanningRules(state.planningPreferences)) return false
+  if (state.studyTimePreference !== undefined && !validStudyTimePreference(state.studyTimePreference)) return false
   if (state.personalization !== undefined && (!state.personalization || typeof state.personalization.enabled !== 'boolean')) return false
   if (state.onboarding !== undefined && (!state.onboarding || typeof state.onboarding.dismissed !== 'boolean' || state.onboarding.completed !== undefined && typeof state.onboarding.completed !== 'boolean')) return false
   return true
 }
+import { validStudyTimePreference } from './study-time.js'

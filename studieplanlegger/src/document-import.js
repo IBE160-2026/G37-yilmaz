@@ -1,5 +1,6 @@
 import { DOCUMENT_LIMITS } from './document-parsers.js'
 import { createDocumentImportPreview, buildDocumentImportCommit, refreshDocumentConflicts, changeDocumentRowKind } from './import-preview.js'
+import { estimateChoiceRange } from './tasks.js'
 import './document-import.css'
 
 export { createDocumentImportPreview, buildDocumentImportCommit } from './import-preview.js'
@@ -51,9 +52,10 @@ const courseOptionLabel = course => {
 }
 
 export function renderDocumentImportPreview(container, preview, { getState, onConfirm, onBack } = {}) {
-  const state = getState(), form = el('form', undefined, 'document-preview'), heading = el('h3', 'Kontroller planen før import')
+  const state = getState(), form = el('form', undefined, 'document-preview'), heading = el('h3', 'Dette fant jeg')
   form.noValidate = true
   container.replaceChildren(form); form.append(heading, el('p', `${preview.rows.length} oppføringer fra ${preview.displayName || preview.name}. Velg det du vil lagre, og avklar manglende opplysninger. Ingenting lagres før du bekrefter.`))
+  form.append(el('p', 'Planforslag: Bekreftede oppgaver opprettes med opplysningene nedenfor. Eksisterende studieøkter flyttes ikke.', 'form-hint'))
   if (preview.complete === false) form.append(el('p', 'Kilden er ufullstendig. Kontroller varslene og legg til manglende opplysninger senere.', 'form-hint'))
   for (const warning of preview.warnings) form.append(el('p', warning, 'form-hint'))
   if (preview.previousRevision) form.append(el('p', `Oppdaterer dokumentkilde, revisjon ${preview.previousRevision}. Lokale endringer og oppføringer som ikke velges, blir beholdt.`))
@@ -119,11 +121,19 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
         rowChoice('courseChoice', fields, row.courseHint ? `Emne (i kilden: ${row.courseHint})` : 'Emne (valgfritt)', courseOptions, row.courseChoice, value => { row.courseChoice = value })
         if (row.kind === 'task') {
           if (row.deadlineRaw || row.deadlineIssues.length) fields.append(el('p', `Frist i kilden: ${row.deadlineRaw || 'ikke entydig'}. ${row.deadlineIssues.join(' ')}`, 'form-hint'))
+          else if (!row.deadlineLocal) fields.append(el('p', 'Frist: Ikke funnet i dokumentet.', 'form-hint'))
           if (row.retainedCorrection) fields.append(el('p', 'Din tidligere avklaring av fristen er beholdt.'))
-          rowChoice('deadlineMode', fields, 'Frist', [['?', 'Avklar fristen'], ['none', 'Uten frist'], ['value', 'Oppgi dato og klokkeslett']], row.deadlineMode, value => { row.deadlineMode = value })
+          const deadlineMode = rowChoice('deadlineMode', fields, 'Frist', [['?', 'Avklar fristen'], ['none', 'Uten frist'], ['value', 'Oppgi dato og klokkeslett']], row.deadlineMode, value => { row.deadlineMode = value })
           rowField('deadlineLocal', fields, 'Dato og klokkeslett i norsk tid', row.deadlineLocal, value => { row.deadlineLocal = value; row.deadlineMode = value ? 'value' : '?' }, 'datetime-local')
-          const remaining = rowField('remainingMinutes', fields, 'Gjenstående minutter (tomt = vet ikke)', row.remainingMinutes, value => { row.remainingMinutes = value === '' ? null : Number(value); row.estimateResolved = true }, 'number'); remaining.min = '0'; remaining.step = '1'
-          if (row.estimateIssue) { fields.append(el('p', row.estimateIssue)); const unknown = el('button', 'Vet ikke'); unknown.type = 'button'; unknown.addEventListener('click', () => { row.remainingMinutes = null; row.estimateResolved = true; remaining.value = '' }); fields.append(unknown) }
+          const remaining = rowField('remainingMinutes', fields, 'Gjenstående minutter (tomt = vet ikke)', row.remainingMinutes, value => { row.remainingMinutes = value === '' ? null : Number(value); row.remainingEstimate = null; row.remainingChoice = ''; row.estimateResolved = true }, 'number'); remaining.min = '0'; remaining.step = '1'
+          const remainingChoice = rowChoice('remainingChoice', fields, 'Hvor mye arbeid tror du gjenstår?', [['', 'Vet ikke'], ['under30', 'Under 30 min'], ['from30to60', '30–60 min'], ['from60to120', '1–2 timer'], ['from120to240', '2–4 timer'], ['over240', 'Mer enn 4 timer']], row.remainingChoice || '', value => { row.remainingChoice = value; row.remainingEstimate = estimateChoiceRange(value); row.remainingMinutes = null; remaining.value = ''; row.estimateResolved = true })
+          remaining.addEventListener('input', () => { remainingChoice.value = '' })
+          if (!row.deadlineLocal && !row.deadlinePromptDismissed) {
+            const addDeadline = el('button', 'Legg til frist'); addDeadline.type = 'button'; addDeadline.onclick = () => { row.deadlineMode = 'value'; section.open = true; fields.querySelector('[data-field=deadlineLocal]')?.focus() }
+            const dismissDeadline = el('button', 'Ikke spør igjen for denne oppgaven'); dismissDeadline.type = 'button'; dismissDeadline.className = 'secondary'; dismissDeadline.onclick = () => { row.deadlineMode = 'none'; row.deadlinePromptDismissed = true; deadlineMode.value = 'none'; dismissDeadline.textContent = 'Fristpåminnelse slått av' }
+            fields.append(addDeadline, dismissDeadline)
+          } else if (!row.deadlineLocal) fields.append(el('p', 'Fristpåminnelse er slått av for denne oppgaven. Fristen er fortsatt ukjent.', 'form-hint'))
+          if (row.estimateIssue) { fields.append(el('p', row.estimateIssue)); const unknown = el('button', 'Vet ikke'); unknown.type = 'button'; unknown.addEventListener('click', () => { row.remainingMinutes = null; row.remainingEstimate = null; row.remainingChoice = ''; row.estimateResolved = true; remaining.value = ''; remainingChoice.value = '' }); fields.append(unknown) }
           const submitLabel = el('label', 'Skal leveres'), input = el('input'); input.type = 'checkbox'; input.checked = row.requiresSubmission; input.addEventListener('change', () => { row.requiresSubmission = input.checked }); submitLabel.prepend(input); fields.append(submitLabel)
         } else {
           if (!row.startLocal || !row.endLocal) fields.append(el('p', `Start/slutt må avklares. ${row.startRaw || row.deadlineRaw || ''} ${row.endRaw || ''}. Ingen arbeidstid er utledet fra undervisningen.`, 'form-hint'))
@@ -151,8 +161,8 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
     }
   }
   renderRows()
-  const actions = el('div', undefined, 'form-actions'), confirm = el('button', 'Bekreft valgt plan'); confirm.type = 'submit'; confirm.className = 'primary'
-  const back = el('button', 'Tilbake til dokumentet'); back.type = 'button'; back.addEventListener('click', onBack); actions.append(confirm, back); form.append(actions)
+  const actions = el('div', undefined, 'form-actions'), confirm = el('button', 'Stemmer – lag plan'); confirm.type = 'submit'; confirm.className = 'primary'
+  const back = el('button', 'Rett'); back.type = 'button'; back.addEventListener('click', onBack); actions.append(confirm, back); form.append(actions)
   form.addEventListener('submit', async event => {
     event.preventDefault(); error.replaceChildren(); confirm.disabled = true
     try {
@@ -173,10 +183,10 @@ export function mountDocumentImport(container, { getState, onCommit, onCancel = 
   let pending, disposed = false, parsed, preview, completed = false, lastSavedSourceId = ''
   const root = el('section', undefined, 'document-import'), inputPanel = el('div'), previewPanel = el('div')
   container.replaceChildren(root); root.append(inputPanel, previewPanel)
-  const form = el('form'); inputPanel.append(el('h3', 'Importer dokument eller tekst'), el('p', 'Les en studieplan, oppgavetekst eller kalender på denne enheten. Bare valgte opplysninger og korte kildeutdrag lagres; originalfilen beholdes ikke.'), form)
+  const form = el('form'); inputPanel.append(el('h3', 'Legg inn arbeidskrav'), el('p', 'PDF, DOCX og innlimt tekst leses lokalt i nettleseren. Først når du bekrefter, lagres valgte opplysninger og korte kildeutdrag. Produksjonsmodusen bruker den lokale Node-tjenesten og SQLite; Vite-utviklingsmodusen bruker nettleserlagring. Originalfilen lastes ikke opp.'), form)
   const fileLabel = el('label', 'Velg fil'), file = el('input'); file.type = 'file'; file.accept = '.txt,.text,.pdf,.docx,.csv,.ics,text/plain,text/csv,text/calendar,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document'; fileLabel.append(file); form.append(fileLabel)
   const pasteLabel = el('label', 'Eller lim inn tekst'), paste = el('textarea'); paste.rows = 7; paste.placeholder = 'Emne: IBE160 – Programmering\nInnlevering 1, frist 2026-09-16 kl. 14:00'; pasteLabel.append(paste); form.append(pasteLabel)
-  const resetFile = el('button', 'Bruk innlimt tekst'); resetFile.type = 'button'; resetFile.addEventListener('click', () => { cancelRead('Lesingen er avbrutt. Lim inn teksten og prøv igjen.'); file.value = ''; paste.focus() }); form.append(resetFile)
+  const resetFile = el('button', 'Lim inn relevant tekst'); resetFile.type = 'button'; resetFile.addEventListener('click', () => { cancelRead('Lesingen er avbrutt. Lim inn teksten og prøv igjen.'); file.value = ''; paste.focus() }); form.append(resetFile)
   const source = choice(form, 'Ny kilde eller oppdatering', [['', 'Ny kilde (identiske dokumenter gjenkjennes)'], ...(getState().importSources || []).map(item => [item.id, `${item.name} · revisjon ${item.revision}`])], '', () => showSource())
   const sourceEvidence = el('div', undefined, 'document-source-evidence'); form.append(sourceEvidence)
   const refreshSourceOptions = selected => {
@@ -200,7 +210,7 @@ export function mountDocumentImport(container, { getState, onCommit, onCancel = 
   const status = el('p'); status.setAttribute('role', 'status'); form.append(status)
   const errors = el('p'); errors.setAttribute('role', 'alert'); form.append(errors)
   const cancelRead = message => { if (!pending) return; pending.abort(); pending = null; read.disabled = false; stop.hidden = true; status.textContent = ''; errors.textContent = message }
-  const actions = el('div', undefined, 'form-actions'), read = el('button', 'Lag forhåndsvisning'), stop = el('button', 'Avbryt lesing'), cancel = el('button', 'Lukk dokumentimport'); read.type = 'submit'; stop.type = cancel.type = 'button'; stop.hidden = true; stop.addEventListener('click', () => { cancelRead('Importen ble avbrutt. Ingen data er lagret. Utkastet er beholdt; prøv igjen når du er klar.'); read.focus() }); cancel.addEventListener('click', () => { pending?.abort(); pending = null; parsed = null; preview = null; paste.value = ''; file.value = ''; onCancel() }); actions.append(read, stop, cancel); form.append(actions)
+  const actions = el('div', undefined, 'form-actions'), read = el('button', 'Les arbeidskravet'), stop = el('button', 'Avbryt lesing'), manual = el('button', 'Registrer uten planforslag'), cancel = el('button', 'Lukk'); read.type = 'submit'; stop.type = manual.type = cancel.type = 'button'; stop.hidden = true; stop.addEventListener('click', () => { cancelRead('Importen ble avbrutt. Ingen data er lagret. Utkastet er beholdt; prøv igjen når du er klar.'); read.focus() }); manual.addEventListener('click', () => { onCancel(); document.querySelector('#new-task')?.click() }); cancel.addEventListener('click', () => { pending?.abort(); pending = null; parsed = null; preview = null; paste.value = ''; file.value = ''; onCancel() }); actions.append(read, stop, manual, cancel); form.append(actions)
   for (const input of [file, paste, source, semester, year]) input.addEventListener('input', () => cancelRead('Valgene er endret, og den tidligere lesingen er avbrutt. Lag en ny forhåndsvisning.'))
   form.addEventListener('submit', async event => {
     event.preventDefault(); pending?.abort(); pending = new AbortController(); const request = pending; errors.textContent = ''; status.textContent = 'Leser dokumentet lokalt …'; read.disabled = true; stop.hidden = false

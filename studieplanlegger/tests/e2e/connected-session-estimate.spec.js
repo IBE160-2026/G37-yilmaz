@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { freeze, key } from './helpers.js'
+import { freeze, key, navigate } from './helpers.js'
 
 const rules = { sessionMinutes: 30, minimumMinutes: 15, maximumMinutes: 60, breakMinutes: 10 }
 function fixture({ count = 5, enabled = true } = {}) {
@@ -22,52 +22,49 @@ async function boot(page, state) {
   await page.evaluate(({ key, state }) => localStorage.setItem(key, JSON.stringify(state)), { key, state }); await page.reload()
 }
 async function open(page) {
-  await page.locator('.connected-plan-actions').getByRole('button', { name: 'Jeg ligger etter', exact: true }).click()
-  const dialog = page.getByRole('dialog', { name: 'Jeg ligger etter', exact: true })
+  await navigate(page, 'all')
+  await page.getByRole('button', { name: 'Se planforslag «Skriv utkastet»', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Planforslag for oppgaven', exact: true })
   await dialog.locator('.planning-rules > summary').click()
   return dialog
 }
 
-test('A13 session-length suggestion changes only an editable draft; rejecting preserves the whole plan', async ({ page }, info) => {
+test('A13 session-length rules change only an editable draft; rejecting preserves the whole plan', async ({ page }, info) => {
   const before = fixture()
   await page.setViewportSize({ width: 390, height: 844 }); await boot(page, before)
   await page.addStyleTag({ content: 'html { font-size: 24px !important; }' })
-  const dialog = await open(page), suggestion = dialog.locator('.personal-session-estimate')
-  await expect(suggestion).toContainText('Median av 5 utførte økter fra hele den lokale historikken din')
-  await expect(suggestion).toContainText('Forslag: 50 min')
+  const dialog = await open(page)
   await expect(dialog.getByLabel('Vanlig økt (min)', { exact: true })).toHaveValue('30')
   expect(await stored(page)).toEqual(before)
-  await suggestion.getByRole('button', { name: 'Bruk som vanlig økt', exact: true }).click()
+  await dialog.getByLabel('Vanlig økt (min)', { exact: true }).fill('50')
   await expect(dialog.getByLabel('Vanlig økt (min)', { exact: true })).toHaveValue('50')
-  for (const [label, value] of [['Minste økt (min)', '15'], ['Lengste økt (min)', '60'], ['Pause mellom økter (min)', '10']]) await expect(dialog.getByLabel(label, { exact: true })).toHaveValue(value)
-  await expect(dialog.getByRole('button', { name: 'Godta hele planen', exact: true })).toBeDisabled()
+  for (const [label, value] of [['Minste økt (min)', '15'], ['Lengste økt (min)', '60'], ['Pause (min)', '10']]) await expect(dialog.getByLabel(label, { exact: true })).toHaveValue(value)
   expect(await stored(page)).toEqual(before)
-  await dialog.getByRole('button', { name: 'Beregn nytt forslag', exact: true }).click()
-  await expect(dialog.getByRole('button', { name: 'Godta hele planen', exact: true })).toBeEnabled()
-  await expect(dialog.getByLabel('Ny slutt', { exact: true }).first()).toHaveValue('10:50')
+  await dialog.getByRole('button', { name: 'Oppdater forslag', exact: true }).click()
+  await expect(dialog.locator('.proposed-session-time').first()).toContainText('10:00–10:50')
   expect(await stored(page)).toEqual(before)
-  await suggestion.scrollIntoViewIfNeeded()
+  await dialog.locator('.planning-rules').scrollIntoViewIfNeeded()
   await page.screenshot({ path: info.outputPath('personal-session-length-mobile-large-text.png') })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   expect(await dialog.evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true)
-  await dialog.getByRole('button', { name: 'Forkast', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Ikke nå', exact: true }).click()
   expect(await stored(page)).toEqual(before)
   await page.reload(); expect(await stored(page)).toEqual(before)
 })
 
-test('A10/A13 adopted session length requires valid recomputation and permits a corrected value before saving', async ({ page }) => {
+test('A10/A13 edited session length requires valid recomputation and permits a corrected value before saving', async ({ page }) => {
   const before = fixture(); await boot(page, before)
-  const dialog = await open(page), accept = dialog.getByRole('button', { name: 'Godta hele planen', exact: true }), compute = dialog.getByRole('button', { name: 'Beregn nytt forslag', exact: true })
-  await dialog.getByRole('button', { name: 'Bruk som vanlig økt', exact: true }).click()
+  const dialog = await open(page), accept = dialog.getByRole('button', { name: 'Bruk planen', exact: true }), compute = dialog.getByRole('button', { name: 'Oppdater forslag', exact: true })
+  await dialog.getByLabel('Vanlig økt (min)', { exact: true }).fill('50')
   await dialog.getByLabel('Lengste økt (min)', { exact: true }).fill('45')
-  await expect(accept).toBeDisabled(); await compute.click()
+  await compute.click()
   await expect(dialog.getByRole('alert')).toContainText('Kontroller lengde og pauser')
   await expect(accept).toBeDisabled(); expect(await stored(page)).toEqual(before)
   await dialog.getByLabel('Lengste økt (min)', { exact: true }).fill('60')
   await dialog.getByLabel('Vanlig økt (min)', { exact: true }).fill('40')
-  await expect(accept).toBeDisabled(); await compute.click()
+  await compute.click()
   await expect(accept).toBeEnabled()
-  await expect(dialog.getByLabel('Ny slutt', { exact: true }).first()).toHaveValue('10:40')
+  await expect(dialog.locator('.proposed-session-time').first()).toContainText('10:00–10:40')
   expect(await stored(page)).toEqual(before)
   await accept.click()
   const after = await stored(page)
@@ -78,14 +75,13 @@ test('A10/A13 adopted session length requires valid recomputation and permits a 
   await page.reload(); expect((await stored(page)).planningPreferences).toEqual(after.planningPreferences)
 })
 
-for (const sample of [{ name: 'no performed history', count: 0, enabled: true, reason: 'Du har 0' }, { name: 'sparse history', count: 4, enabled: true, reason: 'Du har 4' }, { name: 'disabled personalization', count: 5, enabled: false, reason: 'Personlige forslag er slått av' }]) {
-  test(`A13 ${sample.name} gives no session-length adoption and keeps the plan unchanged`, async ({ page }) => {
+for (const sample of [{ name: 'no performed history', count: 0, enabled: true }, { name: 'sparse history', count: 4, enabled: true }, { name: 'disabled personalization', count: 5, enabled: false }]) {
+  test(`A13 ${sample.name} does not silently alter session rules and rejecting keeps the plan unchanged`, async ({ page }) => {
     const before = fixture(sample); await boot(page, before)
     const dialog = await open(page)
-    await expect(dialog.locator('.personal-session-estimate')).toContainText(sample.reason)
     await expect(dialog.getByRole('button', { name: 'Bruk som vanlig økt', exact: true })).toHaveCount(0)
     await expect(dialog.getByLabel('Vanlig økt (min)', { exact: true })).toHaveValue('30')
-    await dialog.getByRole('button', { name: 'Forkast', exact: true }).click()
+    await dialog.getByRole('button', { name: 'Ikke nå', exact: true }).click()
     expect(await stored(page)).toEqual(before)
   })
 }

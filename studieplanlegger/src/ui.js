@@ -48,6 +48,7 @@ export function createUI(actions) {
   let currentView = 'overview'
   let returnFocus = null
   let nextStepId = null
+  let planTaskId = null
   let latestModel = null
   const rows = () => collections.flatMap(collection => [...collection.rows.values()])
   const visible = element => element?.isConnected && !element.closest('[hidden]') && element.getClientRects().length > 0
@@ -79,18 +80,21 @@ export function createUI(actions) {
   function disableActions(disabled) {
     for (const collection of collections) collection.disable(disabled)
     capacity.disable(disabled)
-    for (const id of ['empty-create', 'suggestion-new', 'empty-onboard-task', 'empty-onboard-subject', 'empty-step', 'suggestion-step', 'feedback-next-step']) $( `#${id}`).disabled = disabled
-    if (latestModel) calendar.render({ tasks: latestModel.tasks.filter(task => !latestModel.courseFilter || task.courseId === latestModel.courseFilter || latestModel.planner?.courses.some(course => course.id === latestModel.courseFilter && (task.course === course.code || task.course === course.name))), events: (latestModel.planner?.events || []).filter(event => !latestModel.courseFilter || event.courseId === latestModel.courseFilter), sessions: latestModel.sessions, now: latestModel.now, disabled })
+    for (const id of ['empty-create', 'suggestion-new', 'empty-onboard-task', 'empty-onboard-subject', 'empty-step', 'suggestion-step', 'feedback-next-step', 'feedback-plan']) $( `#${id}`).disabled = disabled
+    if (latestModel) calendar.render({ tasks: latestModel.tasks.filter(task => !latestModel.courseFilter || task.courseId === latestModel.courseFilter || latestModel.planner?.courses.some(course => course.id === latestModel.courseFilter && (task.course === course.code || task.course === course.name))), events: (latestModel.planner?.events || []).filter(event => !latestModel.courseFilter || event.courseId === latestModel.courseFilter), courses: latestModel.planner?.courses || [], sessions: latestModel.sessions, now: latestModel.now, disabled })
   }
-  function message(text, stepActionId = null) {
+  function message(text, stepActionId = null, planActionId = null) {
     capacity.clearMessages()
     $('#read-error').after(feedbackBar)
     for (const row of rows()) { row.feedback.hidden = true; row.feedback.textContent = '' }
     feedback.textContent = text
     feedbackBar.hidden = !text
     nextStepId = stepActionId
+    planTaskId = planActionId
     $('#feedback-next-step').hidden = !stepActionId
     $('#feedback-next-step').disabled = !canChange || draftOpen()
+    $('#feedback-plan').hidden = !planActionId
+    $('#feedback-plan').disabled = !canChange || draftOpen()
     queueMicrotask(keepFocusVisible)
   }
   function syncDeadline() {
@@ -133,9 +137,9 @@ export function createUI(actions) {
     if (first) stepForm.elements[first].focus()
   }
   function restoreDailyFocus() {
-    const key = returnFocus?.dataset.dailyKey, host = document.querySelector('#daily-overview')
-    if (!key || !visible(host)) return false
-    const control = [...host.querySelectorAll('[data-daily-key]')].find(node => node.dataset.dailyKey === key && !node.disabled) || host.querySelector('button:not(:disabled)')
+    const key = returnFocus?.dataset.dailyKey, hosts = [...document.querySelectorAll('#daily-overview, #next-plan')].filter(visible)
+    if (!key || !hosts.length) return false
+    const control = hosts.flatMap(host => [...host.querySelectorAll('[data-daily-key]')]).find(node => node.dataset.dailyKey === key && !node.disabled) || hosts.flatMap(host => [...host.querySelectorAll('button:not(:disabled)')])[0]
     if (!control) return false
     const menu = control.closest('details'); if (menu) menu.open = true
     control.focus({ preventScroll: true }); return true
@@ -155,10 +159,18 @@ export function createUI(actions) {
   }
 
   create.addEventListener('click', actions.open)
+  $('#new-assignment').addEventListener('click', () => {
+    actions.view('subjects')
+    queueMicrotask(() => {
+      $('#connected-import-open')?.click()
+      document.querySelector('[data-method="document"]')?.click()
+    })
+  })
   $('#cancel-task').addEventListener('click', actions.cancel)
   $('#cancel-step').addEventListener('click', actions.cancelStep)
   $('#retry-read').addEventListener('click', actions.retry)
   $('#feedback-next-step').addEventListener('click', () => { if (nextStepId) actions.step(nextStepId) })
+  $('#feedback-plan').addEventListener('click', () => { if (planTaskId) actions.replan(planTaskId) })
   for (const name of ['overview', 'week', 'all', 'time', 'capacity', 'calendar', 'settings']) $(`#view-${name}`).addEventListener('click', () => actions.view(name))
   for (const id of ['overdue-all', 'empty-all', 'overview-all', 'suggestion-all']) $(`#${id}`).addEventListener('click', () => {
     actions.view('all')
@@ -316,6 +328,7 @@ export function createUI(actions) {
       currentView = view
       document.body.dataset.designView = view
       create.disabled = !readable
+      $('#new-assignment').disabled = !readable || Boolean(model.editing)
       $('#read-error').hidden = readable
       $('#workspace').hidden = !readable
       const isFocusView = view === 'overview' || view === 'time'
@@ -371,7 +384,7 @@ export function createUI(actions) {
     const timeEmptyText = hasNoTasks
       ? hasSubjectContext ? 'Ingen oppgaver enda. Du har undervisning eller emner registrert. Legg til din første oppgave for å få forslag.' : 'Ingen oppgaver ennå – legg til din første oppgave.'
       : allDone ? readyCount ? readyText : 'Alt registrert arbeid er ferdig. Ta en pause, eller legg til en ny oppgave.'
-      : 'Ingen oppgaver passer tiden. Prøv flere minutter eller se alle oppgaver. Oppgaver uten tidsestimat er ikke med.'
+      : `Ingen registrerte arbeidssteg passer sikkert innen ${minutes} minutter.`
     const taskListEmptyText = hasNoTasks
       ? hasSubjectContext ? 'Ingen oppgaver ennå. Legg til den første oppgaven din for å starte planen.' : 'Ingen oppgaver ennå – legg til din første oppgave.'
       : allDone ? readyCount ? readyText : 'Alt registrert arbeid er ferdig. Ta en pause, eller legg til en ny oppgave.'
@@ -394,7 +407,7 @@ export function createUI(actions) {
       toggle.hidden = !isFocusView || candidates.length < 2
       toggle.setAttribute('aria-expanded', String(showAlternatives))
       toggle.setAttribute('aria-controls', view === 'time' ? 'task-list' : 'dashboard-suggestions')
-      setText(toggle, showAlternatives ? 'Skjul alternativer' : `Vis alternativer (${Math.max(0, candidates.length - 1)})`)
+      setText(toggle, showAlternatives ? 'Vis anbefalt' : 'Vis neste')
       taskList.render(visibleTasks, { now, disabled: !readable || draftOpen(), minutes, suggestion: view === 'time', compact: view === 'overview', alternatives: showAlternatives, capacity: model.capacity.tasks, allTasks: tasks })
       suggestions.render(view === 'overview' ? candidates : [], { now, disabled: !readable || draftOpen(), minutes, suggestion: true, alternatives: showAlternatives, capacity: model.capacity.tasks, allTasks: tasks })
       capacity.render(model)

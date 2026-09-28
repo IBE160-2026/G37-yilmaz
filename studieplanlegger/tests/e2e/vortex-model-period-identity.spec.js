@@ -27,7 +27,7 @@ async function importPeriod(page, periodIndex, studySemester) {
   await host.locator('[name=studySemester]').selectOption(period.id)
   await host.locator('[name=clarifiedStudySemester]').fill(String(studySemester))
   await host.locator('[name=calendarSemester]').selectOption(`${period.year}:${period.semester}`)
-  await host.locator('[name=programCampus]').selectOption('__unknown')
+  await expect(host.locator('[name=programCampus]')).toBeHidden()
   await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
   await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
   await expect(host.getByRole('status')).toContainText(/lagret/i)

@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { describe, it, expect, vi } from 'vitest'
 import ICAL from 'ical.js'
 import { parseCalendar } from '../../src/calendar-import.js'
-import { parseTpSemester, parseTpCourses, normalizeTpCalendar, publicTp, fetchPublicTpCalendar, isPublicTpCalendarUrl } from '../../server/providers/public-tp.js'
+import { parseTpSemester, parseTpCourses, normalizeTpCalendar, normalizeTpJsonEvents, publicTp, fetchPublicTpCalendar, isPublicTpCalendarUrl, isPublicTpJsonUrl } from '../../server/providers/public-tp.js'
 const fixture=name=>readFile(new URL(`../fixtures/public-tp/${name}`,import.meta.url),'utf8')
 const json=name=>fixture(name).then(JSON.parse)
 const query={q:'INF-0101',year:'2026',semester:'autumn'}
@@ -100,5 +100,60 @@ describe('public TP semester, course and source-offered calendar export',()=>{
     expect(parsed.events[0]).toMatchObject({transparent:true,information:true})
     const hidden=normalizeTpCalendar(calendar.toString(),scope({...semester,pubexdate:false}))
     expect(components(hidden.calendar).some(row=>String(row.getFirstPropertyValue('summary')).includes('WISEFLOW'))).toBe(false)
+  })
+  it('maps HiMolde anonymous JSON events conservatively with stable identity, cancellation and source offsets',async()=>{
+    const semester=await sample('himolde'),selected=parseTpCourses(await json('himolde-courses.json'),semester,'himolde').find(row=>row.id==='IBE160¤1')
+    const result=normalizeTpJsonEvents(await fixture('himolde-events.json'),{institution:'himolde',semester,selected}),parsed=parseCalendar(result.calendar,{courseId:'himolde:IBE160:2026:autumn',semester:'autumn',year:2026})
+    expect(result).toMatchObject({eventCount:2,cancelledCount:1,sourceKind:'himolde-tp-json',authoritative:false})
+    expect(parsed.events).toHaveLength(2)
+    expect(parsed.cancellations).toHaveLength(1)
+    expect(parsed.events.map(event=>event.start)).toEqual(['2026-08-20T10:15:00.000Z','2026-10-29T13:15:00.000Z'])
+    expect(parsed.events[0]).toMatchObject({title:'Forelesning',location:'Auditorium B-138',groupMissing:true})
+    expect(parsed.events[0].description).not.toContain('LOG-ÅR-IT')
+    expect(uids(result.calendar).every(uid=>uid.startsWith('tp-json-'))).toBe(true)
+  })
+  it('follows the official HiMolde page and anonymous session bootstrap before the bounded event request',async()=>{
+    const requests=[],jars=[]
+    const fetchText=vi.fn(async(input,_depth,guard,options={})=>{const url=new URL(input);guard(url);requests.push(url);if(options.anonymousSession){jars.push(options.anonymousSession.cookies);if(url.pathname.endsWith('/app/schedule'))options.anonymousSession.cookies.set('PHPSESSID','fixture-session')}
+      if(url.pathname.endsWith('semesters.php'))return fixture('himolde-semesters.json')
+      if(url.pathname.endsWith('info.php'))return fixture('himolde-courses.json')
+      if(url.pathname.endsWith('inst.php'))return '{}'
+      if(url.pathname.endsWith('session.php'))return 'null'
+      if(url.pathname.endsWith('/ws/timeplan/'))return fixture('himolde-events.json')
+      if(url.pathname.endsWith('/app/schedule'))return '<!doctype html><title>TP</title>'
+      throw Error('unexpected request')
+    })
+    const result=await publicTp('himolde','teaching-calendar',{q:'IBE160',year:'2026',semester:'autumn',sourceObjectId:'IBE160¤1'},{fetchText})
+    expect(result).toMatchObject({status:'ok',eventCount:2,sourceKind:'himolde-tp-json'})
+    expect(requests.map(url=>url.pathname).slice(-4)).toEqual(['/himolde/app/schedule','/himolde/ws/db/inst.php','/himolde/ws/user/session.php','/himolde/ws/timeplan/'])
+    expect(requests.at(-1).searchParams.get('id[]')).toBe('IBE160¤1')
+    expect(new Set(jars).size).toBe(1)
+    expect(jars[0].size).toBe(0)
+    expect(isPublicTpJsonUrl(result.calendarUrl)).toBe(true)
+    expect(isPublicTpCalendarUrl(result.calendarUrl)).toBe(true)
+  })
+  it('rejects malformed HiMolde JSON without replacing prior teaching and accepts a successful empty source',async()=>{
+    const semester=await sample('himolde'),selected=parseTpCourses(await json('himolde-courses.json'),semester,'himolde').find(row=>row.id==='IBE160¤1')
+    expect(()=>normalizeTpJsonEvents('{',{institution:'himolde',semester,selected})).toThrow(/lesbar JSON/)
+    expect(()=>normalizeTpJsonEvents({events:[{semesterid:'26h'}]},{institution:'himolde',semester,selected})).toThrow(/mangler gyldig/)
+    const valid=JSON.parse(await fixture('himolde-events.json')).events[0]
+    expect(()=>normalizeTpJsonEvents({events:[{...valid,alerts:{message:'feil form'}}]},{institution:'himolde',semester,selected})).toThrow(/hendelsesdetaljer/)
+    expect(()=>normalizeTpJsonEvents({events:[{...valid,staffnames:'Navn'}]},{institution:'himolde',semester,selected})).toThrow(/hendelsesdetaljer/)
+    expect(()=>normalizeTpJsonEvents({events:[{...valid,eventid:'x'.repeat(501)}]},{institution:'himolde',semester,selected})).toThrow(/kildeidentitet/)
+    const assessment={...valid,status:null,eventid:null,active:true,publish:true,assessmentCode:'IBE160',id:undefined}
+    expect(()=>normalizeTpJsonEvents({events:[assessment]},{institution:'himolde',semester,selected})).toThrow(/kildeidentitet/)
+    const empty=normalizeTpJsonEvents({events:[]},{institution:'himolde',semester,selected})
+    expect(empty).toMatchObject({eventCount:0,cancelledCount:0})
+    expect(parseCalendar(empty.calendar,{courseId:'c',semester:'autumn',year:2026}).events).toEqual([])
+  })
+  it('keeps timed public assessments and skips zero-length assessment markers without fabricating duration',async()=>{
+    const semester=await sample('himolde'),selected=parseTpCourses(await json('himolde-courses.json'),semester,'himolde').find(row=>row.id==='IBE160¤1'),base={semesterid:'26h',courseid:'IBE160',terminnr:1,status:null,eventid:null,active:true,publish:true,assessmentCode:'S',id:'IBE160-1-S-2026-HØST-O',teachingTitle:'Skoleeksamen',examformNb:'Skoleeksamen',room:{},studentgroups:null,action:''}
+    const result=normalizeTpJsonEvents({events:[{...base,dtstart:'2026-11-16T09:00:00+01',dtend:'2026-11-16T12:00:00+01'},{...base,id:'IBE160-MARKER',dtstart:'2026-11-17T09:00:00+01',dtend:'2026-11-17T09:00:00+01'}]},{institution:'himolde',semester,selected}),parsed=parseCalendar(result.calendar,{courseId:'c',semester:'autumn',year:2026})
+    expect(result.eventCount).toBe(1)
+    expect(parsed.events).toHaveLength(1)
+    expect(parsed.events[0]).toMatchObject({title:'Skoleeksamen',start:'2026-11-16T08:00:00.000Z',end:'2026-11-16T11:00:00.000Z'})
+    expect(result.warnings.join(' ')).toContain('null-lange vurderingsmarkører')
+    const marker={...base,id:'WRONG-MARKER',courseid:'OTHER',dtstart:'2026-11-17T09:00:00+01',dtend:'2026-11-17T09:00:00+01'}
+    expect(()=>normalizeTpJsonEvents({events:[marker]},{institution:'himolde',semester,selected})).toThrow(/kildeidentitet/)
   })
 })

@@ -21,7 +21,7 @@ body[data-design-view='calendar'] .workspace { grid-template-columns: minmax(0, 
 .calendar-timeline { position: relative; background: repeating-linear-gradient(to bottom, transparent 0, transparent 59px, var(--line-soft) 59px, var(--line-soft) 60px); }
 .calendar-hour { position: absolute; left: 2px; color: var(--ink-soft); font-size: .875rem; }
 .calendar-clock-gap { position: absolute; left: 0; right: 0; height: 60px; padding: 16px 8px; background: repeating-linear-gradient(135deg, #eef0f5 0, #eef0f5 5px, #fff 5px, #fff 10px); color: var(--muted); font-size: .6875rem; border-block: 1px dashed var(--line); }
-.calendar-entry { display: grid; align-content: start; gap: 2px; width: 100%; min-width: 0; min-height: 44px; margin: 2px 0; padding: 6px 8px; text-align: left; border-radius: 5px; background: var(--blue-wash); color: var(--ink); border: 1px solid #bbc8ee; border-left: 3px solid var(--blue); overflow: hidden; }
+.calendar-entry { display: grid; align-content: start; gap: 2px; width: 100%; min-width: 0; min-height: 44px; margin: 2px 0; padding: 6px 8px; text-align: left; border-radius: 5px; background: color-mix(in srgb, var(--course-color, var(--blue)) 10%, white); color: var(--ink); border: 1px solid #bbc8ee; border-left: 4px solid var(--course-color, var(--blue)); overflow: hidden; }
 .calendar-entry:hover:not(:disabled) { background: #dce5ff; color: var(--ink); transform: none; }
 .calendar-entry > * { min-width: 0; }
 .calendar-entry strong { font-size: .875rem; overflow-wrap: anywhere; line-height: 1.35; }
@@ -54,9 +54,9 @@ body[data-design-view='calendar'] .workspace { grid-template-columns: minmax(0, 
 .calendar-readable-content .calendar-entry { margin: 0; }
 .calendar-work-background { position: absolute; left: 0; right: 0; background: #dceec94d; border: 1px dashed #8eaa78; border-block-width: 0; pointer-events: none; z-index: 0; }
 .calendar-points .calendar-entry { padding: 4px 6px; }
-.entry-deadline { background: #fff5e5; border-color: #ddb778; border-left-color: #946020; }
+.entry-deadline { background: #fff5e5; border-color: #ddb778; border-left-color: var(--course-color, #946020); }
 .entry-deadline strong::before { content: '\25C6 '; }
-.entry-session { background: #eff6e5; border-color: #b7ca8f; border-left-color: #526e32; }
+.entry-session { background: #eff6e5; border-color: #b7ca8f; border-left-color: var(--course-color, #526e32); }
 .entry-work { background: #f3f6fa; border-color: #b8c4d6; border-left-style: dashed; }
 .entry-busy { background: #fcece9; border-color: #dfb7b0; border-left-color: #99483a; }
 .entry-information { background: #f6f6f6; border-color: #c6c6c6; }

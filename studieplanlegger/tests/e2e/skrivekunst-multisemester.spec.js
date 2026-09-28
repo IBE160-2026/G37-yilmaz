@@ -29,7 +29,7 @@ async function importSemester(page, studySemester, year, semester) {
   await host.locator('.activity-choices input[type=checkbox]').check()
   await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
   await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
-  await expect(host.getByRole('status')).toContainText('1 emner')
+  await expect(host.getByRole('status')).toContainText('1 emne')
 }
 
 test('Skrivekunst year unit keeps one identity and its two-semester binding', async ({ page }) => {

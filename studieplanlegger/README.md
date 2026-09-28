@@ -24,6 +24,8 @@ Docker-/produksjonsleveransen bruker SQLite som autoritativ lagring. Hver sammen
 
 Den tidligere lagoverføringsfeilen `local error: tls: bad record MAC` er ikke lenger en aktiv leveransehindring: `node:24-bookworm-slim` ble hentet, og det faktiske Compose-bygget fullførte mot digest `sha256:0e0ff40c39bc087845bfb27465a0df4ea419520094bc35842ff83dd8cbe6f9b6`. Isolert akseptanse på `127.0.0.1:18088` bekreftet healthy container, nettleserbruk, SQLite-skriving, UI-eksport/gjenoppretting og bevarte ID-er/relasjoner etter tvungen servicegjenskaping med samme volum. Testcontainerne ble stoppet uten `-v`; de isolerte testvolumene ble beholdt for eventuell lokal etterkontroll, mens port 80 og faktisk brukerlagring ikke ble brukt.
 
+Den samordnede sluttkoden ble kontrollert på nytt 25. september 2026 i Compose-prosjektet `studieplan-ux-review-20260925` på `127.0.0.1:18126`. Bygg, helse, UI-oppretting og -redigering, estimatintervall, fristvalget, sikkerhetskopi/gjenoppretting og servicegjenskaping med samme volum bestod. En fersk nettleserkontekst leste de samme ID-ene og relasjonene direkte fra SQLite. Testcontaineren ble stoppet, det entydig merkede testvolumet ble beholdt, og port 80 og brukerdata ble ikke berørt.
+
 En lokal studieplanlegger for emner, oppgaver og tid. Appen bruker lokal parsing, planleggingsregler og enkel statistikk, uten konto eller generativ KI. Oppgaver, dokumentutdrag og arbeidshistorikk blir på denne enheten. Serveren lytter bare på loopback.
 
 ## Start appen
@@ -50,17 +52,19 @@ Bruk samme adresse og nettleserprofil hver gang. **Gamle data på http://localho
 - **Kalender:** undervisning, andre aktiviteter, frister og reserverte studieøkter. Dag, uke og agenda gjør tid og overlapp synlig.
 - **Alle oppgaver:** registrering og vedlikehold av hele arbeidslisten. «Denne uken» er et oppgavefilter.
 - **Mine emner:** fag, emnekoblinger og samlet import.
-- **Planlegg uken:** tilgjengelig arbeidstid, faste opptatte tidsrom, kapasitet og «Jeg ligger etter».
+- **Planlegg uken:** tilgjengelig arbeidstid, faste opptatte tidsrom, kapasitet og realistiske planforslag.
 
 På mobil er hovedmålene i bunnmenyen; øvrige valg ligger under «Mer». «Innstillinger» samler sikkerhetskopi, angre/papirkurv, oppstart og personlige estimater.
 
-En oppgave trenger bare **tittel**. Frist, emne, prioritet, avhengigheter og oppgavetype finnes under «Flere detaljer». Gjenstående arbeid er ett valgfritt anslag: tomt/«Vet ikke» er ukjent, og 0 minutter markerer ikke oppgaven som ferdig. Åpner du en ferdig oppgave med null gjenstående igjen, blir anslaget ukjent til du oppgir et nytt. Ved validerings- eller lagringsfeil beholdes utkastet.
+En oppgave trenger bare **tittel**. Frist, emne, prioritet, avhengigheter og oppgavetype finnes under «Flere detaljer». Gjenstående arbeid kan være et intervall; «Vet ikke» er ukjent, ikke null, og en åpen øvre grense bevares som åpen. Null minutter markerer ikke oppgaven som ferdig. Ved validerings- eller lagringsfeil beholdes utkastet.
+
+Etter lagring åpner **Se planforslag** uten å kreve detaljert tilgjengelighet. Første gang kan studenten velge dagtid på hverdager (09–15), kveld på hverdager (18–20), helg (10–14), «Det varierer» eller detaljert tilpasning. Et valgt gjentakende mønster lagres og gjenbrukes som preferanse; det registreres ikke som bekreftet kapasitet. Uten valg viser appen bare ett tydelig merket, betinget forslag på 30 minutter. Ukjent arbeidsmengde gir en kort startøkt, ikke et anslag for hele oppgaven.
 
 ## Importer en bekreftbar plan
 
-«Mine emner → Importer emner og plan» gir valg mellom lærested, dokument/tekst og kalender. Appen har 48 registrerte programadaptere og en datert oversikt over 49 norske institusjoner. Dette er **ikke full nasjonal dekning**: AHO har en avgrenset, verifisert programflyt, mens det slettede Ekko-foretaket fortsatt mangler en gjeldende selvstendig kullkatalog. [Importoversikten](IMPORT-COVERAGE.md) oppgir faktisk støtte, kilde, dato og begrensning for hver datatype. Et prøvd program eller emne beviser bare den prøvde flyten.
+«Mine emner → Importer emner og plan» åpner studieprogram som hovedflyt; dokument/tekst og kalender er sekundære valg i samme område. Appen har 48 registrerte programadaptere og en datert oversikt over 49 norske institusjoner. Dette er **ikke full nasjonal dekning**: AHO har en avgrenset, verifisert programflyt, mens det slettede Ekko-foretaket fortsatt mangler en gjeldende selvstendig kullkatalog. [Importoversikten](IMPORT-COVERAGE.md) oppgir faktisk støtte, kilde, dato og begrensning for hver datatype. Et prøvd program eller emne beviser bare den prøvde flyten.
 
-Velg publisert programutgave, opptakskull, studiesemester og kalendersemester uttrykkelig. Avklar valgemner, campus og publisert timeplanvalg; gruppetilhørighet utledes ikke fra navn. Emner og tilgjengelig undervisning forhåndsvises før felles bekreftelse. Offentlig undervisning kan også hentes for et emne som allerede er lagret, selv når programimport mangler.
+Velg publisert programutgave, opptakskull, studiesemester og kalendersemester uttrykkelig når kilden trenger dem. Campus vises bare når kilden gir et reelt valg. Påkrevde emner vises separat fra kildepubliserte alternativer; ingen alternativ gren velges for studenten, og studiepoengsum brukes bare som informasjon. Et manglende emne kan søkes opp eller registreres som en tydelig uverifisert post uten at programkonteksten må fylles inn på nytt. Det påbegynte utvalget beholdes ved kildefeil, tilbakegang og omlasting i samme fane, men regnes ikke som importert. Tilgjengelig undervisning kan kontrolleres samlet, men hvert emne beholder statusen «klar», «ingen treff», «feil» eller «krever tilgang», og bare mislykkede kilder prøves på nytt. Gruppemedlemskap utledes aldri fra et treff. Emner og vellykket undervisning lagres med én bekreftelse; kvitteringen sier presist hvor undervisning faktisk ble importert. Offentlig undervisning kan også hentes for et emne som allerede er lagret, selv når programimport mangler.
 
 Kalenderpanelet har tre valg som åpnes ett om gangen: fil/lenke, offentlig institusjonskalender og undervisning for et lagret emne. Aktiviteter må velges før lagring. Kildeopplysninger og mangler kan åpnes i forhåndsvisningen. Kalenderinformasjon, faktiske undervisningsaktiviteter og innleveringsfrister holdes adskilt.
 
@@ -74,13 +78,17 @@ Gjentatt import bevarer stabile identiteter og egne endringer. Endrede dokumente
 
 Registrer og bekreft arbeidsvinduer og faste opptatte tidsrom under «Planlegg uken». Undervisning og overlapp trekkes fra kapasiteten; samme opptatte minutt telles én gang. Manglende arbeidsvinduer eller tidsestimater gir usikkerhet, ikke et oppdiktet kapasitetsoverskudd. Minuttsummen er en kapasitetsoversikt; det konkrete planforslaget kontrollerer også øktlengder, pauser og tidsskifte.
 
-«Jeg ligger etter» foreslår konkrete flyttinger og nye reservasjoner med opprinnelig/ny tid og berørte frister. Forslaget respekterer faste aktiviteter, låste studieøkter, frister, avhengigheter, delingsvalg, øktlengder og pauser. Manglende tid forklares. Du kan justere, godta eller forkaste; endret underliggende plan eller passert start kontrolleres før bruk. Godkjenning og angre behandler planendringen samlet.
+«Status i dag» forklarer registrert arbeid mot reell kapasitet. «Jeg har tid nå» oppdaterer opptil tre begrunnede forslag straks du velger 15, 30, 45, 60 eller egendefinert tid. «Se realistisk forslag» viser konkrete nye, delte eller flyttede reservasjoner, påvirkning på andre oppgaver og eventuelt restunderskudd før du godkjenner. Forslaget respekterer faste aktiviteter, låste studieøkter, frister, avhengigheter, delingsvalg, øktlengder og pauser. Godkjenning og angre behandler planendringen samlet.
+
+Det oppgavenære forslaget viser oppgave, dag, klokkeslett, varighet og forutsetninger som lesbar tekst. **Flytt** tilbyr først kontrollerte alternativer; dato- og tidsfelt vises først etter **Velg tidspunkt selv**. Flytting endrer bare utkastet. **Bruk planen** kontrollerer grunnlaget på nytt og lagrer nøyaktig de viste øktene; **Ikke nå** skriver ingenting, gjentatt godkjenning lager ingen duplikater, og **Angre** gjenoppretter tilstanden før planendringen. Registrerte arbeidsvinduer og avtaler er autoritative; en tom kalender fremstilles aldri som bekreftet fritid.
+
+For en isolert prøve som unngår port 80 og eksisterende nettleserlagring, kjør `npx.cmd vite --host 127.0.0.1 --port 5278 --strictPort` fra denne mappen og åpne `http://127.0.0.1:5278` i en ny privat nettleserprofil. Stopp den egne serveren med Ctrl+C etterpå.
 
 Planlagt tid betyr ikke utført arbeid. Etter en planlagt økt eller arbeid registrert i etterkant velger du:
 
-- **Ferdig:** arbeidet fullføres, og viste kommende reservasjoner frigjøres etter bekreftelse. Innlevering bekreftes separat.
+- **Utført:** det aktuelle arbeidssteget fullføres. Hele oppgaven og innlevering avklares separat.
 - **Trenger mer tid:** oppgi nytt anslag på gjenstående arbeid eller «Vet ikke».
-- **Kom ikke i gang:** ingen faktisk arbeidstid eller fremdrift registreres.
+- **Ikke utført:** ingen faktisk arbeidstid eller fremdrift registreres, og ingen økter flyttes automatisk.
 
 Faktisk arbeidstid er valgfri og trekkes ikke automatisk fra gjenstående arbeid. En økt med 30 minutter faktisk arbeid kan derfor ende med 45 minutter gjenstående. Gjentatte klikk registrerer ikke samme økt flere ganger. Angre gjenoppretter oppgave, arbeidshistorikk og berørte reservasjoner samlet.
 
@@ -92,7 +100,7 @@ Personlige estimater bruker lokale medianer først ved minst fem relevante fullf
 
 Kalenderens ukevisning kan vise hele uken eller arbeidsuken. På mobil er dagvisningen standard. Dato, kalenderfiltre, ukemodus og rulleposisjon bevares gjennom navigasjon og sikkerhetskopi. Korte eller overlappende hendelser beholder faktisk varighet og har lesbare detaljkontroller; lange titler kan åpnes i sin helhet. Dagsoversikten samler økter og frist for samme oppgave.
 
-Appen bruker fortsatt `studieplanlegger:v1` med valgfrie nye felt. Støttede eldre sikkerhetskopier kan åpnes. Oppstart skriver ikke om gammel lagring; uleselige data sperrer endring og gir gjenopprettingsvalg. Bruk én redigerende fane om gangen; motstridende endringer avvises.
+Appen bruker fortsatt `studieplanlegger:v1` med valgfrie nye felt. Støttede eldre sikkerhetskopier kan åpnes. Oppstart skriver ikke om gammel lagring; uleselige data sperrer endring og gir gjenopprettingsvalg. Vite-utviklingsmodusen bruker browserlagring og bør ha én redigerende fane. Docker-/produksjonsmodusen bruker Node/SQLite med revisjonskontroll: en foreldet skriving avvises som konflikt og krever ny innlesing, slik at nyere serverdata ikke overskrives stille.
 
 Eksport/gjenoppretting, angre og papirkurv finnes i innstillingene. Portabel sikkerhetskopi bevarer opplysninger og relasjoner, men utelater kalenderforbindelser og kjente tilgangsnøkler. Kildene må kobles til igjen etter gjenoppretting. En gjenoppretting viser innholdet før bekreftelse og beholder en lokal gjenopprettingskopi av forrige tilstand.
 
@@ -102,6 +110,8 @@ I Vite-utviklingsmodusen kan sletting av nettleserdata slette planen fordi denne
 
 ## Tester og bygg
 
+Programimporten kan forberede undervisning i samme gjennomgang når det finnes nøyaktig ett offentlig treff med identisk emnekode. Vanlige, eksplisitt kildeetiketterte serier kan foreslås; nummererte paralleller og grupper velges aldri automatisk. Åpne detaljer, fokus og rulleposisjon beholdes ved lokale oppdateringer, og emnekode samt deterministisk farge følger undervisning, frister og studieøkter i kalender- og agendavisningene.
+
 Installer Playwrights testnettleser ved behov og kjør kontrollene fra prosjektmappen:
 
 ```powershell
@@ -109,10 +119,11 @@ npx.cmd playwright install chromium
 npm.cmd run test:unit
 npm.cmd run test:e2e
 npm.cmd run test:e2e:database
+npm.cmd run verify:teaching
 npm.cmd run build
 ```
 
-Den vanlige nettlesersuiten bruker isolerte kontekster og en Vite-server på **127.0.0.1:5174**. `test:e2e:database` bygger appen, velger en ledig loopback-port, starter den faktiske Node/SQLite-serveren med en midlertidig database og rydder databasen etterpå. Begge bruker syntetiske studentdata. Prøver mot ekte offentlige kilder er egne opt-in-forløp og telles separat fra simulerte svar og offentlige fixturer. [VERIFICATION.md](VERIFICATION.md) dokumenterer de faktiske kjøringene, visuelle kontrollene og begrensningene.
+Den vanlige nettlesersuiten bruker isolerte kontekster og en Vite-server på **127.0.0.1:5174**. `test:e2e:database` bygger appen, velger en ledig loopback-port, starter den faktiske Node/SQLite-serveren med en midlertidig database og rydder databasen etterpå. Begge bruker syntetiske studentdata. `verify:teaching` kjører den frakoblede adaptermatrisen med varige fixturer. Den eksplisitte opt-in-kommandoen `npm.cmd run verify:teaching:live` gjør avgrensede, skrivebeskyttede kontroller av HiMolde IBE110/IBE430/IBE160 og NTNU ARK1001/EXPH0100; den krever nettverk og lagrer ingen sesjonscookie. Live-prøver telles separat fra simulerte svar og offentlige fixturer. [VERIFICATION.md](VERIFICATION.md) dokumenterer de faktiske kjøringene, visuelle kontrollene og begrensningene.
 
 `build` lager lokale filer i `dist/` og publiserer ingenting. Prosjektet har ingen egen lint- eller typekontrollkommando. Behold `package-lock.json`; `npm.cmd ci` installerer de låste avhengighetene.
 

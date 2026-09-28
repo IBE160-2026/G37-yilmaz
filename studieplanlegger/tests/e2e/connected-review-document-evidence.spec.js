@@ -19,11 +19,11 @@ async function open(page, file, { calendar = false } = {}) {
     await page.getByLabel('Kalendersemester for ICS-undervisning', { exact: true }).selectOption('autumn')
     await page.getByLabel('År for ICS-undervisning', { exact: true }).fill('2026')
   }
-  await page.getByRole('button', { name: 'Lag forhåndsvisning', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Kontroller planen før import', exact: true })).toBeVisible({ timeout: 35000 })
+  await page.getByRole('button', { name: 'Les arbeidskravet', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible({ timeout: 35000 })
 }
 async function confirm(page) {
-  await page.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
   await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
 }
 function partialPdf() {
@@ -62,7 +62,7 @@ for (const [width, size] of [[1440, 16], [390, 24]]) {
     await boot(page, { width, size })
     const lines = Array.from({ length: 10 }, (_, index) => `${index + 1};${index === 9 ? '' : `Oppgave ${index + 1}`};${index === 8 ? '16.09' : ''}`)
     await open(page, { name: 'flere-rader.csv', mimeType: 'text/csv', buffer: Buffer.from(['id;tittel;frist', ...lines].join('\n')) })
-    const rows = page.locator('.document-preview-row'), confirmButton = page.getByRole('button', { name: 'Bekreft valgt plan', exact: true })
+    const rows = page.locator('.document-preview-row'), confirmButton = page.getByRole('button', { name: 'Stemmer – lag plan', exact: true })
     await rows.first().getByLabel('Navn', { exact: true }).fill('Behold mitt redigerte navn')
     await rows.first().getByLabel('Gjenstående minutter (tomt = vet ikke)', { exact: true }).fill('45')
     expect(await rows.nth(8).evaluate(node => node.open)).toBe(false)
@@ -130,7 +130,7 @@ test('R8 partial PDF evidence survives actual worker import, reload, source upda
 test('R8 unfinished native number input remains a correctable field error while explicit empty values stay unknown', async ({ page }) => {
   await boot(page)
   await open(page, { name: 'tall.csv', mimeType: 'text/csv', buffer: Buffer.from('type;tittel;år;semester;studiepoeng;minutter\nemne;Testemne;2026;høst;5;\noppgave;Les kapitlet;;;;45') })
-  const before = await stored(page), confirmButton = page.getByRole('button', { name: 'Bekreft valgt plan', exact: true })
+  const before = await stored(page), confirmButton = page.getByRole('button', { name: 'Stemmer – lag plan', exact: true })
   for (const label of ['Gjenstående minutter (tomt = vet ikke)', 'Studiepoeng (valgfritt)', 'År']) {
     const input = page.locator('.document-preview').getByLabel(label, { exact: true })
     await input.fill(''); await input.press('e')
@@ -161,7 +161,7 @@ test('R9 changing a document draft terminates the active reader, preserves input
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
   await page.getByRole('button', { name: 'Fra dokument eller tekst', exact: true }).click()
-  const paste = page.getByLabel('Eller lim inn tekst'), read = page.getByRole('button', { name: 'Lag forhåndsvisning', exact: true })
+  const paste = page.getByLabel('Eller lim inn tekst'), read = page.getByRole('button', { name: 'Les arbeidskravet', exact: true })
   await paste.fill('Les det gamle kapitlet'); const before = await stored(page)
   await read.click(); await expect(page.locator('.document-import [role=status]')).toHaveText('Leser gammelt utkast')
   await paste.fill('Les det nye kapitlet')
@@ -171,7 +171,7 @@ test('R9 changing a document draft terminates the active reader, preserves input
   expect(await stored(page)).toEqual(before)
   await expect(page.locator('.document-preview')).toHaveCount(0)
   await page.unroute(pattern); await read.click()
-  await expect(page.getByRole('heading', { name: 'Kontroller planen før import', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible()
   await expect(page.getByLabel('Navn', { exact: true })).toHaveValue('Les det nye kapitlet')
   await confirm(page)
   expect((await stored(page)).tasks[0].title).toBe('Les det nye kapitlet')

@@ -94,23 +94,23 @@ test('short-event overlap group offers every event without an intercepted target
 test('ambiguous Oslo deadline stays visible and keeps its warning', async ({ page }) => {
   const data = initial(); data.tasks = [task('ambiguous', '2026-10-25T02:30')]; data.sessions = []; data.planner.events = []
   const errors = await boot(page, data, 24, '2026-10-25T00:00:00+02:00')
-  await expect(page.locator('#daily-overview')).toContainText('Frist i dag kl. 02:30 (må presiseres)')
-  await expect(page.locator('#daily-overview')).toContainText('tvetydig eller ugyldig klokkeslett')
+  await expect(page.locator('#next-plan')).toContainText('Frist i dag kl. 02:30 (må presiseres)')
+  await expect(page.locator('#next-plan')).toContainText('tvetydig eller ugyldig klokkeslett')
   expect(errors).toEqual([])
 })
 test('only the Oslo date changes during a cross-midnight activity', async ({ page }) => {
   const data = initial(); data.tasks = []; data.sessions = []
   data.planner.events = [{ id: 'night', courseId: course.id, title: 'Nattarbeid', start: '2026-09-08T23:00:00+02:00', end: '2026-09-09T01:00:00+02:00' }]
   const errors = await boot(page, data, 16, '2026-09-08T23:59:00+02:00')
-  await expect(page.locator('#daily-overview')).toContainText('i dag kl. 23:00–01:00 (til 9. september 2026)')
+  await expect(page.locator('#next-plan')).toContainText('i dag kl. 23:00–01:00 (til 9. september 2026)')
   await page.clock.setFixedTime(new Date('2026-09-09T00:01:00+02:00')); await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-  await expect(page.locator('#daily-overview')).toContainText('8. september 2026 kl. 23:00–01:00 (til 9. september 2026)')
+  await expect(page.locator('#next-plan')).toContainText('8. september 2026 kl. 23:00–01:00 (til 9. september 2026)')
   expect(errors).toEqual([])
 })
 test('cross-midnight sessions and exclusive all-day ends retain their actual dates', async ({ page }) => {
   const data = initial(); data.planner.events = []; data.sessions = [{ id: 'night', taskId: 'bounded-task', dateLocal: '2026-09-08', endDateLocal: '2026-09-09', startTime: '23:00', endTime: '01:00' }]
   await boot(page, data, 16, '2026-09-08T22:00:00+02:00')
-  await expect(page.locator('#daily-overview')).toContainText('23:00–01:00 (til 9. september 2026)')
+  await expect(page.locator('#next-plan')).toContainText('23:00–01:00 (til 9. september 2026)')
   await page.evaluate(key => { const data = JSON.parse(localStorage.getItem(key)); data.sessions = []; data.planner.events = [{ id: 'all-day', courseId: data.planner.courses[0].id, title: 'Hele tirsdagen', allDay: true, start: '2026-09-08T00:00:00+02:00', end: '2026-09-09T00:00:00+02:00' }]; localStorage.setItem(key, JSON.stringify(data)) }, key)
   await page.reload()
   const activity = page.locator('[data-daily-row="event:all-day"]')

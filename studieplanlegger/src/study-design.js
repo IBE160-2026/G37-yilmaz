@@ -50,6 +50,10 @@ export function createStudyDesign(actions) {
     more.setAttribute('aria-expanded', 'false'); nav.removeAttribute('data-more-open')
     if (restore) more.focus({ preventScroll: true })
   }
+  function updateMobileLabels() {
+    text($('#view-all .nav-text'), mobile.matches ? 'Oppgaver' : 'Alle oppgaver')
+    text($('#view-subjects .nav-text'), mobile.matches ? 'Emner' : 'Mine emner')
+  }
   function updateCalendar() {
     const isAgenda = $('.calendar-mode button:last-child')?.getAttribute('aria-pressed') === 'true'
     $('.calendar-panel').dataset.designMode = isAgenda ? 'agenda' : 'month'
@@ -64,8 +68,10 @@ export function createStudyDesign(actions) {
       const label = button.id === 'view-time' ? 'Finn en oppgave' : button.id === 'view-capacity' ? 'Planlegg uken' : button.textContent
       button.replaceChildren(icon(button.dataset.icon), element('span', 'nav-text', label))
     }
+    $('#view-week').hidden = true
+    $('#view-time').hidden = true
     overflow = element('div', 'nav-secondary'); overflow.id = 'navigation-secondary'
-    for (const id of ['view-week', 'view-time', 'view-capacity', 'view-settings']) overflow.append($('#' + id))
+    for (const id of ['view-capacity', 'view-settings']) overflow.append($('#' + id))
     more = element('button', 'mobile-navigation-more'); more.id = 'mobile-navigation-more'; more.type = 'button'
     more.setAttribute('aria-expanded', 'false'); more.setAttribute('aria-controls', overflow.id)
     more.append(icon('more'), element('span', 'nav-text', 'Mer'))
@@ -86,9 +92,9 @@ export function createStudyDesign(actions) {
     document.addEventListener('click', event => { if (!nav.contains(event.target)) closeMore() })
     nav.addEventListener('focusout', event => { if (event.relatedTarget && !nav.contains(event.relatedTarget)) closeMore() })
     const quickMarker = element('span', 'selection-marker'); quickMarker.setAttribute('aria-hidden', 'true'); $('.quick-times').prepend(quickMarker)
-    text($('label[for="available-minutes"]'), 'Egen tid (min)')
-    text($('.focus-intro .eyebrow'), 'FINN DIN NESTE OPPGAVE')
-    text($('.focus-intro > div:first-child > p:last-child'), 'Velg tiden du har. Finn en oppgave som passer.')
+    text($('label[for="available-minutes"]'), 'Egendefinert tid (minutter)')
+    text($('.focus-intro .eyebrow'), 'NESTE HANDLING')
+    text($('.focus-intro > div:first-child > p:last-child'), 'Hvor mye tid har du?')
     const illustration = new Image(260, 260)
     illustration.src = '/study-focus-v2.png'; illustration.alt = ''; illustration.decoding = 'async'
     $('.focus-visual').replaceChildren(illustration)
@@ -96,6 +102,7 @@ export function createStudyDesign(actions) {
     text($('#summary-week > span:last-child'), 'Denne uken')
     text($('#summary-overdue > span:last-child'), 'Forfalt')
     text($('#summary-ready > span:last-child'), 'Til levering')
+    text($('#suggestion-minutes'), 'Velg mer tid')
     text($('.deadline-fields legend'), 'Frist (valgfritt)')
     const calendarPanel = $('.calendar-panel')
     const agendaHost = element('section', 'compact-agenda'); agendaHost.id = 'compact-agenda'
@@ -116,7 +123,8 @@ export function createStudyDesign(actions) {
     text($('#capacity-panel > .muted'), 'Sammenlign gjenstående arbeid med tiden du har satt av.')
     text($('#sessions-empty'), 'Ingen studieøkt planlagt ennå.')
     window.addEventListener('resize', updateMarkers, { passive: true })
-    mobile.addEventListener('change', () => { closeMore(); updateMarkers() })
+    updateMobileLabels()
+    mobile.addEventListener('change', () => { closeMore(); updateMobileLabels(); updateMarkers() })
     document.fonts.ready.then(updateMarkers)
   }
   function updateCapacity() {

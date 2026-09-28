@@ -21,7 +21,7 @@ async function seed(page,data=fixture()) {
   await page.goto('/'); await expect(page.locator('#workspace')).toBeVisible()
   return errors
 }
-async function dataMenu(page) { await navigate(page,'settings'); const menu=page.locator('.data-menu'); if(!await menu.evaluate(node=>node.open))await menu.locator('summary').click() }
+async function dataMenu(page) { await navigate(page,'settings'); const menu=page.locator('#settings-panel .data-menu').filter({hasText:'Data og sikkerhetskopi'}); if(!await menu.evaluate(node=>node.open))await menu.locator('summary').click() }
 async function calendar(page,view) { await navigate(page,'calendar'); if(view)await page.locator(`[data-calendar-view="${view}"]`).click(); await page.locator('#full-calendar-date').fill('2026-09-08') }
 
 test('desktop calendar aligns time, keeps point bands visible, exposes accurate details and persists context',async({page})=>{
@@ -65,6 +65,20 @@ test('mobile Calendar is directly reachable, month adapts, keyboard/large text f
   expect(errors).toEqual([])
 })
 
+test('course code and deterministic accent stay visible for teaching, deadline and session in every calendar view',async({page})=>{
+  const identityFixture={schemaVersion:1,tasks:[{...task('identity'),courseId:course.id,deadlineLocal:'2026-09-08T14:00'}],planner:{courses:[course],sources:[],events:[event('identity','2026-09-08T08:00:00Z','2026-09-08T09:00:00Z',{title:'Forelesning'})]},sessions:[{id:'identity',taskId:'identity',dateLocal:'2026-09-08',startTime:'12:00',endTime:'13:00'}]}
+  await page.setViewportSize({width:1440,height:1000});await seed(page,identityFixture)
+  const keys=['event:identity','task:identity','session:identity'];let expectedColor
+  for(const view of ['month','week','day','agenda']){
+    await calendar(page,view)
+    for(const entryKey of keys){const entry=page.locator(`[data-calendar-key="${entryKey}"]`).first();await expect(entry).toHaveCount(1);await expect(entry.locator('strong')).toContainText('TEST101 ·');const color=await entry.evaluate(node=>getComputedStyle(node).borderLeftColor);expect(color).toBeTruthy();expectedColor??=color;expect(color).toBe(expectedColor)}
+  }
+  await page.screenshot({path:'artifacts/streamlined-calendar-desktop-1440.png',fullPage:true})
+  await page.setViewportSize({width:390,height:844});await page.evaluate(()=>document.documentElement.style.fontSize='200%');await calendar(page,'day')
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+  await page.screenshot({path:'artifacts/streamlined-calendar-mobile-390-200percent.png',fullPage:true})
+})
+
 test('calendar filters course and kind without changing selected date',async({page})=>{
   await seed(page); await calendar(page,'agenda'); await page.locator('.full-calendar-filters summary').click()
   await page.locator('#full-calendar-course').selectOption(courseB.id)
@@ -93,7 +107,7 @@ test('course trash survives reload and restores exact relations, status undo is 
   expect((await saved(page)).tasks[0]).not.toHaveProperty('courseId'); await page.reload(); await dataMenu(page); await page.getByRole('button',{name:/Papirkurv/}).click()
   await page.locator('.data-dialog').getByRole('button',{name:'Gjenopprett',exact:true}).click(); await page.locator('.data-dialog').getByRole('button',{name:'Lukk',exact:true}).click()
   const restored=await saved(page); expect(restored.tasks).toEqual(before.tasks); expect(restored.planner).toEqual(before.planner)
-  await navigate(page,'overview'); await page.locator('#daily-overview [data-daily-row="task:i-dag"]').getByRole('button',{name:'Marker arbeid ferdig'}).click()
+  await navigate(page,'overview'); await page.locator('#next-plan [data-daily-row="task:i-dag"]').getByRole('button',{name:'Marker arbeid ferdig'}).click()
   await page.locator('.contextual-undo').getByRole('button',{name:'Angre siste endring'}).click(); expect((await saved(page)).tasks).toEqual(before.tasks)
   expect((await saved(page)).workLogs).toBeUndefined()
   expect((await saved(page)).sessions).toEqual(before.sessions)
@@ -129,6 +143,7 @@ for(const [institution,code] of [['nmbu','math100'],['hvl','dat100']])test(`actu
   await page.locator('#calendar-import-form [name=file]').setInputFiles(resolve(`tests/fixtures/public-programs/timeedit-${institution}-${code}-2026.ics`));await page.locator('#ics-preview').click()
   await expect(page.locator('#import-preview')).toContainText('gruppenummer')
   if(institution==='nmbu')expect(await page.locator('.activity-choices label').filter({hasText:'Regneøving'}).locator('input').isChecked()).toBe(false)
+  await page.locator('.activity-choices input').first().check()
   await page.screenshot({path:`artifacts/eleven-import-${institution}-desktop.png`})
   await page.getByRole('button',{name:'Bekreft import',exact:true}).click()
   const imported=await saved(page); expect(imported.planner.events.length).toBeGreaterThan(0); expect(imported.planner.sources[0].kind).toBe('file')
@@ -156,6 +171,6 @@ function emptyPlanner(){return {courses:[],events:[],sources:[]}}
 
 for(const width of [1440,390])test(`daily overview and empty account render actual state at ${width}`,async({page})=>{
   await page.setViewportSize({width,height:width===390?844:900});const errors=await seed(page)
-  await expect(page.locator('#daily-overview')).toContainText('Oppgave i-dag');await expect(page.locator('#daily-overview [data-daily-row="task:reservert"]')).toContainText('Oppgave reservert');await page.screenshot({path:`artifacts/eleven-overview-${width}.png`})
+  await expect(page.locator('#daily-overview')).toContainText('Oppgave i-dag');await expect(page.locator('#next-plan [data-daily-row="task:reservert"]')).toContainText('Oppgave reservert');await page.screenshot({path:`artifacts/eleven-overview-${width}.png`})
   await page.evaluate(key=>localStorage.setItem(key,JSON.stringify({schemaVersion:1,tasks:[]})),key);await page.reload();await expect(page.locator('#daily-overview')).toBeHidden();await expect(page.locator('#connected-onboarding')).toBeVisible();expect(errors).toEqual([])
 })

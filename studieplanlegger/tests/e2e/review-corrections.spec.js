@@ -18,7 +18,8 @@ const backup = data => ({ format: 'studieplan-local-backup', backupVersion: 1, c
 test('repairs malformed JSON through a valid selected backup file without enabling normal edits', async ({ page }) => {
   const raw = '{ malformed local JSON'; await seed(page, raw)
   await expect(page.getByRole('button', { name: 'Ny oppgave', exact: true, includeHidden: true }).first()).toBeDisabled()
-  if (!await page.locator('.data-menu').evaluate(node => node.open)) await page.locator('.data-menu summary').click()
+  const dataMenu = page.locator('#settings-panel .data-menu').filter({ hasText: 'Data og sikkerhetskopi' })
+  if (!await dataMenu.evaluate(node => node.open)) await dataMenu.locator('summary').click()
   await expect(page.getByRole('button', { name: 'Importer sikkerhetskopi', exact: true })).toBeEnabled()
   await expect(page.getByRole('button', { name: 'Eksporter sikkerhetskopi', exact: true })).toBeDisabled()
   await page.locator('#backup-file').setInputFiles({ name: 'repair.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(backup(initial()))) })
@@ -42,10 +43,10 @@ test('missing course prerequisite does not lock Ny oppgave or Nytt emne', async 
 test('clock transition updates Neste aktivitet to Paagar without moving focused action', async ({ page }) => {
   const data = initial(); data.planner.events = [{ id: 'event', courseId: 'c', title: 'Teaching', start: '2026-09-08T08:00:00Z', end: '2026-09-08T09:00:00Z' }]
   await seed(page, data, '2026-09-08T07:59:59Z')
-  const host = page.locator('#daily-overview'), action = host.getByRole('button', { name: 'Åpne aktivitet', exact: true })
-  await expect(host).toContainText('Neste aktivitet'); await action.focus()
+  const host = page.locator('#next-plan'), action = host.getByRole('button', { name: 'Åpne', exact: true }).first()
+  await expect(host).toContainText('Teaching · i dag kl. 10:00–11:00'); await action.focus()
   await page.clock.runFor(2100)
-  await expect(host).toContainText('Pågår nå'); await expect(action).toBeFocused()
+  await expect(host).toContainText('Teaching · i dag kl. 10:00–11:00'); await expect(action).toBeFocused()
   expect(await saved(page)).toEqual(data)
 })
 
@@ -76,8 +77,9 @@ for (const kind of ['file', 'url']) for (const selection of ['group', 'individua
   const prepare = async () => {
     if (kind === 'file') await openImportMethod(page, 'calendar')
     if (kind === 'file') { await page.locator('#calendar-import-form [name=file]').setInputFiles({ name: 'review.ics', mimeType: 'text/calendar', buffer: Buffer.from(calendar) }); await page.locator('#ics-preview').click() }
-    else await page.getByRole('button', { name: 'Oppdater nå', exact: true }).click()
+    else await page.getByRole('button', { name: 'Endre aktivitetsvalg', exact: true }).click()
     await expect(page.locator('#import-preview')).toBeVisible()
+    if (kind === 'url') await page.locator('#import-preview summary').filter({ hasText: /Aktivitetsutvalg/ }).click()
   }
   await prepare()
   for (let i = 0; i < count; i++) {

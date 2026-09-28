@@ -1,19 +1,40 @@
 import { test, expect } from '@playwright/test'
-import { navigate, openImportMethod, key } from './helpers.js'
+import { instrumentWrites, navigate, openImportMethod, key } from './helpers.js'
 
 const raw = page => page.evaluate(key => localStorage.getItem(key), key)
 const calendar = name => `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:synthetic-${name}\r\nDTSTART:20261015T100000Z\r\nDTEND:20261015T110000Z\r\nSUMMARY:${name}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`
+const manyCalendar = name => `BEGIN:VCALENDAR\r\nVERSION:2.0\r\n${Array.from({length:24},(_,index)=>`BEGIN:VEVENT\r\nUID:synthetic-${name}-${index}\r\nDTSTART:202610${String(1+index).padStart(2,'0')}T100000Z\r\nDTEND:202610${String(1+index).padStart(2,'0')}T110000Z\r\nSUMMARY:${name} ${index+1}\r\nX-GROUP:${name}\r\nEND:VEVENT`).join('\r\n')}\r\nEND:VCALENDAR\r\n`
 const plandisc = 'https://create.plandisc.com/wheel/showPublic/TestCalendar'
 const classA = 'https://fih.edupage.org/webcal?class=A', classB = 'https://fih.edupage.org/webcal?class=B'
 const classList = { status: 'ok', results: [{ name: 'Klasse A', sourceUrl: classA }, { name: 'Klasse B', sourceUrl: classB }] }
 const calendarData = (name = 'Ny kalender', institutional = true) => ({ institutional, ...(institutional ? {} : { sourceKind: 'fih-public-class' }), name, calendar: calendar(name), warnings: [] })
 const initial = { schemaVersion: 1, tasks: [], planner: { courses: [{ id: 'saved-course', name: 'Lagret emne', code: 'OLD101', university: '', year: 2026, semester: 'autumn', credits: null, description: '', notes: '' }], events: [{ id: 'saved-event', courseId: 'saved-course', title: 'Lagret undervisning', start: '2026-10-01T08:00:00Z', end: '2026-10-01T09:00:00Z', location: '', description: '', notes: '' }], sources: [] } }
 
-async function boot(page) {
+async function boot(page, state = initial) {
   await page.goto('/')
-  await page.evaluate(({ key, initial }) => localStorage.setItem(key, JSON.stringify(initial)), { key, initial })
+  await page.evaluate(({ key, state }) => localStorage.setItem(key, JSON.stringify(state)), { key, state })
   await page.reload(); await navigate(page, 'subjects')
 }
+
+test('unchanged refresh persists its check immediately while selection edits remain reviewable', async ({ page }) => {
+  const sourceKey='["refresh-1","single"]',sourceBase={title:'Forelesning',courseId:'saved-course',start:'2026-10-15T10:00:00.000Z',end:'2026-10-15T11:00:00.000Z',location:'A-1',description:'',group:'Forelesning',allDay:false,cancelled:false,transparent:false,information:false,groupMissing:false}
+  const state={schemaVersion:1,tasks:[],planner:{courses:initial.planner.courses,events:[{id:`event:refresh-source:${sourceKey}`,sourceId:'refresh-source',sourceKey,sourceUid:'refresh-1',notes:'',...sourceBase,sourceBase}],sources:[{id:'refresh-source',courseId:'saved-course',kind:'url',name:'Lagret undervisning',url:'https://example.test/refresh.ics',groups:['Forelesning'],excludedKeys:[],allGroups:['Forelesning'],pendingGroups:[],lastUpdated:'2026-09-01T00:00:00.000Z',lastSuccess:'2026-09-01T00:00:00.000Z',identityMode:'uid',autoRefresh:true}]}}
+  const unchanged='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:refresh-1\r\nDTSTART:20261015T100000Z\r\nDTEND:20261015T110000Z\r\nSUMMARY:Forelesning\r\nX-GROUP:Forelesning\r\nLOCATION:A-1\r\nEND:VEVENT\r\nEND:VCALENDAR'
+  await page.route('**/api/import/calendar', route=>route.fulfill({json:{calendar:unchanged,warnings:[]}}))
+  await instrumentWrites(page);await boot(page,state);await page.evaluate(()=>{window.writeAttempts=[]})
+  const source=page.locator('.source-card').filter({hasText:'Lagret undervisning'})
+  await source.getByRole('button',{name:'Oppdater nå',exact:true}).click()
+  await expect(page.locator('#subject-message')).toHaveText('Timeplanen er kontrollert – ingen endringer.')
+  await expect(page.getByRole('button',{name:'Bekreft import',exact:true})).toHaveCount(0)
+  const checked=JSON.parse(await raw(page));expect(checked.planner.sources[0].lastUpdated).not.toBe('2026-09-01T00:00:00.000Z');expect(await page.evaluate(()=>window.writeAttempts.length)).toBe(1)
+
+  await source.getByRole('button',{name:'Endre aktivitetsvalg',exact:true}).click()
+  await page.locator('#import-preview summary').filter({hasText:/Aktivitetsutvalg/}).click()
+  const group=page.getByRole('checkbox',{name:/Forelesning \(1\)/});await expect(group).toBeChecked();await group.uncheck()
+  await page.getByRole('button',{name:'Bekreft import',exact:true}).click()
+  await expect(page.locator('#subject-message')).not.toHaveText('Timeplanen er kontrollert – ingen endringer.')
+  const changed=JSON.parse(await raw(page));expect(changed.planner.sources[0].groups).toEqual([]);expect(changed.planner.events[0].excluded).toBe(true)
+})
 async function institutional(page, kind = 'plandisc') {
   await openImportMethod(page, 'calendar')
   const host = page.locator('.institutional-calendar-import')
@@ -58,15 +79,15 @@ test('R9 institutional confirmation rechecks the selection even without an input
   await boot(page); const host = await institutional(page), before = await raw(page)
   await previewCalendar(host)
   await host.getByLabel('Kalenderår', { exact: true }).evaluate(input => { input.value = '2027' })
-  await host.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+  await host.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
   await expect(host.locator('.document-preview')).toContainText('Kalendervalget er endret')
   expect(await raw(page)).toBe(before)
-  await host.getByRole('button', { name: 'Tilbake til dokumentet', exact: true }).click()
+  await host.getByRole('button', { name: 'Rett', exact: true }).click()
   await expect(host.getByLabel('Offentlig Plandisc-lenke', { exact: true })).toHaveValue(plandisc)
   await expect(host.getByLabel('Kalenderår', { exact: true })).toHaveValue('2027')
   await host.getByLabel('Kalenderår', { exact: true }).fill('2026')
   await previewCalendar(host)
-  await host.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+  await host.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
   await expect(host.getByRole('status')).toContainText('Institusjonskalender lagret')
   expect(JSON.parse(await raw(page)).planner.events).toHaveLength(2)
 })
@@ -134,13 +155,14 @@ test('R9 the subjects request keeps its timeout alongside caller cancellation an
   })
   await boot(page)
   await page.evaluate(() => {
-    const nativeTimeout = AbortSignal.timeout
-    AbortSignal.timeout = milliseconds => {
-      if (milliseconds !== 30000) return nativeTimeout(milliseconds)
-      const controller = new AbortController()
-      window.expireImportTimeout = () => controller.abort(new DOMException('Kontrollert tidsgrense', 'TimeoutError'))
-      return controller.signal
+    const nativeSetTimeout = window.setTimeout, nativeClearTimeout = window.clearTimeout
+    const controlledTimeout = 2147483646
+    window.setTimeout = (callback, milliseconds, ...args) => {
+      if (milliseconds !== 30000) return nativeSetTimeout(callback, milliseconds, ...args)
+      window.expireImportTimeout = () => callback(...args)
+      return controlledTimeout
     }
+    window.clearTimeout = id => id === controlledTimeout ? undefined : nativeClearTimeout(id)
   })
   const host = await institutional(page), before = await raw(page)
   await readCalendar(host).click(); await expect.poll(() => Boolean(held)).toBe(true)
@@ -175,13 +197,13 @@ test('R9 institutional cancel terminates a real busy document worker and permits
   expect(await raw(page)).toBe(before)
   await expect(host.getByLabel('Offentlig Plandisc-lenke', { exact: true })).toHaveValue(plandisc)
   await page.unroute(workerPath); await previewCalendar(host)
-  await host.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+  await host.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
   await expect(host.getByRole('status')).toContainText('Institusjonskalender lagret')
   expect(JSON.parse(await raw(page)).planner.events).toHaveLength(2)
   expect(await page.evaluate(() => window.parserTerminations)).toBe(2)
 })
 
-async function program(page) {
+async function program(page, calendarFactory = calendar) {
   const sourceUrl = 'https://www.usn.no/studier/studie-og-emneplaner/synthetic'
   await page.route('**/api/import/providers/usn/**', async route => {
     const url = new URL(route.request().url()), action = url.pathname.split('/').at(-1)
@@ -189,7 +211,7 @@ async function program(page) {
       : action === 'program-cohorts' ? { results: [{ cohort: '2026', sourceUrl }] }
       : action === 'program-plan' ? { program: { code: 'TEST', name: 'Syntetisk program', cohort: '2026', sourceUrl, campuses: [] }, models: [{ id: 'common', name: 'Felles', periods: [{ id: 'first', label: 'Første semester', studySemester: 1, year: 2026, semester: 'autumn', courses: [{ id: 'usn-test', code: 'TEST101', name: 'Testemne', university: 'USN', year: 2026, semester: 'autumn', credits: 10, choice: 'O', sourceUrl, sourceProvider: 'usn', sourceRecordId: 'TEST101', sourceVersion: '2026H' }] }] }] }
       : action === 'teaching-search' ? { results: [{ sourceObjectId: 'A', label: 'Variant A' }, { sourceObjectId: 'B', label: 'Variant B' }] }
-      : { calendar: calendar(`Variant ${url.searchParams.get('sourceObjectId')}`), calendarUrl: `https://cloud.timeedit.net/usn/web/publikk/${url.searchParams.get('sourceObjectId')}.ics` }
+      : { calendar: calendarFactory(`Variant ${url.searchParams.get('sourceObjectId')}`), calendarUrl: `https://cloud.timeedit.net/usn/web/publikk/${url.searchParams.get('sourceObjectId')}.ics` }
     await route.fulfill({ json: { status: 'ok', ...data } })
   })
   await boot(page); await openImportMethod(page, 'institution')
@@ -199,9 +221,10 @@ async function program(page) {
   await host.locator('[name=program]').selectOption('0'); await host.locator('[name=cohort]').selectOption('0')
   await host.getByRole('button', { name: 'Hent studieplan', exact: true }).click()
   await host.locator('[name=model]').selectOption('common'); await host.locator('[name=studySemester]').selectOption('first')
-  await host.locator('[name=calendarSemester]').selectOption('2026:autumn'); await host.locator('[name=programCampus]').selectOption('__unknown')
+  await host.locator('[name=calendarSemester]').selectOption('2026:autumn'); await expect(host.locator('[name=programCampus]')).toBeHidden()
   await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-  await host.getByText('Offentlig timeplan for TEST101', { exact: true }).click()
+  const timetable = host.locator('details').filter({ has: page.getByLabel('Timeplansøk for TEST101', { exact: true }) })
+  if (!await timetable.evaluate(node => node.open)) await timetable.locator(':scope > summary').click()
   await host.getByRole('button', { name: 'Søk offentlig undervisning for TEST101', exact: true }).click()
   await host.getByLabel('Timeplanobjekt for TEST101', { exact: true }).selectOption('0')
   return host
@@ -233,8 +256,8 @@ for (const changed of ['query', 'object', 'silent-object']) {
   })
 }
 
-test('R9 program teaching ignores a late object response and retries the current object', async ({ page }) => {
-  const host = await program(page), before = await raw(page)
+test('R9 program teaching ignores a late object response and preserves nested and page position through async rebuild', async ({ page }) => {
+  const host = await program(page,manyCalendar), before = await raw(page)
   await page.evaluate(() => {
     const nativeFetch = window.fetch; let hold = true
     window.fetch = (url, options) => {
@@ -252,10 +275,17 @@ test('R9 program teaching ignores a late object response and retries the current
   await teaching(host)
   await expect(host).not.toContainText('Foreldet A')
   expect(await raw(page)).toBe(before)
+  const events=host.locator('details').filter({hasText:/Velg enkelte av 24 publiserte/});await events.locator(':scope > summary').click()
+  const list=events.locator('.teaching-choice-list'),focused=list.getByRole('checkbox').nth(12);await list.evaluate(node=>node.scrollTop=120);await page.evaluate(()=>scrollTo(0,Math.min(700,document.documentElement.scrollHeight-innerHeight)));await focused.focus()
+  const beforePosition=await page.evaluate(()=>({outer:scrollY,inner:document.activeElement.closest('.teaching-choice-list').scrollTop}));expect(beforePosition.outer).toBeGreaterThan(0);expect(beforePosition.inner).toBeGreaterThan(0)
+  await page.evaluate(()=>{const nativeFetch=window.fetch;window.fetch=(url,options)=>String(url).includes('/teaching-calendar?')?new Promise(resolve=>{window.releaseCurrentTeaching=()=>resolve(new Response(JSON.stringify(window.currentTeachingResponse),{headers:{'Content-Type':'application/json'}}))}):nativeFetch(url,options)})
+  await page.evaluate(()=>{document.querySelector('[data-import-key="load:usn-test"]')?.click()});await expect.poll(()=>page.evaluate(()=>typeof window.releaseCurrentTeaching)).toBe('function')
+  await page.evaluate(data=>{window.currentTeachingResponse=data;window.releaseCurrentTeaching()},{status:'ok',calendar:manyCalendar('Variant B'),calendarUrl:'https://cloud.timeedit.net/usn/web/publikk/B.ics'})
+  await expect(focused).toBeFocused();await expect(events).toHaveAttribute('open','');expect(await page.evaluate(()=>scrollY)).toBe(beforePosition.outer);expect(await list.evaluate(node=>node.scrollTop)).toBe(beforePosition.inner)
   await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
   await expect(host.getByRole('status')).toContainText('lagret samlet')
   const saved = JSON.parse(await raw(page))
-  expect(saved.planner.events.map(event => event.title)).toEqual(['Lagret undervisning', 'Variant B'])
+  expect(saved.planner.events.map(event => event.title)).toEqual(['Lagret undervisning',...Array.from({length:24},(_,index)=>`Variant B ${index+1}`)])
   expect(saved.planner.sources[0].url).toContain('/B.ics')
 })
 

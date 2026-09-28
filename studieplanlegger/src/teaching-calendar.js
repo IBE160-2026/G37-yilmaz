@@ -1,4 +1,5 @@
 import { osloLocal } from './planner.js'
+import { courseColor } from './calendar.js'
 
 export function eventsOnDay(events, day) {
   return events.filter(event => !event.cancelled && !event.deleted && osloLocal(event.start).slice(0, 10) <= day && osloLocal(new Date(Date.parse(event.end) - 1).toISOString()).slice(0, 10) >= day)
@@ -12,7 +13,7 @@ export function createTeachingLayer(host, actions) {
   let signature = ''
   let preparedSignature = '', prepared = []
   return {
-    render({ events = [], disabled = false }) {
+    render({ events = [], courses = [], disabled = false }) {
       const nextPrepared = JSON.stringify(events)
       if (nextPrepared !== preparedSignature) {
         preparedSignature = nextPrepared
@@ -34,7 +35,7 @@ export function createTeachingLayer(host, actions) {
       const month = host.querySelector('[data-calendar-date]:not(.is-outside)')?.dataset.calendarDate.slice(0, 7)
       const agendaMode = host.querySelector('.calendar-month-view')?.hidden
       const items = agendaMode ? prepared.filter(e => e.start.slice(0, 7) <= month && e.end.slice(0, 7) >= month).map(e => e.event).sort((a, b) => a.start.localeCompare(b.start)) : onDay(selected || '')
-      const nextSignature = JSON.stringify([items, selected, month, agendaMode, disabled])
+      const nextSignature = JSON.stringify([items, selected, month, agendaMode, disabled, courses.map(course => [course.id, course.code])])
       if (nextSignature === signature && section.isConnected) return
       signature = nextSignature
       if (!section.isConnected) host.append(section)
@@ -49,10 +50,13 @@ export function createTeachingLayer(host, actions) {
       empty.hidden = !!items.length
       let previous = empty
       for (const event of items) {
+        const code = courses.find(course => course.id === event.courseId)?.code || ''
         let row = rows.get(event.id)
         if (!row) { row = document.createElement('button'); row.type = 'button'; row.dataset.calendarEvent = event.id; row.addEventListener('click', () => actions.editEvent?.(event.id)); rows.set(event.id, row) }
         const start = osloLocal(event.start), end = osloLocal(event.end)
-        row.textContent = `U · ${event.title} · ${agendaMode ? `${start.slice(0, 10)} ` : ''}${event.allDay ? 'Hele dagen' : `${start.slice(11)}–${end.slice(0, 10) === start.slice(0, 10) ? '' : `${end.slice(0, 10)} `}${end.slice(11)}`} · ${event.location || 'Sted ikke oppgitt'}`
+        row.textContent = `U · ${code ? `${code} · ` : ''}${event.title} · ${agendaMode ? `${start.slice(0, 10)} ` : ''}${event.allDay ? 'Hele dagen' : `${start.slice(11)}–${end.slice(0, 10) === start.slice(0, 10) ? '' : `${end.slice(0, 10)} `}${end.slice(11)}`} · ${event.location || 'Sted ikke oppgitt'}`
+        if (code) row.style.setProperty('--course-color', courseColor(code))
+        else row.style.removeProperty('--course-color')
         row.disabled = disabled
         if (previous.nextElementSibling !== row) previous.after(row)
         previous = row

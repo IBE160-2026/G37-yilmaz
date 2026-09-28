@@ -47,7 +47,10 @@ export function validTasks(tasks) {
       (task.deadlineLocal === '' || task.deadlineLocal == null || validDeadline(task.deadlineLocal)) &&
       (task.estimatedMinutes == null || (Number.isSafeInteger(task.estimatedMinutes) && task.estimatedMinutes > 0)) && typeof task.completed === 'boolean' &&
       (task.remainingMinutes == null || (Number.isSafeInteger(task.remainingMinutes) && task.remainingMinutes >= 0)) &&
+      (task.remainingEstimate === undefined || validEstimateRange(task.remainingEstimate)) &&
+      !(Number.isSafeInteger(task.remainingMinutes) && validEstimateRange(task.remainingEstimate)) &&
       (task.requiresSubmission === undefined || typeof task.requiresSubmission === 'boolean') &&
+      (task.deadlinePromptDismissed === undefined || typeof task.deadlinePromptDismissed === 'boolean') &&
       (task.submitted === undefined || typeof task.submitted === 'boolean') &&
       (!task.submitted || (task.requiresSubmission === true && task.completed)) &&
       (task.nextStep == null || validNextStep(task.nextStep)) &&
@@ -70,6 +73,10 @@ export function editTask(tasks, id, draft) {
   if (!result.ok) return result
   const edited = { ...saved, ...result.task, completed: saved.completed,
     ...(saved.submitted === undefined ? {} : { submitted: saved.submitted }) }
+  // The legacy editor exposes an exact-minute field. A blank field on an
+  // interval task means the saved range is still untouched, not "unknown".
+  if (draft.remainingMinutes !== undefined && !(validEstimateRange(saved.remainingEstimate) && (draft.remainingMinutes === '' || draft.remainingMinutes === null))) delete edited.remainingEstimate
+  if (validEstimateRange(saved.remainingEstimate) && (draft.remainingMinutes === '' || draft.remainingMinutes === null)) delete edited.remainingMinutes
   if (draft.courseId === '') delete edited.courseId
   if (draft.priority === '') delete edited.priority
   // An unchecked type field does not turn an ordinary legacy edit into a data
@@ -161,11 +168,41 @@ export function completeNextStep(tasks, id) {
 }
 
 export function getActionMinutes(task) {
-  return task.nextStep?.estimatedMinutes ?? getRemainingMinutes(task)
+  return task.nextStep?.estimatedMinutes ?? getRemainingRange(task)?.maxMinutes ?? null
 }
 
 export function getRemainingMinutes(task) {
-  return task.completed || task.submitted ? 0 : task.remainingMinutes !== undefined ? task.remainingMinutes : task.estimatedMinutes ?? null
+  const range = getRemainingRange(task)
+  return range && range.minMinutes === range.maxMinutes ? range.minMinutes : null
+}
+
+export function validEstimateRange(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) &&
+    Number.isSafeInteger(value.minMinutes) && value.minMinutes >= 0 &&
+    (value.maxMinutes === null || Number.isSafeInteger(value.maxMinutes) && value.maxMinutes >= value.minMinutes)
+}
+
+export function getRemainingRange(task) {
+  if (task.completed || task.submitted) return { minMinutes: 0, maxMinutes: 0 }
+  if (validEstimateRange(task.remainingEstimate)) return { ...task.remainingEstimate }
+  const exact = task.remainingMinutes !== undefined ? task.remainingMinutes : task.estimatedMinutes
+  return Number.isSafeInteger(exact) && exact >= 0 ? { minMinutes: exact, maxMinutes: exact } : null
+}
+
+export function estimateChoiceRange(choice) {
+  const values = { under30: [1, 29], from30to60: [30, 60], from60to120: [60, 120], from120to240: [120, 240], over240: [241, null] }[choice]
+  return values ? { minMinutes: values[0], maxMinutes: values[1] } : null
+}
+
+export function formatEstimateRange(range) {
+  if (!range) return 'ukjent'
+  const format = value => value < 60 ? `${value} min` : value % 60 === 0
+    ? `${value / 60} ${value === 60 ? 'time' : 'timer'}`
+    : `${Math.floor(value / 60)} ${value < 120 ? 'time' : 'timer'} og ${value % 60} min`
+  if (range.maxMinutes === null) return `mer enn ${format(Math.max(0, range.minMinutes - 1))}`
+  if (range.minMinutes === range.maxMinutes) return format(range.minMinutes)
+  if (range.minMinutes % 60 === 0 && range.maxMinutes % 60 === 0) return `${range.minMinutes / 60}–${range.maxMinutes / 60} timer`
+  return `${format(range.minMinutes)}–${format(range.maxMinutes)}`
 }
 
 export function validateAvailableMinutes(value) {
@@ -213,7 +250,7 @@ export function overdueCount(tasks, now) {
 export function selectTasksForMinutes(tasks, minutes, { includePartial = false } = {}) {
   if (!Number.isSafeInteger(minutes) || minutes <= 0) return []
   return tasks.map((task, index) => ({ task, index }))
-    .filter(({ task }) => canStartTask(task, tasks, { nextStep: Boolean(task.nextStep) }) && getRemainingMinutes(task) !== 0 && Number.isSafeInteger(getActionMinutes(task)) && getActionMinutes(task) > 0 && (getActionMinutes(task) <= minutes || includePartial && task.splittable !== false))
+    .filter(({ task }) => canStartTask(task, tasks, { nextStep: Boolean(task.nextStep) }) && getRemainingRange(task)?.maxMinutes !== 0 && Number.isSafeInteger(getActionMinutes(task)) && getActionMinutes(task) > 0 && (getActionMinutes(task) <= minutes || includePartial && task.splittable !== false))
     .map(entry => ({ ...entry, urgency: actionUrgency(entry.task, tasks) }))
     .sort((a, b) => (a.urgency.deadlineLocal || '9999-99').localeCompare(b.urgency.deadlineLocal || '9999-99') || b.urgency.count - a.urgency.count || (b.task.priority ?? 2) - (a.task.priority ?? 2) || a.index - b.index)
     .map(entry => entry.task)
@@ -221,7 +258,7 @@ export function selectTasksForMinutes(tasks, minutes, { includePartial = false }
 
 export function suggestionReason(task, minutes, now = new Date(), index = 0, allTasks = []) {
   const fit = task.nextStep ? `${getActionMinutes(task) <= minutes ? `Passer innen ${minutes} minutter. ` : ''}Neste steg: «${task.nextStep.description}», ${Math.min(getActionMinutes(task), minutes)} min${getActionMinutes(task) > minutes ? ' som deløkt' : ''}. Hele oppgaven er ikke ferdig etter steget`
-    : getRemainingMinutes(task) > minutes ? `En deløkt på ${minutes} min av anslått ${getRemainingMinutes(task)} min gjenstående arbeid`
+    : getActionMinutes(task) > minutes ? `En deløkt på ${minutes} min av ${formatEstimateRange(getRemainingRange(task))} gjenstående arbeid`
       : 'Passer innen ' + minutes + ' minutter'
   const { downstream } = actionUrgency(task, allTasks)
   const downstreamReason = downstream && (!task.deadlineLocal || downstream.deadlineLocal <= task.deadlineLocal)

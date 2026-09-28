@@ -14,14 +14,27 @@ export function semesterWindow(semester, year) {
 const text = value => typeof value === 'string'
 const instant = value => text(value) && /(?:Z|[+-]\d{2}:\d{2})$/.test(value) && Number.isFinite(Date.parse(value))
 const unique = items => Array.isArray(items) && items.every(item => item && text(item.id) && item.id.trim()) && new Set(items.map(item => item.id)).size === items.length
+export const teachingCheckStatuses = ['success','empty','timeout','transport-error','invalid-response','access-required','unsupported']
+export function validTeachingCheck(value) {
+  return value&&teachingCheckStatuses.includes(value.status)&&instant(value.lastAttempt)&&
+    (value.lastSuccess===undefined||instant(value.lastSuccess))&&
+    (value.eventCount===undefined||Number.isSafeInteger(value.eventCount)&&value.eventCount>=0&&value.eventCount<=10000)&&
+    (value.source===undefined||text(value.source)&&value.source.length>0&&value.source.length<=100)&&
+    (value.detail===undefined||text(value.detail)&&value.detail.length<=500)
+}
+export function nextTeachingCheck(status, previous, { now = new Date(), eventCount, source = 'public-teaching', detail = '' } = {}) {
+  if(!teachingCheckStatuses.includes(status))throw new Error('Ugyldig resultat fra undervisningskontrollen.')
+  const lastAttempt=now.toISOString(),successful=['success','empty'].includes(status)
+  return{status,lastAttempt,...(successful?{lastSuccess:lastAttempt}:{...(previous?.lastSuccess?{lastSuccess:previous.lastSuccess}:{})}),...(eventCount===undefined?(previous?.eventCount===undefined?{}:{eventCount:previous.eventCount}):{eventCount}),source,...(detail?{detail:String(detail).slice(0,500)}:{})}
+}
 export function sourceHref(value) {
   try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password ? url.href : '' } catch { return '' }
 }
 export function validPlanner(value) {
   if (!value || !unique(value.courses) || !unique(value.events) || !unique(value.sources)) return false
-  return value.courses.every(c => text(c.name) && c.name.trim() && text(c.code) && text(c.university) && text(c.notes ?? '') && ['sourceUrl', 'entryUrl'].every(key => c[key] === undefined || text(c[key]) && c[key].length <= 2048) && ['spring', 'autumn'].includes(c.semester) && Number.isInteger(c.year) && c.year >= 1900 && c.year <= 2200 && (c.credits == null || (Number.isFinite(c.credits) && c.credits >= 0)) && (c.programBinding === undefined || validProgramBinding(c.programBinding))) &&
+  return value.courses.every(c => text(c.name) && c.name.trim() && text(c.code) && text(c.university) && text(c.notes ?? '') && ['sourceUrl', 'entryUrl'].every(key => c[key] === undefined || text(c[key]) && c[key].length <= 2048) && ['spring', 'autumn'].includes(c.semester) && Number.isInteger(c.year) && c.year >= 1900 && c.year <= 2200 && (c.credits == null || (Number.isFinite(c.credits) && c.credits >= 0)) && (c.programBinding === undefined || validProgramBinding(c.programBinding)) && (c.teachingCheck===undefined||validTeachingCheck(c.teachingCheck))) &&
     value.events.every(e => text(e.title) && e.title.trim() && text(e.courseId) && (value.courses.some(c => c.id === e.courseId) || e.courseId === '' && text(e.importSourceId) && !!e.importSourceId.trim()) && (e.importSourceId === undefined || text(e.importSourceId) && !!e.importSourceId.trim() && text(e.importEntryKey) && !!e.importEntryKey.trim()) && instant(e.start) && instant(e.end) && Date.parse(e.end) > Date.parse(e.start) && text(e.notes ?? '') && (e.cancelled === undefined || typeof e.cancelled === 'boolean') && (e.deleted === undefined || typeof e.deleted === 'boolean')) &&
-    value.sources.every(s => text(s.courseId) && value.courses.some(c => c.id === s.courseId) && ['file', 'url'].includes(s.kind) && (s.kind !== 'url' || (s.reconnectRequired === true && s.url === undefined) || (text(s.url) && s.url.startsWith('https://'))) && text(s.name) && instant(s.lastUpdated) && Array.isArray(s.groups) && s.groups.every(text))
+    value.sources.every(s => text(s.courseId) && value.courses.some(c => c.id === s.courseId) && ['file', 'url'].includes(s.kind) && (s.kind !== 'url' || (s.reconnectRequired === true && s.url === undefined) || (text(s.url) && s.url.startsWith('https://'))) && text(s.name) && instant(s.lastUpdated) && ['groups','excludedKeys','allGroups','pendingGroups','commonGroups'].every(key => s[key] === undefined || Array.isArray(s[key]) && s[key].every(text)) && Array.isArray(s.groups))
 }
 export function validateCourse(draft, previous = {}) {
   if (!draft.name?.trim()) throw new Error('Skriv et emnenavn.')
@@ -74,7 +87,7 @@ export function mergeImport(planner, incoming, source, { course, authoritative =
       if (selectedPeriodBelongsToSpan) { previous.year = course.year; previous.semester = course.semester }
       previous.sourceBase = { name: course.name, credits: course.credits, description: course.description }
       previous.sourceUrl = course.sourceUrl
-      for (const key of ['sourceProvider', 'sourceRecordId', 'sourceVersion', 'campus', 'campusVerified', 'entryUrl', 'programBinding']) if (course[key] !== undefined && course[key] !== '') previous[key] = course[key]
+      for (const key of ['sourceProvider', 'sourceRecordId', 'sourceVersion', 'campus', 'campusVerified', 'entryUrl', 'programBinding', 'teachingCheck']) if (course[key] !== undefined && course[key] !== '') previous[key] = course[key]
       if (conflicts.length) { previous.conflict = `Emneinformasjon er endret i kilden (${conflicts.join(', ')}). Dine verdier er beholdt.`; counts.conflicts++ }
     }
   }

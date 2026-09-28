@@ -77,6 +77,21 @@ describe('R10 production POST and anonymous-cookie transport contracts', () => {
     expect(jars.every(jar => jar.size === 0)).toBe(true)
     expect(responses).toEqual([])
   })
+
+  it('keeps the HiMolde anonymous session request-local and forwards its required headers', async () => {
+    const origin = 'https://tp.educloud.no'
+    const referer = `${origin}/himolde/app/schedule`
+    const session = { origin, pathPrefix: '/himolde/', cookies: new Map(), referer }
+    responses.push(
+      { status: 200, headers: { 'set-cookie': ['PHPSESSID=fixture-session; Path=/himolde/; Secure; HttpOnly'] }, body: '<!doctype html>', accept: ({ url, options }) => url.href === referer && options.headers.Cookie === undefined && options.headers.Referer === referer && options.headers['X-Requested-With'] === 'XMLHttpRequest' },
+      { status: 200, body: '{}', accept: ({ url, options }) => url.href === `${origin}/himolde/ws/db/inst.php` && options.headers.Cookie === 'PHPSESSID=fixture-session' && options.headers.Referer === referer && options.headers['X-Requested-With'] === 'XMLHttpRequest' },
+    )
+    const guard = input => { const url = new URL(input); expect(url.origin).toBe(origin); expect(url.pathname.startsWith('/himolde/')).toBe(true); return url }
+    expect(await fetchPublicText(referer, 0, guard, { anonymousSession: session })).toContain('doctype')
+    expect(await fetchPublicText(`${origin}/himolde/ws/db/inst.php`, 0, guard, { anonymousSession: session })).toBe('{}')
+    expect(session.cookies).toEqual(new Map([['PHPSESSID', 'fixture-session']]))
+    expect(responses).toEqual([])
+  })
 })
 
 describe('real fetchPublicText recursion with mocked node transport', () => {

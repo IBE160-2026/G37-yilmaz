@@ -48,7 +48,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
     expect(result.count).toBe(sample.events)
     expect(result.unresolved || []).toHaveLength(sample.unresolved)
     const preview = form.locator('.document-preview')
-    await expect(preview.getByRole('heading', { name: 'Kontroller planen før import', exact: true })).toBeVisible({ timeout: 60_000 })
+    await expect(preview.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible({ timeout: 60_000 })
     expect(await saved()).toEqual(before)
     const rows = preview.locator('.document-preview-row')
     await expect(rows).toHaveCount(sample.events)
@@ -83,7 +83,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
       await page.setViewportSize({ width: 390, height: 844 })
     }
     expect(await saved()).toEqual(before)
-    await preview.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+    await preview.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
     await expect(form.getByRole('status')).toContainText('Institusjonskalender lagret')
     const state = await saved()
     expect(state.planner.courses).toEqual([])

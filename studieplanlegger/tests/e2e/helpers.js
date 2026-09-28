@@ -45,6 +45,14 @@ export async function navigate(page, view, { keyboard = false } = {}) {
       await page.keyboard.press('Enter')
     } else await control.click()
   }
+  // The redesign removed week/time as navigation roles, but their filters remain
+  // as compatibility views. Legacy regression suites enter them directly while
+  // current-flow suites exercise Overview, "Jeg har tid nå" and visible routes.
+  if (['week', 'time'].includes(view) && !await target.isVisible()) {
+    await target.evaluate(element => element.click())
+    await expect(target).toHaveAttribute('aria-pressed', 'true')
+    return
+  }
   if (!await target.isVisible()) {
     await expect(more).toBeVisible()
     await activate(more)
@@ -92,7 +100,6 @@ export async function instrumentWrites(page) {
 export async function filter(page, minutes = '30', { alternatives = true } = {}) {
   await navigate(page, 'time')
   await page.locator('#available-minutes').fill(minutes)
-  await page.locator('#time-form').getByRole('button', { name: 'Vis forslag', exact: true }).click()
   // Older regression flows operate on arbitrary matching tasks. New suggestion tests
   // opt out to verify that a fresh selection initially shows only the main proposal.
   if (alternatives) await showAlternatives(page)
