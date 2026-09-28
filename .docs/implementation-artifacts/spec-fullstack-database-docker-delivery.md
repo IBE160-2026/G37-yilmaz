@@ -82,7 +82,7 @@ context:
 |---|---|---|
 | B1 | medium — patch | `decodeURIComponent` runs before the static-file error guard and the returned promise is not caught; malformed request paths can create an unhandled rejection. |
 | B2 | high — patch | `server/app.js` defaults to `0.0.0.0`; the local-only contract requires host execution to default to loopback while Compose may explicitly select the container listener. |
-| B3 | false — reject | The approved transition intentionally preserves the exact legacy raw archive and original browser record. Privacy purge is specified for live history and recoverable server snapshots, not the immutable migration source. |
+| B3 | superseded — implemented later | This review originally rejected purging the immutable migration source. The delivered follow-up now provides valid, transactional legacy-archive purge behavior while leaving the original browser record untouched; the later implementation and tests supersede this historical verdict. |
 | B4 | medium — patch | Frontend emptiness counts omit revision/settings and ignore the preview's `empty` result, so an empty imported legacy envelope can prompt again and settings-only state can be offered an invalid migration. |
 | B5 | medium — patch | `importLegacy` checks revision before its fingerprint receipt, so a retry after a lost response is not the promised idempotent no-op. |
 | B6 | medium — patch | `read()` deletes every top-level key starting with `__`, while `_replace()` mixes internal shape flags into the same JSON; valid optional legacy fields can be lost. |

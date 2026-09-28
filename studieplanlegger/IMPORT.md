@@ -1,6 +1,6 @@
 # Emner, undervisning og oppgaveforslag
 
-Appen bruker vanlige, deterministiske regler. Data lagres lokalt i nettleseren. Oppgaver, studieøkter, emner og kalenderkilder lagres samlet, slik at en mislykket lagring ikke gir en halv import.
+Appen bruker vanlige, deterministiske regler. I produksjonsbygget og Docker er SQLite på den lokale appserveren autoritativ lagring. Vite-utvikling bruker fortsatt isolert `localStorage` som utviklingsadapter; dette er ikke produksjonspersistens. Oppgaver, studieøkter, emner og kalenderkilder lagres samlet i én bekreftet endring, slik at en mislykket lagring ikke gir en halv import.
 
 Kildeutgave, opptakskull, studiesemester og kalendersemester er forskjellige opplysninger. Når kilden bare gir et studieår, velger du faktisk studiesemester innen det publiserte året. Et studentoppgitt kull lagres som studentavklart og regnes ikke som en kildebekreftelse. Daterte emnetilbud kan ikke velges utenfor den perioden kilden oppgir.
 
@@ -12,11 +12,11 @@ Noen TP-eksporter lager nye ID-er ved hver henting. Appen gjenkjenner den dokume
 
 ## Bruk
 
-1. Åpne **Mine emner → Importer emner og plan** og velg **Fra lærested**, **Fra dokument eller tekst** eller **Fra kalenderfil eller lenke**. Programvalg, kull, studiesemester og kalendersemester er separate valg. Velg publisert campus, studiemodell, obligatoriske/valgfrie emner og undervisningsgrupper før bekreftelse. Under lærestedsimport finnes også «Søk etter ett enkelt emne» for de eksisterende adapterne. [Importdekningen](IMPORT-COVERAGE.md) skiller implementert, faktisk lokalt testet og ekte verifisert import per datatype.
+1. Åpne **Mine emner → Importer emner og plan** og velg **Fra lærested**, **Fra dokument eller tekst** eller **Fra kalenderfil eller lenke**. Programvalg, kull, studiesemester og kalendersemester er separate valg. I lærestedsimporten velger du publisert campus, studiemodell, obligatoriske/valgfrie emner og eventuell undervisning før én samlet bekreftelse; hvert emne viser egen undervisningsstatus. Under lærestedsimport finnes også «Søk etter ett enkelt emne» for de eksisterende adapterne. [Importdekningen](IMPORT-COVERAGE.md) skiller implementert, faktisk lokalt testet og ekte verifisert import per datatype.
 2. Støttede TP- og TimeEdit-kilder har offentlig emne-/klassevalg i forhåndsvisningen og for lagrede emner. Velg kildeobjektet selv, og kontroller aktivitetene. Når kalenderen mangler gruppeidentitet, vises et aktivitetsutvalg med antall, alle/ingen og individuelle økter. Et valgt objekt eller aktivitetsnavn bekrefter ikke personlig tilhørighet. Du kan også lagre bare emneinformasjonen.
 3. For alle universiteter kan du velge et registrert emne og laste opp en `.ics`-fil eller hente en offentlig HTTPS-/webcal-lenke.
 4. Velg aktivitetene og parallellene du følger. Kontroller tidspunkt, sted, semester, kilde og varsler i forhåndsvisningen. Ingen data lagres før bekreftelse.
-5. Lagrede lenker har **Sist oppdatert** og **Oppdater nå**. Appen kontrollerer oppdaterbare lenker ved åpning og mens den er synlig, normalt når minst 30 minutter har gått. Oppdatering pauses under redigering. Ved feil økes ventetiden, opptil ett døgn; eksisterende data beholdes. Manuell oppdatering forhåndsvises før bekreftelse. Filimport er et øyeblikksbilde. Appen oppdaterer ikke kilder mens den er lukket.
+5. Lagrede lenker har **Sist oppdatert** og **Oppdater nå**. Appen kontrollerer oppdaterbare lenker ved åpning og mens den er synlig, normalt når minst 30 minutter har gått. Oppdatering pauses under redigering. Ved feil økes ventetiden, opptil ett døgn; eksisterende data beholdes. Både automatisk og manuell kontroll som ikke endrer kilde, valg, varsler eller hendelser, registrerer nytt kontrolltidspunkt og avsluttes uten en overflødig bekreftelse. Når innhold eller valg er endret, åpnes forhåndsvisning og endringen må bekreftes. Filimport er et øyeblikksbilde. Appen oppdaterer ikke kilder mens den er lukket.
 
 Semesteret avgrenser importen: vår er januar–juni, høst er juli–desember. NTNUs emneinformasjon følger studieår: vår 2027 hentes fra studieåret 2026/2027. Alle undervisningstidspunkter vises i `Europe/Oslo`, også når datamaskinen bruker en annen tidssone. Oppgavenes eksisterende lokale fristformat er bevart.
 
