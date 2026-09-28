@@ -2,7 +2,7 @@
 title: "Product Brief: Studieplan"
 status: implemented
 created: 2026-09-06
-updated: 2026-09-26
+updated: 2026-09-28
 ---
 
 # Product Brief: Studieplan
@@ -14,6 +14,8 @@ Studieplan is a study planner for students at Norwegian universities and univers
 Studieplan connects confirmed imports and manually entered tasks with teaching, deadlines, and study sessions in one calendar. Guided onboarding and quick capture let the student begin before every detail is known, while explained suggestions support useful and feasible next actions.
 
 The student records work outcomes, and Studieplan can propose adjustments when time is lost or the student's needs change. The delivered implementation includes a local browser interface, a loopback-only Node API, durable SQLite storage and a documented Docker Compose setup. The database schema is created automatically and a named volume preserves data across container recreation. Suggestions use registered information, rules, dependencies, and local work history; they do not require generative AI or change the plan without the student's confirmation.
+
+The `implemented` status describes the delivered core functionality; it does not mean that all import coverage requirements have been fulfilled. Full national support remains an unmet delivery requirement.
 
 The current implementation reduces repeated setup by reusing a confirmed study-time pattern and combining programme, course and available teaching preparation into one reviewed commit. Source-owned course alternatives remain explicit student choices. Teaching status is recorded per course, and saved activity, group and exclusion choices survive reload and refresh. Unchanged refreshes finish without an extra confirmation, while changed source data or choices remain reviewable. Course codes and deterministic colors keep related teaching, deadlines and study sessions recognizable without relying on color alone.
 
@@ -33,7 +35,7 @@ Onboarding turns that context into a first course, task, and study session. Late
 
 The calendar combines fixed teaching, deadlines, and study sessions without treating them as equivalent. Studieplan suggests work that fits the student's available time and respects known deadlines and dependencies. Each suggestion explains what to do, why it matters, and what remains uncertain. Local work history may improve estimates without replacing the student's judgment.
 
-After a study session, the student records that the task is finished, needs more time, or was not started. If time is lost, an estimate increases, or completed work frees time, Studieplan proposes schedule changes that the student can inspect, adjust, accept, reject, or undo.
+After a study session, the student records the outcome of the work: completed, needing more time, or not performed. Completing a work step does not necessarily complete the whole task, and completing a task does not mark it as submitted. The student confirms submission manually. Actual time worked and estimated remaining work are recorded separately; logged time is not automatically deducted from the remaining estimate. If time is lost, an estimate increases, or completed work frees time, Studieplan proposes schedule changes that the student can inspect, adjust, accept, reject, or undo.
 
 ## What Makes This Different
 
@@ -63,12 +65,12 @@ The agreed first complete delivery covers the product areas required for one con
 - institution, programme, and semester selection, with manual entry and controlled imports from documents, calendars, and available teaching sources;
 - onboarding, task capture, teaching, deadlines, study sessions, progress registration, and student-approved replanning;
 - explained next actions based on time, deadlines, dependencies, and applicable local history;
-- local and private operation through the existing browser interface and import service, extended as needed for durable database storage; and
+- local and private operation through the delivered browser interface and Node API, with SQLite as authoritative production storage; and
 - source code, support for data recovery, and a documented Docker setup for running the required components locally with persistent storage.
 
 The delivered production path uses SQLite as authoritative storage behind the local Node API. Complete state changes are validated, revision-checked and written transactionally. Docker Compose binds only to `127.0.0.1`, creates the schema automatically and keeps the database in a named volume. Browser storage remains available in the separate Vite development mode and as an explicitly confirmed migration source. Startup, health, test and recovery instructions are documented in the README and verification record.
 
-Support for universities and university colleges across Norway is a delivery requirement, dependent on available and permitted data sources. Coverage must be reported honestly. Manual and file import provide continuity but do not establish direct institutional integration; detailed evidence belongs in the import documentation.
+Support for universities and university colleges across Norway remains a delivery requirement, dependent on available and permitted data sources. Full national support is not yet fulfilled, and further expansion of institutional coverage is paused. The [current import coverage](studieplanlegger/IMPORT-COVERAGE.md) records verified support and remaining limitations. Manual and file import provide continuity but do not establish direct institutional integration.
 
 **Delivery evidence.** The [development-process record](.docs/implementation-artifacts/development-process.md) documents AI-assisted development, the BMAD process, and quality assurance. These delivery-evidence requirements are distinct from Studieplan's runtime behavior, which uses registered data, rules, and local statistics rather than generative AI.
 
