@@ -1130,9 +1130,9 @@ DTSTART:20260918T080000Z
 DTEND:20260918T084500Z
 UID:186880--425816858-0@timeedit.com
 DTSTAMP:20260912T110348Z
-SUMMARY:Tema/kommentar: Meeting URL: https://ldh.zoom.us/j/65026598246?pwd=
- zn0EsmpwVJ0cXLFru6Xy0Y7tFtfdt1.1&from=addon \n \nMeeting ID: 650 2659 8246
- \nPasscode: 446831
+SUMMARY:Tema/kommentar: Meeting URL: https://meet.example.invalid/room\n
+ \nMeeting ID: 000 000 0000\n
+ Passcode: EXAMPLE-ONLY
 LOCATION:BSY-121 Informasjon om skriftlig arbeidskrav i akademisk skriving
 END:VEVENT
 BEGIN:VEVENT
@@ -1140,9 +1140,9 @@ DTSTART:20260918T090000Z
 DTEND:20260918T094500Z
 UID:185217--425816858-0@timeedit.com
 DTSTAMP:20260912T110348Z
-SUMMARY:Tema/kommentar: Meeting URL: https://ldh.zoom.us/j/65026598246?pwd=
- zn0EsmpwVJ0cXLFru6Xy0Y7tFtfdt1.1&from=addon \n \nMeeting ID: 650 2659 8246
- \nPasscode: 446831
+SUMMARY:Tema/kommentar: Meeting URL: https://meet.example.invalid/room\n
+ \nMeeting ID: 000 000 0000\n
+ Passcode: EXAMPLE-ONLY
 LOCATION:BSY-121 KI som støtte i akademisk skriving
 END:VEVENT
 BEGIN:VEVENT
@@ -1150,9 +1150,9 @@ DTSTART:20260918T100000Z
 DTEND:20260918T104500Z
 UID:187923--425816858-0@timeedit.com
 DTSTAMP:20260912T110348Z
-SUMMARY:Tema/kommentar: Meeting URL: https://ldh.zoom.us/j/65026598246?pwd=
- zn0EsmpwVJ0cXLFru6Xy0Y7tFtfdt1.1&from=addon \n \nMeeting ID: 650 2659 8246
- \nPasscode: 446831
+SUMMARY:Tema/kommentar: Meeting URL: https://meet.example.invalid/room\n
+ \nMeeting ID: 000 000 0000\n
+ Passcode: EXAMPLE-ONLY
 LOCATION:BSY-121 Kildebruk og metoder for referering i akademiske tekster
 END:VEVENT
 BEGIN:VEVENT

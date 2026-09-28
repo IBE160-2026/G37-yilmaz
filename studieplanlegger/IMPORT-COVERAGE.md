@@ -14,7 +14,7 @@ Dette avsnittet erstatter de historiske statuspåstandene nedenfor. NOKUT-listen
 
 **48 programadaptere er registrert og har nå minst én avgrenset ekte importprøve.** Det betyr fortsatt ikke komplette institusjoner eller alle programvarianter. Publisert planutgave, studentens opptakskull, studiesemester og kalendersemester holdes adskilt. Studentavklaringer telles ikke som direkte import. Kataloger følger faktiske resultatsider; manglende emneplassering, koder, studiepoeng, valg og periodeinformasjon beholdes ukjent eller som synlige krav.
 
-**Tverrsnitt 25. september.** Programkolonnen har 48 avgrensede ekte importprøver; Ekko står separat som Ø. Blant de 48 adapterne er studieår 22 V / 3 L / 23 N, opptakskull 25 V / 1 L / 22 N, studiesemester 36 V / 2 L / 10 N og kalendersemester 23 V / 1 L / 24 N. Obligatoriske emner er 22 V / 8 L / 18 N; valgemner er 8 V / 23 L / 16 N / 1 Ø; emneinformasjon er 48 V. For hele 49-institusjonsinventaret er offentlig undervisning 27 V / 5 M / 6 A / 2 F / 9 Ø etter den anonyme HiMolde-kontrollen. Campus er 20 V / 3 F / 25 N / 1 Ø; grupper er 1 V / 4 L / 23 N / 6 A / 4 M / 11 Ø; personlig timeplan er 25 A / 24 Ø. De tidligere 4 + 19 + 36 `U`-feltene er undersøkt til en konkret, datert status. Statusene betyr ikke at datatypen finnes: `N`, `M`, `A` og `Ø` beholder hver sin presise begrunnelse i appens kildebevis.
+**Tverrsnitt 25. september.** Programkolonnen har 48 avgrensede ekte importprøver; Ekko står separat som Ø. Blant de 48 adapterne er studieår 22 V / 3 L / 23 N, opptakskull 25 V / 1 L / 22 N, studiesemester 36 V / 2 L / 10 N og kalendersemester 23 V / 1 L / 24 N. Obligatoriske emner er 22 V / 8 L / 18 N; valgemner er 8 V / 23 L / 16 N / 1 Ø; emneinformasjon er 48 V. For hele 49-institusjonsinventaret er offentlig undervisning 28 V / 4 M / 6 A / 2 F / 9 Ø etter de anonyme HiMolde- og NIH-kontrollene. Campus er 20 V / 3 F / 25 N / 1 Ø; grupper er 1 V / 4 L / 23 N / 6 A / 4 M / 11 Ø; personlig timeplan er 25 A / 24 Ø. De tidligere 4 + 19 + 36 `U`-feltene er undersøkt til en konkret, datert status. Statusene betyr ikke at datatypen finnes: `N`, `M`, `A` og `Ø` beholder hver sin presise begrunnelse i appens kildebevis.
 
 | Kildekontrakt | Faktisk innhold og vesentlig begrensning |
 | --- | --- |
@@ -68,7 +68,7 @@ Institusjonskalenderen støtter Plandisc som kapasitetsfri informasjon, HØFY og
 | [Høgskolen i Molde - vitenskapelig høgskole i logistikk](https://www.himolde.no/studier/programmer/) | V | N | V | N | V | V | V | V | V | N | N | A |
 | [Kunsthøgskolen i Oslo](https://khio.no/studieprogrammer) | V | N | N | N | N | N | N | V | V | N | N | Ø |
 | [Norges Handelshøyskole](https://www.nhh.no/studier/) | V | N | V | L | N | N | N | V | V | N | N | A |
-| [Norges idrettshøgskole](https://www.nih.no/studier/programmer/) | V | N | N | N | N | V | V | V | M | N | N | Ø |
+| [Norges idrettshøgskole](https://www.nih.no/studier/programmer/) | V | N | N | N | N | V | V | V | V | N | N | Ø |
 | [Norges musikkhøgskole](https://student.nmh.no/studiehandboker) | V | N | V | N | N | N | N | V | V | N | N | Ø |
 | [VID vitenskapelige høgskole](https://www.vid.no/studier/studieplaner) | V | V | V | V | V | V | L | V | A | V | A | A |
 | [Ansgar Høyskole](https://www.ansgarhoyskole.no/student/kalender) | V | V | N | V | V | N | L | V | V | N | L | Ø |
