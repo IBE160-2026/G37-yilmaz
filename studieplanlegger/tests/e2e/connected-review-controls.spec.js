@@ -34,7 +34,7 @@ for (const outcome of ['cancel', 'timeout']) {
     await page.getByRole('button', { name: 'Fra dokument eller tekst', exact: true }).click()
     const text = 'Innlevering etter avbrudd frist 2026-09-16 kl. 14:00'
     await page.getByLabel('Eller lim inn tekst').fill(text)
-    const before = await stored(page), read = page.getByRole('button', { name: 'Lag forhåndsvisning', exact: true })
+    const before = await stored(page), read = page.getByRole('button', { name: 'Les arbeidskravet', exact: true })
     await read.click()
     await expect(page.locator('.document-import [role=status]')).toHaveText('Kontrollert dokumentleser startet')
     await expect(read).toBeDisabled()
@@ -48,9 +48,9 @@ for (const outcome of ['cancel', 'timeout']) {
     expect(await page.evaluate(() => window.documentWorkers)).toEqual({ created: 1, terminated: 1 })
     await page.unroute(pattern)
     await read.click()
-    await expect(page.getByRole('heading', { name: 'Kontroller planen før import', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible()
     expect(await stored(page)).toBe(before)
-    await page.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+    await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
     await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
     const after = JSON.parse(await stored(page))
     expect(after.tasks).toHaveLength(2)
@@ -67,13 +67,16 @@ for (const [width, size] of [[390, 24], [390, 32], [1440, 16]]) {
   test(`R6 replan dates remain readable and keyboard-editable at ${width}px with ${size}px text`, async ({ page }, info) => {
     await boot(page, fixture(), { width, size })
     const before = await stored(page)
-    await page.locator('.connected-plan-actions').getByRole('button', { name: 'Jeg ligger etter', exact: true }).click()
-    const dialog = page.getByRole('dialog', { name: 'Jeg ligger etter', exact: true })
-    const date = dialog.getByLabel('Ny dato', { exact: true }).first()
+    await navigate(page, 'all')
+    await page.getByRole('button', { name: 'Se planforslag «Behold eksisterende arbeid»', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: 'Planforslag for oppgaven', exact: true })
+    await dialog.locator('[data-session-id=tuesday]').getByRole('button', { name: 'Flytt', exact: true }).click()
+    await dialog.getByRole('button', { name: 'Velg tidspunkt selv', exact: true }).click()
+    const date = dialog.getByLabel('Dato', { exact: true })
     await tabTo(page, date)
     await expect(date).toHaveValue('2026-09-10')
     const layout = await date.evaluate(input => {
-      const style = getComputedStyle(input), row = input.closest('.replan-row'), rowStyle = getComputedStyle(row)
+      const style = getComputedStyle(input), row = input.closest('.manual-move'), rowStyle = getComputedStyle(row)
       const canvas = document.createElement('canvas'), context = canvas.getContext('2d'); context.font = style.font
       return { width: input.getBoundingClientRect().width, minimum: context.measureText('09/10/2026').width + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + 36, columns: rowStyle.gridTemplateColumns.split(' ').length, pageFits: document.documentElement.scrollWidth <= innerWidth }
     })
@@ -86,7 +89,7 @@ for (const [width, size] of [[390, 24], [390, 32], [1440, 16]]) {
     await date.fill('2026-09-10')
     await date.scrollIntoViewIfNeeded()
     await page.screenshot({ path: info.outputPath(`replan-date-${width}-${size}.png`) })
-    await dialog.getByRole('button', { name: 'Forkast', exact: true }).click()
+    await dialog.getByRole('button', { name: 'Ikke nå', exact: true }).click()
     expect(await stored(page)).toBe(before)
   })
 }

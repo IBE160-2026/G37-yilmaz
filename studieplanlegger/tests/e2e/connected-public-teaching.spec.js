@@ -248,6 +248,12 @@ test('saved-course teaching can be selected by keyboard with large text and a fa
   unavailable = true
   await search.click()
   await expect(page.getByRole('status').filter({ hasText: 'Midlertidig kildefeil. Lagret undervisning er beholdt.' })).toBeVisible()
-  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)).toEqual(committed)
+  const failed = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)
+  expect(failed.tasks).toEqual(committed.tasks)
+  expect(failed.planner.events).toEqual(committed.planner.events)
+  expect(failed.planner.sources).toEqual(committed.planner.sources)
+  expect(failed.planner.courses[0].teachingCheck).toMatchObject({status:'transport-error',lastSuccess:committed.planner.courses[0].teachingCheck.lastSuccess,source:'nord-public-teaching'})
+  const failedCourse=structuredClone(failed.planner.courses[0]),committedCourse=structuredClone(committed.planner.courses[0]);delete failedCourse.teachingCheck;delete committedCourse.teachingCheck
+  expect(failedCourse).toEqual(committedCourse)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
 })

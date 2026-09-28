@@ -1,6 +1,6 @@
 import { formatDay, formatDeadline, taskStatus } from './calendar.js'
 import { capacityNotice } from './capacity-notice.js'
-import { getRemainingMinutes } from './tasks.js'
+import { getRemainingMinutes, getRemainingRange, formatEstimateRange } from './tasks.js'
 import { osloLocal } from './planner.js'
 
 const $ = selector => document.querySelector(selector)
@@ -101,7 +101,9 @@ export function createCapacityView(actions) {
           row.append(button('Rediger tidsrom', () => { windowEditing = value.id; for (const [key, v] of Object.entries({ kind, label: value.label, startLocal: osloLocal(value.start), endLocal: osloLocal(value.end) })) windowForm.elements[key].value = v || ''; windowForm.elements.startLocal.focus() }), button('Slett tidsrom', () => actions.deleteWindow(value.id, kind))); windowList.append(row)
         }
       }
-      setText($('#capacity-summary'), `${capacity.totalRequiredMinutes} min kjent arbeid${capacity.unknownTaskCount ? ` · ${capacity.unknownTaskCount} oppgaver med ukjent arbeidstid` : ''} · ${capacity.totalAllocatedMinutes} min satt av · ${capacity.totalMissingMinutes} min ikke planlagt · ${capacity.spareMinutes} min ledig i øktene.`)
+      const required = capacity.totalRequiredMaxMinutes === null ? `minst ${capacity.totalRequiredMinMinutes}` : capacity.totalRequiredMinMinutes !== undefined && capacity.totalRequiredMinMinutes !== capacity.totalRequiredMaxMinutes ? `${capacity.totalRequiredMinMinutes}–${capacity.totalRequiredMaxMinutes}` : capacity.totalRequiredMinutes
+      const missing = capacity.totalMissingMaxMinutes === null ? `minst ${capacity.totalMissingMinMinutes}` : `opptil ${capacity.totalMissingMaxMinutes ?? capacity.totalMissingMinutes}`
+      setText($('#capacity-summary'), `${required} min kjent arbeid${capacity.unknownTaskCount ? ` · ${capacity.unknownTaskCount} oppgaver med ukjent øvre grense` : ''} · ${capacity.totalAllocatedMinutes} min satt av · ${missing} min ikke planlagt · ${capacity.spareMinutes} min ledig i øktene.`)
       setText($('#capacity-warnings'), capacity.warnings.join(' '))
       $('#capacity-warnings').hidden = !capacity.warnings.length
       $('#sessions-empty').hidden = savedSessions.length > 0
@@ -161,7 +163,7 @@ export function createCapacityView(actions) {
         }
         setText(row.title, `${task.course} · ${task.title}`)
         setText(row.deadline, `Frist: ${formatDeadline(task.deadlineLocal, { year: true })} · ${taskStatus(task)}`)
-        setText(row.minutes, getRemainingMinutes(task) === null ? 'Gjenstående arbeid: ukjent' : `Gjenstående: ${planned.requiredMinutes} min · Satt av: ${planned.allocatedMinutes} min · Ikke planlagt: ${planned.missingMinutes} min`)
+        setText(row.minutes, `Gjenstående: ${formatEstimateRange(getRemainingRange(task))} · Satt av: ${planned.allocatedMinutes} min · Ikke planlagt: ${planned.missingMinMinutes || 0}–${planned.missingMaxMinutes ?? planned.missingMinutes} min`)
         const notice = capacityNotice(task, savedSessions, model.planner?.events || [], model.now)
         setText(row.explanation, task.completed ? 'Arbeidet er ferdig.' : getRemainingMinutes(task) === 0 ? 'Ingen arbeidstid gjenstår. Bekreft om oppgaven er fullført.' : notice && (planned.missingMinutes || !planned.requiredMinutes || notice.tone === 'danger' || notice.tone === 'warning') ? notice.text : planned.reasons?.join(' ') || capacity.planningNote || 'Minuttsummen dekker estimatet. Kontroller øktlengder og pauser i Planlegg uken før du bekrefter en plan.')
         row.explanation.className = ['danger', 'warning'].includes(notice?.tone) ? 'capacity-warning' : 'muted'
@@ -169,7 +171,7 @@ export function createCapacityView(actions) {
         if (planned.state) {
           const stateLabel = { unknown: 'Ukjent', unplanned: 'Ikke planlagt', planned: 'Planlagt', insufficient: 'Utilstrekkelig kapasitet', done: 'Ferdig', blocked: 'Blokkert' }[planned.state]
           setText(row.explanation, `${stateLabel}. ${planned.reasons.join(' ')}`)
-          setText(row.minutes, `${getRemainingMinutes(task) === null ? 'Gjenstående: ukjent' : `Gjenstående: ${planned.requiredMinutes} min`} · Reservert: ${planned.reservedMinutes} min · Forslag inkludert: ${planned.allocatedMinutes} min`)
+          setText(row.minutes, `Gjenstående: ${formatEstimateRange(getRemainingRange(task))} · Reservert: ${planned.reservedMinutes} min · Forslag inkludert: ${planned.allocatedMinutes} min`)
         }
         row.allocations.hidden = !planned.allocations.length
         row.edit.setAttribute('aria-label', `Oppdater arbeid «${task.title}»`)

@@ -94,7 +94,7 @@ test('mobile day, agenda, settings and enlarged text remain reachable with keybo
 test('one task row combines session and deadline, equal titles stay distinct and focus uses IDs', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   const data = state(); data.planner.events = []; await boot(page, data)
-  const rows = page.locator('#daily-overview [data-daily-row^="task:"]')
+  const rows = page.locator('#next-plan [data-daily-row^="task:"]')
   await expect(rows).toHaveCount(2)
   const first = page.locator('[data-daily-row="task:a"]'), second = page.locator('[data-daily-row="task:b"]')
   await expect(first).toContainText('10:00'); await expect(first).toContainText('Frist i dag kl. 14:00')

@@ -70,7 +70,8 @@ describe('lokale studieøkter', () => {
 describe('deterministisk fordeling av gjenstående arbeid', () => {
   it('deler 90 minutter over to økter og lar 30 minutter stå ledig', () => {
     const result = plan([task()], [session('a'), session('b', { startTime: '11:00', endTime: '12:00' })])
-    expect(result.tasks[0]).toEqual({ taskId: 'task', requiredMinutes: 90, allocatedMinutes: 90, missingMinutes: 0, reasons: [], allocations: [
+    expect(result.tasks[0]).toEqual({ taskId: 'task', requiredMinutes: 90, requiredMinMinutes: 90, requiredMaxMinutes: 90,
+      allocatedMinutes: 90, availableBeforeMinutes: 120, missingMinutes: 0, missingMinMinutes: 0, missingMaxMinutes: 0, reasons: [], allocations: [
       { sessionId: 'a', startLocal: '2026-09-07T10:00', endLocal: '2026-09-07T11:00', minutes: 60 },
       { sessionId: 'b', startLocal: '2026-09-07T11:00', endLocal: '2026-09-07T11:30', minutes: 30 },
     ] })

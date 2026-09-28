@@ -43,7 +43,10 @@
           <h1 id="page-heading">Oversikt</h1>
           <p id="today-label" class="today-chip" aria-live="polite"></p>
         </div>
-        <button id="new-task" type="button" disabled><span aria-hidden="true">+</span> Ny oppgave</button>
+        <div class="header-actions">
+          <button id="new-assignment" type="button" class="secondary" disabled>Legg inn arbeidskrav</button>
+          <button id="new-task" type="button" class="secondary" disabled><span aria-hidden="true">+</span> Ny oppgave</button>
+        </div>
       </header>
       <main id="hovedinnhold" tabindex="-1">
         <noscript>
@@ -56,6 +59,7 @@
         <div id="feedback-bar" class="feedback-bar" hidden>
           <p id="feedback" role="status" aria-live="polite" aria-atomic="true"></p>
           <button id="feedback-next-step" type="button" class="text-button" hidden>Legg til neste steg <span aria-hidden="true">→</span></button>
+          <button id="feedback-plan" type="button" class="text-button" hidden>Se planforslag <span aria-hidden="true">→</span></button>
         </div>
         <div id="completion-badge" class="completion-badge" hidden aria-hidden="true">
           <span class="completion-check">✓</span><span>Oppdatert</span>
@@ -212,8 +216,8 @@
               <div class="focus-intro">
                 <div>
                   <p class="eyebrow">Fra oversikt til handling</p>
-                  <h2 id="focus-heading">Hva kan jeg gjøre nå?</h2>
-                  <p>Finpuss planleggingen med én tydelig handling.</p>
+                  <h2 id="focus-heading">Jeg har tid nå</h2>
+                  <p>Hvor mye tid har du?</p>
                 </div>
                 <div class="focus-visual" aria-hidden="true">
                   <svg viewBox="0 0 84 84" role="img" aria-label="">
@@ -247,7 +251,7 @@
                     <input id="available-minutes" name="availableMinutes" type="text" inputmode="numeric" required value="30" aria-describedby="available-minutes-error" />
                     <p class="field-error" id="available-minutes-error"></p>
                   </div>
-                  <button type="submit" class="light-button">Vis forslag <span aria-hidden="true">→</span></button>
+                  <button type="submit" class="light-button" hidden>Oppdater forslag</button>
                 </div>
                 <p id="filter-summary" aria-live="polite" aria-atomic="true"></p>
               </form>

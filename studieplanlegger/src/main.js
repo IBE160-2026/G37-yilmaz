@@ -3,7 +3,7 @@ import { createSubjectsView } from './subjects-view.js'
 import './redesign.css'
 import { validateDraft, editTask, deleteTask, setTaskCompleted, setTaskSubmitted,
   setNextStep, clearNextStep, completeNextStep, sortedTasks,
-  tasksThisWeek, selectTasksForMinutes, validateAvailableMinutes, isOverdue } from './tasks.js'
+  tasksThisWeek, validateAvailableMinutes, isOverdue } from './tasks.js'
 import { createStorage } from './storage.js'
 import { createUI } from './redesigned-ui.js'
 import { deriveCapacity, validateSession } from './capacity.js'
@@ -17,9 +17,11 @@ import { closeWork, futureReservations } from './work-log.js'
 import { createReplanningView } from './replanning-view.js'
 import { createOnboarding } from './onboarding.js'
 import { preserveMissingDependencies } from './task-dependencies.js'
+import { rankedSuggestions } from './daily-guidance.js'
+import { createStudySessionView } from './study-session-view.js'
 
 const storage = createStorage()
-let extras = {}, dataTools, sync, workView, replanView, onboarding, planActions
+let extras = {}, dataTools, sync, workView, replanView, onboarding, studySessionView
 let tasks = []
 let planner
 let subjects
@@ -38,7 +40,12 @@ let minuteError = ''
 let visibleTasks = []
 const ui = createUI({
   closeWork(id, sessionId) { if (canEdit()) { workView.open(id, sessionId); refresh() } },
-  replan() { if (canEdit()) { replanView.open(); refresh() } },
+  start(id) {
+    if (!canEdit()) return
+    const task = tasks.find(item => item.id === id)
+    if (task) { studySessionView.open(task, minutes); refresh() }
+  },
+  replan(taskId) { if (canEdit()) { replanView.open(taskId ? { taskId } : {}); refresh() } },
   saveCalendarPreferences(preferences) {
     if (!canEdit()) return { ok: false }
     const result = commitState({ ...snapshot(), calendarPreferences: preferences }, 'Kalenderinnstillinger', { history: false })
@@ -312,6 +319,7 @@ const ui = createUI({
     tasks = candidate
     const savedId = draftId
     const focusId = editing ? draftId : null
+    const planId = editing ? null : savedId
     let message = editing ? 'Endringer lagret' : 'Oppgave lagret'
     draftId = null
     editing = false
@@ -320,10 +328,10 @@ const ui = createUI({
       message += '. Du finner oppgaven under «Alle oppgaver».'
     }
     ui.close(focusId)
-    ui.message(message)
+    ui.message(message, null, planId)
   },
 })
-function hasEditor() { return draftId !== null || stepId !== null || sessionId !== null || Boolean(subjects?.isEditing()) || Boolean(workView?.isOpen()) || Boolean(replanView?.isOpen()) }
+function hasEditor() { return draftId !== null || stepId !== null || sessionId !== null || Boolean(subjects?.isEditing()) || Boolean(workView?.isOpen()) || Boolean(replanView?.isOpen()) || Boolean(studySessionView?.isOpen()) }
 function canEdit() { return readable && !hasEditor() }
 function snapshot() { return storage.snapshot() }
 function commitState(candidate, label = 'Studiedata', { history = true } = {}) {
@@ -373,7 +381,7 @@ function persistAction(result, id, action, message, stepActionId = null) {
 }
 function refresh() {
   const now = new Date()
-  const candidates = minuteError ? [] : selectTasksForMinutes(tasks, minutes, { includePartial: true })
+  const candidates = minuteError ? [] : rankedSuggestions(tasks, minutes)
   const pending = sortedTasks(tasks.filter(task => !task.completed || (task.requiresSubmission && !task.submitted)))
   visibleTasks = view === 'week' ? tasksThisWeek(tasks, now)
     : view === 'all' ? sortedTasks(tasks)
@@ -382,10 +390,6 @@ function refresh() {
   subjects?.render({ tasks, planner, view, now, minutes, minuteError, readable })
   const model = { ...extras, planner, courseFilter, tasks, sessions, capacity: deriveCapacity(tasks, sessions || [], now, planner?.events || [], extras), readable, visibleTasks, candidates, view, now, minutes, minuteError, showAlternatives, editing: hasEditor() }
   ui.render(model)
-  if (planActions) {
-    planActions.hidden = !readable || ['calendar', 'subjects', 'settings'].includes(view)
-    for (const button of planActions.children) button.disabled = model.editing
-  }
   onboarding?.render(model)
   dataTools?.render(model)
 }
@@ -468,18 +472,16 @@ dataTools = createDataTools({
 })
 workView = createWorkLogView({ state: snapshot, commit: commitState, onClose: refresh,
   offerTime: () => { ui.message('Arbeidet er registrert. Bruk «Jeg ligger etter» for å finne ny tid.'); refresh() } })
-replanView = createReplanningView({ state: snapshot, commit: commitState, onClose: refresh })
-planActions = document.createElement('div'); planActions.className = 'connected-plan-actions'; planActions.innerHTML = '<button type="button" class="secondary">Planlegg uken</button><button type="button" class="secondary">Jeg ligger etter</button>'
-document.querySelector('#workspace').before(planActions)
-planActions.children[0].onclick = () => { view = 'capacity'; refresh(); document.querySelector('.work-window-form input[name=startLocal]')?.focus() }
-planActions.children[1].onclick = () => { if (canEdit()) { replanView.open(); refresh() } }
+replanView = createReplanningView({ state: snapshot, commit: commitState, onClose: refresh,
+  advanced() { view = 'capacity'; refresh(); document.querySelector('.work-window-form input[name=startLocal]')?.focus() } })
+studySessionView = createStudySessionView({ onClose: refresh, finish(taskId, plannedMinutes, stepOnly) { workView.open(taskId, undefined, 'done', { plannedMinutes, stepOnly }); refresh() } })
 onboarding = createOnboarding({
   begin() { if (!extras.onboarding) commitState({ ...snapshot(), onboarding: { dismissed: false, completed: false } }, 'Startet oppstart', { history: false }) },
   dismiss(completed) { if (commitState({ ...snapshot(), onboarding: { dismissed: true, completed } }, 'Oppstart satt på pause', { history: false }).ok) refresh() },
   view(next) { view = next; refresh() },
   open(options) { if (!canEdit()) return; editing = false; draftId = crypto.randomUUID(); const course = planner?.courses.find(item => item.id === options?.courseId); ui.open(course ? { courseId: course.id, course: course.code || course.name } : undefined) },
   edit(id) { const task = tasks.find(item => item.id === id); if (task && canEdit()) { draftId = id; editing = true; ui.open(task) } },
-  replan() { if (canEdit()) { replanView.open({ firstSession: true }); refresh() } },
+  replan(id) { if (canEdit()) { replanView.open(id ? { taskId: id } : {}); refresh() } },
 })
 sync = createCalendarSync({
   getState: snapshot,

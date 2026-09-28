@@ -9,30 +9,34 @@ async function boot(page, state) {
   await page.evaluate(({ key, state }) => localStorage.setItem(key, JSON.stringify(state)), { key, state }); await page.reload()
 }
 
-test('R7 untouched recovery honours breaks across adjacent registered windows and undoes atomically', async ({ page }, info) => {
+test('R7 task plan suggestions honour breaks across adjacent registered windows and each undo restores the prior plan', async ({ page }, info) => {
   const state = { schemaVersion: 1, tasks: [task('Lang økt', 60), task('Kort økt', 25)], sessions: [], workWindows: [window('first', '09:00', '10:00'), window('second', '10:05', '10:35')], planningPreferences: { minimumMinutes: 15, sessionMinutes: 60, maximumMinutes: 60, breakMinutes: 10 } }
   await boot(page, state)
-  await page.locator('.connected-plan-actions').getByRole('button', { name: 'Jeg ligger etter', exact: true }).click()
-  const dialog = page.getByRole('dialog', { name: 'Jeg ligger etter', exact: true })
-  await expect(dialog.getByLabel('Ny start', { exact: true }).nth(1)).toHaveValue('10:10')
+  await navigate(page, 'all')
+  await page.getByRole('button', { name: 'Se planforslag «Lang økt»', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Planforslag for oppgaven', exact: true })
+  await dialog.getByRole('button', { name: 'Bruk planen', exact: true }).click()
+  await page.getByRole('button', { name: 'Se planforslag «Kort økt»', exact: true }).click()
+  await expect(dialog.locator('.proposed-session-time')).toContainText('10:10–10:35')
   await page.screenshot({ path: info.outputPath('cross-window-break-preview.png') })
-  await dialog.getByRole('button', { name: 'Godta hele planen', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Bruk planen', exact: true }).click()
   await expect(dialog).not.toBeVisible()
   expect((await stored(page)).sessions.map(item => [item.startTime, item.endTime])).toEqual([['09:00', '10:00'], ['10:10', '10:35']])
   await navigate(page, 'settings'); await page.locator('#settings-panel').getByRole('button', { name: 'Angre siste endring', exact: true }).click()
+  await page.locator('#settings-panel').getByRole('button', { name: 'Angre siste endring', exact: true }).click()
   expect((await stored(page)).sessions).toEqual([])
 })
 
-test('R7 insufficient locked breaks stay visible and cannot make dependent work start-ready', async ({ page }, info) => {
+test('R7 locked reservations stay untouched and cannot make dependent work start-ready', async ({ page }, info) => {
   const state = { schemaVersion: 1, tasks: [task('Forutsetning', 60), task('Avhengig arbeid', 30, { dependencyIds: ['Forutsetning'] })], sessions: [{ id: 'first', taskId: 'Forutsetning', dateLocal: '2026-09-10', startTime: '09:00', endTime: '09:30', locked: true }, { id: 'second', taskId: 'Forutsetning', dateLocal: '2026-09-10', startTime: '09:35', endTime: '10:05', locked: true }], workWindows: [window('available', '09:00', '10:45')] }
   await page.setViewportSize({ width: 390, height: 844 }); await boot(page, state)
-  await page.locator('.connected-plan-actions').getByRole('button', { name: 'Jeg ligger etter', exact: true }).click()
-  const dialog = page.getByRole('dialog', { name: 'Jeg ligger etter', exact: true })
-  await expect(dialog).toContainText('mangler valgt pause mellom reservasjonene')
-  await expect(dialog).toContainText('«Avhengig arbeid»:')
+  await navigate(page, 'all')
+  await page.getByRole('button', { name: 'Se planforslag «Avhengig arbeid»', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Planforslag for oppgaven', exact: true })
+  await expect(dialog).toContainText('«Avhengig arbeid»: Venter på «Forutsetning». Ingen startklar tid foreslås.')
   await expect(dialog.locator('.replan-row').filter({ hasText: 'Avhengig arbeid' })).toHaveCount(0)
   await page.screenshot({ path: info.outputPath('locked-break-warning-mobile.png') })
-  await dialog.getByRole('button', { name: 'Godta hele planen', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Ikke nå', exact: true }).click()
   await expect(dialog).not.toBeVisible()
   const after = await stored(page)
   expect(after.sessions.filter(item => item.locked)).toEqual(state.sessions)

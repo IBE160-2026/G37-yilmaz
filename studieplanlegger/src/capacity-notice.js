@@ -1,13 +1,17 @@
-import { getRemainingMinutes } from './tasks.js';
+import { getRemainingRange, formatEstimateRange } from './tasks.js';
 import { toInstant, eventBlocksTime } from './planner.js';
 import { extendedSessionInterval } from './work-capacity.js';
 
 // A missing allocation is not evidence that the student's whole day is full.
 // Only the hard deadline window can establish a definite time shortage.
 export function capacityNotice(task, sessions = [], events = [], now = new Date()) {
-  const remaining = getRemainingMinutes(task);
-  if (remaining === null || !Number.isFinite(remaining)) {
+  const range = getRemainingRange(task);
+  const remaining = range?.maxMinutes;
+  if (!range) {
     return { tone: 'quiet', text: 'Legg til et tidsestimat for å sammenligne arbeid og tid.' };
+  }
+  if (!Number.isFinite(remaining)) {
+    return { tone: 'quiet', text: `${formatEstimateRange(range)} arbeid er registrert, men øvre grense er ukjent. Kapasiteten kan ikke vurderes ennå.` };
   }
   if (remaining <= 0 || task.completed || task.submittedAt) return null;
   const start = now.getTime();
@@ -29,7 +33,7 @@ export function capacityNotice(task, sessions = [], events = [], now = new Date(
     }
     const maximumMinutes = Math.max(0, Math.floor((deadline - start - busy) / 60000));
     if (remaining > maximumMinutes) {
-      return { tone: 'danger', text: `For lite tid før fristen: ${remaining} min arbeid, høyst ${maximumMinutes} min igjen.`,
+      return { tone: 'danger', text: `For lite tid før fristen: ${formatEstimateRange(range)} arbeid, høyst ${maximumMinutes} min igjen.`,
         detail: 'Selv hele tidsrommet fram til fristen, uten registrert undervisning, er kortere enn arbeidet. Søvn og andre avtaler er ikke trukket fra.' };
     }
   }

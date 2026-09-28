@@ -12,7 +12,7 @@ async function seed(page, data = initial()) {
   await page.addInitScript(({ key, data }) => { if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(data)) }, { key, data })
   await page.goto('/'); return errors
 }
-async function menu(page) { await navigate(page, 'settings'); const control = page.locator('.data-menu'); if (!await control.evaluate(node => node.open)) await control.locator('summary').click() }
+async function menu(page) { await navigate(page, 'settings'); const control = page.locator('#settings-panel .data-menu').filter({ hasText: 'Data og sikkerhetskopi' }); if (!await control.evaluate(node => node.open)) await control.locator('summary').click() }
 
 test('mobile 200 percent modes stay whole and selected content is reachable above navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 }); const errors = await seed(page)
@@ -95,6 +95,7 @@ test('manual refresh preview also preserves disappearance from unknown URL feeds
   await page.route('**/api/import/calendar', route => route.fulfill({ json: { calendar: 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n' } }))
   await seed(page, data); await navigate(page, 'subjects'); await page.getByRole('button', { name: 'Oppdater nå', exact: true }).click()
   await expect(page.locator('#import-preview')).toContainText('Manglende økter beholdes')
-  await page.getByRole('button', { name: 'Bekreft import', exact: true }).click()
+  await expect(page.getByRole('status')).toContainText('Timeplanen er kontrollert – ingen endringer.')
+  await expect(page.getByRole('button', { name: 'Bekreft import', exact: true })).toHaveCount(0)
   expect((await saved(page)).planner.events[0].cancelled).not.toBe(true)
 })

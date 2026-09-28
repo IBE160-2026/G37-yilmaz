@@ -1,7 +1,7 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { subtractTeaching, osloLocal, toInstant, OSLO } from './planner.js'
 import { extendedSessionInterval, deriveWorkCapacity, wholeMinuteIntervals, contiguousWorkInterval } from './work-capacity.js'
-import { getRemainingMinutes } from './tasks.js'
+import { getRemainingMinutes, getRemainingRange } from './tasks.js'
 import { taskBlockers } from './task-dependencies.js'
 import { capacityPlanningNote, validPlanningRules } from './planning-rules.js'
 const MINUTE = 60_000
@@ -117,14 +117,21 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
   const totalLostMinutes = validNow ? minutesBefore(intervals) - totalCapacityMinutes : 0
   if (totalLostMinutes > 0) warnings.push(`${totalLostMinutes} min av studieøktene er passert eller ligger i et påbegynt minutt, og kan ikke brukes.`)
   const free = future.map(interval => ({ ...interval }))
-  const entries = tasks.map(task => ({
+  const entries = tasks.map(task => {
+    const range = getRemainingRange(task)
+    return {
     taskId: task.id,
-    requiredMinutes: getRemainingMinutes(task),
+    requiredMinutes: range?.maxMinutes ?? null,
+    requiredMinMinutes: range?.minMinutes ?? null,
+    requiredMaxMinutes: range?.maxMinutes ?? null,
     allocatedMinutes: 0,
+    availableBeforeMinutes: null,
     missingMinutes: 0,
+    missingMinMinutes: 0,
+    missingMaxMinutes: 0,
     allocations: [],
     reasons: [],
-  }))
+  }})
   const order = tasks.map((task, index) => ({ task, index }))
     .sort((a, b) => (a.task.deadlineLocal || '9999').localeCompare(b.task.deadlineLocal || '9999') || a.index - b.index)
   for (const { task, index } of order) {
@@ -132,7 +139,11 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
     if (task.completed) continue
     if (!Number.isSafeInteger(entry.requiredMinutes) || entry.requiredMinutes < 0) {
       entry.requiredMinutes = 0
-      entry.reasons.push(getRemainingMinutes(task) === null ? 'Gjenstående arbeid er ukjent. Legg inn tidsestimat for å beregne kapasitet.' : 'Gjenstående arbeid er ugyldig og må rettes før tiden kan fordeles.')
+      entry.missingMinMinutes = entry.requiredMinMinutes ?? 0
+      entry.missingMaxMinutes = entry.requiredMaxMinutes
+      entry.reasons.push(entry.requiredMaxMinutes === null && entry.requiredMinMinutes !== null
+        ? `Minst ${entry.requiredMinMinutes} min gjenstår, men øvre grense er ukjent. Kapasiteten kan ikke vurderes ennå.`
+        : getRemainingMinutes(task) === null ? 'Gjenstående arbeid er ukjent. Legg inn tidsestimat for å beregne kapasitet.' : 'Gjenstående arbeid er ugyldig og må rettes før tiden kan fordeles.')
       continue
     }
     if (entry.requiredMinutes === 0) {
@@ -140,6 +151,8 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
       continue
     }
     entry.missingMinutes = entry.requiredMinutes
+    entry.missingMinMinutes = entry.requiredMinMinutes ?? 0
+    entry.missingMaxMinutes = entry.requiredMinutes
     const blockers = taskBlockers(task, tasks)
     if (blockers.length) {
       entry.reasons.push(...blockers.map(blocker => blocker.reason), 'Blokkert arbeid er ikke fordelt i frie studieøkter. Avklar forutsetningene, eller bruk Planlegg uken for et forslag med riktig rekkefølge.')
@@ -157,6 +170,7 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
       continue
     }
     const availableBefore = minutesBefore(free, deadline)
+    entry.availableBeforeMinutes = availableBefore
     if (task.splittable === false && validPlanningRules(options.planningPreferences) && entry.requiredMinutes > options.planningPreferences.maximumMinutes) {
       entry.reasons.push(`${entry.requiredMinutes} min må holdes samlet, mer enn valgt maksimal øktlengde ${options.planningPreferences.maximumMinutes} min.`)
       continue
@@ -186,6 +200,8 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
         entry.reasons.push(`Studieøktene gir ${availableBefore} hele framtidige minutter før fristen, men oppgaven trenger ${entry.requiredMinutes} min. ${entry.missingMinutes} min mangler.`)
       }
     }
+    entry.missingMinMinutes = Math.max(0, (entry.requiredMinMinutes ?? 0) - entry.allocatedMinutes)
+    entry.missingMaxMinutes = entry.missingMinutes
   }
   const totalRequiredMinutes = sumMinutes(entries, 'requiredMinutes')
   const totalAllocatedMinutes = sumMinutes(entries, 'allocatedMinutes')
@@ -193,6 +209,10 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
   if (entries.reduce((sum, entry) => sum + BigInt(entry.requiredMinutes), 0n) > BigInt(MAX_MINUTES)) {
     warnings.push(`Samlet arbeid overstiger ${MAX_MINUTES} min. Totalene for gjenstående og manglende arbeid er begrenset til dette tallet; hver oppgave vises med nøyaktige minutter.`)
   }
-  return { tasks: entries, unknownTaskCount: tasks.filter(task => getRemainingMinutes(task) === null).length, totalRequiredMinutes, totalAllocatedMinutes, totalMissingMinutes,
+  const openRequired = entries.some(entry => entry.requiredMaxMinutes === null && entry.requiredMinMinutes !== null)
+  const openMissing = entries.some(entry => entry.missingMaxMinutes === null && entry.missingMinMinutes !== null)
+  return { tasks: entries, unknownTaskCount: tasks.filter(task => getRemainingRange(task)?.maxMinutes == null).length, totalRequiredMinutes,
+    totalRequiredMinMinutes: sumMinutes(entries, 'requiredMinMinutes'), totalRequiredMaxMinutes: openRequired ? null : totalRequiredMinutes,
+    totalAllocatedMinutes, totalMissingMinutes, totalMissingMinMinutes: sumMinutes(entries, 'missingMinMinutes'), totalMissingMaxMinutes: openMissing ? null : totalMissingMinutes,
     totalCapacityMinutes, spareMinutes: totalCapacityMinutes - totalAllocatedMinutes, totalLostMinutes, warnings, planningNote: capacityPlanningNote(options.planningPreferences) }
 }

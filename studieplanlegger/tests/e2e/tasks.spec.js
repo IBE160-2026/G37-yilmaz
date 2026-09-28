@@ -156,7 +156,7 @@ for (const raw of ['{', JSON.stringify({ schemaVersion: 2, tasks: [] }), JSON.st
     await page.locator('#retry-read').click()
     await expect(page.locator('#new-task')).toBeEnabled()
     await expect(page.locator('#connected-onboarding')).toBeVisible()
-    await expect(page.locator('#connected-onboarding').getByRole('button', { name: 'Legg til første oppgave', exact: true })).toBeEnabled()
+    await expect(page.locator('#connected-onboarding').getByRole('button', { name: 'Hopp over import', exact: true })).toBeEnabled()
   })
 }
 for (const method of ['getter', 'getItem']) {

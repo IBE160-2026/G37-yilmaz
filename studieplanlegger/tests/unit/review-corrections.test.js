@@ -114,7 +114,10 @@ describe('review: undo and source refresh', () => {
     await sync.tick()
     expect(state.planner.events).toEqual(after.planner.events)
     const undone = undoLast(state, history)
-    expect(undone.ok).toBe(true); expect(undone.state.planner).toEqual(before.planner)
+    expect(undone.ok).toBe(true)
+    expect(undone.state.planner.courses[0].teachingCheck).toMatchObject({status:'success',eventCount:1,source:'calendar-refresh'})
+    const plannerWithoutCheck=structuredClone(undone.state.planner);delete plannerWithoutCheck.courses[0].teachingCheck
+    expect(plannerWithoutCheck).toEqual(before.planner)
     expect(undone.state.tasks).toEqual(state.tasks)
   })
   it('still rejects real changed-source content without mutating current data', () => {

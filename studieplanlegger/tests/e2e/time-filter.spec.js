@@ -13,7 +13,9 @@ const choices = [
   { ...task('too-long-31', '2026-09-01T12:00', 31), splittable: false },
   task('done-20', '2026-08-01T12:00', 20, true),
 ]
-const expectedIds = ['old-20', 'tie-first-30', 'tie-second-20', 'late-20', 'future-20']
+// The current focus view deliberately limits alternatives to the three strongest
+// concrete suggestions instead of turning into a second all-tasks list.
+const expectedIds = ['old-20', 'tie-first-30', 'future-20']
 
 test('30 minutes includes 20/30 across all weeks and overdue tasks, excludes 31/completed, and orders deadlines before durations', async ({ page }, testInfo) => {
   await seed(page, choices)
@@ -22,7 +24,7 @@ test('30 minutes includes 20/30 across all weeks and overdue tasks, excludes 31/
   await expect(page.locator('#view-time')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('#view-week')).toHaveAttribute('aria-pressed', 'false')
   expect(await ids(page)).toEqual(expectedIds)
-  await expect(page.locator('#filter-summary')).toHaveText('5 forslag innen 30 minutter.')
+  await expect(page.locator('#filter-summary')).toHaveText('3 forslag innen 30 minutter.')
   await expect(row(page, choices[2].title).getByText('Forfalt', { exact: true })).toBeVisible()
   await navigate(page, 'all')
   await expect(rows(page)).toHaveCount(choices.length)
@@ -36,7 +38,7 @@ test('30 minutes includes 20/30 across all weeks and overdue tasks, excludes 31/
   await navigate(page, 'time')
   await expect(page.locator('#available-minutes')).toHaveValue('45')
   await expect(page.locator('#filter-summary')).toContainText('45 minutter')
-  expect(await ids(page)).toEqual(['old-20', 'too-long-31', 'tie-first-30', 'tie-second-20', 'late-20', 'future-20'])
+  expect(await ids(page)).toEqual(['old-20', 'too-long-31', 'future-20'])
   await page.locator('#available-minutes').focus()
   await page.locator('#filter-summary').evaluate(element => {
     window.summaryMutations = []
@@ -95,7 +97,7 @@ test('empty time result offers keyboard change-minutes and all-tasks routes with
   await seed(page, choices.map(task => ({ ...task, splittable: false })))
   await filter(page, '1')
   await expect(rows(page)).toHaveCount(0)
-  await expect(page.locator('#empty-tasks')).toContainText('Ingen oppgaver passer tiden')
+  await expect(page.locator('#empty-tasks')).toContainText('Ingen registrerte arbeidssteg passer sikkert')
   await page.locator('#empty-minutes').focus()
   await page.keyboard.press('Enter')
   await expect(page.locator('#available-minutes')).toBeFocused()
@@ -118,9 +120,9 @@ test('completion removes a hit with relevant focus, undo restores eligibility an
   await openMenu(page, selected.title)
   await checkbox(page, selected.title).focus()
   await page.keyboard.press('Space')
-  expect(await ids(page)).toEqual(expectedIds.filter(id => id !== selected.id))
-  await expect(page.locator('#filter-summary')).toHaveText('4 forslag innen 30 minutter.')
-  await expect(checkbox(page, choices[4].title)).toBeFocused()
+  expect(await ids(page)).toEqual(['old-20', 'tie-second-20', 'future-20'])
+  await expect(page.locator('#filter-summary')).toHaveText('3 forslag innen 30 minutter.')
+  await expect(checkbox(page, choices[0].title)).toBeFocused()
   await navigate(page, 'all')
   await expect(checkbox(page, selected.title)).toBeChecked()
   await page.locator('.contextual-undo').getByRole('button', { name: 'Angre siste endring' }).click()
@@ -155,13 +157,13 @@ test('active filter keeps hits/raw state on failed completion, edit or delete an
   await checkbox(page, a.title).click()
   await expect(checkbox(page, a.title)).not.toBeChecked()
   await expect(checkbox(page, a.title)).toBeFocused()
-  expect(await ids(page)).toEqual([a.id, b.id, c.id])
+  expect(await ids(page)).toEqual([a.id, c.id, b.id])
   expect(await raw(page)).toBe(before)
   await page.evaluate(() => { window.failWrite = false })
   await openMenu(page, a.title)
   await checkbox(page, a.title).click()
   expect(await ids(page)).toEqual([b.id, c.id])
-  await expect(checkbox(page, b.title)).toBeFocused()
+  await expect(checkbox(page, c.title)).toBeFocused()
   before = await raw(page)
   await openMenu(page, b.title)
   await edit(page, b.title).click()
@@ -193,7 +195,7 @@ test('active filter keeps hits/raw state on failed completion, edit or delete an
   await page.evaluate(() => { window.failWrite = false })
   await deleteTask(page, c.title)
   await expect(rows(page)).toHaveCount(0)
-  await expect(page.locator('#empty-tasks')).toContainText('Ingen oppgaver passer tiden')
+  await expect(page.locator('#empty-tasks')).toContainText('Ingen registrerte arbeidssteg passer sikkert')
   await expect(page.locator('#available-minutes')).toBeFocused()
   expect((await saved(page)).tasks).toEqual([{ ...a, completed: true, remainingMinutes: 0 }, { ...b, remainingMinutes: 31 }])
   expect(await writes(page)).toHaveLength(6)
@@ -212,7 +214,7 @@ test('creating outside the available minutes keeps the empty filter and explains
   await expect(page.locator('#view-time')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('#available-minutes')).toHaveValue('30')
   await expect(rows(page)).toHaveCount(0)
-  await expect(page.locator('#empty-tasks')).toContainText('Ingen oppgaver passer tiden')
+  await expect(page.locator('#empty-tasks')).toContainText('Ingen registrerte arbeidssteg passer sikkert')
   await expect(page.getByRole('status')).toHaveText('Oppgave lagret. Du finner oppgaven under «Alle oppgaver».')
   expect((await saved(page)).tasks).toHaveLength(1)
   expect(await writes(page)).toHaveLength(1)

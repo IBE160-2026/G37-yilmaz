@@ -76,7 +76,8 @@ export function createDataTools(actions) {
   const panel = node('div'); panel.append(trash, save, restore, recovery, input); menu.append(panel)
   menu.open = true
   host.append(node('h2', 'Innstillinger'), node('p', 'Sikkerhetskopi, angre og papirkurv. Dataene lagres på denne enheten.'), undo, menu, feedback)
-  const personalization = node('section'); personalization.className = 'personalization-settings'; personalization.append(node('h3', 'Lokal arbeidshistorikk'))
+  const planning = node('details'); planning.className = 'data-menu planning-settings'; planning.open = true; planning.append(node('summary', 'Planlegging'))
+  const personalization = node('section'); personalization.className = 'personalization-settings'; personalization.append(node('h3', 'Personalisering'))
   const enabledLabel = node('label', 'Bruk lokal historikk til frivillige estimatforslag '), enabled = node('input'); enabled.type = 'checkbox'; enabled.checked = actions.state().personalization?.enabled !== false; enabledLabel.prepend(enabled)
   enabled.onchange = () => { const result = actions.personalize(enabled.checked); if (!result.ok) { enabled.checked = !enabled.checked; feedback.textContent = result.error } }
   personalization.append(enabledLabel, node('p', 'Forslag endrer ingen oppgaver eller reservasjoner automatisk. Hele fullførte oppgaver og øktlengder behandles hver for seg.'))
@@ -84,7 +85,7 @@ export function createDataTools(actions) {
     if (!window.confirm('Slett all lokal arbeidshistorikk og tilhørende angre- og papirkurvoppføringer, også fra appens gjenopprettingskopi? Oppgaver, estimater og reservasjoner beholdes. Tidligere nedlastede sikkerhetskopier endres ikke. Slettingen kan ikke angres.')) return
     const result = actions.purgeWork(); feedback.textContent = result.ok ? 'Arbeidshistorikken og tilhørende angreoppføringer er slettet, også fra appens gjenopprettingskopi.' : result.error
   }), button('Fortsett oppstart', () => actions.resumeOnboarding()))
-  host.append(personalization)
+  planning.append(personalization); host.append(planning)
   const contextUndo = button('Angre siste endring', () => {
     if (!notifiedId || actions.state().history?.undo.at(-1)?.id !== notifiedId) { notifiedId = null; notice.hidden = true; return }
     const result = actions.undo(); report(result)
@@ -94,7 +95,7 @@ export function createDataTools(actions) {
   notice.append(noticeText, contextUndo, button('Lukk melding', () => { notifiedId = null; undoConfirmed = false; notice.hidden = true }))
   return { isOpen: () => dialog.open,
     changed(entry) {
-      notifiedId = entry && entry.changes.some(c => c.before && (!c.after || !c.before.deleted && c.after.deleted || c.path === 'tasks' && (c.before.completed !== c.after.completed || c.before.submitted !== c.after.submitted))) ? entry.id : null
+      notifiedId = entry && (entry.label === 'Ny samlet studieplan' || entry.changes.some(c => c.before && (!c.after || !c.before.deleted && c.after.deleted || c.path === 'tasks' && (c.before.completed !== c.after.completed || c.before.submitted !== c.after.submitted)))) ? entry.id : null
       if (notifiedId) { undoConfirmed = false; noticeText.textContent = `${entry.label}. Endringen er lagret og kan angres.`; contextUndo.hidden = false }
       signature = ''
     }, render(model) {
@@ -104,12 +105,11 @@ export function createDataTools(actions) {
     enabled.checked = model.personalization?.enabled !== false
     enabled.disabled = !model.readable || model.editing
     for (const control of personalization.querySelectorAll('button')) control.disabled = !model.readable || model.editing
-    const hasRecovery = Boolean(actions.recovery())
-    const next = JSON.stringify([model.view, model.readable, model.editing, model.history, hasRecovery]); if (next === signature) return; signature = next
+    const next = JSON.stringify([model.view, model.readable, model.editing, model.history, Boolean(actions.recovery())]); if (next === signature) return; signature = next
     for (const control of [undo, trash, save]) control.disabled = !model.readable || model.editing
     restore.disabled = recovery.disabled = model.editing
     undo.disabled ||= !model.history?.undo.length
-    recovery.disabled ||= !hasRecovery
+    recovery.disabled ||= !actions.recovery()
     trash.textContent = `Papirkurv (${model.history?.trash.length || 0})`
   } }
 }

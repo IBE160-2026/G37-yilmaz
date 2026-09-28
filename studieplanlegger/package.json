@@ -10,6 +10,9 @@
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:database": "node tests/run-database-e2e.mjs",
+    "test:e2e:docker": "playwright test --config=playwright.docker.config.js",
+    "verify:teaching": "node scripts/verify-teaching.mjs",
+    "verify:teaching:live": "node scripts/verify-teaching.mjs --live",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "start": "node server/app.js"

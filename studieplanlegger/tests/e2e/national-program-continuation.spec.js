@@ -54,7 +54,8 @@ async function importFirstPeriod(page, sample, options = {}) {
   if (period.year && period.semester) await host.locator('[name=calendarSemester]').selectOption(`${period.year}:${period.semester}`)
   else { await host.locator('[name=clarifiedYear]').fill(String(options.year || 2026)); await host.locator('[name=clarifiedSemester]').selectOption(options.semester || 'autumn') }
   if (period.requiresStudentStudySemester) await host.locator('[name=clarifiedStudySemester]').fill(String(options.studySemester || period.allowedStudySemesters?.[0] || 1))
-  await host.locator('[name=programCampus]').selectOption(sample.plan.program.campuses?.[0] || '__unknown')
+  if(sample.plan.program.campuses?.length)await host.locator('[name=programCampus]').selectOption(sample.plan.program.campuses[0])
+  else await expect(host.locator('[name=programCampus]')).toBeHidden()
   const checked = host.locator('fieldset input[type=checkbox]:checked')
   if (!await checked.count()) await host.locator('fieldset input[type=checkbox]').first().check()
   await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()

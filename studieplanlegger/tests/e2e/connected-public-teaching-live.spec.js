@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test'
-import { navigate, openImportMethod, key } from './helpers.js'
+import { navigate, openCourseImport, openImportMethod, key } from './helpers.js'
+
+test.describe.configure({ mode: 'serial' })
 
 // These are explicit choices made by the isolated test student. They do not
 // infer a real student's campus, group, programme, or teaching term.
@@ -18,8 +20,11 @@ const samples = [
   ['hivolda', 'ANI161', /ANI161.*2026.*HØST/i, 1440],
   ['kristiania', 'PGR102', /PGR102.*2026.*HØST/i, 390, '161320.5'],
   ['nih', 'IDR107', /IDR107_1_2026.*HØST/i, 390, '25097.10'],
+  ['himolde', 'IBE110', /IBE110.*undervisningstermin 1/i, 390, 'IBE110¤1'],
+  ['himolde', 'IBE430', /IBE430.*undervisningstermin 1/i, 1440, 'IBE430¤1'],
+  ['himolde', 'IBE160', /IBE160.*undervisningstermin 1/i, 390, 'IBE160¤1'],
 ]
-for (const [institution, code, objectLabel, width, expectedSourceObjectId] of samples) test(`live public teaching for saved course: ${institution}`, async ({ page }, testInfo) => {
+for (const [institution, code, objectLabel, width, expectedSourceObjectId] of samples) test(`live public teaching for saved course: ${institution} ${code}`, async ({ page }, testInfo) => {
   test.skip(process.env.RUN_LIVE_TEACHING !== '1', 'Opt-in bounded public source requests')
   test.setTimeout(120000)
   await page.setViewportSize({ width, height: 1000 })
@@ -97,28 +102,70 @@ for (const [institution, code, objectLabel, width, expectedSourceObjectId] of sa
   await testInfo.attach('public-teaching-evidence', { contentType: 'application/json', body: JSON.stringify({ checkedAt: new Date().toISOString(), institution, code, selectedLabel, sourceEvidence, events: first.planner.events.length, eventIds: first.planner.events.map(event => event.id), scope: 'Actual public teaching for one explicitly selected object, saved existing course and activity selection; preview, save, reload and repeat. Does not verify programme import or personal group membership.' }, null, 2) })
 })
 
-test('live Molde TP source failure preserves saved data', async ({ page }, testInfo) => {
-  test.skip(process.env.RUN_LIVE_TEACHING !== '1', 'Opt-in bounded public source request')
-  test.setTimeout(120000)
+for (const code of ['ARK1001', 'EXPH0100']) test(`live NTNU course and teaching round-trip: ${code}`, async ({ page }, testInfo) => {
+  test.skip(process.env.RUN_LIVE_TEACHING !== '1', 'Opt-in bounded public source requests')
+  test.setTimeout(180000)
+  const saved = () => page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
   await page.goto('/')
-  await page.evaluate(key => localStorage.setItem(key, JSON.stringify({ schemaVersion: 1, tasks: [], planner: { courses: [{ id: 'test-course', code: 'IBE152', name: 'IBE152', university: 'himolde', year: 2026, semester: 'autumn', credits: null, notes: '' }], events: [], sources: [] } })), key)
+  await page.evaluate(key => localStorage.setItem(key, JSON.stringify({ schemaVersion: 1, tasks: [], planner: { courses: [], events: [], sources: [] } })), key)
   await page.reload()
-  const before = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)
-  await navigate(page, 'subjects')
-  await openImportMethod(page, 'calendar')
-  await page.getByText('Finn offentlig undervisning for et lagret emne', { exact: true }).click()
-  await page.getByRole('combobox', { name: 'Lærested for offentlig undervisning', exact: true }).selectOption('himolde')
-  await page.getByRole('combobox', { name: 'Lagret emne for undervisning', exact: true }).selectOption('test-course')
-  await page.getByRole('button', { name: 'Søk offentlig undervisning', exact: true }).click()
-  const options = page.getByRole('combobox', { name: 'Publisert timeplanvalg', exact: true })
-  await expect(options).toBeVisible({ timeout: 45000 })
-  const rows = await options.locator('option').evaluateAll(nodes => nodes.map(node => ({ value: node.value, label: node.textContent })))
-  const selected = rows.find(row => row.value && /IBE152.*undervisningstermin 1/.test(row.label))
-  expect(selected, JSON.stringify(rows)).toBeTruthy()
-  await options.selectOption(selected.value)
-  await page.getByRole('button', { name: 'Forhåndsvis valgt offentlig undervisning', exact: true }).click()
-  await expect(page.getByRole('status')).toContainText('HTTP 400', { timeout: 45000 })
-  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)).toEqual(before)
-  await expect(page.locator('#import-preview')).toBeHidden()
-  await page.screenshot({ path: testInfo.outputPath('molde-source-failure.png'), fullPage: true })
+  let first
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await navigate(page, 'subjects')
+    await openCourseImport(page)
+    await page.getByRole('button', { name: 'Neste: søk og semester', exact: true }).click()
+    const form = page.locator('#course-import-form')
+    await form.locator('[name=code]').fill(code)
+    await form.locator('[name=semester]').selectOption('autumn')
+    await form.locator('[name=year]').fill('2026')
+    await form.getByRole('button', { name: 'Søk emner', exact: true }).click()
+    const result = page.locator('.wizard-results button').filter({ hasText: code }).first()
+    await expect(result).toBeVisible({ timeout: 45000 })
+    await result.click()
+    const preview = page.locator('#import-preview')
+    await expect(preview).toBeVisible({ timeout: 45000 })
+    await preview.getByRole('button', { name: 'Hent undervisning fra TP', exact: true }).click()
+    await preview.locator('summary').filter({ hasText: /^Aktivitetsutvalg/ }).click()
+    await expect(preview.locator('.activity-choices input').first()).toBeVisible({ timeout: 45000 })
+    const choices = preview.locator('.activity-choices input')
+    expect(await choices.evaluateAll(nodes => nodes.some(node => !node.checked))).toBe(true)
+    await preview.getByRole('button', { name: 'Velg ingen aktiviteter', exact: true }).click()
+    expect(await choices.evaluateAll(nodes => nodes.every(node => !node.checked))).toBe(true)
+    await choices.first().check()
+    const previewRows = preview.locator('.preview-events li')
+    await expect(previewRows.first()).toBeVisible()
+    const previewText = await previewRows.first().innerText()
+    await preview.getByRole('button', { name: 'Bekreft import', exact: true }).click()
+    await expect(preview).toBeHidden()
+    const current = await saved(), course = current.planner.courses.find(item => item.code === code)
+    expect(course).toBeTruthy()
+    expect(course.teachingCheck).toMatchObject({ status: 'success', eventCount: expect.any(Number) })
+    expect(course.teachingCheck.eventCount).toBeGreaterThan(0)
+    expect(current.planner.sources).toHaveLength(1)
+    expect(current.planner.events.length).toBeGreaterThan(0)
+    expect(current.planner.events.every(event => event.courseId === course.id && Number.isFinite(Date.parse(event.start)) && Number.isFinite(Date.parse(event.end)) && Date.parse(event.end) > Date.parse(event.start))).toBe(true)
+    const distinctGroups = new Set(current.planner.events.map(event => event.group))
+    expect(current.planner.sources[0].groups.length).toBeGreaterThan(0)
+    if (distinctGroups.size > 1) expect(current.planner.sources[0].groups.length).toBeLessThan(distinctGroups.size)
+    const selectedEvent=current.planner.events.find(event => !event.excluded)||current.planner.events[0],compact=text=>text.replace(/[·\s]+/g,' ').trim()
+    expect(compact(previewText)).toContain(compact(selectedEvent.title))
+    expect(compact(await page.locator('#event-list').innerText())).toContain(compact(selectedEvent.title))
+    const courseCard=page.locator('.course-card').filter({hasText:code})
+    await expect(courseCard.locator('[data-teaching-check=success]')).toContainText(`${course.teachingCheck.eventCount} publiserte undervisningsøkter ble hentet`)
+    await expect(courseCard.locator('[data-teaching-check=success]')).not.toContainText('0 publiserte')
+    if (first) {
+      expect(current.planner.events.map(event => [event.id, event.sourceKey, event.start, event.end, event.courseId])).toEqual(first.planner.events.map(event => [event.id, event.sourceKey, event.start, event.end, event.courseId]))
+      expect(current.planner.sources[0].id).toBe(first.planner.sources[0].id)
+      expect(current.planner.courses[0].id).toBe(first.planner.courses[0].id)
+    } else {
+      first = current
+      await page.screenshot({ path: testInfo.outputPath(`ntnu-${code}-teaching-preview-saved.png`), fullPage: true })
+    }
+    await page.reload()
+    expect((await saved()).planner.events).toEqual(current.planner.events)
+  }
+  expect(errors).toEqual([])
+  await testInfo.attach('ntnu-live-teaching-evidence', { contentType: 'application/json', body: JSON.stringify({ checkedAt: new Date().toISOString(), code, events: first.planner.events.map(event => ({ id: event.id, sourceKey: event.sourceKey, start: event.start, end: event.end, courseId: event.courseId, group: event.group })), selectedGroups: first.planner.sources[0].groups, scope: 'Actual public NTNU course metadata and timetable through preview, one explicit activity choice, save, rendered teaching, reload and repeat. No claim of complete or personal group membership.' }, null, 2) })
 })

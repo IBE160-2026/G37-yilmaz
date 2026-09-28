@@ -17,7 +17,7 @@ async function seed(page) {
 }
 async function dataMenu(page) {
   await navigate(page, 'settings')
-  const menu = page.locator('.data-menu')
+  const menu = page.locator('#settings-panel .data-menu').filter({ has: page.getByText('Data og sikkerhetskopi', { exact: true }) })
   if (!await menu.evaluate(node => node.open)) await menu.locator('summary').click()
 }
 

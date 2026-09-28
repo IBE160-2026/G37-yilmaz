@@ -15,11 +15,11 @@ async function open(page, text, { filename = 'kontroll.csv', sourceId } = {}) {
   await page.getByRole('button', { name: 'Fra dokument eller tekst', exact: true }).click()
   await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: filename, mimeType: filename.endsWith('.ics') ? 'text/calendar' : filename.endsWith('.txt') ? 'text/plain' : 'text/csv', buffer: Buffer.from(text) })
   if (sourceId) await page.getByLabel('Ny kilde eller oppdatering', { exact: true }).selectOption(sourceId)
-  await page.getByRole('button', { name: 'Lag forhåndsvisning', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Kontroller planen før import', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Les arbeidskravet', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible()
 }
 async function confirm(page) {
-  await page.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
   await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
 }
 
@@ -59,7 +59,7 @@ test('R2 corrected entry type survives exact repeat; a revised cross-kind update
   await page.reload(); await open(page, text.replace('Korriger denne aktiviteten', 'Revidert aktivitet'), { sourceId })
   await expect(page.getByLabel('Type oppføring', { exact: true })).toHaveValue('event')
   const before = await stored(page)
-  await page.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
   await expect(page.locator('.document-preview [role=alert]')).toContainText('Typen er endret')
   expect(await stored(page)).toEqual(before)
   await page.getByLabel('Avklar endret type', { exact: true }).selectOption('replace')
@@ -83,7 +83,7 @@ test('R2 completed and cancelled VTODO status is visible, omitted by default and
     await expect(include).not.toBeChecked()
     const before = await stored(page)
     await include.check()
-    await page.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+    await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
     await expect(page.locator('.document-preview [role=alert]')).toContainText('Velg uttrykkelig')
     expect(await stored(page)).toEqual(before)
     await page.getByLabel('Avklar oppgavestatus', { exact: true }).selectOption('open')
@@ -104,7 +104,7 @@ test('R2 text time ranges and full ISO offsets remain precise while unsupported 
   await expect(rows.nth(2).getByLabel('Frist', { exact: true })).toHaveValue('?')
   await expect(rows.nth(2).locator('blockquote')).toContainText('UTC')
   const before = await stored(page)
-  await page.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
   await expect(page.locator('.document-preview [role=alert]')).toContainText('Avklar dato og klokkeslett')
   expect(await stored(page)).toEqual(before)
   await rows.nth(2).getByLabel('Frist', { exact: true }).selectOption('none')

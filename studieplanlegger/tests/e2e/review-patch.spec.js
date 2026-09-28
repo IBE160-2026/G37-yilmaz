@@ -206,16 +206,16 @@ for (const width of [1280, 390]) test(`review UiB source and timetable links are
 for (const [width, fontSize] of [[1440, 16], [390, 16], [390, 24]]) test(`review compact agenda details are readable with real contrast and wrapping at ${width}/${fontSize}`, async ({ page }) => {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 })
   const data = state(); data.planner.events = [event('lecture', '2026-09-08T08:00:00Z', 60, 'A long lecture title with meaningful wrapping and complete information')]
-  await boot(page, data); await page.evaluate(size => document.documentElement.style.fontSize = `${size}px`, fontSize); await clockTick(page, 100)
+  await boot(page, data); if (width === 390) await navigate(page, 'all'); await page.evaluate(size => document.documentElement.style.fontSize = `${size}px`, fontSize); await clockTick(page, 100)
   const agenda = page.locator('.compact-agenda-list'); await expect(agenda).toBeVisible(); await agenda.scrollIntoViewIfNeeded()
   const measurements = await agenda.locator('.agenda-item-meta, .agenda-item-meta > span, .agenda-item-title, .agenda-item-details').evaluateAll(nodes => {
-    const rgb = value => (value.match(/[\d.]+/g) || []).map(Number)
+    const rgb = value => { const parts = (value.match(/[\d.]+/g) || []).map(Number); return parts.length >= 3 && Math.max(...parts.slice(0, 3)) <= 1 ? parts.map((part, index) => index < 3 ? part * 255 : part) : parts }
     const luminance = color => color.slice(0, 3).map(v => v / 255).map(v => v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4).reduce((sum, v, i) => sum + v * [.2126, .7152, .0722][i], 0)
     return nodes.filter(node => node.getBoundingClientRect().height).map(node => {
       const style = getComputedStyle(node); let parent = node, background = [255, 255, 255]
       while (parent) { const color = rgb(getComputedStyle(parent).backgroundColor); if (color.length === 3 || color[3] === 1) { background = color; break } parent = parent.parentElement }
       const a = luminance(rgb(style.color)), b = luminance(background), bounds = node.closest('.agenda-entry').getBoundingClientRect(), range = document.createRange(); range.selectNodeContents(node)
-      return { text: node.textContent, fontSize: parseFloat(style.fontSize), contrast: (Math.max(a, b) + .05) / (Math.min(a, b) + .05), fits: [...range.getClientRects()].every(rect => rect.left >= bounds.left - 1 && rect.right <= bounds.right + 1) }
+      return { text: node.textContent, color: style.color, background: `rgb(${background.join(' ')})`, fontSize: parseFloat(style.fontSize), contrast: (Math.max(a, b) + .05) / (Math.min(a, b) + .05), fits: [...range.getClientRects()].every(rect => rect.left >= bounds.left - 1 && rect.right <= bounds.right + 1) }
     })
   })
   expect(measurements.length).toBeGreaterThan(3)
@@ -231,7 +231,7 @@ for (const [width, fontSize] of [[1440, 16], [390, 16], [390, 24]]) test(`review
       for (const part of stamp.parts) { expect(part.whiteSpace, part.text).toBe('nowrap'); expect(part.content, part.text).toBeLessThanOrEqual(part.width) }
     }
   }
-  for (const item of measurements) { expect(item.fontSize, item.text).toBeGreaterThanOrEqual(14); expect(item.contrast, item.text).toBeGreaterThanOrEqual(4.5); expect(item.fits, item.text).toBe(true) }
+  for (const item of measurements) { const evidence = JSON.stringify(item); expect(item.fontSize, evidence).toBeGreaterThanOrEqual(14); expect(item.contrast, evidence).toBeGreaterThanOrEqual(4.5); expect(item.fits, evidence).toBe(true) }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({ path: `artifacts/review-agenda-${width}-${fontSize}.png` })
 })

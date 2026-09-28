@@ -9,8 +9,8 @@ import { validateDependencyGraph } from './task-dependencies.js'
 const clone = value => value === undefined ? undefined : structuredClone(value)
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const sourceBookkeeping = new Set(['lastAttempt', 'lastSuccess', 'lastUpdated', 'lastError', 'failures'])
-const semantic = (value, path) => path === 'planner.sources' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => !sourceBookkeeping.has(key))) : value
-const scalarPaths = ['planningPreferences', 'personalization', 'onboarding']
+const semantic = (value, path) => path === 'planner.sources' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => !sourceBookkeeping.has(key))) : path === 'planner.courses' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'teachingCheck')) : value
+const scalarPaths = ['planningPreferences', 'studyTimePreference', 'personalization', 'onboarding']
 const paths = ['tasks', 'sessions', 'workWindows', 'busyWindows', 'planner.courses', 'planner.events', 'planner.sources', 'workLogs', 'importSources', ...scalarPaths]
 const get = (value, path) => path.split('.').reduce((node, key) => node?.[key], value)
 const collection = (value, path) => scalarPaths.includes(path) ? get(value, path) === undefined ? [] : [{ id: path, value: get(value, path) }] : get(value, path) || []
@@ -50,7 +50,7 @@ export function recordChange(before, after, history = emptyHistory(), label = 'E
     const a = collection(before, path), b = collection(after, path)
     for (const id of new Set([...a, ...b].map(item => item.id))) {
       const old = a.find(item => item.id === id), next = b.find(item => item.id === id)
-      if (!equal(old, next)) changes.push({ path, id, index: old ? a.indexOf(old) : b.indexOf(next), before: clone(old) ?? null, after: clone(next) ?? null, existed: get(before, path) !== undefined })
+      if (!equal(semantic(old, path), semantic(next, path))) changes.push({ path, id, index: old ? a.indexOf(old) : b.indexOf(next), before: clone(old) ?? null, after: clone(next) ?? null, existed: get(before, path) !== undefined })
     }
   }
   if (!changes.length) return clone(history)
@@ -75,6 +75,10 @@ export function restoreChange(state, entry) {
       if (path === 'planner.sources') {
         const current = currentItems.find(item => item.id === c.id)
         for (const key of sourceBookkeeping) if (current && key in current) before[key] = clone(current[key])
+      }
+      if (path === 'planner.courses') {
+        const current = currentItems.find(item => item.id === c.id)
+        if (current?.teachingCheck) before.teachingCheck = clone(current.teachingCheck)
       }
       items.splice(Math.min(c.index, items.length), 0, before)
     }

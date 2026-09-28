@@ -28,6 +28,30 @@ describe('shared conservative Vortex programme source', () => {
     expect(plan.completeness.complete).toBe(false)
   })
 
+  it('preserves the exact HiMolde IT 2026-27 programming alternative and source requirements', async () => {
+    const code = 'it', programUrl = `${sources.himolde.root}${code}/`, planUrl = `${programUrl}studieplaner/2026.html`
+    const plan = parseVortexPlan('himolde', await fixture('himolde-it-2026-plan.html'), { program: code, cohort: '2026', sourceUrl: planUrl }, { code, name: 'Årsstudium IT', sourceUrl: programUrl, campuses: [] })
+    const period = plan.models[0].periods[0], byCode = Object.fromEntries(period.courses.map(course => [course.code, course]))
+
+    expect(period).toMatchObject({ year: 2026, semester: 'autumn', requiresStudentStudySemester: true })
+    expect(period.courses.map(course => [course.code, course.credits])).toEqual([
+      ['IBE110', 7.5], ['IBE430', 7.5], ['IBE160', 15], ['IBE102', 7.5], ['IBE152', 7.5],
+    ])
+    expect(period.requiredCourseIds).toEqual([byCode.IBE110.id, byCode.IBE430.id])
+    expect(period.alternativeGroups).toEqual([{
+      id: '21-K2026-VALG',
+      label: 'Obligatoriske emner - valg',
+      sourceRequirement: 'Velg enten: IBE160 (15 stp høst) eller: IBE102 (7,5 stp høst) + IBE152 (7,5 stp høst)',
+      options: [
+        { id: '21-K2026-VV1', label: 'Obligatoriske emner - valg 1: IBE160', courseIds: [byCode.IBE160.id], credits: 15 },
+        { id: '21-K2026-VV2', label: 'Obligatoriske emner - valg 2: IBE102 + IBE152', courseIds: [byCode.IBE102.id, byCode.IBE152.id], credits: 15 },
+      ],
+    }])
+    expect(period.requiredCourseIds).not.toContain(byCode.IBE160.id)
+    expect(period.requiredCourseIds).not.toContain(byCode.IBE102.id)
+    expect(period.requiredCourseIds).not.toContain(byCode.IBE152.id)
+  })
+
   it('requires a student cohort for an unversioned NIH page', async () => {
     const url = `${sources.nih.root}${sources.nih.code}/`, html = await fixture('nih-current-unversioned.html'), cohorts = parseVortexCohorts('nih', html, url)
     expect(cohorts.results).toEqual([expect.objectContaining({ cohort: 'student', requiresStudentCohort: true, sourceUrl: url })])
@@ -114,7 +138,10 @@ describe('shared conservative Vortex programme source', () => {
     const plan = parseVortexPlan('hiof', html, { program: sources.hiof.code, cohort: '2026', sourceUrl: sources.hiof.plan }, { code: sources.hiof.code, name: 'Bedriftsøkonomi', sourceUrl: programUrl, campuses: [] })
     expect(plan.models).toHaveLength(1)
     expect(plan.models[0].periods).toHaveLength(1)
-    expect(plan.models[0].periods[0].courses.map(course => [course.code, course.choice])).toEqual([['ØKA101', 'O'], ['VAL100', 'V']])
+    const period = plan.models[0].periods[0]
+    expect(period.courses.map(course => [course.code, course.choice])).toEqual([['ØKA101', 'O'], ['VAL100', 'V']])
+    expect(period.requiredCourseIds).toEqual([period.courses[0].id])
+    expect(period.alternativeGroups).toBeUndefined()
   })
 
   it('deduplicates identical rows but rejects conflicting O/V or course metadata in one period', () => {

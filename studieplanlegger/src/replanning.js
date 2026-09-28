@@ -1,11 +1,12 @@
-import { getRemainingMinutes } from './tasks.js'
+import { getRemainingMinutes, getRemainingRange } from './tasks.js'
 import { taskBlockers, validateDependencyGraph } from './task-dependencies.js'
 import { DEFAULT_PLANNING_RULES, validPlanningRules } from './planning-rules.js'
-import { extendedSessionInterval, unionIntervals, subtractIntervals, wholeMinuteIntervals, windowInterval, intervalMinutes, intersectIntervals, contiguousWorkInterval } from './work-capacity.js'
+import { extendedSessionInterval, unionIntervals, subtractIntervals, wholeMinuteIntervals, windowInterval, intervalMinutes, intersectIntervals, contiguousWorkInterval, validWindows } from './work-capacity.js'
 import { eventBlocksTime, osloLocal, toInstant } from './planner.js'
+import { validStudyTimePreference } from './study-time.js'
 
 const minute = 60000
-export const planningFingerprint = state => JSON.stringify([state.tasks, state.sessions, state.workWindows, state.busyWindows, state.planner?.events, state.planningPreferences])
+export const planningFingerprint = state => JSON.stringify([state.tasks, state.sessions, state.workWindows, state.busyWindows, state.planner?.events, state.planningPreferences, state.studyTimePreference])
 function sessionFrom(id, taskId, start, end, rules) {
   const a = osloLocal(new Date(start).toISOString()), b = osloLocal(new Date(end).toISOString())
   const session = { id, taskId, dateLocal: a.slice(0, 10), startTime: a.slice(11, 16), endDateLocal: b.slice(0, 10), endTime: b.slice(11, 16), locked: false, planningRules: { ...rules } }
@@ -40,7 +41,7 @@ function orderedActiveTasks(tasks) {
 // A retained reservation is not evidence that its task can be finished unless
 // its prerequisites can precede it and no other task claims the same time.
 // Invalid locks stay in the plan, but cannot unlock downstream work.
-function retainedWork(task, kept, state, { floor, after, limit, windows, busy, breakMs }) {
+function retainedWork(task, kept, state, { floor, after, limit, windows, busy, breakMs, windowLabel = 'bekreftet arbeidstid' }) {
   const intervals = [], problems = [], occupied = kept.filter(session => occupies(session, state)).map(extendedSessionInterval)
   for (const session of kept.filter(session => session.taskId === task.id)) {
     const value = extendedSessionInterval(session)
@@ -53,42 +54,47 @@ function retainedWork(task, kept, state, { floor, after, limit, windows, busy, b
     else if (value.end > limit) issue = 'slutter etter oppgavens frist'
     if (issue) { problems.push(`${label} ${issue}. Den er beholdt, men regnes ikke som gjennomførbart arbeid. Juster låsen selv.`); continue }
     const usable = wholeMinuteIntervals(subtractIntervals(intersectIntervals([{ ...value, start: Math.max(value.start, floor) }], windows), busy))
-    if (intervalMinutes(usable) < intervalMinutes([value])) problems.push(`${label} er delvis passert, opptatt eller utenfor bekreftet arbeidstid. Den er beholdt. Kontroller låsen; atskilte deler kan ikke fullføre arbeid som ikke kan deles.`)
+    if (intervalMinutes(usable) < intervalMinutes([value])) problems.push(`${label} er delvis passert, opptatt eller utenfor ${windowLabel}. Den er beholdt. Kontroller låsen; atskilte deler kan ikke fullføre arbeid som ikke kan deles.`)
     intervals.push(...usable)
   }
   return { intervals: unionIntervals(intervals), problems }
 }
 
-export function createReplan(state, { now = new Date(), rules = state.planningPreferences || DEFAULT_PLANNING_RULES, exploratory = {} } = {}) {
-  const problems = [], proposed = [], changes = []
+export function createReplan(state, { now = new Date(), rules = state.planningPreferences || DEFAULT_PLANNING_RULES, exploratory = {}, availability, taskIds } = {}) {
+  const problems = [], proposed = [], changes = [], deficits = {}, deficitRanges = {}
   if (!validPlanningRules(rules)) return { ok: false, error: 'Kontroller lengde og pauser for øktene.' }
   const graph = validateDependencyGraph(state.tasks, { relations: true })
   if (!graph.ok) return graph
   if (!Number.isFinite(+now)) return { ok: false, error: 'Klokken er ugyldig.' }
-  const active = state.tasks.filter(task => !task.completed && !task.submitted)
+  const scope = taskIds?.length ? new Set(taskIds) : null
+  const active = state.tasks.filter(task => !task.completed && !task.submitted && (!scope || scope.has(task.id)))
   const movable = (state.sessions || []).filter(session => session.taskId && !session.locked && active.some(task => task.id === session.taskId))
   const kept = (state.sessions || []).filter(session => !movable.some(item => item.id === session.id))
   const breakMs = rules.breakMinutes * minute, floor = Math.ceil(+now / minute) * minute
   const occupied = kept.filter(session => occupies(session, state)).map(extendedSessionInterval).map(item => ({ start: item.start - breakMs, end: item.end + breakMs }))
-  let free = wholeMinuteIntervals(subtractIntervals((state.workWindows || []).map(windowInterval).map(item => ({ start: Math.max(floor, item.start), end: item.end })), [...fixedBusy(state), ...occupied]))
-  if (!state.workWindows?.length) problems.push('Tilgjengelig arbeidstid er ukjent. Registrer og bekreft arbeidstidsvinduer før nye økter kan foreslås.')
+  const sourceWindows = availability?.windows || state.workWindows || []
+  const windowLabel = availability?.conditional ? 'de foreslåtte studietidene' : 'bekreftet arbeidstid'
+  if (!validWindows(sourceWindows)) return { ok: false, error: 'Studietidene i forslaget er ugyldige.' }
+  let free = wholeMinuteIntervals(subtractIntervals(sourceWindows.map(windowInterval).map(item => ({ start: Math.max(floor, item.start), end: item.end })), [...fixedBusy(state), ...occupied]))
+  if (!sourceWindows.length) problems.push('Tilgjengelig studietid er ukjent. Velg vanlig studietid eller registrer detaljerte arbeidstidsvinduer.')
   const doneAt = new Map(state.tasks.filter(task => task.completed || task.submitted).map(task => [task.id, floor]))
-  for (const task of orderedActiveTasks(state.tasks)) {
+  for (const task of orderedActiveTasks(active)) {
     let limit
     try { limit = deadline(task) } catch { problems.push(`«${task.title}»: fristen er tvetydig ved tidsskifte. Presiser den.`); continue }
     const blockers = taskBlockers(task, state.tasks)
     if (blockers.some(item => item.waiting || item.missing || !doneAt.has(item.id))) { problems.push(`«${task.title}»: ${blockers.map(item => item.reason).join(' ')} Ingen startklar tid foreslås.`); continue }
     let after = Math.max(floor, ...(task.dependencyIds || []).map(id => doneAt.get(id) || floor))
-    const remaining = getRemainingMinutes(task), exploration = exploratory[task.id]
+    const remainingRange = getRemainingRange(task), remaining = remainingRange?.maxMinutes ?? null, exploration = exploratory[task.id]
     if (remaining === null && !(Number.isSafeInteger(exploration) && exploration >= rules.minimumMinutes && exploration <= rules.maximumMinutes)) { problems.push(`«${task.title}»: gjenstående arbeid er ukjent. Velg en utforskende økt eller oppgi et estimat; fullføring kan ikke beregnes.`); continue }
     if (remaining === 0) { problems.push(`«${task.title}»: 0 min er registrert. Bekreft arbeidsstatus selv.`); continue }
+    const target = remaining ?? exploration, openEnded = remainingRange?.maxMinutes === null
     const locked = kept.filter(session => session.taskId === task.id).map(extendedSessionInterval).filter(item => item.end > floor)
-    const retained = retainedWork(task, kept, state, { floor, after, limit, windows: (state.workWindows || []).map(windowInterval), busy: fixedBusy(state), breakMs })
+    const retained = retainedWork(task, kept, state, { floor, after, limit, windows: sourceWindows.map(windowInterval), busy: fixedBusy(state), breakMs, windowLabel })
     problems.push(...retained.problems)
     const reserved = task.splittable === false
-      ? locked.length === 1 && contiguousWorkInterval(retained.intervals, remaining ?? exploration) ? intervalMinutes(retained.intervals) : 0
+      ? locked.length === 1 && contiguousWorkInterval(retained.intervals, target) ? intervalMinutes(retained.intervals) : 0
       : intervalMinutes(retained.intervals)
-    let need = Math.max(0, (remaining ?? exploration) - reserved), endAt = Math.max(after, ...retained.intervals.map(item => item.end))
+    let need = Math.max(0, target - reserved), endAt = Math.max(after, ...retained.intervals.map(item => item.end))
     const old = movable.filter(item => item.taskId === task.id), used = []
     if (task.splittable === false && locked.length && (need > 0 || locked.length > 1)) problems.push(`«${task.title}»: arbeidet kan ikke deles. Kontroller den låste reservasjonen før du legger til en ny økt.`)
     else if (task.splittable === false && need > rules.maximumMinutes) problems.push(`«${task.title}»: ${need} min må holdes samlet, mer enn valgt maksimal øktlengde ${rules.maximumMinutes} min.`)
@@ -124,7 +130,14 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
       if (!placed) break
     }
     for (const removed of old.slice(used.length)) changes.push({ taskId: task.id, title: task.title, original: removed, proposed: null, deadlineLocal: task.deadlineLocal || '' })
-    if (need > 0) problems.push(`«${task.title}»: ${need} min mangler${task.deadlineLocal ? ' før fristen' : ''} innen bekreftet arbeidstid, pauser og øktregler.`)
+    const allocated = reserved + intervalMinutes(used.map(extendedSessionInterval))
+    const minimumNeed = remainingRange ? Math.max(0, remainingRange.minMinutes - allocated) : need
+    if (need > 0 || minimumNeed > 0 || openEnded) {
+      deficits[task.id] = need
+      deficitRanges[task.id] = { minMinutes: minimumNeed, maxMinutes: openEnded ? null : need }
+      const amount = openEnded ? minimumNeed ? `minst ${minimumNeed} min mangler; øvre grense er ukjent` : 'mer arbeid kan gjenstå; øvre grense er ukjent' : minimumNeed === need ? `${need} min mangler` : minimumNeed ? `${minimumNeed}–${need} min mangler` : `opptil ${need} min kan mangle`
+      problems.push(`«${task.title}»: ${amount}${task.deadlineLocal ? ' før fristen' : ''} innen ${windowLabel}, pauser og øktregler.`)
+    }
     else if (remaining !== null) doneAt.set(task.id, endAt)
   }
   for (const old of movable) if (!changes.some(change => change.original?.id === old.id)) {
@@ -133,7 +146,12 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
   }
   if (proposed.length >= 500) problems.push('Forslaget er avgrenset til 500 økter. Gjenstående arbeid er fortsatt oppgitt; del opp planleggingsperioden før du planlegger videre.')
   const allocatedMinutes = Object.fromEntries(active.map(task => [task.id, intervalMinutes(proposed.filter(item => item.taskId === task.id).map(extendedSessionInterval))]))
-  return { ok: true, baseline: planningFingerprint(state), createdAt: now.toISOString(), rules: { ...rules }, exploratory: { ...exploratory }, allocatedMinutes, proposed, removedIds: movable.map(item => item.id), changes, problems, known: Boolean(state.workWindows?.length) }
+  const totalMissingMinMinutes = Object.values(deficitRanges).reduce((sum, value) => sum + value.minMinutes, 0)
+  const totalMissingMinutes = Object.values(deficits).reduce((sum, value) => sum + value, 0)
+  const openMissing = Object.values(deficitRanges).some(value => value.maxMinutes === null)
+  return { ok: true, baseline: planningFingerprint(state), createdAt: now.toISOString(), rules: { ...rules }, exploratory: { ...exploratory }, allocatedMinutes, deficits, deficitRanges,
+    totalMissingMinutes, totalMissingMinMinutes, totalMissingMaxMinutes: openMissing ? null : totalMissingMinutes, proposed, removedIds: movable.map(item => item.id), changes, problems,
+    known: availability?.kind === 'confirmed' || !availability && Boolean(state.workWindows?.length), availability: availability ? structuredClone(availability) : { kind: 'confirmed', label: 'Registrert tilgjengelig tid', conditional: false, windows: structuredClone(sourceWindows), preferenceAction: 'keep' }, taskIds: scope ? [...scope] : null }
 }
 
 export function applyReplan(state, preview, { now = new Date() } = {}) {
@@ -141,7 +159,11 @@ export function applyReplan(state, preview, { now = new Date() } = {}) {
   if (!preview?.ok || preview.baseline !== planningFingerprint(state)) return { ok: false, stale: true, error: 'Dataene har endret seg. Beregn et nytt forslag før du godtar.' }
   if (!validPlanningRules(preview.rules)) return { ok: false, error: 'Ugyldige øktregler.' }
   const kept = (state.sessions || []).filter(session => !preview.removedIds.includes(session.id)), intervals = []
-  const windows = unionIntervals((state.workWindows || []).map(windowInterval)), busy = fixedBusy(state), rules = preview.rules
+  const sourceWindows = preview.availability?.windows || state.workWindows || []
+  const windowLabel = preview.availability?.conditional ? 'de foreslåtte studietidene' : 'bekreftet arbeidstid'
+  if (!validWindows(sourceWindows)) return { ok: false, error: 'Studietidene i forslaget er ugyldige.' }
+  if (preview.availability?.preferenceAction === 'set' && !validStudyTimePreference(preview.availability.preference)) return { ok: false, error: 'Studietidspreferansen er ugyldig.' }
+  const windows = unionIntervals(sourceWindows.map(windowInterval)), busy = fixedBusy(state), rules = preview.rules
   try {
     if (preview.removedIds.some(id => !(state.sessions || []).some(item => item.id === id && item.taskId && !item.locked && state.tasks.some(task => task.id === item.taskId && !task.completed && !task.submitted)))) throw new Error('En låst eller uvedkommende reservasjon kan ikke fjernes.')
     if (new Set(preview.proposed.map(item => item.id)).size !== preview.proposed.length) throw new Error('To foreslåtte økter har samme ID.')
@@ -150,7 +172,7 @@ export function applyReplan(state, preview, { now = new Date() } = {}) {
       if (!task || task.completed || task.submitted || task.waitingReason || taskBlockers(task, state.tasks).some(item => item.missing)) throw new Error('En oppgave er fullført eller blokkert. Beregn på nytt.')
       if (value.start < Math.ceil(+now / minute) * minute) return { ok: false, stale: true, error: 'Et foreslått starttidspunkt er passert. Beregn på nytt.' }
       if (length < rules.minimumMinutes || length > rules.maximumMinutes || value.end > deadline(task)) throw new Error('Økten bryter lengderegelen eller går forbi fristen.')
-      if (intervalMinutes(intersectIntervals([value], windows)) !== length || intervalMinutes(intersectIntervals([value], busy))) throw new Error('Økten ligger utenfor bekreftet arbeidstid eller overlapper opptatt tid.')
+      if (intervalMinutes(intersectIntervals([value], windows)) !== length || intervalMinutes(intersectIntervals([value], busy))) throw new Error(`Økten ligger utenfor ${windowLabel} eller overlapper opptatt tid.`)
       const others = [...kept.filter(session => occupies(session, state)).map(extendedSessionInterval), ...intervals]
       if (others.some(other => value.start < other.end + rules.breakMinutes * minute && value.end + rules.breakMinutes * minute > other.start)) throw new Error('Øktene overlapper eller mangler valgt pause.')
       if (kept.some(other => other.id === session.id)) throw new Error('Økt-ID-en finnes allerede.')
@@ -170,13 +192,40 @@ export function applyReplan(state, preview, { now = new Date() } = {}) {
       if (own.some(item => item.start < after)) throw new Error('En forutsetning har ikke nok reservert tid før denne oppgaven.')
       let limit
       try { limit = deadline(task) } catch (error) { if (own.length) throw error; continue }
-      const retained = retainedWork(task, kept, state, { floor, after, limit, windows, busy, breakMs: rules.breakMinutes * minute })
-      const available = [...own, ...retained.intervals], need = getRemainingMinutes(task)
+      const retained = retainedWork(task, kept, state, { floor, after, limit, windows, busy, breakMs: rules.breakMinutes * minute, windowLabel })
+      const available = [...own, ...retained.intervals], need = getRemainingRange(task)?.maxMinutes ?? null
       const reservationCount = own.length + kept.filter(item => item.taskId === task.id && extendedSessionInterval(item).end > +now).length
       const finishable = task.splittable === false ? reservationCount === 1 && contiguousWorkInterval(available, need) : intervalMinutes(available) >= need
       if (need !== null && need > 0 && finishable) doneAt.set(task.id, Math.max(after, ...available.map(item => item.end)))
       if (own.length && task.splittable === false && reservationCount > 1) throw new Error('Oppgaven kan ikke deles i flere økter.')
     }
-    return { ok: true, state: { ...state, sessions: [...kept, ...structuredClone(preview.proposed)], planningPreferences: { ...rules } } }
+    const next = { ...state, sessions: [...kept, ...structuredClone(preview.proposed)], planningPreferences: { ...rules } }
+    if (preview.availability?.preferenceAction === 'set') next.studyTimePreference = structuredClone(preview.availability.preference)
+    else if (preview.availability?.preferenceAction === 'clear') delete next.studyTimePreference
+    return { ok: true, state: next }
   } catch (error) { return { ok: false, error: error.message } }
+}
+
+export function replanMoveAlternatives(state, preview, sessionId, { now = new Date(), limit = 3 } = {}) {
+  if (!preview?.ok || preview.baseline !== planningFingerprint(state)) return []
+  const current = preview.proposed.find(item => item.id === sessionId)
+  if (!current) return []
+  let value
+  try { value = extendedSessionInterval(current) } catch { return [] }
+  const duration = value.end - value.start, floor = Math.ceil(+now / minute) * minute, results = [], seen = new Set()
+  for (const source of preview.availability?.windows || state.workWindows || []) {
+    const interval = windowInterval(source)
+    let start = Math.ceil(Math.max(floor, interval.start) / (15 * minute)) * 15 * minute
+    for (; start + duration <= interval.end && results.length < limit; start += 30 * minute) {
+      if (start === value.start || seen.has(start)) continue
+      const candidate = sessionFrom(current.id, current.taskId, start, start + duration, preview.rules)
+      if (!candidate) continue
+      const draft = structuredClone(preview), index = draft.proposed.findIndex(item => item.id === sessionId)
+      draft.proposed[index] = candidate
+      if (!applyReplan(state, draft, { now }).ok) continue
+      seen.add(start); results.push(candidate)
+    }
+    if (results.length >= limit) break
+  }
+  return results
 }

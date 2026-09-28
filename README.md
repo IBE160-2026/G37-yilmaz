@@ -8,6 +8,12 @@ Repoet inneholder Studieplan, en lokal studieplanlegger, samt dokumentasjon av u
 
 - Elias Hemsett Yilmaz
 
+## Dette inneholder dagens versjon
+
+Studieplan samler studieprogram, emner og tilgjengelig offentlig undervisning i én kontrollert importflyt. Publiserte alternativgrener beholdes som valg i stedet for å bli gjort obligatoriske; HiMolde-eksempelet krever IBE110 og IBE430 samt enten IBE160 eller kombinasjonen IBE102 og IBE152. Undervisning behandles per emne, med presis status for blant annet tomt resultat, timeout, transportfeil, ugyldig svar, tilgangskrav og manglende støtte. Tidligere lagrede aktiviteter og studentvalg beholdes ved kildefeil.
+
+Planleggingen støtter gjenbrukbare studietidsmønstre, usikre arbeidsanslag, daglig veiledning og studentgodkjent omplanlegging. Import- og kalendergrensesnittet bevarer relevante åpne seksjoner, rulleposisjon og fokus, og viser stabile emnefarger sammen med tydelige emnekoder. Implementert kildekode og avgrensede kontroller er ikke det samme som full nasjonal kilde- eller programdekning; se [importdekningen](studieplanlegger/IMPORT-COVERAGE.md).
+
 ## Kjør den komplette leveransen
 
 Du trenger Docker med Compose. Fra repository-roten:
@@ -34,11 +40,12 @@ Docker-oppstarten ovenfor krever ikke en lokal Node-installasjon. For lokal utvi
 npm ci
 npx playwright install chromium
 npm run test:unit
+npm run verify:teaching
 npm run build
 npm run test:e2e:database
 ```
 
-`npx playwright install chromium` kreves før både `npm run test:e2e` og `npm run test:e2e:database`. Databasekommandoen bygger appen, velger en ledig loopback-port og kjører den målrettede produksjonsflyten mot en midlertidig Node/SQLite-database; den trenger ikke Docker eller en eksisterende server. Den vanlige Vite-baserte nettlesersuiten kan kjøres separat med `npm run test:e2e` og bruker `localStorage`, ikke SQLite. Testene bruker syntetiske studentdata; kildeadaptrene testes også mot versjonerte fixturer fra offentlige kilder.
+`npx playwright install chromium` kreves før både `npm run test:e2e` og `npm run test:e2e:database`. `verify:teaching` er den repeterbare, lokale kontrollen av versjonerte undervisningsfixturer; den gjør ikke eksterne kildeoppslag. Databasekommandoen bygger appen, velger en ledig loopback-port og kjører den målrettede produksjonsflyten mot en midlertidig Node/SQLite-database; den trenger ikke Docker eller en eksisterende server. Den vanlige Vite-baserte nettlesersuiten kan kjøres separat med `npm run test:e2e` og bruker `localStorage`, ikke SQLite. Testene bruker syntetiske studentdata; kildeadaptrene testes også mot versjonerte fixturer fra offentlige kilder.
 
 På en ren Linux-maskin kan Playwrights systembiblioteker også mangle. Bruk da `npx playwright install --with-deps chromium` med nødvendige lokale administratorrettigheter i stedet for den vanlige installasjonskommandoen.
 

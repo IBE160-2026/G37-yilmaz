@@ -25,13 +25,18 @@ export function isPublicIPv4(address) {
   const [a, b, c] = address.split('.').map(Number)
   return /^\d+\.\d+\.\d+\.\d+$/.test(address) && a > 0 && a < 224 && ![10, 127].includes(a) && !(a === 100 && b >= 64 && b <= 127) && !(a === 169 && b === 254) && !(a === 172 && b >= 16 && b <= 31) && !(a === 192 && (b === 168 || b === 0 || (b === 88 && c === 99))) && !(a === 198 && [18, 19, 51].includes(b)) && !(a === 203 && b === 0 && c === 113)
 }
-export async function fetchPublicBytes(input, redirects = 0, validateUrl, { signal, usnCatalogue, anonymousShare, maxBytes = 2_000_000 } = {}) {
+export async function fetchPublicBytes(input, redirects = 0, validateUrl, { signal, usnCatalogue, anonymousShare, anonymousSession, maxBytes = 2_000_000 } = {}) {
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 10_000_000) throw new Error('Ugyldig grense for offentlig kildehenting.')
   signal?.throwIfAborted()
   const url = new URL(input.replace(/^webcal:/i, 'https:'))
   validateUrl?.(url)
   if (url.protocol !== 'https:' || url.username || url.password || (url.port && url.port !== '443')) throw new Error('Bruk en offentlig HTTPS-kalenderlenke uten brukernavn eller passord.')
   if(anonymousShare&&(anonymousShare.origin!=='https://ansgarskolenno-my.sharepoint.com'||url.origin!==anonymousShare.origin||!(anonymousShare.cookies instanceof Map)))throw new Error('Den anonyme delingsforespørselen har forlatt sin publiserte vert.')
+  if(anonymousSession&&(
+    anonymousSession.origin!=='https://tp.educloud.no'||url.origin!==anonymousSession.origin||
+    anonymousSession.pathPrefix!=='/himolde/'||!url.pathname.startsWith(anonymousSession.pathPrefix)||
+    !(anonymousSession.cookies instanceof Map)||anonymousSession.referer&&typeof anonymousSession.referer!=='string'
+  ))throw new Error('Den anonyme TP-forespørselen har forlatt sin publiserte institusjonssti.')
   // USN's published catalogue uses a read-only POST. The body is constructed here
   // from public period filters; arbitrary payloads and student identifiers cannot pass.
   let body
@@ -44,7 +49,9 @@ export async function fetchPublicBytes(input, redirects = 0, validateUrl, { sign
   if (!addresses.length || addresses.some(entry => !isPublicIPv4(entry.address))) throw new Error('Lenken må peke til en offentlig kalender, ikke en lokal nettverksadresse.')
   const response = await new Promise((resolve, reject) => {
     const options = { signal, headers: { Accept: 'text/calendar,text/html,application/json;q=0.9', 'User-Agent': 'Studieplanlegger/1.0' }, lookup: (_host, options, callback) => options.all ? callback(null, [addresses[0]]) : callback(null, addresses[0].address, 4) }
-    if(anonymousShare?.cookies.size)options.headers.Cookie=[...anonymousShare.cookies].map(([key,value])=>`${key}=${value}`).join('; ')
+    const cookieJar=anonymousShare?.cookies||anonymousSession?.cookies
+    if(cookieJar?.size)options.headers.Cookie=[...cookieJar].map(([key,value])=>`${key}=${value}`).join('; ')
+    if(anonymousSession?.referer){options.headers.Referer=anonymousSession.referer;options.headers['X-Requested-With']='XMLHttpRequest'}
     if (body) { options.method = 'POST'; options.headers['Content-Type'] = 'application/json;charset=UTF-8'; options.headers['Content-Length'] = Buffer.byteLength(body) }
     const request = body ? https.request(url, options, resolve) : https.get(url, options, resolve)
     request.setTimeout(12000, () => request.destroy(new Error('Hentingen tok for lang tid. Prøv igjen eller last opp en .ics-fil.')))
@@ -54,12 +61,13 @@ export async function fetchPublicBytes(input, redirects = 0, validateUrl, { sign
   // Ansgar publishes anonymous SharePoint links that issue temporary cookies.
   // These stay in a request-local jar and are never sent to another origin or
   // persisted as a student's credentials. Provider guards reject login paths.
-  if(anonymousShare)for(const value of response.headers['set-cookie']||[]){const cookie=value.split(';',1)[0],match=cookie.match(/^([A-Za-z0-9_-]{1,100})=([^\r\n]*)$/);if(match){anonymousShare.cookies.set(match[1],match[2]);if([...anonymousShare.cookies].reduce((n,[k,v])=>n+k.length+v.length,0)>16000){response.destroy();throw new Error('Den offentlige delingskilden returnerte for store midlertidige opplysninger.')}}}
+  const cookieJar=anonymousShare?.cookies||anonymousSession?.cookies
+  if(cookieJar)for(const value of response.headers['set-cookie']||[]){const cookie=value.split(';',1)[0],match=cookie.match(/^([A-Za-z0-9_-]{1,100})=([^\r\n]*)$/);if(match){cookieJar.set(match[1],match[2]);if([...cookieJar].reduce((n,[k,v])=>n+k.length+v.length,0)>16000){response.destroy();throw new Error('Den offentlige kilden returnerte for store midlertidige sesjonsopplysninger.')}}}
   if ([301, 302, 303, 307, 308].includes(response.statusCode)) {
     response.resume()
     if (body) throw new Error('USNs katalogsøk ble videresendt. Oppslaget ble stoppet; eksisterende data er beholdt.')
     if (redirects >= 3 || !response.headers.location) throw new Error('Kilden videresender for mange ganger. Bruk en direkte kalenderlenke.')
-    return fetchPublicBytes(new URL(response.headers.location, url).href, redirects + 1, validateUrl, { signal, maxBytes, anonymousShare })
+    return fetchPublicBytes(new URL(response.headers.location, url).href, redirects + 1, validateUrl, { signal, maxBytes, anonymousShare, anonymousSession })
   }
   if (response.statusCode !== 200) { response.resume(); throw new Error(`Kilden svarte med HTTP ${response.statusCode}. Årsaken er ikke bekreftet. Tidligere data er beholdt; bruk offentlig kildeside, fil eller manuell registrering.`) }
   let size = 0

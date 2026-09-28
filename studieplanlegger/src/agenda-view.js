@@ -1,5 +1,6 @@
 import { osloLocal, matchesCourse } from './planner.js'
 import { extendedSessionInterval } from './work-capacity.js'
+import { courseColor } from './calendar.js'
 
 // One data source for the compact agenda, independent of the selected month.
 export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, courseFilter = '', now = new Date() }) {
@@ -19,8 +20,9 @@ export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, course
   for (const task of tasks) {
     if (!task.deadlineLocal || task.submitted || (task.completed && !task.requiresSubmission) || task.deadlineLocal < localNow) continue
     if (!matchesCourse(task, courseFilter, course)) continue
+    const subject = courses.find(item => item.id === task.courseId)
     entries.push({ key: `task:${task.id}`, id: task.id, kind: 'deadline', title: task.title,
-      date: task.deadlineLocal.slice(0, 10), time: task.deadlineLocal.slice(11), course: task.course,
+      date: task.deadlineLocal.slice(0, 10), time: task.deadlineLocal.slice(11), course: subject?.code || task.course,
       ready: !!task.completed })
   }
   for (const session of sessions) {
@@ -65,6 +67,7 @@ export function createAgenda(host, actions) {
     for (const entry of expanded ? entries : entries.slice(0, 5)) {
       const li = node('li', `compact-agenda-item kind-${entry.kind}`)
       const button = node('button', 'agenda-entry')
+      if (entry.course) button.style.setProperty('--course-color', courseColor(entry.course))
       button.type = 'button'
       button.disabled = disabled
       button.dataset.agendaKey = entry.key
@@ -81,7 +84,8 @@ export function createAgenda(host, actions) {
       const time = entry.allDay ? 'Hele dagen' : `kl. ${entry.time}${entry.endTime ? `–${entry.endDate && entry.endDate !== entry.date ? `${entry.endDate} kl. ` : ''}${entry.endTime}` : ''}`
       meta.append(node('span', 'agenda-kind', labels[entry.kind]), node('span', '', entry.ongoing ? `Pågår · ${time}` : time))
       const detail = [entry.course, entry.location, entry.ready ? 'Klar til levering' : ''].filter(Boolean).join(' · ')
-      content.append(meta, node('span', 'agenda-item-title', entry.title), node('span', 'agenda-item-details', detail))
+      const title = entry.course && !entry.title.toLocaleUpperCase('nb').startsWith(entry.course.toLocaleUpperCase('nb')) ? `${entry.course} · ${entry.title}` : entry.title
+      content.append(meta, node('span', 'agenda-item-title', title), node('span', 'agenda-item-details', detail))
       button.setAttribute('aria-label', `${entry.title}, ${entry.date}, ${time}${detail ? `, ${detail}` : ''}`)
       button.append(stamp, content)
       li.append(button)

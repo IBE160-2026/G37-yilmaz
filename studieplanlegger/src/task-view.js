@@ -1,5 +1,5 @@
 import { suggestionReason } from './tasks.js'
-import { isOverdue, getRemainingMinutes } from './tasks.js'
+import { isOverdue, getRemainingMinutes, getRemainingRange, formatEstimateRange } from './tasks.js'
 import { courseColor, formatDeadline, taskStatus } from './calendar.js'
 import { taskBlockers, unblocksCount, canStartTask } from './task-dependencies.js'
 
@@ -63,11 +63,13 @@ export function createTaskList(list, actions) {
       if (action === 'complete') actions.complete(task.id, true, 'primary')
       else if (action === 'openStep') actions.step(task.id)
       else if (action === 'open') actions.edit(task.id)
+      else if (action === 'start') actions.start(task.id)
+      else if (action === 'plan') actions.replan(task.id)
       else actions[action](task.id)
     }
     primary.addEventListener('click', () => invoke(row.primaryAction))
     complete.addEventListener('change', () => actions.complete(task.id, complete.checked))
-    for (const [action, caption] of [['edit', 'Rediger'], ['closeWork', 'Registrer arbeid'], ['step', 'Legg til neste steg'],
+    for (const [action, caption] of [['plan', 'Se planforslag'], ['edit', 'Rediger'], ['closeWork', 'Registrer arbeid'], ['step', 'Legg til neste steg'],
       ['completeStep', 'Neste steg gjort'], ['removeStep', 'Fjern neste steg'], ['submit', 'Angre levering'], ['delete', 'Slett']]) {
       const button = node('button', action === 'delete' ? 'danger-button' : '', caption)
       button.type = 'button'
@@ -79,7 +81,8 @@ export function createTaskList(list, actions) {
     menu.addEventListener('keydown', event => {
       if (event.key === 'Escape') { event.preventDefault(); menu.open = false; summary.focus() }
     })
-    controls.append(primary, menu)
+    buttons.plan.classList.add('secondary', 'task-plan')
+    controls.append(primary, buttons.plan, menu)
     const feedback = node('p', 'task-feedback')
     feedback.setAttribute('role', 'alert')
     feedback.hidden = true
@@ -119,7 +122,7 @@ export function createTaskList(list, actions) {
         row.item.classList.toggle('primary-suggestion', suggestion && index === 0)
         row.item.style.setProperty('--course-color', courseColor(task.course))
         row.kicker.hidden = !suggestion
-        setText(row.kicker, index === 0 ? 'Ditt hovedforslag' : 'Et annet forslag')
+        setText(row.kicker, index === 0 ? 'Anbefalt' : index === 1 ? 'Alternativ' : 'Kort oppgave')
         setText(row.title, task.title)
         setText(row.course, task.course || 'Uten emne')
         const ready = Boolean(task.requiresSubmission && task.completed && !task.submitted)
@@ -128,10 +131,15 @@ export function createTaskList(list, actions) {
         setText(row.deadline, formatDeadline(task.deadlineLocal, { year: Number((task.deadlineLocal || '').slice(0, 4)) !== now.getFullYear() }))
         row.deadline.dateTime = task.deadlineLocal || ''
         setText(row.estimate, task.estimatedMinutes == null ? 'Tidsestimat ukjent' : `Hele oppgaven: ${task.estimatedMinutes} min`)
-        setText(row.remaining, getRemainingMinutes(task) == null ? 'Gjenstående arbeid: ukjent' : `Gjenstående arbeid: ${getRemainingMinutes(task)} min${task.remainingMinutes === undefined && !task.completed ? ' (hovedestimat)' : ''}`)
+        setText(row.remaining, `Gjenstående arbeid: ${formatEstimateRange(getRemainingRange(task))}`)
         const planned = capacity.find(entry => entry.taskId === task.id)
-        row.capacityWarning.hidden = !planned || task.completed || (!planned.missingMinutes && planned.requiredMinutes !== 0)
-        setText(row.capacityWarning, planned ? `${planned.missingMinutes && task.deadlineLocal ? `Mangler ${planned.missingMinutes} min før fristen. ` : ''}${planned.reasons.join(' ')}` : '')
+        row.capacityWarning.hidden = !planned || task.completed || (!planned.reasons.length && !planned.missingMinutes && !planned.missingMinMinutes)
+        const missing = planned.missingMaxMinutes === null
+          ? planned.missingMinMinutes ? `Minst ${planned.missingMinMinutes} min mangler før fristen. ` : ''
+          : planned.missingMinMinutes !== planned.missingMaxMinutes
+            ? planned.missingMinMinutes ? `${planned.missingMinMinutes}–${planned.missingMaxMinutes} min kan mangle før fristen. ` : `Det kan mangle opptil ${planned.missingMaxMinutes} min før fristen. `
+            : planned.missingMinutes && task.deadlineLocal ? `Mangler ${planned.missingMinutes} min før fristen. ` : ''
+        setText(row.capacityWarning, planned ? `${missing}${planned.reasons.join(' ')}` : '')
         row.overdue.hidden = !isOverdue(task, now)
         row.stepBox.hidden = !task.nextStep
         setText(row.stepText, task.nextStep?.description || '')
@@ -145,9 +153,9 @@ export function createTaskList(list, actions) {
         setText(row.completeText, task.requiresSubmission ? 'Ferdig med arbeidet' : 'Fullført')
         row.buttons.complete.setAttribute('aria-label', `${row.completeText.textContent} «${task.title}»`)
         row.summary.setAttribute('aria-label', `Flere handlinger «${task.title}»`)
-        row.primaryAction = suggestion || compact ? 'open'
+        row.primaryAction = suggestion ? 'start' : compact ? 'open'
           : ready ? 'submit' : task.completed ? 'open' : task.nextStep ? 'completeStep' : 'complete'
-        const primaryLabels = { openStep: 'Åpne neste steg', open: 'Åpne oppgave', submit: 'Bekreft levert',
+        const primaryLabels = { openStep: 'Åpne neste steg', open: 'Åpne oppgave', start: 'Start', submit: 'Bekreft levert',
           completeStep: 'Neste steg gjort', complete: 'Marker ferdig' }
         const primaryLabel = primaryLabels[row.primaryAction]
         setText(row.primary, primaryLabel)
@@ -158,6 +166,7 @@ export function createTaskList(list, actions) {
         row.buttons.completeStep.hidden = !task.nextStep || row.primaryAction === 'completeStep'
         row.buttons.removeStep.hidden = !task.nextStep
         row.buttons.closeWork.hidden = task.completed || task.submitted
+        row.buttons.plan.hidden = task.completed || task.submitted
         for (const [action, button] of Object.entries(row.buttons)) {
           if (action !== 'complete') button.setAttribute('aria-label', `${button.textContent} «${task.title}»`)
         }

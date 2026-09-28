@@ -1,13 +1,14 @@
 import { expect, test } from '@playwright/test'
-import { deleteTask, edit, openMenu } from './helpers.js'
+import { deleteTask, edit, navigate, openMenu } from './helpers.js'
 
 test.describe.configure({ mode: 'serial' })
 
 const legacy = {
   schemaVersion: 1,
-  tasks: [{ id: 'legacy-task', title: 'Migrated linked task', course: 'TEST101', courseId: 'legacy-course', deadlineLocal: '2026-09-28T12:00', estimatedMinutes: 60, remainingMinutes: 45, completed: false }],
+  tasks: [{ id: 'legacy-task', title: 'Migrated linked task', course: 'TEST101', courseId: 'legacy-course', deadlineLocal: '2026-09-28T12:00', estimatedMinutes: null, remainingMinutes: null, remainingEstimate: { minMinutes: 241, maxMinutes: null }, deadlinePromptDismissed: true, completed: false }],
   sessions: [{ id: 'legacy-session', taskId: 'legacy-task', dateLocal: '2026-09-24', startTime: '10:00', endTime: '10:30' }],
   planner: { courses: [{ id: 'legacy-course', code: 'TEST101', name: 'Migration course', university: 'Test', semester: 'autumn', year: 2026, notes: '', sourceExtra: 'retained' }], events: [], sources: [] },
+  studyTimePreference: { kind: 'evening', label: 'På kvelden i ukedagene', days: [1, 2, 3, 4, 5], startTime: '18:00', endTime: '20:00' },
 }
 
 test('production API explicitly migrates once, persists exact relations and rejects stale writes', async ({ page }) => {
@@ -32,8 +33,10 @@ test('production API explicitly migrates once, persists exact relations and reje
   await page.getByRole('button', { name: 'Lagre', exact: true }).click()
   await expect(page.locator('.task-title', { hasText: 'Database-confirmed edit' })).toBeVisible()
   const updated = await page.evaluate(async () => (await fetch('/api/state')).json())
-  expect(updated.envelope.tasks[0]).toMatchObject({ id: 'legacy-task', title: 'Database-confirmed edit', courseId: 'legacy-course' })
+  expect(updated.envelope.tasks[0]).toMatchObject({ id: 'legacy-task', title: 'Database-confirmed edit', courseId: 'legacy-course', remainingEstimate: { minMinutes: 241, maxMinutes: null }, deadlinePromptDismissed: true })
+  expect(updated.envelope.tasks[0].remainingMinutes).toBeUndefined()
   expect(updated.envelope.sessions[0]).toMatchObject({ id: 'legacy-session', taskId: 'legacy-task' })
+  expect(updated.envelope.studyTimePreference).toEqual(legacy.studyTimePreference)
 
   await page.locator('#new-task').click()
   await page.locator('#title').fill('Database-created task')
@@ -110,4 +113,53 @@ test('production API restores recovery data and purges work history from live an
     return { status: response.status, body: await response.json() }
   })
   expect(invalid).toMatchObject({ status: 400, body: { error: 'state-operation-failed' } })
+})
+
+test('programme import persists across reload, remains repeat-safe and is undoable in SQLite', async ({ page }) => {
+  const sourceUrl = 'https://www.himolde.no/studier/programmer/database-test/studieplaner/2026.html'
+  const importedId = 'himolde:database-test:2026:1:DBP101'
+  await page.route('**/api/import/providers/himolde/**', async route => {
+    const action = new URL(route.request().url()).pathname.split('/').at(-1)
+    const responses = {
+      programs: { results: [{ code: 'DBTEST', name: 'Databaseprogram', sourceUrl }], completeness: { complete: true } },
+      'program-cohorts': { results: [{ cohort: '2026', sourceUrl }] },
+      'program-plan': { program: { code: 'DBTEST', name: 'Databaseprogram', cohort: '2026', sourceUrl, campuses: [] }, models: [{ id: 'common', name: 'Felles', periods: [{ id: '1', label: '1. semester', studySemester: 1, year: 2026, semester: 'autumn', requiredCourseIds: [importedId], alternativeGroups: [], courses: [{ id: importedId, code: 'DBP101', name: 'Persistens i programimport', credits: 10, choice: 'O', university: 'Høgskolen i Molde', sourceProvider: 'himolde', sourceRecordId: 'DBP101', sourceVersion: '2026', sourceUrl, description: '', notes: '' }] }] }], warnings: [] },
+      'teaching-search': { results: [] },
+    }
+    await route.fulfill({ json: { status: 'ok', ...(responses[action] || { status: 'not-supported', error: 'Uventet database-testkall' }) } })
+  })
+  const importProgramme = async () => {
+    await navigate(page, 'subjects')
+    const importButton=page.getByRole('button', { name: 'Importer emner og plan', exact: true })
+    if(await importButton.getAttribute('aria-expanded')!=='true')await importButton.click()
+    await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+    const host = page.locator('.program-import')
+    await host.locator('[name=institution]').selectOption('himolde')
+    await host.getByRole('button', { name: 'Hent studieprogram', exact: true }).click()
+    await host.locator('[name=program]').selectOption('0')
+    await host.locator('[name=cohort]').selectOption('0')
+    await host.getByRole('button', { name: 'Hent studieplan', exact: true }).click()
+    await host.locator('[name=model]').selectOption('common')
+    await host.locator('[name=studySemester]').selectOption('1')
+    await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
+    await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+    await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+  }
+  const importedCount = () => page.evaluate(async () => {
+    const saved = await (await fetch('/api/state')).json()
+    return saved.envelope.planner.courses.filter(course => course.code === 'DBP101').length
+  })
+
+  await page.goto('/')
+  await importProgramme()
+  await expect.poll(importedCount).toBe(1)
+  await page.locator('.contextual-undo').getByRole('button', { name: 'Angre siste endring', exact: true }).click()
+  await expect.poll(importedCount).toBe(0)
+  await importProgramme()
+  await page.reload()
+  await expect.poll(importedCount).toBe(1)
+  await importProgramme()
+  await expect.poll(importedCount).toBe(1)
+  await page.reload()
+  await expect.poll(importedCount).toBe(1)
 })

@@ -3,8 +3,9 @@ import ICAL from 'ical.js'
 import { load, clean, fail, cachedText } from './program-source.js'
 
 // Institution guidance links to these public TP installations. Their published
-// SPA specifies the semester/course GETs and iCalendar export below. The event
-// JSON API returned 401; this adapter never requests it or starts a login.
+// SPA specifies the semester/course GETs and calendar export below. HiMolde's
+// current client uses an anonymous, request-local session and the JSON event
+// endpoint; no login or personal timetable is used.
 export const publicTpInstitutions=['uit','uib','oslomet','nord','inn','uis','uio','uia','himolde','hiof']
 const origin='https://tp.educloud.no',codePattern=/^[\p{L}\p{N}_./-]{1,120}$/u
 const hash=text=>createHash('sha256').update(text).digest('hex')
@@ -12,7 +13,7 @@ const plain=text=>clean(load(String(text||''))('body').text())
 const publicationWarnings=semester=>semester.not_ready?[`Kilden varsler at timeplanen kan være uferdig: ${plain(semester.not_ready_text?.nb||semester.not_ready_text?.no||semester.not_ready_text?.en)||'Kontroller kildens publiseringsstatus før du planlegger.'}`]:[]
 const validDate=value=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return false;const [year,month,day]=value.split('-').map(Number),date=new Date(Date.UTC(year,month-1,day));return date.getUTCFullYear()===year&&date.getUTCMonth()===month-1&&date.getUTCDate()===day}
 function checkedUrl(input,institution){let url;try{url=new URL(input.href||input)}catch{fail('invalid-selection','Velg en publisert TP-emnekalender.')}
-  if(!publicTpInstitutions.includes(institution)||url.origin!==origin||url.username||url.password||url.hash||!new RegExp(`^/${institution}/(?:ws/services/semesters\\.php|ws/timeplan/info\\.php|timeplan/ical\\.php|app/schedule)$`).test(url.pathname)||[...url.searchParams.keys()].some(key=>!['type','sem','rkey','id[]','semester','scheduleType','course'].includes(key)||key!=='id[]'&&url.searchParams.getAll(key).length!==1))fail('invalid-selection','Kalenderlenken er utenfor denne offentlige TP-kilden.')
+  if(!publicTpInstitutions.includes(institution)||url.origin!==origin||url.username||url.password||url.hash||!new RegExp(`^/${institution}/(?:ws/services/semesters\\.php|ws/timeplan/info\\.php|ws/timeplan/|ws/db/inst\\.php|ws/user/session\\.php|timeplan/ical\\.php|app/schedule)$`).test(url.pathname)||[...url.searchParams.keys()].some(key=>!['type','sem','rkey','id[]','semester','scheduleType','course'].includes(key)||key!=='id[]'&&url.searchParams.getAll(key).length!==1))fail('invalid-selection','Kalenderlenken er utenfor denne offentlige TP-kilden.')
   return url
 }
 function same(input,expected,institution){const next=checkedUrl(input,institution);if(next.href!==expected.href)fail('source-changed','TP videresendte til et annet emne, tidsrom eller tilgangsområde.');return next}
@@ -71,11 +72,61 @@ export function normalizeTpCalendar(text,{institution,semester,selectedIds}){
   calendar.updatePropertyWithValue('x-studieplan-authoritative','false')
   calendar.removeAllProperties('x-studieplan-warning')
   for(const warning of warnings)calendar.addPropertyWithValue('x-studieplan-warning',warning)
-  return{calendar:calendar.toString(),warnings,coverage:'unknown',authoritative:false,identityMode:fingerprints?'source-occurrence-fingerprint':'source-uid',unresolved:[]}
+  return{calendar:calendar.toString(),warnings,coverage:'unknown',authoritative:false,identityMode:fingerprints?'source-occurrence-fingerprint':'source-uid',unresolved:[],eventCount:calendar.getAllSubcomponents('vevent').filter(event=>event.getFirstPropertyValue('status')!=='CANCELLED').length,sourceKind:'tp-ical'}
 }
-export function isPublicTpCalendarUrl(input){try{const url=new URL(input);return url.origin===origin&&url.searchParams.get('type')==='course'&&url.searchParams.has('id[]')&&[...url.searchParams.keys()].every(key=>['type','sem','rkey','id[]'].includes(key))&&publicTpInstitutions.some(id=>url.pathname===`/${id}/timeplan/ical.php`)}catch{return false}}
+const tpJsonInstant=value=>{if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}(?::?\d{2})?$/.test(value))return NaN;return Date.parse(value.replace(/([+-]\d{2})$/, '$1:00'))}
+const bounded=(value,max=2000)=>clean(value).slice(0,max)
+export function normalizeTpJsonEvents(input,{institution,semester,selected}){
+  let data
+  try{data=typeof input==='string'?JSON.parse(input):input}catch{fail('invalid-response','TP returnerte ikke lesbar JSON. Tidligere undervisning er beholdt.')}
+  if(!data||!Array.isArray(data.events)||data.events.length>10000)fail('invalid-response','TP-hendelsene har endret format eller overskrider 10 000 oppføringer. Tidligere undervisning er beholdt.')
+  const calendar=new ICAL.Component(['vcalendar',[],[]]),seen=new Set(),warnings=[];let cancelled=0,skippedMarkers=0
+  calendar.updatePropertyWithValue('version','2.0');calendar.updatePropertyWithValue('prodid','-//Studieplan//HiMolde TP JSON//NO');calendar.updatePropertyWithValue('x-wr-timezone','Europe/Oslo');calendar.updatePropertyWithValue('x-studieplan-tp-normalized','1');calendar.updatePropertyWithValue('x-studieplan-authoritative','false')
+  for(const row of data.events){
+    const assessment=row?.status==null&&row?.eventid==null&&row?.active===true&&row?.publish===true&&codePattern.test(row?.assessmentCode||'')
+    const title=bounded(row?.summaryNb||row?.summary||row?.teachingMethodName||(assessment&&(row?.teachingTitle||row?.examformNb)),2000),term=Number(row?.terminnr)
+    const start=tpJsonInstant(row?.dtstart),end=tpJsonInstant(row?.dtend)
+    const rawIdentity=assessment?`${row.id}:${row.dtstart}:${row.action||''}`:row?.eventid||row?.id,identity=bounded(rawIdentity,500),roomsInput=Array.isArray(row?.room)?row.room:row?.room&&typeof row.room==='object'?[row.room]:[]
+    if(!row||typeof rawIdentity!=='string'||rawIdentity.length>500||assessment&&!row.id||row.semesterid!==semester.id||row.courseid!==selected.code||term!==selected.term||!identity||!title||!Number.isFinite(start)||!Number.isFinite(end)||!assessment&&!['active','cancelled'].includes(row.status)||!assessment&&!Array.isArray(row.studentgroups||[])||!assessment&&!(row.studentgroups||[]).every(value=>typeof value==='string')||!Array.isArray(row.alerts||[])||!Array.isArray(row.staffnames||[]))fail('invalid-response','En TP-hendelse mangler gyldig kildeidentitet, emne, tidspunkt, status eller hendelsesdetaljer. Tidligere undervisning er beholdt.')
+    if(assessment&&end===start){skippedMarkers++;continue}
+    if(end<=start)fail('invalid-response','En TP-hendelse mangler gyldig kildeidentitet, emne, tidspunkt, status eller hendelsesdetaljer. Tidligere undervisning er beholdt.')
+    if(seen.has(identity))fail('invalid-response','TP gjentar samme hendelsesidentitet. Tidligere undervisning er beholdt.');seen.add(identity)
+    const event=new ICAL.Component('vevent'),uid=`tp-json-${hash(`${institution}\0${semester.id}\0${identity}`)}@studieplan.local`
+    event.addPropertyWithValue('uid',uid);event.addPropertyWithValue('dtstamp',ICAL.Time.fromJSDate(new Date(0),true));event.addPropertyWithValue('dtstart',ICAL.Time.fromJSDate(new Date(start),true));event.addPropertyWithValue('dtend',ICAL.Time.fromJSDate(new Date(end),true));event.addPropertyWithValue('summary',title)
+    const rooms=roomsInput.map(room=>bounded(room?.roomname||room?.roomacronym||room?.id,300)).filter(Boolean)
+    if(rooms.length)event.addPropertyWithValue('location',[...new Set(rooms)].join(', '))
+    const notes=[...(row.alerts||[]).map(alert=>bounded(alert?.message,1000)),plain(row.curr),...(row.staffnames||[]).map(name=>bounded(name,300))].filter(Boolean).join(' · ').slice(0,2000)
+    if(notes)event.addPropertyWithValue('description',notes)
+    if(row.status==='cancelled'){event.addPropertyWithValue('status','CANCELLED');cancelled++}
+    calendar.addSubcomponent(event)
+  }
+  warnings.push('HiMolde-hendelser er hentet fra TP-klientens anonyme, offentlige emnevisning. Aktivitetsnavn og studentgrupper bekrefter ikke personlig gruppetilhørighet.')
+  warnings.push('TP-kildens fullstendighet er ukjent. Manglende aktiviteter fjerner ikke eksisterende undervisning; uttrykkelige avlysninger behandles separat.')
+  if(cancelled)warnings.push(`${cancelled} uttrykkelig avlyste kildehendelser er beholdt som avlysningssignaler.`)
+  if(skippedMarkers)warnings.push(`${skippedMarkers} null-lange vurderingsmarkører ble ikke gjort om til undervisningsøkter.`)
+  for(const warning of warnings)calendar.addPropertyWithValue('x-studieplan-warning',warning)
+  return{calendar:calendar.toString(),warnings,coverage:'unknown',authoritative:false,identityMode:'source-uid',unresolved:[],eventCount:calendar.getAllSubcomponents('vevent').filter(event=>event.getFirstPropertyValue('status')!=='CANCELLED').length,cancelledCount:cancelled,sourceKind:'himolde-tp-json'}
+}
+export function isPublicTpJsonUrl(input){try{const url=new URL(input),ids=url.searchParams.getAll('id[]');return url.origin===origin&&url.pathname==='/himolde/ws/timeplan/'&&url.searchParams.get('type')==='course'&&/^\d{2}[hv]$/.test(url.searchParams.get('sem')||'')&&ids.length===1&&[...url.searchParams.keys()].every(key=>['type','sem','id[]'].includes(key))&&ids.every(value=>{const parts=value.split('¤');return parts.length===2&&codePattern.test(parts[0])&&/^\d{1,2}$/.test(parts[1])})}catch{return false}}
+export function isPublicTpCalendarUrl(input){try{const url=new URL(input);return isPublicTpJsonUrl(url.href)||url.origin===origin&&url.searchParams.get('type')==='course'&&url.searchParams.has('id[]')&&[...url.searchParams.keys()].every(key=>['type','sem','rkey','id[]'].includes(key))&&publicTpInstitutions.some(id=>url.pathname===`/${id}/timeplan/ical.php`)}catch{return false}}
+async function fetchHimoldeJson(eventUrl,sourceUrl,{fetchText,semester,selected}){
+  const anonymousSession={origin,pathPrefix:'/himolde/',cookies:new Map(),referer:sourceUrl}
+  try{
+    await fetchText(sourceUrl,0,input=>same(input,new URL(sourceUrl),'himolde'),{anonymousSession})
+    for(const path of ['ws/db/inst.php','ws/user/session.php']){const url=`${origin}/himolde/${path}`;await fetchText(url,0,input=>same(input,new URL(url),'himolde'),{anonymousSession})}
+    const body=await fetchText(eventUrl.href,0,input=>same(input,eventUrl,'himolde'),{anonymousSession})
+    return normalizeTpJsonEvents(body,{institution:'himolde',semester,selected})
+  }catch(error){if(/HTTP (401|403)/.test(error.message))fail('access-required','HiMolde TP krevde tilgang for dette offentlige emnevalget. Tidligere undervisning er beholdt.');if(/for lang tid|timeout/i.test(error.message))fail('timeout','HiMolde TP brukte for lang tid. Tidligere undervisning er beholdt.');throw error}
+  finally{anonymousSession.cookies.clear()}
+}
 export async function fetchPublicTpCalendar(input,{fetchText}){
   const institution=new URL(input).pathname.split('/')[1],url=checkedUrl(input,institution),rawIds=url.searchParams.getAll('id[]'),sem=url.searchParams.get('sem')
+  if(isPublicTpJsonUrl(url.href)){
+    const semesters=await json(fetchText,`${origin}/himolde/ws/services/semesters.php`,'himolde'),matches=semesters.filter(row=>row.id===sem);if(matches.length!==1)fail('semester-unavailable','Kalendersemesteret finnes ikke i TP-kilden.');const semester=parseTpSemester(semesters,{year:matches[0].year,semester:matches[0].season==='SPRING'?'spring':'autumn'}),courses=await json(fetchText,`${origin}/himolde/ws/timeplan/info.php?type=course&sem=${sem}`,'himolde'),records=parseTpCourses(courses,semester,'himolde'),selectedIds=rawIds
+    if(selectedIds.some(id=>!records.some(row=>row.id===id)))fail('invalid-selection','Kalenderen oppgir et emne eller en undervisningstermin som ikke er publisert for dette semesteret.')
+    const selected=records.find(row=>row.id===selectedIds[0]),sourceUrl=selected.sourceUrl,result=await fetchHimoldeJson(url,sourceUrl,{fetchText,semester,selected})
+    return{status:'ok',...result,calendarUrl:url.href,sourceUrl,publicationBoundaries:{start:semester.fromdate,end:semester.todate}}
+  }
   if(!isPublicTpCalendarUrl(url.href)||url.searchParams.get('type')!=='course'||!/^\d{2}[hv]$/.test(sem||'')||rawIds.length<1||rawIds.length>40||new Set(rawIds).size!==rawIds.length||rawIds.some(value=>{const parts=value.split(',');return parts.length!==2||!codePattern.test(parts[0])||!/^\d{1,2}$/.test(parts[1])}))fail('invalid-selection','Velg én offentlig emnekalender eller høyst 40 faktiske emne-/terminvalg fra TP. Personlige abonnementer hentes ikke gjennom denne integrasjonen.')
   const semesters=await json(fetchText,`${origin}/${institution}/ws/services/semesters.php`,institution),matches=semesters.filter(row=>row.id===sem);if(matches.length!==1)fail('semester-unavailable','Kalendersemesteret finnes ikke i TP-kilden.');const semester=parseTpSemester(semesters,{year:matches[0].year,semester:matches[0].season==='SPRING'?'spring':'autumn'}),courses=await json(fetchText,`${origin}/${institution}/ws/timeplan/info.php?type=course&sem=${sem}`,institution),records=parseTpCourses(courses,semester,institution),selectedIds=rawIds.map(id=>id.replace(',','¤'))
   if(selectedIds.some(id=>!records.some(row=>row.id===id)))fail('invalid-selection','Kalenderen oppgir et emne eller en undervisningstermin som ikke er publisert for dette semesteret.')
@@ -89,6 +140,6 @@ export async function publicTp(institution,action,query,{fetchText}){
   const data=await source(institution,query,fetchText),needle=q.toLocaleLowerCase('nb'),results=data.results.filter(row=>`${row.code} ${row.name}`.toLocaleLowerCase('nb').includes(needle))
   if(action==='teaching-search')return{status:'ok',results,warnings:data.warnings,completeness:{...data.completeness,matched:results.length},publicationBoundaries:{start:data.semester.fromdate,end:data.semester.todate}}
   const selected=results.find(row=>row.id===query.sourceObjectId);if(!selected)fail('invalid-selection','Velg en faktisk emne-/terminoppføring fra det offentlige TP-søket.')
-  const url=new URL(`${origin}/${institution}/timeplan/ical.php`);url.search=new URLSearchParams({type:'course',sem:data.semester.id,rkey:String(data.semester.random_int),'id[]':selected.id.replace('¤',',')}).toString()
+  const url=new URL(`${origin}/${institution}/${institution==='himolde'?'ws/timeplan/':'timeplan/ical.php'}`);url.search=new URLSearchParams({type:'course',sem:data.semester.id,...(institution==='himolde'?{'id[]':selected.id}:{rkey:String(data.semester.random_int),'id[]':selected.id.replace('¤',',')})}).toString()
   const result=await fetchPublicTpCalendar(url.href,{fetchText});return{...result,selected,sourceUrl:selected.sourceUrl,warnings:[...new Set([...data.warnings,...result.warnings])]}
 }

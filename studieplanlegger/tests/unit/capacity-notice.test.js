@@ -22,6 +22,7 @@ describe('honest capacity messages', () => {
   });
   it('does not invent estimates or deadlines', () => {
     expect(capacityNotice({ ...task, estimatedMinutes: null }, [], [], now).text).toContain('tidsestimat');
+    expect(capacityNotice({ ...task, estimatedMinutes: null, remainingEstimate: { minMinutes: 241, maxMinutes: null } }, [], [], now).text).toContain('øvre grense er ukjent');
     expect(capacityNotice({ ...task, deadlineLocal: '' }, [], [], now).tone).toBe('quiet');
   });
   it('recognizes expired sessions, passed deadlines and completed work', () => {

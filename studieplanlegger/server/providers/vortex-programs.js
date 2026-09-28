@@ -116,6 +116,53 @@ function registerPeriodMapping(mapping, studySemester, term) {
   mapping.semesterByTerm.set(termKey, studySemester)
   mapping.termBySemester.set(studySemester, termKey)
 }
+function classTokens(node) {
+  return clean(node.attr('class')).split(/\s+/).filter(Boolean)
+}
+function alternativeListContext($, list) {
+  const combination = $(list).closest('.combination'), tokens = classTokens(combination)
+  const parent = tokens.find(token => token.startsWith('direction-parent-'))
+  if (!parent) return null
+  const groupId = parent.slice('direction-parent-'.length)
+  const option = tokens.find(token => token.startsWith('direction-') && !token.startsWith('direction-parent-') && !token.startsWith('direction-ancestor-') && token !== `direction-${groupId}`)
+  if (!groupId || !option) fail('source-changed', 'Studieplanen har et alternativ uten entydig kildeidentitet.')
+  const optionId = option.slice('direction-'.length), term = combination.closest('.term')
+  const direction = term.children('.direction').filter((_, node) => classTokens($(node)).includes(`direction-${groupId}`)).first()
+  const label = clean(direction.children('h2,h3,h4,h5').first().text()) || 'Publisert emnealternativ'
+  const sourceRequirement = clean(direction.children('p').first().text())
+  const optionLabel = clean(combination.children('h2,h3,h4,h5').first().text()) || clean(direction.find(`label[for$="${optionId}"]`).first().text()) || optionId
+  return { groupId, label, sourceRequirement, optionId, optionLabel }
+}
+function registerAlternative(group, context, record) {
+  let alternative = group.alternativeGroups.get(context.groupId)
+  if (!alternative) {
+    alternative = { id: context.groupId, label: context.label, ...(context.sourceRequirement ? { sourceRequirement: context.sourceRequirement } : {}), options: new Map() }
+    group.alternativeGroups.set(context.groupId, alternative)
+  }
+  let option = alternative.options.get(context.optionId)
+  if (!option) {
+    option = { id: context.optionId, label: context.optionLabel, courseIds: [], credits: 0, creditsKnown: true }
+    alternative.options.set(context.optionId, option)
+  }
+  if (!option.courseIds.includes(record.id)) option.courseIds.push(record.id)
+  if (record.credits === null) option.creditsKnown = false
+  else option.credits += record.credits
+}
+function sourceRequirements(group) {
+  const requiredCourseIds = [...new Set(group.requiredCourseIds)]
+  const alternativeGroups = [...group.alternativeGroups.values()].map(alternative => ({
+    id: alternative.id,
+    label: alternative.label,
+    ...(alternative.sourceRequirement ? { sourceRequirement: alternative.sourceRequirement } : {}),
+    options: [...alternative.options.values()].map(({ creditsKnown, ...option }) => ({ ...option, credits: creditsKnown ? option.credits : null }))
+  }))
+  for (const alternative of alternativeGroups) {
+    if (alternative.options.length < 2 || alternative.options.some(option => !option.courseIds.length || new Set(option.courseIds).size !== option.courseIds.length)) fail('source-changed', `${alternative.label} mangler entydige, komplette alternativer.`)
+    const courseIds = alternative.options.flatMap(option => option.courseIds)
+    if (new Set(courseIds).size !== courseIds.length) fail('source-changed', `${alternative.label} bruker samme emne i flere alternativer.`)
+  }
+  return { ...(requiredCourseIds.length ? { requiredCourseIds } : {}), ...(alternativeGroups.length ? { alternativeGroups } : {}) }
+}
 function vortexCourseLists(institution, $, selected, programme) {
   const models = [], warnings = []; let omitted = 0
   const modelRoots = $('.vrtx-fs-study-model')
@@ -128,13 +175,13 @@ function vortexCourseLists(institution, $, selected, programme) {
       const explicitStudySemester = headingCandidates.map(sourceSemesterNumber).find(Boolean) || null
       registerPeriodMapping(mapping, explicitStudySemester, term)
       const periodKey = term ? `${term.year}:${term.semester}` : `unplaced:${listIndex + 1}`
-      if (term && !grouped.has(periodKey)) grouped.set(periodKey, { term, explicitStudySemester, heading, courses: [] })
+      if (term && !grouped.has(periodKey)) grouped.set(periodKey, { term, explicitStudySemester, heading, courses: [], requiredCourseIds: [], alternativeGroups: new Map() })
       else if (term) {
         const existingSemester = grouped.get(periodKey).explicitStudySemester
         if (existingSemester && explicitStudySemester && existingSemester !== explicitStudySemester) fail('source-changed', `${term.semester === 'spring' ? 'Vår' : 'Høst'} ${term.year} er koblet til flere studiesemestre i samme publiserte modell.`)
         if (!existingSemester && explicitStudySemester) grouped.get(periodKey).explicitStudySemester = explicitStudySemester
       }
-      const periodGroup = term ? grouped.get(periodKey) : null
+      const periodGroup = term ? grouped.get(periodKey) : null, alternative = alternativeListContext($, list)
       $(list).children('li').each((_, item) => {
         const row = $(item), link = row.find('a.course-link[href]').first(), code = clean(row.find('.course-code').first().text()).toUpperCase(), name = clean(row.find('.course-name').first().text())
         const url = link.length ? courseUrl(programme.config, new URL(link.attr('href'), selected.url)) : null
@@ -148,18 +195,26 @@ function vortexCourseLists(institution, $, selected, programme) {
         const key = `${periodKey}:${code}`, previous = seen.get(key)
         if (previous) {
           if (!samePublishedCourse(previous, record)) fail('source-changed', `${code} har motstridende navn, studiepoeng eller emnetype i samme publiserte periode.`)
+          if (periodGroup) {
+            if (alternative) registerAlternative(periodGroup, alternative, previous)
+            else if (choice === 'O' && !periodGroup.requiredCourseIds.includes(previous.id)) periodGroup.requiredCourseIds.push(previous.id)
+          }
           return
         }
         seen.set(key, record)
         if (!choice) warnings.push(`${code}: planen markerer ikke emnet entydig som obligatorisk eller valgfritt; typen må kontrolleres.`)
-        if (periodGroup) periodGroup.courses.push(record); else unplacedCourses.push(record)
+        if (periodGroup) {
+          periodGroup.courses.push(record)
+          if (alternative) registerAlternative(periodGroup, alternative, record)
+          else if (choice === 'O') periodGroup.requiredCourseIds.push(record.id)
+        } else unplacedCourses.push(record)
       })
     })
     const periods = [...grouped.values()].map(group => {
       const studySemester = group.explicitStudySemester, termId = `${group.term.year}:${group.term.semester}`
       return { id: studySemester ? String(studySemester) : termId, studySemester, ...group.term,
         label: `${studySemester ? `${studySemester}. studiesemester · ` : 'Avklar studiesemester · '}${group.term.semester === 'spring' ? 'Vår' : 'Høst'} ${group.term.year}`,
-        courses: group.courses, requirements: [], ...(!studySemester ? { requiresStudentStudySemester: true } : {}) }
+        courses: group.courses, requirements: [], ...sourceRequirements(group), ...(!studySemester ? { requiresStudentStudySemester: true } : {}) }
     }).filter(period => period.courses.length)
     if (!periods.length && unplacedCourses.length) periods.push({ id: 'student-placement', studySemester: null, year: null, semester: null, label: 'Avklar studiesemester og kalendersemester', courses: unplacedCourses, requirements: [], requiresStudentStudySemester: true })
     const modelHeading = root.children('h2,h3,h4,h5').map((_, heading) => clean($(heading).text())).get()

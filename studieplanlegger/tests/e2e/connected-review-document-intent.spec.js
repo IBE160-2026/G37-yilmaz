@@ -23,12 +23,12 @@ async function open(page, text, filename, sourceId) {
     await expect(page.locator('.document-source-evidence')).toContainText('Kilden var ufullstendig')
   }
   await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: filename, mimeType: filename.endsWith('.ics') ? 'text/calendar' : 'text/plain', buffer: Buffer.from(text) })
-  await page.getByRole('button', { name: 'Lag forhåndsvisning', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Kontroller planen før import', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Les arbeidskravet', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible()
 }
 
 async function confirm(page) {
-  await page.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
   await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
 }
 
@@ -106,7 +106,7 @@ for (const [status, width, size] of [['', 1440, 16], ['NEEDS-ACTION', 390, 24]])
     await expect(page.getByLabel('Avklar oppgavestatus', { exact: true })).toHaveValue('?')
     const before = await stored(page)
     await page.getByLabel('Ta med i planen', { exact: true }).check()
-    await page.getByRole('button', { name: 'Bekreft valgt plan', exact: true }).click()
+    await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
     await expect(page.getByLabel('Avklar oppgavestatus', { exact: true })).toBeFocused()
     await expect(page.locator('.document-preview [role=alert]').first()).toContainText('Velg uttrykkelig')
     expect(await stored(page)).toEqual(before)

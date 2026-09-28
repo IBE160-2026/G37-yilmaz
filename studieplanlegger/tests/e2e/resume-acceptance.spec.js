@@ -14,7 +14,7 @@ async function seed(page, data = initial([]), now = '2026-09-08T06:00:00Z') {
 }
 async function menu(page) {
   await navigate(page, 'settings')
-  const details = page.locator('.data-menu')
+  const details = page.locator('#settings-panel .data-menu').filter({ hasText: 'Data og sikkerhetskopi' })
   if (!await details.evaluate(node => node.open)) await details.locator('summary').click()
 }
 async function previewFile(page, value) {
@@ -98,10 +98,10 @@ test('a clock-only transition updates the ongoing activity label', async ({ page
   const data = initial([])
   data.planner.events = [{ id: 'clock-lecture', title: 'Clock transition lecture', courseId: courses[0].id, start: '2026-09-08T08:00:00Z', end: '2026-09-08T09:00:00Z', location: 'Room 201', notes: '' }]
   const errors = await seed(page, data, '2026-09-08T07:59:00Z')
-  await navigate(page, 'overview'); await expect(page.locator('#daily-overview')).toContainText('Neste aktivitet: Clock transition lecture')
+  await navigate(page, 'overview'); await expect(page.locator('#next-plan')).toContainText('Clock transition lecture · i dag kl. 10:00–11:00')
   await page.clock.setFixedTime(new Date('2026-09-08T08:01:00Z'))
   await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-  await expect(page.locator('#daily-overview')).toContainText('P\u00e5g\u00e5r n\u00e5: Clock transition lecture')
+  await expect(page.locator('#next-plan')).toContainText('Clock transition lecture · i dag kl. 10:00–11:00')
   expect(errors).toEqual([])
 })
 
@@ -112,10 +112,10 @@ test('zero selected file events cannot commit unpreviewed destructive changes', 
   const form = page.locator('form').filter({ has: page.locator('input[name=file]') })
   await form.locator('[name=courseId]').selectOption(courses[0].id)
   await form.locator('input[name=file]').setInputFiles({ name: 'isolated-resume.ics', mimeType: 'text/calendar', buffer: Buffer.from(calendar) })
-  await page.locator('#ics-preview').click(); await page.getByRole('button', { name: 'Bekreft import', exact: true }).click()
+  await page.locator('#ics-preview').click(); await page.locator('.activity-choices input[type=checkbox]').check(); await page.getByRole('button', { name: 'Bekreft import', exact: true }).click()
   const before = (await saved(page)).planner.events.filter(event => !event.cancelled && !event.deleted).length
   expect(before).toBe(1)
-  await page.locator('#ics-preview').click(); await page.locator('#import-preview .preview-events input[type=checkbox]').first().uncheck()
+  await page.locator('#ics-preview').click(); await page.locator('.activity-choices input[type=checkbox]').check(); await page.locator('#import-preview .preview-events input[type=checkbox]').first().uncheck()
   const preview = await page.locator('#import-preview').innerText()
   const cancelled = Number(preview.match(/(\d+) fjernet\/avlyst/)?.[1] || 0), hidden = Number(preview.match(/(\d+) (?:lokalt )?skjult/)?.[1] || 0)
   await page.getByRole('button', { name: 'Bekreft import', exact: true }).click()
