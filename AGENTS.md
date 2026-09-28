@@ -9,6 +9,7 @@
 
   A restricted WinGet-link launch error is an execution-permission symptom, not proof of a broken installation or file association. Never record a personal home-directory path or change Windows security settings to work around it.
 - Never capture, print, test, or commit credentials, meeting access values, private subscription links, tokens, cookies, or unrelated personal data. Report findings by category and filename without reproducing sensitive values.
+- Keep internal agent logs, conversation excerpts, temporary working notes, and private drafts local and out of Git. Before committing, review each staged file for relevance to the published delivery.
 - Preserve public-source structure, attribution, URLs, IDs, licenses, group identity, and named project contributors. Use unmistakably synthetic values for security fixtures and document derivation next to the fixture.
 - Minimize captured HTML/PDF metadata and page chrome only when parser-focused tests prove the required source contract is unchanged. Do not broadly delete fixtures or generated evidence.
 - Production and Docker use server-side SQLite as authoritative storage. Vite development/tests retain their isolated `localStorage` adapter. Never touch real browser data, databases, Docker volumes, ports, or user profiles during verification.

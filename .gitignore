@@ -112,6 +112,10 @@ traces/
 /.docs/planning-artifacts/stories/4-1-oversiktlig-dashboard-og-fristkalender.md
 /studieplanlegger/DESIGN-UPDATE.md
 
+# Internal BMAD working memory (local only, at any directory depth)
+.memlog.md
+.memlog.md.tmp
+
 # BMAD: keep shared framework, skills, plans and documentation
 _bmad/config.user.toml
 _bmad/custom/*.user.toml
