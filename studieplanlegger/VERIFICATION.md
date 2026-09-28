@@ -6,18 +6,19 @@ Dette dokumentet samler daterte resultater som fortsatt forklarer gjeldende leve
 
 Den navngitte leveransebranchen `delivery/studieplan-20260926` ble kontrollert mot nyhentet `origin/main`; begge startet på `10d7085b964a537dc8006a68300878eae74260f5`, så det fantes ingen nyere remote-commit å flette inn. Arbeidskopiens eksisterende endringer ble bevart og samordnet på branchen. BMAD-generatoren startet med exitkode 0 gjennom den dokumenterte, avgrenset godkjente `uv run --no-cache ...render_skill.py`-metoden; ingen reinstallasjon eller endring av Windows-sikkerhet eller filtilknytning var nødvendig.
 
-Kontroller kjørt på den integrerte arbeidskopien:
+Kandidatcommit `26d552cfe5dc5aec5275f2b77d0b917d23edca50` ble deretter opprettet og materialisert i den separate, rene checkouten `C:\IBE160\2026\.tmp\studieplan-delivery-clean-26d552c`. `npm.cmd ci` installerte 96 pakker fra låsefilen. Følgende sluttkontroller gjelder denne committen etter formell flerlagsreview og retting av de aksepterte funnene:
 
 | Kontroll | Faktisk resultat |
 |---|---|
-| Enhetstester | `npm.cmd test`: **1246/1246** i 99 filer, exit 0. |
-| Undervisningsmatrise | `npm.cmd run verify:teaching`: **79/79** i 10 filer, exit 0. Dette er lokale, versjonerte fixturer og ikke nye eksterne kildeforsøk. |
-| Bred nettlesersuite | `npm.cmd exec playwright test -- --workers=1`: **303 bestått, 49 eksplisitte live-tester hoppet over, 0 feil**, 352 oppføringer totalt, exit 0 på 12,0 minutter. Kjøringen erstatter den tidligere avbrutte parallelle kjøringen som sluttbevis. |
-| Berørte nettleserflyter | De tidligere rapporterte 17 flytene og de rettede brede regresjonene inngår i den grønne fullkjøringen. Den omfatter blant annet samlet import, undervisningsvalg, bevaring av fokus/åpne seksjoner, studiemønster, omplanlegging, lagrede aktivitetsvalg og no-op-oppdatering. |
+| Enhetstester | `npm.cmd run test:unit`: **1249/1249** i 99 filer, exit 0 både i arbeidskopien og ren checkout. |
+| Undervisningsmatrise | `npm.cmd run verify:teaching`: **80/80** i 10 filer, exit 0 både i arbeidskopien og ren checkout. Dette er lokale, versjonerte fixturer og ikke nye eksterne kildeforsøk. |
+| Bred nettlesersuite | `npm.cmd run test:e2e -- --workers=1` i ren checkout: alle **352** oppføringer nådde terminal teststatus, **303 bestått, 49 eksplisitte live-tester hoppet over, 0 testfeil**. Etter siste resultat avsluttet ikke Playwright/Vite-prosessene automatisk på Windows; bare denne testøkten ble avbrutt kontrollert. Resultatene dokumenterer derfor alle testutfall, men ikke en ren runner-exit. Dette erstatter ikke begrensningen med en miljøpåstand. |
+| Berørte nettleserflyter | Samlet importtesten som først traff den gamle teksten for et tomt timeplansøk, ble korrigert til den nye presise «ingen samsvarende timeplan»-statusen og bestod i fullkjøringen. Dagsstatus, enkel planlegging, undervisningsvalg, fokus/åpne seksjoner, studiemønster, omplanlegging, lagrede aktivitetsvalg og no-op-oppdatering inngår også. |
 | Node/SQLite | `npm.cmd run test:e2e:database`: **3/3**, exit 0, mot produksjonsserver på tilfeldig loopback-port og midlertidig database. |
 | Produksjonsbygg | `npm.cmd run build`: **73 moduler**, exit 0. Det eksisterende, ikke-feilende varselet om store chunks står igjen. |
+| Docker | Committen ble bygget fra ren checkout med Compose-prosjekt `studieplan-delivery-26d552c-0928`, unikt volum og `127.0.0.1:18473`. Health var `ok`; syntetiske importformede emne-/oppgave-/øktrelasjoner ble lagret, containeren ble tvungent gjenskapt med samme volum, og revisjon/data/relasjoner overlevde. `npm.cmd run test:e2e:docker` bestod **1/1**, exit 0, inkludert fersk nettleser, SQLite-lesing, UI-redigering og sikkerhetskopi/gjenoppretting. Første forsøk avdekket at den håndlagde testfixturen hadde `remainingMinutes: null` i stedet for fraværende felt; fixturen ble rettet og hele gjenskapingen gjentatt. Container, nettverk og bare det unike testvolumet ble deretter fjernet. |
 
-De 49 hoppede testene krever uttrykkelig live-opt-in og nettverk. De er ikke regnet som bestått, og dagens lokale suite påstås ikke å dokumentere full nasjonal dekning. Ren låsefilinstallasjon, kontroll fra ren checkout og den isolerte Docker-gjenskapingen føres inn nedenfor når kandidatcommitten er materialisert; historiske Docker-resultater i neste seksjon brukes ikke som nytt bevis.
+De 49 hoppede testene krever uttrykkelig live-opt-in og nettverk. De er ikke regnet som bestått, og dagens lokale suite påstås ikke å dokumentere full nasjonal dekning. Port 80, eksisterende brukerprofiler, faktiske databaser og andre Docker-volumer ble ikke brukt eller endret. Historiske Docker-resultater i neste seksjon brukes ikke som nytt bevis.
 
 ## Samordnet UX-sluttkontroll — 2026-09-25
 
