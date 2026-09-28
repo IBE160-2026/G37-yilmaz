@@ -53,13 +53,11 @@ På en ren Linux-maskin kan Playwrights systembiblioteker også mangle. Bruk da 
 
 Løsningen består av en Vite-klient i vanlig JavaScript, et lokalt Node-API og SQLite. Produksjons-/Docker-modusen bruker SQLite som autoritativ lagring. Klienten sender komplette, validerte tilstandsendringer med forventet revisjon; serveren skriver dem transaksjonelt. Compose binder vertsporten til `127.0.0.1` og beholder databasen i volumet `studieplan-data`.
 
+Dokumentasjonen nedenfor beskriver løsningen, utviklingsprosessen med KI/BMAD og gjennomførte kontroller.
+
 - [Product brief](brief.md)
 - [Arkitektur](.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md)
 - [Løsningsguide](.docs/implementation-artifacts/solution-guide.md)
 - [Fullstack-, database- og Docker-spesifikasjon](.docs/implementation-artifacts/spec-fullstack-database-docker-delivery.md)
 - [Teknisk verifikasjon](studieplanlegger/VERIFICATION.md)
 - [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md)
-
-Prosessbeskrivelsen samler dokumenterte hendelser om KI/BMAD, avgrensning, feilretting og kontroll. Den er ikke studentens ferdige personlige refleksjonsrapport; teknisk verifikasjon dokumenterer heller ikke egen brukserfaring eller læringsutbytte.
-
-Eldre BMAD-planer, story-overleveringer og detaljerte mellomrapporter er tatt ut av gjeldende leveranse for å unngå motstridende status og duplisert dokumentasjon. De er fortsatt tilgjengelige i Git-historikken ved commit [`1a39aaf`](https://github.com/IBE160-2026/G37-yilmaz/tree/1a39aaf450c3ff4a59908fd8caba9de10230b9a6). Gjeldende dokumenter ovenfor er autoritative.

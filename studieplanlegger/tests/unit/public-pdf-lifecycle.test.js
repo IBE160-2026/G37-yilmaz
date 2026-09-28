@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { Worker } from 'node:worker_threads'
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { describe, expect, it, vi } from 'vitest'
 import { readPublicPdfItems } from '../../server/providers/public-pdf-text.js'
 import { extractPublicPdfDocument } from '../../server/providers/public-pdf-parser.js'
@@ -9,6 +10,27 @@ const validate = vi.fn()
 const fixture = () => readFile(new URL('../fixtures/uit-programs/pdf/868803.pdf', import.meta.url))
 
 describe('terminable public PDF reader', () => {
+  it('keeps the public fixture free of Info, custom and personal XMP metadata', async () => {
+    const bytes = await fixture()
+    const raw = bytes.toString('latin1')
+    expect(raw).not.toMatch(/\/(?:Author|Creator|Producer|CreationDate|ModDate|NoAuth|NoCreat|NoProduc|NoCreateDate|NoMDate|Custom)\b/)
+    expect(raw).not.toMatch(/\/Info\s+\d+\s+\d+\s+R\b|\/Prev\b/)
+    expect(raw).not.toMatch(/(?:dc:creator|xmp:CreatorTool|pdf:Producer|xmp:(?:Create|Modify|Metadata)Date)/i)
+    expect(raw.match(/startxref/g)).toHaveLength(1)
+    expect(raw.match(/%%EOF/g)).toHaveLength(1)
+
+    const loadingTask = getDocument({ data: new Uint8Array(bytes), disableWorker: true })
+    const document = await loadingTask.promise
+    try {
+      const metadata = await document.getMetadata()
+      const structuralInfoKeys = new Set(['EncryptFilterName', 'IsAcroFormPresent', 'IsCollectionPresent', 'IsLinearized', 'IsSignaturesPresent', 'IsXFAPresent', 'Language', 'PDFFormatVersion'])
+      expect(Object.keys(metadata.info).filter(key => !structuralInfoKeys.has(key))).toEqual([])
+      expect(metadata.metadata ? [...metadata.metadata] : []).toEqual([])
+    } finally {
+      await loadingTask.destroy()
+    }
+  })
+
   it('reads a real public fixture with coordinates, caches only success, and checks page limits on cache hits', async () => {
     const fetchBytes = vi.fn(async () => fixture())
     const pages = await readPublicPdfItems(fetchBytes, url, validate)
