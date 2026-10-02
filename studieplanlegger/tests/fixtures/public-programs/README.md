@@ -23,3 +23,9 @@ Additional bounded public reads on 2026-09-12 (Europe/Oslo):
 The two `timeedit-{nmbu-math100,hvl-dat100}-2026.ics` files preserve existing public autumn-2026 calendar snapshots previously stored under `artifacts/public-*.ics`. The file-picker regression uses these durable fixtures, without making external requests. Their missing group metadata is intentional; they are historical captured-source tests, not live-source checks.
 
 Only public programme information is included. These excerpts test source contracts; simulated transport and edited fixtures do not constitute a newly verified external browser import.
+
+## Privacy-minimized derivatives
+
+The HTML and calendar fixtures are parser-focused derivatives, not unchanged raw captures. Personal contact cards, employee profile links, portraits, responsibility fields and analytics author values that are irrelevant to programme parsing have been removed. The FIH calendar URLs retain their public query structure, option counts and source identifiers, but use one unmistakably synthetic 16-hex sharing value. Instructor fields in the two saved TimeEdit calendars use stable synthetic labels. Programme and course codes, credits, periods, choices, event identities, dates, times, rooms, groups and source references remain intact.
+
+The root-level `ansgar-timetable-*.json` PDF-text fixtures retain every item coordinate and table cell while synthesizing instructor-responsibility rows, lecturer legends and matching timetable labels. `../nhfh-programs.json` retains the five captured programme documents and their academic content while omitting parser-irrelevant contact paragraphs.
