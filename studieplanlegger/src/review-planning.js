@@ -46,11 +46,13 @@ export function validReviewDecisions(values, state) {
 export const reviewKey = assessment => `review:${assessment.topicId}:${assessment.id}`
 
 export function hasCompletedReviewSession(state, decision) {
-  const matches = session => session?.id === decision.sessionId && session.reviewKey === decision.reviewKey && session.reviewTopicId === state.assessments?.find(item => item.id === decision.assessmentId)?.topicId
+  const matches = reviewSessionMatcher(state, decision)
   return Boolean(decision.sessionId && state.workLogs?.some(log => log.sessionId === decision.sessionId && log.outcome === 'done' && matches(log.sessionSnapshot)))
 }
 
-export const hasReviewSession = (state, decision) => Boolean(decision.sessionId && (state.sessions?.some(session => session.id === decision.sessionId && session.reviewKey === decision.reviewKey) || hasCompletedReviewSession(state, decision)))
+const reviewSessionMatcher = (state, decision) => session => session?.id === decision.sessionId && session.reviewKey === decision.reviewKey && session.reviewTopicId === state.assessments?.find(item => item.id === decision.assessmentId)?.topicId
+
+export const hasReviewSession = (state, decision) => Boolean(decision.sessionId && (state.sessions?.some(reviewSessionMatcher(state, decision)) || hasCompletedReviewSession(state, decision)))
 
 const isAssessmentContext = (state, decision) => Boolean(decision.sessionId && state.assessments?.some(value => value.sessionId === decision.sessionId))
 

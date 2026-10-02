@@ -176,6 +176,25 @@ describe('integrert arbeid, vurdering, eksport og sammenligning', () => {
     expect(validEnvelope(data, { relations: true })).toBe(true)
   })
 
+  it('bygger reviewKey på nytt i en fullført økts historiske snapshot', () => {
+    const topicId = 'https://example.test/topic?token=completed-review', assessmentId = 'https://example.test/assessment?token=completed-review'
+    const key = `review:${topicId}:${assessmentId}`
+    const session = { id: 'completed-review', taskId: task.id, dateLocal: '2026-09-28', startTime: '10:00', endTime: '10:30', reviewKey: key, reviewTopicId: topicId }
+    const state = { schemaVersion: 1, tasks: [task], sessions: [session], topics: [{ id: topicId, title: 'Tema', taskId: task.id }], assessments: [{ id: assessmentId, topicId, rating: 2, assessedAt: '2026-09-28T08:00:00Z' }], reviewDecisions: [{ id: 'decision', assessmentId, reviewKey: key, status: 'approved', sessionId: session.id, decidedAt: '2026-09-28T08:01:00Z' }] }
+    const closed = closeWork(state, { taskId: task.id, sessionId: session.id, operationId: 'complete-review', outcome: 'done', actualMinutes: 30, remainingMinutes: 0 }, { now: new Date('2026-09-28T08:30:00Z') })
+    expect(closed.ok).toBe(true)
+    closed.state.sessions = []
+    const data = exportBackup(closed.state).data
+    const expected = `review:${data.assessments[0].topicId}:${data.assessments[0].id}`
+    expect(data.workLogs[0].sessionSnapshot).toMatchObject({ reviewKey: expected, reviewTopicId: data.topics[0].id })
+    expect(validEnvelope(data, { relations: true })).toBe(true)
+  })
+
+  it('avviser en aktiv repetisjonsøkt som peker på feil tema', () => {
+    const state = { schemaVersion: 1, tasks: [task], topics: [{ id: 'topic', title: 'Tema', taskId: task.id }, { id: 'wrong', title: 'Feil tema' }], assessments: [{ id: 'assessment', topicId: 'topic', rating: 2, assessedAt: '2026-09-28T08:00:00Z' }], sessions: [{ id: 'review', dateLocal: '2026-09-30', startTime: '10:00', endTime: '10:30', reviewKey: 'review:topic:assessment', reviewTopicId: 'wrong' }], reviewDecisions: [{ id: 'decision', assessmentId: 'assessment', reviewKey: 'review:topic:assessment', status: 'approved', sessionId: 'review', decidedAt: '2026-09-28T08:01:00Z' }] }
+    expect(validEnvelope(state, { relations: true })).toBe(false)
+  })
+
   it('avviser stale scenario apply og runder nye samlinger gjennom SQLite migration 4', () => {
     const state = { schemaVersion: 1, tasks: [task], sessions: [], workWindows: [{ id: 'w', start: '2026-09-29T08:00:00Z', end: '2026-09-29T12:00:00Z' }], topics: [{ id: 't', title: 'Tema', taskId: task.id }], assessments: [{ id: 'a', topicId: 't', rating: 4, assessedAt: '2026-09-28T10:00:00Z' }], reviewDecisions: [] }
     const comparison = comparePlans(state, { now: new Date('2026-09-28T08:00:00Z') })

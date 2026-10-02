@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill'
+
 // Deliberately independent of parser libraries and storage: history/backup can
 // validate provenance without loading a worker or creating circular imports.
 export const DOCUMENT_FORMATS = ['text', 'pdf', 'docx', 'csv', 'ics']
@@ -21,6 +23,12 @@ const record = value => value && typeof value === 'object' && !Array.isArray(val
 const string = (value, max = 1000) => typeof value === 'string' && value.length <= max
 const id = value => string(value, 2000) && !!value.trim() && value === value.trim()
 const date = value => string(value) && /(?:Z|[+-]\d\d:\d\d)$/.test(value) && Number.isFinite(Date.parse(value))
+const localDeadline = value => {
+  if (!string(value, 16) || !/^\d{4}-\d\d-\d\d(?:T\d\d:\d\d)?$/.test(value)) return false
+  try {
+    return value.length === 10 ? Temporal.PlainDate.from(value).toString() === value : Temporal.PlainDateTime.from(value).toString({ smallestUnit: 'minute' }) === value
+  } catch { return false }
+}
 const sourceKeys = ['id', 'kind', 'format', 'name', 'contentHash', 'revision', 'createdAt', 'lastUpdated', 'entries', 'complete', 'warnings']
 const entryKeys = ['key', 'kind', 'targetId', 'sourceBase', 'snippet', 'position', 'matchKey', 'calendarUid', 'calendarOccurrence', 'reference']
 function validBaseField(key, value) {
@@ -32,7 +40,7 @@ function validBaseField(key, value) {
   if (key === 'year') return value === null || Number.isInteger(value) && value >= 1900 && value <= 2200
   if (key === 'semester') return ['', 'spring', 'autumn'].includes(value)
   if (['start', 'end'].includes(key)) return value === '' || date(value)
-  if (key === 'deadlineLocal') return value === '' || string(value, 16) && /^\d{4}-\d\d-\d\d(?:T\d\d:\d\d)?$/.test(value) && Number.isFinite(Date.parse(value))
+  if (key === 'deadlineLocal') return value === '' || localDeadline(value)
   if (key === 'description') return string(value, DOCUMENT_DESCRIPTION_LIMIT)
   return string(value, 10000)
 }

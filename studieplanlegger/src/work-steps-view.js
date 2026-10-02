@@ -14,7 +14,9 @@ export function createWorkStepsView(actions) {
     const previousScroll = dialog.scrollTop, activeStep = requestedFocus ? requestedFocus.stepId : document.activeElement?.closest?.('[data-step-id]')?.dataset.stepId, activeKey = requestedFocus?.key || document.activeElement?.dataset?.focusKey, activeLabel = document.activeElement?.getAttribute?.('aria-label'), activeText = document.activeElement?.textContent
     let explicitTarget = null
     const oldImport = dialog.querySelector('.planning-rules'); if (oldImport) { importOpen = oldImport.open; importText = oldImport.querySelector('textarea')?.value ?? importText }
-    const task = migrateLegacyStep(actions.state().tasks.find(item => item.id === taskId))
+    const storedTask = actions.state().tasks.find(item => item.id === taskId)
+    if (!storedTask) { close(); return }
+    const task = migrateLegacyStep(storedTask)
     dialog.replaceChildren(el('h2', `Arbeidssteg · ${task.title}`), el('p', 'Stegestimater er kontekst. De legges ikke til oppgavens gjenstående arbeid.', 'muted'))
     dialog.firstChild.id = 'work-steps-heading'; dialog.setAttribute('aria-labelledby', 'work-steps-heading')
     const stepError = el('p'); stepError.setAttribute('role', 'alert'); stepError.className = 'work-step-error'

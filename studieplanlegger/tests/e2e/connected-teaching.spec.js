@@ -151,10 +151,12 @@ test('legacy teaching layer shows course identity and clears stale colour when a
     layer.render({events:[event],courses:[{id:'course-1',code:'IBE160'}]})
     const row=host.querySelector('[data-calendar-event="teaching-1"]'),before={text:row.textContent,color:row.style.getPropertyValue('--course-color')}
     layer.render({events:[event],courses:[]})
-    return{before,after:{text:row.textContent,color:row.style.getPropertyValue('--course-color')}}
+    layer.render({events:[event],courses:[]})
+    return{before,after:{text:row.textContent,color:row.style.getPropertyValue('--course-color')},label:host.querySelector('[data-calendar-date]').getAttribute('aria-label')}
   })
   expect(result.before.text).toContain('IBE160')
   expect(result.before.color).not.toBe('')
   expect(result.after.text).not.toContain('IBE160')
   expect(result.after.color).toBe('')
+  expect(result.label).toBe('14. september, 1 undervisningsøkter, 0 egne aktiviteter')
 })

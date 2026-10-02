@@ -82,6 +82,12 @@ function portableData(value) {
     const link = [...changedKeys.values()].find(item => item.sessionId === session.id) || changedKeys.get(session.reviewKey)
     if (link) { session.reviewKey = link.key; session.reviewTopicId = link.topicId }
   }
+  for (const log of data.workLogs || []) {
+    const session = log.sessionSnapshot
+    if (!session) continue
+    const link = [...changedKeys.values()].find(item => item.sessionId === session.id) || changedKeys.get(session.reviewKey)
+    if (link) { session.reviewKey = link.key; session.reviewTopicId = link.topicId }
+  }
   return { data, rekeyedIds: replacements.size }
 }
 export const withoutConnections = value => portableData(value).data

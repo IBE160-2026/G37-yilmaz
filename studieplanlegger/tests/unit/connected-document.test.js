@@ -165,6 +165,12 @@ describe('one atomic document plan with stable source/local revisions', () => {
     result.tasks[0].importEntryKey = 'unknown'
     expect(validImportSources(result.importSources, result)).toBe(false)
   })
+  it('rejects impossible local deadlines in retained source baselines', () => {
+    const result = commit(empty(), preview(empty(), csv('tittel;frist\nLes pensum;2026-09-16T14:00'))).state
+    const invalid = structuredClone(result.importSources)
+    invalid[0].entries[0].sourceBase.deadlineLocal = '2026-02-30T12:00'
+    expect(validImportSources(invalid)).toBe(false)
+  })
   it('previews explicit ICS cancellation while retaining other unreturned activities', () => {
     const calendar = events => `BEGIN:VCALENDAR\r\nVERSION:2.0\r\n${events}\r\nEND:VCALENDAR`
     const event = (uid, title) => `BEGIN:VEVENT\r\nUID:${uid}\r\nSUMMARY:${title}\r\nDTSTART:20260916T100000Z\r\nDTEND:20260916T110000Z\r\nEND:VEVENT`
