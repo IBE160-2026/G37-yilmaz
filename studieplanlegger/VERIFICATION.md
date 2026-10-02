@@ -1,5 +1,15 @@
 # Verifisering av Studieplan
 
+## Ren kandidatkontroll for Git-leveransen — 2026-10-02
+
+Produktcommit `5e232042218368d36b19261f7d1ed09759299bfc` ble materialisert i en separat Git-worktree som bare inneholdt sporede filer. `npm.cmd ci` installerte **96** pakker fra låsefilen. Fra denne checkouten bestod `npm.cmd run test:unit -- --maxWorkers=1` **1378/1378** tester i **109/109** filer, `npm.cmd run verify:teaching` **92/92** i 10 filer og produksjonsbygget **83 moduler**. `npm.cmd run test:e2e:database` bestod **3/3** mot en egen midlertidig SQLite-database og ledig loopback-port.
+
+Den nye syntetiske Node/SQLite-produksjonskontrollen bestod **1/1 create + 1/1 restore** etter serverrestart, med `integrity_check=ok` og **0 fremmednøkkelbrudd**. Den tellende nettleserkjøringen mot en eksplisitt eid Vite-server bestod **40/40** berørte forløp med én worker og normal exit. Et tidligere forsøk fullførte de samme 40 testene, men hang i Playwrights automatiske Vite-teardown og ble stoppet kontrollert; det forsøket regnes ikke som bestått. Den eksplisitte serveren ble stoppet, og porten ble bekreftet fri.
+
+Docker Compose-prosjektet `studieplan-delivery-20261002-5e23204` bygget samme rene kandidat på bare `127.0.0.1:18545`. Containeren ble `healthy`, kjørte som `node` og brukte et nytt isolert volum. Den syntetiske produksjonsfilen bestod **1/1 create + 1/1 restore**; tvungen gjenskaping endret container-ID og beholdt samme volum. Avsluttende skrivebeskyttet SQLite-kontroll viste revisjon **13**, integritet `ok` og **0 fremmednøkkelbrudd**. Container og nettverk ble stoppet med `down` uten `-v`, porten ble bekreftet fri og det entydige syntetiske volumet ble beholdt. Docker Desktop måtte først startes fordi motoren ikke kjørte; den første Compose-oppstarten nådde derfor ikke et prosjekt og er ikke et produktresultat.
+
+Staged diff, ignore-regler, relative Markdown-lenker, utfoldede ICS-felt og kandidatens tekst-/metadatafiler ble kontrollert før commit uten å gjengi tilgangsverdier. Ingen private nøkler, tokens, personlige hjemmestier, brukerdatabaser, profiler, genererte bygg eller testartefakter inngår. De eneste tilgangsparameterlignende testverdiene bruker det syntetiske domenet `example.test`; den sporede PDF-fixturen har ingen forfatter-, kontakt-, sti- eller tilgangsmetadata. Dokumentasjonen ble samordnet etter runtimekontrollen; produktkode, tester, låsefil og Docker-oppsett er uendret etter de grønne kjøringene. Full nasjonal importdekning er fortsatt ikke oppnådd, faktisk Outlook-import og studentbrukertesting er ikke gjennomført, og kalenderfilen er en eksportert kopi uten løpende synkronisering.
+
 ## Avgrensede arbeidsflyt- og eksportrettinger — 2026-10-02
 
 Denne runden gjelder blandede arbeidssteg, trygg stegsletting, gjenbrukte temadatoer, vurderingskoblinger, kalenderkopi og programvelgerens faktiske navnerekkefølge. Tidligere resultater nedenfor er datert historikk og er ikke bevis for disse endrede filene. Ingen Git-skriving, publisering, faktiske brukerdata eller port 80 inngår.
