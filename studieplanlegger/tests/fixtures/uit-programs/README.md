@@ -1,5 +1,7 @@
 # UiT sine offentlige programkontrakter
 
+`b-inf.html` er et personvernminimert derivat. Kontaktkort, innebygde portrettbilder og markedsføringsintervjuer er fjernet fordi parseren ikke bruker dem. Programtittel, campus, oppbyggingslenke, dokumentidentitet og offentlige planlenker er bevart.
+
 HTML-opptak hentet 12.09.2026. Testene simulerer HTTP-transport, og er separate fra ekte eksterne adapter-/nettleserforløp.
 
 - `catalogue.html`: https://uit.no/utdanning . Alle 276 kort finnes i HTML; den publiserte Isotope-klienten filtrerer lokalt. Katalogens numeriske dokument-ID er ikke en offisiell studiekode.

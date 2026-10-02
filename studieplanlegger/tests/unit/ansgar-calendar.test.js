@@ -23,6 +23,13 @@ describe('published Ansgar weekly timetables',()=>{
     expect(r.unresolved.some(row=>row.reason.includes('12 undervisningsuker'))).toBe(true)
     expect(r.events.filter(e=>value(e,'summary').includes('MUS141/241'))).toHaveLength(84)
   })
+  it('preserves fixture 10 geometry across distinct weekdays and time slots',()=>{
+    const r=parsed(10),middle=r.events[Math.floor(r.events.length/2)],last=r.events.at(-1)
+    expect(r.count).toBe(123);expect(r.unresolved).toHaveLength(0)
+    expect([value(r.events[0],'dtstart'),value(r.events[0],'dtend')]).toEqual(['2026-10-19T08:25:00Z','2026-10-19T09:10:00Z'])
+    expect([value(middle,'dtstart'),value(middle,'dtend')]).toEqual(['2026-10-28T09:25:00Z','2026-10-28T10:10:00Z'])
+    expect([value(last,'dtstart'),value(last,'dtend')]).toEqual(['2026-11-20T10:15:00Z','2026-11-20T11:00:00Z'])
+  })
   it('honours an explicitly moved teaching week without retaining the original Thursday',()=>{
     const r=parsed(15),moved=r.events.find(e=>value(e,'summary').includes('flyttet undervisning'))
     expect(value(moved,'dtstart')).toBe('2026-10-09T07:15:00Z');expect(value(moved,'dtend')).toBe('2026-10-09T13:00:00Z')

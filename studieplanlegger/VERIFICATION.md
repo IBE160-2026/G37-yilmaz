@@ -1,5 +1,11 @@
 # Verifisering av Studieplan
 
+## Personvernminimerte kildefixturer — 2026-10-02
+
+FIH-delingsparameteren, personkontakt-/profilblokker og undervisernavn ble kontrollert og minimert uten live-oppslag. Kalenderlinjer ble foldet ut i minnet før feltkontroll, og de nye strukturelle regresjonene verifiserer fortsatt 14 HTML-valg, 15 PDF-avledede valg, hendelsesantallene 54/68/40/34/52/294/16, 75 NIH-rader med 32 syntetiske underviserfelt, HiMolde-arrayformen 1/0/0 og uendrede Ansgar-koordinater. En repository-dekkende skann skilte kalender-UID-er, generelle institusjonspostkasser og uttrykkelig syntetiske sikkerhetstester fra person-/tilgangsfunn. Fjernede verdier er ikke kopiert til tester eller dokumentasjon.
+
+Den første komplette enhetskjøringen avdekket at en for bred FIH-kontaktfjerning også tok en parsernødvendig plantabell. Endringen ble avgrenset til kontaktavsnittene, og den korrigerte FIH-/kilde-/personvernmatrisen bestod deretter **18/18**. Etter uavhengig review bestod de nye Ansgar- og personvernkontrollene **14/14**. Sluttkontrollen bestod `npm.cmd run test:unit -- --maxWorkers=1` med **1388/1388** tester i **110/110** filer. `npm.cmd run build` bygget **83 moduler**; den eksisterende størrelsesadvarselen er fortsatt ikke-blokkerende. **76** lokale Markdown-mål i **22** sporede Markdown-filer finnes. Kontrollene brukte bare lokale fixtures og syntetiske data; ingen kalenderlenker, brukerprofiler, faktiske databaser, port 80 eller eksterne tjenester ble åpnet.
+
 ## Ren kandidatkontroll for Git-leveransen — 2026-10-02
 
 Produktcommit `3a03f9f6ee0da0902e02334646a6915e8ae5a11a` ble materialisert i en separat Git-worktree som bare inneholdt sporede filer. `npm.cmd ci` installerte **96** pakker fra låsefilen. Fra denne checkouten bestod `npm.cmd run test:unit -- --maxWorkers=1` **1382/1382** tester i **109/109** filer, `npm.cmd run verify:teaching` **92/92** i 10 filer og produksjonsbygget **83 moduler**. `npm.cmd run test:e2e:database` bestod **3/3** mot en egen midlertidig SQLite-database og ledig loopback-port.

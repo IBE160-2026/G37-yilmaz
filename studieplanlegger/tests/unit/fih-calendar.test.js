@@ -32,7 +32,7 @@ describe('FIH published Edupage class calendars', () => {
   })
   it('rejects a different class response and rejects invalid source URLs before fetching', async () => {
     expect(() => parseFihCalendar('BEGIN:VCALENDAR\nX-WR-CALNAME:Timetable: -24\nEND:VCALENDAR', { sourceObjectId: '-23' })).toThrow(/klasse-ID/)
-    for (const url of ['https://fih.edupage.org/webcal?pwd=0000000000000000&type=plan&studentid=23', 'https://fih.edupage.org/webcal?pwd=0000000000000000&type=personal&studentid=-23', 'https://127.0.0.1/webcal?pwd=0000000000000000&type=plan&studentid=-23']) expect(() => fihCalendarUrl(url)).toThrow()
+    for (const url of ['https://fih.edupage.org/webcal?pwd=C0DEC0DEC0DEC0DE&type=plan&studentid=23', 'https://fih.edupage.org/webcal?pwd=C0DEC0DEC0DEC0DE&type=personal&studentid=-23', 'https://127.0.0.1/webcal?pwd=C0DEC0DEC0DEC0DE&type=plan&studentid=-23']) expect(() => fihCalendarUrl(url)).toThrow()
     const fetchText = vi.fn()
     await expect(fetchFihCalendar('https://127.0.0.1/webcal', { fetchText })).rejects.toThrow()
     expect(fetchText).not.toHaveBeenCalled()
@@ -42,7 +42,7 @@ describe('FIH published Edupage class calendars', () => {
     const result = await fihCalendarSources({ fetchText, fetchBytes })
     expect(result.results).toHaveLength(14)
     expect(result.warnings.join()).toContain('kunne ikke leses')
-    await expect(fetchFihCalendar('https://fih.edupage.org/webcal?pwd=0000000000000000&type=plan&studentid=-999', { fetchText, fetchBytes })).rejects.toThrow(/publiserte oversikter/)
+    await expect(fetchFihCalendar('https://fih.edupage.org/webcal?pwd=C0DEC0DEC0DEC0DE&type=plan&studentid=-999', { fetchText, fetchBytes })).rejects.toThrow(/publiserte oversikter/)
     expect(fetchText.mock.calls.some(([url]) => url.includes('edupage'))).toBe(false)
   })
   it('does not silently accept duplicate or unlabeled PDF calendar identities', async () => {

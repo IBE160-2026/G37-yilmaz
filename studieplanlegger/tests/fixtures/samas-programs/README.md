@@ -1,5 +1,7 @@
 # Offentlige Sámi-kildefixtures
 
+HTML-filene er personvernminimerte derivater. Personkontaktavsnitt, profilreferanser og felles kontaktkrom er fjernet. Katalogkort, programtitler, emnekoder, studiepoeng, oppstart, valgstruktur, PDF-lenker og kildeidentitet er bevart; testene evaluerer ikke skript eller eksterne profiler.
+
 Hentet 12.09.2026 fra samas.no. HTML er kildeopptak; JSON inneholder tekst og koordinater fra de publiserte PDF-ene, lest lokalt uten OCR. Fixturetester simulerer transport og dokumenterer ikke alene en ekstern import.
 
 - `catalogue-nb.html`: https://samas.no/nb/studier (7 kort).

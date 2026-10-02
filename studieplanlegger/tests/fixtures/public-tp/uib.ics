@@ -44,11 +44,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20260817T121500Z
 DTEND:20260817T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:56aa534b8a1296
@@ -104,11 +104,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20260818T121500Z
 DTEND:20260818T140000Z
 LOCATION:Høyteknologisenteret Stort auditorium
-SUMMARY:INF100 Forelesning  \nDuplisert forelesning
-DESCRIPTION:INF100\nForelesning  \nDuplisert forelesning.\n\n\nHøyteknol
- ogisenteret: https://link.mazemap.com/34NC9sKG\nStort auditorium: https:
- //use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-b
- ergen&sharepoi=351:209M3
+SUMMARY:INF100 Forelesning Testunderviser A\nDuplisert forelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nDuplisert forelesning.\n\
+ n\nHøyteknologisenteret: https://link.mazemap.com/34NC9sKG\nStort auditor
+ ium: https://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&con
+ fig=uib-bergen&sharepoi=351:209M3
 END:VEVENT
 BEGIN:VEVENT
 UID:106aa534b8a12e7
@@ -308,11 +308,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20260824T121500Z
 DTEND:20260824T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:276aa534b8a140b
@@ -572,11 +572,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20260831T121500Z
 DTEND:20260831T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:496aa534b8a1571
@@ -860,11 +860,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20260907T121500Z
 DTEND:20260907T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:736aa534b8a1709
@@ -1139,11 +1139,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20260914T121500Z
 DTEND:20260914T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:966aa534b8a1875
@@ -1403,11 +1403,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20260921T121500Z
 DTEND:20260921T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:1186aa534b8a19ba
@@ -1679,11 +1679,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20260928T121500Z
 DTEND:20260928T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:1416aa534b8a1b14
@@ -1955,11 +1955,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20261005T121500Z
 DTEND:20261005T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:1646aa534b8a1c8e
@@ -2219,11 +2219,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20261012T121500Z
 DTEND:20261012T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:1866aa534b8a1dda
@@ -2484,11 +2484,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20261019T121500Z
 DTEND:20261019T140000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:2086aa534b8a1f25
@@ -2748,11 +2748,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20261026T131500Z
 DTEND:20261026T150000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:2306aa534b8a2070
@@ -3024,11 +3024,11 @@ DTSTAMP:20260912T111712Z
 DTSTART:20261102T131500Z
 DTEND:20261102T150000Z
 LOCATION:Realfagbygget Auditorium 1
-SUMMARY:INF100 Forelesning  \nForelesning
-DESCRIPTION:INF100\nForelesning  \nForelesning.\nT.J.F. Strømme\n\nRealf
- agbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: https://use.m
- azemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=uib-bergen&s
- harepoi=308:UC7B
+SUMMARY:INF100 Forelesning Testunderviser A\nForelesning
+DESCRIPTION:INF100\nForelesning Testunderviser A\nForelesning.\nT.J.F. Str
+ ømme\n\nRealfagbygget: https://link.mazemap.com/nIjudmLX\nAuditorium 1: h
+ ttps://use.mazemap.com/?v=1&campuses=uib&sharepoitype=identifier&config=ui
+ b-bergen&sharepoi=308:UC7B
 END:VEVENT
 BEGIN:VEVENT
 UID:2536aa534b8a21db
