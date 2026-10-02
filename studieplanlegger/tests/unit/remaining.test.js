@@ -253,7 +253,7 @@ describe('forfalt krever at nå er strengt etter lokal frist', () => {
       import { createStorage } from ${JSON.stringify(storageUrl)};
       const storage = createStorage(() => ({ getItem: () => ${JSON.stringify(raw)} }));
       const loaded = storage.read();
-      const now = new Date('2026-09-03T09:30:00');
+      const now = new Date('2026-09-03T07:30:00Z');
       process.stdout.write(JSON.stringify({
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         instant: now.getTime(),
@@ -270,7 +270,7 @@ describe('forfalt krever at nå er strengt etter lokal frist', () => {
       { encoding: 'utf8', env: { ...process.env, TZ: timezone } },
     )))
     expect(snapshots.map(snapshot => snapshot.timezone)).toEqual(['Europe/Oslo', 'America/New_York'])
-    expect(snapshots[0].instant).not.toBe(snapshots[1].instant)
+    expect(snapshots[0].instant).toBe(snapshots[1].instant)
     for (const snapshot of snapshots) {
       expect(snapshot.loaded).toEqual({ ok: true, tasks: [task] })
       expect(snapshot.week).toEqual([task])

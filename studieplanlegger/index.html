@@ -274,7 +274,10 @@
             <section id="capacity-panel" class="panel reveal-section" hidden aria-labelledby="capacity-heading" style="--reveal-delay: 170ms">
               <div class="section-heading">
                 <div><p class="eyebrow">Arbeid og tilgjengelig tid</p><h2 id="capacity-heading">Kapasitet før fristene</h2></div>
-                <button id="new-session" type="button">Ny studieøkt</button>
+                  <div class="actions">
+                    <button id="compare-plans" type="button" class="secondary">Sammenlign planer</button>
+                    <button id="new-session" type="button">Ny studieøkt</button>
+                  </div>
               </div>
               <p class="muted">Forslagene fordeler gjenstående arbeid etter nærmeste frist. Neste steg er en del av oppgaven. Planen bekrefter verken utført arbeid eller levering.</p>
               <p id="capacity-summary" class="capacity-summary"></p>
@@ -285,6 +288,9 @@
               <h3>Arbeid før hver frist</h3>
               <p id="capacity-empty" class="muted">Ingen oppgaver ennå. Legg til en oppgave for å sammenligne arbeid og tid.</p>
               <ul id="capacity-task-list" class="capacity-task-list"></ul>
+            </section>
+            <section id="text-registration" class="text-registration panel reveal-section" aria-labelledby="text-registration-heading">
+              <h2 id="text-registration-heading">Rask registrering med tekst</h2>
             </section>
             <section id="tasks-panel" class="panel reveal-section" aria-labelledby="tasks-heading" style="--reveal-delay: 130ms">
               <div class="section-heading">

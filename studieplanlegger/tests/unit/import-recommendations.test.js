@@ -74,6 +74,17 @@ describe('calendar parsing and updates', () => {
     const second = parseCalendar(calendar(event().replace('UID:isolated-lesson', 'UID:brand-new-id')).replace('-//Isolated tests//EN', '-//UiO//TP'), selection)
     expect(first.identityMode).toBe('content'); expect(first.events[0].sourceKey).toBe(second.events[0].sourceKey)
   })
+  it('keeps legacy assessment content identity while revealing the original source title on refresh', () => {
+    const body = event('X-STUDIEPLAN-ACTIVITY-KIND:assessment').replace('SUMMARY:Testforelesning', 'SUMMARY:Eksamen IBE160')
+    const parsed = parseCalendar(calendar(body).replace('-//Isolated tests//EN', '-//UiO//TP'), selection)
+    expect(parsed.events[0]).toMatchObject({ title: 'Eksamen IBE160', activityKind: 'assessment', group: 'Vurdering fra kilden: Eksamen IBE160' })
+    expect(parsed.events[0].sourceKey).toContain('Vurdering fra kilden: Eksamen IBE160')
+    const legacy = { ...parsed.events[0], title: 'Vurdering fra kilden: Eksamen IBE160' }
+    const first = mergeImport(emptyPlanner(), [legacy], source, { course }).planner
+    const refreshed = mergeImport(first, parsed.events, source).planner
+    expect(refreshed.events).toHaveLength(1)
+    expect(refreshed.events[0]).toMatchObject({ id: first.events[0].id, title: 'Eksamen IBE160', activityKind: 'assessment' })
+  })
   it('applies a partial cancellation without cancelling unrelated lessons and restores a reappearing lesson', () => {
     const parsed = parseCalendar(calendar(event() + '\r\n' + event().replace('UID:isolated-lesson', 'UID:other')), selection)
     const first = mergeImport(emptyPlanner(), parsed.events, source, { course })

@@ -2,7 +2,7 @@
 title: "Product Brief: Studieplan"
 status: implemented
 created: 2026-09-06
-updated: 2026-09-28
+updated: 2026-09-29
 ---
 
 # Product Brief: Studieplan
@@ -18,6 +18,8 @@ The student records work outcomes, and Studieplan can propose adjustments when t
 The `implemented` status describes the delivered core functionality; it does not mean that all import coverage requirements have been fulfilled. Full national support remains an unmet delivery requirement.
 
 The current implementation reduces repeated setup by reusing a confirmed study-time pattern and combining programme, course and available teaching preparation into one reviewed commit. Source-owned course alternatives remain explicit student choices. Teaching status is recorded per course, and saved activity, group and exclusion choices survive reload and refresh. Unchanged refreshes finish without an extra confirmation, while changed source data or choices remain reviewable. Course codes and deterministic colors keep related teaching, deadlines and study sessions recognizable without relying on color alone.
+
+The maintenance loop now continues from an assignment into optional, ordered work steps, a study session, an optional dated self-assessment and a student-approved review session. Local rules distinguish source-backed requirements from suggested working methods and unresolved information. Calendar export creates a point-in-time `.ics` copy of approved sessions and deadlines, while plan comparison lets the student inspect a current, reduced-capacity and task-priority alternative from one revision before applying one atomic, undoable change. None of these additions introduces a mandatory field in ordinary task capture or session closeout.
 
 ## The Problem
 
@@ -65,12 +67,13 @@ The agreed first complete delivery covers the product areas required for one con
 - institution, programme, and semester selection, with manual entry and controlled imports from documents, calendars, and available teaching sources;
 - onboarding, task capture, teaching, deadlines, study sessions, progress registration, and student-approved replanning;
 - explained next actions based on time, deadlines, dependencies, and applicable local history;
+- optional work steps, self-assessment and review suggestions, calendar-file export, and comparison of whole plan alternatives before acceptance;
 - local and private operation through the delivered browser interface and Node API, with SQLite as authoritative production storage; and
 - source code, support for data recovery, and a documented Docker setup for running the required components locally with persistent storage.
 
 The delivered production path uses SQLite as authoritative storage behind the local Node API. Complete state changes are validated, revision-checked and written transactionally. Docker Compose binds only to `127.0.0.1`, creates the schema automatically and keeps the database in a named volume. Browser storage remains available in the separate Vite development mode and as an explicitly confirmed migration source. Startup, health, test and recovery instructions are documented in the README and verification record.
 
-Support for universities and university colleges across Norway remains a delivery requirement, dependent on available and permitted data sources. Full national support is not yet fulfilled, and further expansion of institutional coverage is paused. The [current import coverage](studieplanlegger/IMPORT-COVERAGE.md) records verified support and remaining limitations. Manual and file import provide continuity but do not establish direct institutional integration.
+Support for universities and university colleges across Norway remains a delivery requirement, dependent on available and permitted data sources. Full national support is not yet fulfilled; the 1 October 2026 combined acceptance and import audit resumes investigation of the remaining coverage. The [current import coverage](studieplanlegger/IMPORT-COVERAGE.md) records verified support and remaining limitations. Manual and file import provide continuity but do not establish direct institutional integration.
 
 **Delivery evidence.** The [development-process record](.docs/implementation-artifacts/development-process.md) documents AI-assisted development, the BMAD process, and quality assurance. These delivery-evidence requirements are distinct from Studieplan's runtime behavior, which uses registered data, rules, and local statistics rather than generative AI.
 

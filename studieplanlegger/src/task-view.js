@@ -2,6 +2,7 @@ import { suggestionReason } from './tasks.js'
 import { isOverdue, getRemainingMinutes, getRemainingRange, formatEstimateRange } from './tasks.js'
 import { courseColor, formatDeadline, taskStatus } from './calendar.js'
 import { taskBlockers, unblocksCount, canStartTask } from './task-dependencies.js'
+import { primaryWorkStep } from './work-steps.js'
 
 const node = (tag, className = '', text = '') => {
   const element = document.createElement(tag)
@@ -65,11 +66,12 @@ export function createTaskList(list, actions) {
       else if (action === 'open') actions.edit(task.id)
       else if (action === 'start') actions.start(task.id)
       else if (action === 'plan') actions.replan(task.id)
+      else if (action === 'steps') actions.steps(task.id)
       else actions[action](task.id)
     }
     primary.addEventListener('click', () => invoke(row.primaryAction))
     complete.addEventListener('change', () => actions.complete(task.id, complete.checked))
-    for (const [action, caption] of [['plan', 'Se planforslag'], ['edit', 'Rediger'], ['closeWork', 'Registrer arbeid'], ['step', 'Legg til neste steg'],
+    for (const [action, caption] of [['plan', 'Se planforslag'], ['edit', 'Rediger'], ['closeWork', 'Registrer arbeid'], ['steps', 'Administrer arbeidssteg'], ['step', 'Legg til neste steg'],
       ['completeStep', 'Neste steg gjort'], ['removeStep', 'Fjern neste steg'], ['submit', 'Angre levering'], ['delete', 'Slett']]) {
       const button = node('button', action === 'delete' ? 'danger-button' : '', caption)
       button.type = 'button'
@@ -141,9 +143,10 @@ export function createTaskList(list, actions) {
             : planned.missingMinutes && task.deadlineLocal ? `Mangler ${planned.missingMinutes} min før fristen. ` : ''
         setText(row.capacityWarning, planned ? `${missing}${planned.reasons.join(' ')}` : '')
         row.overdue.hidden = !isOverdue(task, now)
-        row.stepBox.hidden = !task.nextStep
-        setText(row.stepText, task.nextStep?.description || '')
-        setText(row.stepEstimate, task.nextStep ? `${task.nextStep.estimatedMinutes} min · bare neste steg` : '')
+        const activeStep = primaryWorkStep(task)
+        row.stepBox.hidden = !activeStep
+        setText(row.stepText, activeStep?.title || activeStep?.description || '')
+        setText(row.stepEstimate, activeStep?.estimatedMinutes ? `${activeStep.estimatedMinutes} min · bare neste steg · inkludert i gjenstående arbeid` : 'Estimat ikke oppgitt · bare neste steg · inkludert i gjenstående arbeid')
         row.reason.hidden = !suggestion
         const unblocks = unblocksCount(task, allTasks)
         setText(row.reason, `${suggestionReason(task, minutes, now, index, allTasks)}${unblocks ? ` Kan åpne for ${unblocks} registrerte oppgaver som avhenger av denne.` : ''}`)
@@ -154,17 +157,17 @@ export function createTaskList(list, actions) {
         row.buttons.complete.setAttribute('aria-label', `${row.completeText.textContent} «${task.title}»`)
         row.summary.setAttribute('aria-label', `Flere handlinger «${task.title}»`)
         row.primaryAction = suggestion ? 'start' : compact ? 'open'
-          : ready ? 'submit' : task.completed ? 'open' : task.nextStep ? 'completeStep' : 'complete'
+          : ready ? 'submit' : task.completed ? 'open' : activeStep ? 'completeStep' : 'complete'
         const primaryLabels = { openStep: 'Åpne neste steg', open: 'Åpne oppgave', start: 'Start', submit: 'Bekreft levert',
           completeStep: 'Neste steg gjort', complete: 'Marker ferdig' }
         const primaryLabel = primaryLabels[row.primaryAction]
         setText(row.primary, primaryLabel)
         row.primary.setAttribute('aria-label', `${primaryLabel} «${task.title}»`)
-        setText(row.buttons.step, task.nextStep ? 'Rediger neste steg' : 'Legg til neste steg')
+        setText(row.buttons.step, activeStep ? 'Rediger neste steg' : 'Legg til neste steg')
         setText(row.buttons.submit, task.submitted ? 'Angre levering' : 'Bekreft levert')
         row.buttons.submit.hidden = !task.requiresSubmission || !task.completed || row.primaryAction === 'submit'
-        row.buttons.completeStep.hidden = !task.nextStep || row.primaryAction === 'completeStep'
-        row.buttons.removeStep.hidden = !task.nextStep
+        row.buttons.completeStep.hidden = !activeStep || row.primaryAction === 'completeStep'
+        row.buttons.removeStep.hidden = !activeStep
         row.buttons.closeWork.hidden = task.completed || task.submitted
         row.buttons.plan.hidden = task.completed || task.submitted
         for (const [action, button] of Object.entries(row.buttons)) {

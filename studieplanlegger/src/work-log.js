@@ -1,5 +1,7 @@
 import { validTasks, getRemainingMinutes, validEstimateRange } from './tasks.js'
 import { extendedSessionInterval } from './work-capacity.js'
+import { primaryWorkStep, completeWorkStep, migrateLegacyStep } from './work-steps.js'
+import { privateReviewChange } from './review-planning.js'
 
 const nonnegative = value => value === null || Number.isSafeInteger(value) && value >= 0
 export function validWorkLogs(values, envelope) {
@@ -41,7 +43,7 @@ export function futureReservations(state, taskId, now = new Date()) {
 export function closeWork(state, draft, { now = new Date() } = {}) {
   const existing = (state.workLogs || []).find(log => log.operationId === draft.operationId || draft.sessionId && log.sessionId === draft.sessionId)
   const task = state.tasks.find(item => item.id === draft.taskId)
-  const finishTask = draft.outcome === 'done' && (!draft.stepOnly || draft.completeTask)
+  const finishTask = draft.outcome === 'done' && (!draft.stepOnly || draft.completeTask === true)
   const estimate = draft.outcome === 'more' && validEstimateRange(draft.remainingEstimate) ? { ...draft.remainingEstimate } : null
   try {
     const actual = draft.outcome === 'not-started' ? null : minutes(draft.actualMinutes, 'Faktisk arbeidstid')
@@ -59,7 +61,7 @@ export function closeWork(state, draft, { now = new Date() } = {}) {
     if (typeof draft.operationId !== 'string' || !draft.operationId.trim()) throw new Error('Arbeidsregistreringen mangler operasjons-ID.')
     if (!task || task.submitted) throw new Error('Oppgaven finnes ikke eller er allerede levert.')
     if (!['done', 'more', 'not-started'].includes(draft.outcome)) throw new Error('Velg hva som skjedde.')
-    if (draft.stepOnly && draft.outcome === 'done' && !task.nextStep) throw new Error('Arbeidssteget finnes ikke lenger. Åpne oppgaven på nytt.')
+    if (draft.stepOnly && draft.outcome === 'done' && !primaryWorkStep(task)) throw new Error('Arbeidssteget finnes ikke lenger. Åpne oppgaven på nytt.')
     const session = draft.sessionId ? (state.sessions || []).find(item => item.id === draft.sessionId && item.taskId === task.id) : undefined
     if (draft.sessionId && !session) throw new Error('Studieøkten er endret eller mangler. Åpne registreringen på nytt.')
     const released = finishTask ? futureReservations(state, task.id, now) : []
@@ -76,8 +78,12 @@ export function closeWork(state, draft, { now = new Date() } = {}) {
     next.workLogs = [...(next.workLogs || []), log]
     if (draft.outcome !== 'not-started') next.tasks = next.tasks.map(item => {
       if (item.id !== task.id) return item
-      const updated = { ...item, remainingMinutes: remaining, completed: finishTask }
-      if (finishTask || draft.stepOnly && draft.outcome === 'done') delete updated.nextStep
+      const updated = { ...migrateLegacyStep(item), remainingMinutes: remaining, completed: finishTask }
+      if (finishTask) { delete updated.nextStep; if (updated.steps) updated.steps = updated.steps.map(step => ({ ...step, completed: true })) }
+      else if (draft.stepOnly && draft.outcome === 'done') {
+        if (updated.steps) return completeWorkStep(updated, primaryWorkStep(updated).id).task
+        delete updated.nextStep
+      }
       if (estimate) updated.remainingEstimate = estimate
       else if (!draft.stepOnly || finishTask) delete updated.remainingEstimate
       return updated
@@ -93,6 +99,10 @@ export function closeWork(state, draft, { now = new Date() } = {}) {
 export function purgeWorkHistory(state) {
   const next = structuredClone(state)
   delete next.workLogs
-  if (next.history) for (const kind of ['undo', 'trash']) next.history[kind] = next.history[kind].filter(entry => !entry.changes.some(change => change.path === 'workLogs'))
+  delete next.topics
+  delete next.assessments
+  delete next.reviewDecisions
+  if (next.sessions) next.sessions = next.sessions.filter(session => !session.reviewKey && !session.reviewTopicId)
+  if (next.history) for (const kind of ['undo', 'trash']) next.history[kind] = next.history[kind].filter(entry => !entry.changes.some(change => change.path === 'workLogs' || privateReviewChange(change)))
   return next
 }

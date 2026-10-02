@@ -3,6 +3,7 @@ import { createCalendar, dateKey, formatDay } from './calendar.js'
 import { createTaskList } from './task-view.js'
 import { createCapacityView } from './capacity-view.js'
 import { createTaskForm } from './task-form.js'
+import { primaryWorkStep } from './work-steps.js'
 
 const $ = selector => document.querySelector(selector)
 const setText = (element, value) => { if (element.textContent !== value) element.textContent = value }
@@ -98,8 +99,8 @@ export function createUI(actions) {
     queueMicrotask(keepFocusVisible)
   }
   function syncDeadline() {
-    form.elements.deadlineLocal.value = $('#deadlineDate').value || $('#deadlineTime').value
-      ? `${$('#deadlineDate').value}T${$('#deadlineTime').value}` : ''
+    const date = $('#deadlineDate').value, time = $('#deadlineTime').value
+    form.elements.deadlineLocal.value = date ? `${date}${time ? `T${time}` : ''}` : time ? `T${time}` : ''
   }
   $('#deadlineDate').addEventListener('input', syncDeadline)
   $('#deadlineTime').addEventListener('input', syncDeadline)
@@ -292,12 +293,13 @@ export function createUI(actions) {
     },
     openStep(task) {
       returnFocus = document.activeElement
+      const activeStep = primaryWorkStep(task)
       stepForm.reset()
       stepErrors()
-      $('#step-form-heading').textContent = task.nextStep ? 'Rediger neste steg' : 'Legg til neste steg'
+      $('#step-form-heading').textContent = activeStep ? 'Rediger neste steg' : 'Legg til neste steg'
       $('#step-task-title').textContent = task.title
-      for (const name of stepFields) stepForm.elements[name].value = task.nextStep ? String(task.nextStep[name]) : ''
-      stepForm.elements.unblocksWaiting.checked = Boolean(task.nextStep?.unblocksWaiting)
+      for (const name of stepFields) stepForm.elements[name].value = activeStep ? String(name === 'description' ? activeStep.title || activeStep.description : activeStep[name] ?? '') : ''
+      stepForm.elements.unblocksWaiting.checked = Boolean(activeStep?.unblocksWaiting)
       stepForm.hidden = false
       create.hidden = true
       disableActions(true)

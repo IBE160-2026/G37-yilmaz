@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
 import { publicTimeEdit, publicTimeEditUrl, parsePublicTimeEditEntry } from '../../server/providers/public-timeedit.js'
 import { parseCalendar } from '../../src/calendar-import.js'
+import { mergeImport, validPlanner } from '../../src/planner.js'
 
 // Reduced snapshots from the actual published guest view checked 12.09.2026.
 // These local regression tests do not themselves verify a live external source.
@@ -14,6 +15,18 @@ const transport = () => vi.fn(async (url, depth, guard) => {
 })
 
 describe('Kristiania published guest course timetable', () => {
+  it('persists ordinary public teaching through source snapshot normalization and repeat', () => {
+    const course = { id: 'sample-course', code: 'PGR102', name: 'Sample course', university: 'kristiania', year: 2026, semester: 'autumn', notes: '' }
+    const parsed = parseCalendar(fixture('calendar.ics'), { ...course, courseId: course.id })
+    const source = { id: 'sample-source', courseId: course.id, name: 'Public sample', kind: 'url', url: 'https://cloud.timeedit.net/no_kristiania/web/public/ri.ics', groups: [parsed.events[0].group], lastUpdated: '2026-10-01T12:00:00Z' }
+    const first = mergeImport({ courses: [course], events: [], sources: [] }, parsed.events, source, { course, authoritative: false }).planner
+    expect(validPlanner(first)).toBe(true)
+    expect(first.events).toHaveLength(49)
+    const repeat = mergeImport(JSON.parse(JSON.stringify(first)), parsed.events, source, { course, authoritative: false }).planner
+    expect(validPlanner(repeat)).toBe(true)
+    expect(repeat.events.map(event => event.id)).toEqual(first.events.map(event => event.id))
+    expect(validPlanner({ ...first, events: [{ ...first.events[0], activityKind: 'unrecognized' }] })).toBe(false)
+  })
   it('uses the public course entry and rejects semesters outside its published boundaries', () => {
     expect(parsePublicTimeEditEntry(fixture('entry.html'), 'kristiania', query, entryUrl)).toMatchObject({
       sid: '3', type: '5', selectedRange: { start: '20260701', end: '20261231' }, publicationBoundaries: { start: '20250811', end: '20261231' },

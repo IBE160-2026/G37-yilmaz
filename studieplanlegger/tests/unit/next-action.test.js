@@ -43,28 +43,48 @@ describe('ett aktivt neste steg', () => {
     const saved = Object.freeze(makeTask('valgt["id"]', { requiresSubmission: true, submitted: false }))
     const tasks = Object.freeze([Object.freeze(makeTask('først')), saved, Object.freeze(makeTask('sist'))])
     const added = setNextStep(tasks, saved.id, { ...step, estimatedMinutes: '20' })
-    expect(added).toEqual({ ok: true, tasks: [tasks[0], { ...saved, nextStep: step }, tasks[2]] })
+    expect(added).toMatchObject({ ok: true, tasks: [tasks[0], { ...saved, steps: [{ id: `${saved.id}:legacy-next-step`, title: step.description, estimatedMinutes: 20, completed: false }] }, tasks[2]] })
     expect(tasks[1]).not.toHaveProperty('nextStep')
 
     const edited = setNextStep(added.tasks, saved.id, { description: ' Skriv innledningen ', estimatedMinutes: '30' })
-    expect(edited.tasks[1].nextStep).toEqual({ description: 'Skriv innledningen', estimatedMinutes: 30 })
-    expect(added.tasks[1].nextStep).toEqual(step)
+    expect(edited.tasks[1]).not.toHaveProperty('nextStep')
+    expect(edited.tasks[1].steps[0]).toMatchObject({ title: 'Skriv innledningen', estimatedMinutes: 30 })
+    expect(added.tasks[1]).not.toHaveProperty('nextStep')
     const completed = completeNextStep(edited.tasks, saved.id)
-    expect(completed.tasks).toEqual(tasks)
+    expect(completed.tasks[0]).toEqual(tasks[0])
+    expect(completed.tasks[2]).toEqual(tasks[2])
     expect(completed.tasks[1]).not.toHaveProperty('nextStep')
-    expect(completed.tasks[1]).toMatchObject({ completed: false, submitted: false, estimatedMinutes: 240 })
+    expect(completed.tasks[1]).toMatchObject({ completed: false, submitted: false, estimatedMinutes: 240, steps: [{ completed: true }] })
 
     const next = setNextStep(completed.tasks, saved.id, { description: 'Finn en kilde', estimatedMinutes: '10' })
-    expect(next.tasks[1].nextStep.description).toBe('Finn en kilde')
-    expect(clearNextStep(next.tasks, saved.id).tasks).toEqual(tasks)
+    expect(next.tasks[1]).not.toHaveProperty('nextStep')
+    expect(next.tasks[1].steps.find(item => !item.completed).title).toBe('Finn en kilde')
+    expect(clearNextStep(next.tasks, saved.id).tasks[1].steps).toHaveLength(1)
     expect(validTasks(next.tasks)).toBe(true)
     expect(ids(next.tasks)).toEqual(ids(tasks))
   })
 
-  it.each([clearNextStep, completeNextStep])('fjerner bare steget, også fra en allerede levert oppgave', action => {
+  it('blokkerer fjerning av referert steg og gjenbruker ledig suffix etter eksplisitt retting', () => {
+    const base = `${makeTask().id}:legacy-next-step`
+    const task = makeTask('rapport', { steps: [
+      { id: base, title: 'Ferdig', completed: true },
+      { id: `${base}:3`, title: 'Senere', completed: true, dependencyIds: [`${base}:2`] },
+      { id: `${base}:2`, title: 'Aktivt', completed: false },
+    ] })
+    const blocked = clearNextStep([task], task.id)
+    expect(blocked).toMatchObject({ ok: false, reason: 'dependent-steps', error: expect.stringContaining('Senere') })
+    expect(task.steps[1].dependencyIds).toEqual([`${base}:2`])
+    const corrected = { ...task, steps: task.steps.map(step => step.id === `${base}:3` ? { ...step, dependencyIds: [] } : step) }
+    const cleared = clearNextStep([corrected], task.id).tasks[0]
+    expect(cleared.steps.find(item => item.id === `${base}:3`).dependencyIds).toEqual([])
+    const added = setNextStep([cleared], task.id, { description: 'Nytt', estimatedMinutes: '10' }).tasks[0]
+    expect(added.steps.find(item => item.title === 'Nytt').id).toBe(`${base}:2`)
+  })
+
+  it.each([clearNextStep, completeNextStep])('bevarer oppgavestatus ved fjerning/fullføring av eldre steg', action => {
     const saved = Object.freeze(makeTask('a', { completed: true, requiresSubmission: true, submitted: true, nextStep: Object.freeze(step) }))
     const result = action(Object.freeze([saved]), saved.id)
-    expect(result.tasks[0]).toEqual(makeTask('a', { completed: true, requiresSubmission: true, submitted: true }))
+    expect(result.tasks[0]).toEqual(makeTask('a', { completed: true, requiresSubmission: true, submitted: true, steps: action === clearNextStep ? [] : [{ id: 'a:legacy-next-step', title: step.description, estimatedMinutes: step.estimatedMinutes, completed: true, provenance: { kind: 'legacy-next-step' } }] }))
     expect(saved.nextStep).toEqual(step)
     expect(validTasks(result.tasks)).toBe(true)
   })

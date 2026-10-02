@@ -1,6 +1,21 @@
 import { test, expect } from '@playwright/test'
 import { navigate, key } from './helpers.js'
 
+test('restoring an explicitly empty program and cohort never silently chooses the first source option', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => sessionStorage.setItem('studieplanlegger:program-import-draft:v1', JSON.stringify({ version: 1, institution: 'nhh', query: '', year: 2026, programs: [{ code: 'TEST', name: 'First program', sourceUrl: 'https://www.nhh.no/studier/test/' }], cohorts: [{ cohort: '2026', requiresStudentCohort: true }], addedCourses: [], plan: null, values: { program: '', cohort: '' } })))
+  await page.reload(); await navigate(page, 'subjects')
+  await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  const host = page.locator('.program-import')
+  await expect(host.locator('[name=program]')).toHaveValue('')
+  await expect(host.locator('[name=cohort]')).toHaveValue('')
+  await expect(host.locator('[name=studentCohort]')).toBeHidden()
+  await host.getByRole('button', { name: 'Hent studieplan', exact: true }).click()
+  await expect(host).toContainText('Velg studieprogram og opptakskull.')
+  expect(await page.evaluate(key => localStorage.getItem(key), key)).toBeNull()
+})
+
 test('source course type stays intact while a missing study semester requires an explicit student placement', async ({ page }) => {
   const sourceUrl='https://www.nhh.no/studier/testprofil/'
   await page.route('**/api/import/providers/nhh/**',async route=>{

@@ -3,6 +3,7 @@ import { DEFAULT_PLANNING_RULES } from './planning-rules.js'
 import { getRemainingRange } from './tasks.js'
 import { STUDY_TIME_PRESETS, availabilityFor } from './study-time.js'
 import { extendedSessionInterval } from './work-capacity.js'
+import { comparePlans, applyComparedPlan } from './plan-comparison.js'
 
 const el = (tag, text, className = '') => { const node = document.createElement(tag); if (text) node.textContent = text; if (className) node.className = className; return node }
 const duration = session => {
@@ -16,14 +17,16 @@ const sameTime = change => change.original && change.proposed && ['dateLocal', '
 
 export function createReplanningView(actions) {
   const dialog = el('dialog'); dialog.className = 'editor-dialog connected-dialog simple-plan-dialog'; document.body.append(dialog)
-  let opener, preview, taskId, choice, rules, applying = false
-  const close = () => { if (dialog.open) dialog.close(); preview = null; applying = false; actions.onClose?.(); opener?.focus({ preventScroll: true }) }
+  let opener, preview, taskId, choice, rules, applying = false, comparisonPriorityIds = [], selectedComparison = null, selectedScenarioId = null
+  const close = () => { if (dialog.open) dialog.close(); preview = null; selectedComparison = null; selectedScenarioId = null; applying = false; actions.onClose?.(); opener?.focus({ preventScroll: true }) }
   dialog.addEventListener('cancel', event => { event.preventDefault(); close() })
 
   function build() {
     const state = actions.state(), confirmed = Boolean(state.workWindows?.length)
     choice = confirmed ? 'saved' : state.studyTimePreference?.kind || ''
     rules = { ...(state.planningPreferences || DEFAULT_PLANNING_RULES) }
+    comparisonPriorityIds = []
+    selectedComparison = null; selectedScenarioId = null
     dialog.replaceChildren()
     const heading = el('h2', taskId ? 'Planforslag for oppgaven' : 'Realistisk planforslag'); heading.id = 'replanning-heading'; heading.tabIndex = -1
     dialog.setAttribute('aria-labelledby', heading.id)
@@ -64,6 +67,17 @@ export function createReplanningView(actions) {
     const update = el('button', 'Oppdater forslag', 'secondary'); update.type = 'button'; update.onclick = compute
     ruleDetails.append(ruleSummary, ruleGrid, update); dialog.append(ruleDetails)
     const host = el('div', '', 'replanning-preview'), error = el('p', '', 'replanning-error'); error.setAttribute('role', 'alert')
+      if (!taskId && confirmed) {
+        const priorities = el('fieldset', '', 'comparison-priorities'); priorities.append(el('legend', 'Oppgaver i prioritert alternativ'))
+        for (const task of state.tasks.filter(item => !item.completed)) {
+          const label = el('label', '', 'check-label'), input = el('input'); input.type = 'checkbox'; input.value = task.id
+          input.onchange = () => { comparisonPriorityIds = [...priorities.querySelectorAll('input:checked')].map(item => item.value) }
+          label.append(input, document.createTextNode(task.title)); priorities.append(label)
+        }
+        dialog.append(priorities)
+        const compare = el('button', 'Sammenlign planalternativer', 'secondary'); compare.type = 'button'; compare.onclick = () => showComparison(host, error)
+      dialog.append(compare)
+    }
     const actionsRow = el('div', '', 'actions'), accept = el('button', 'Bruk planen'), reject = el('button', 'Ikke nå', 'secondary')
     accept.type = reject.type = 'button'; accept.dataset.accept = ''; reject.dataset.reject = ''; reject.onclick = close
     accept.onclick = () => apply(error, accept)
@@ -71,10 +85,33 @@ export function createReplanningView(actions) {
     compute(); dialog.showModal(); heading.focus()
   }
 
+  function showComparison(host, error) {
+    const comparison = comparePlans(actions.state(), { now: new Date(), priorityTaskIds: comparisonPriorityIds })
+    if (!comparison.ok) { error.textContent = comparison.error; return }
+    host.replaceChildren(el('h3', 'Sammenlign komplette planer'), el('p', 'Alle alternativene er beregnet fra samme lagrede grunnlag. Ingenting lagres før du velger og bruker ett alternativ.'))
+    for (const scenario of comparison.scenarios) {
+      const card = el('article', '', 'replan-row'), title = el('h4', scenario.label)
+      const missing = scenario.missingMaxMinutes === null ? `minst ${scenario.missingMinMinutes}` : scenario.missingMaxMinutes
+      card.append(title, el('p', scenario.preview.ok ? `${scenario.allocatedMinutes} min fordelt · ${scenario.remainingCapacityMinutes} min registrert kapasitet gjenstår · ${missing} min mangler · ${scenario.movedSessions} flyttes · ${scenario.omittedTasks} oppgaver med utelatt arbeid · ${scenario.reviewSessions} repetisjonsøkter beholdes.` : scenario.error))
+      if (scenario.deadlineRisk) card.append(el('p', 'Fristrisiko: registrert arbeid får ikke plass før fristene.', 'plan-problem'))
+      if (scenario.identicalTo) card.append(el('p', `Samme resultat som ${comparison.scenarios.find(item => item.id === scenario.identicalTo)?.label || scenario.identicalTo}.`, 'muted'))
+      if (scenario.preview.ok && !scenario.feasible) card.append(el('p', 'Alternativet har kapasitetsmangel; ikke alt arbeid får plass.', 'plan-problem'))
+      for (const note of scenario.uncertainty || []) card.append(el('p', note, 'plan-problem'))
+      const choose = el('button', scenario.keep ? 'Behold dagens plan' : 'Velg dette utkastet', scenario.feasible ? '' : 'secondary'); choose.type = 'button'; choose.disabled = !scenario.preview.ok
+      choose.onclick = () => {
+        if (scenario.keep) { close(); return }
+        selectedComparison = structuredClone(comparison); selectedScenarioId = scenario.id
+        preview = selectedComparison.scenarios.find(item => item.id === selectedScenarioId).preview; renderPreview(host, error); dialog.querySelector('[data-accept]').disabled = !preview.changes?.length
+        dialog.querySelector('[data-accept]')?.focus()
+      }
+      card.append(choose); host.append(card)
+    }
+  }
+
   function compute() {
     const state = actions.state(), host = dialog.querySelector('.replanning-preview'), error = dialog.querySelector('[role=alert]')
     if (!host) return
-    error.textContent = ''; host.replaceChildren()
+    error.textContent = ''; host.replaceChildren(); selectedComparison = null; selectedScenarioId = null
     const availability = availabilityFor(state, { now: new Date(), choice: state.workWindows?.length ? 'saved' : choice || 'assumption' })
     const scoped = taskId ? [taskId] : undefined
     const exploratory = Object.fromEntries(state.tasks.filter(task => (!scoped || scoped.includes(task.id)) && !task.completed && !getRemainingRange(task)).map(task => [task.id, 30]))
@@ -141,6 +178,7 @@ export function createReplanningView(actions) {
       const checked = applyReplan(actions.state(), draft)
       if (!checked.ok) { error.textContent = checked.error; return }
       preview = draft
+      if (selectedComparison) selectedComparison.scenarios.find(item => item.id === selectedScenarioId).preview = preview
       const change = preview.changes.find(item => item.proposed?.id === candidate.id); if (change) change.proposed = candidate
       renderPreview(dialog.querySelector('.replanning-preview'), error)
     }
@@ -155,7 +193,7 @@ export function createReplanningView(actions) {
   function apply(error, accept) {
     if (applying) return
     applying = true; accept.disabled = true
-    const result = applyReplan(actions.state(), preview)
+    const result = selectedComparison ? applyComparedPlan(actions.state(), selectedComparison, selectedScenarioId) : applyReplan(actions.state(), preview)
     if (!result.ok) { applying = false; accept.disabled = false; error.textContent = result.error; return }
     const saved = actions.commit(result.state, 'Ny samlet studieplan')
     if (!saved.ok) { applying = false; accept.disabled = false; error.textContent = saved.error; return }

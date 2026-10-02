@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { describe, it, expect, vi } from 'vitest'
 import ICAL from 'ical.js'
 import { parseCalendar } from '../../src/calendar-import.js'
+import { emptyPlanner, mergeImport } from '../../src/planner.js'
 import { parseTpSemester, parseTpCourses, normalizeTpCalendar, normalizeTpJsonEvents, publicTp, fetchPublicTpCalendar, isPublicTpCalendarUrl, isPublicTpJsonUrl } from '../../server/providers/public-tp.js'
 const fixture=name=>readFile(new URL(`../fixtures/public-tp/${name}`,import.meta.url),'utf8')
 const json=name=>fixture(name).then(JSON.parse)
@@ -12,6 +13,14 @@ const uids=text=>components(text).map(event=>event.getFirstPropertyValue('uid'))
 const scope=semester=>({institution:'uit',semester,selectedIds:['INF-0101¤1']})
 
 describe('public TP semester, course and source-offered calendar export',()=>{
+  it('keeps mock and practice examinations as assessments, not actual exams',async()=>{
+    const semester={id:'26h',pubexdate:true,pubextime:true,pubexroom:true}
+    for(const title of ['Mock examination','Practice examination']){
+      const raw=['BEGIN:VCALENDAR','VERSION:2.0','BEGIN:VEVENT',`UID:${title.replaceAll(' ','-')}@test`,'DTSTART:20261001T080000Z','DTEND:20261001T090000Z',`SUMMARY:${title}`,'END:VEVENT','END:VCALENDAR'].join('\r\n')
+      const item=components(normalizeTpCalendar(raw,scope(semester)).calendar)[0]
+      expect(item.getFirstPropertyValue('x-studieplan-activity-kind')).toBe('assessment')
+    }
+  })
   it('reads all courses and actual teaching terms, including slash codes and zero terms, without inferring a study semester',async()=>{
     for(const [inst,count,total]of[['uit',2112,2269],['uib',2557,2658],['oslomet',1439,1457],['nord',769,775],['inn',1386,1496],['uis',1035,1052],['uio',2297,2380],['uia',1657,1669],['himolde',323,325],['hiof',377,383]]){
       const data=await json(`${inst}-courses.json`),semester=await sample(inst),rows=parseTpCourses(data,semester,inst)
@@ -97,9 +106,17 @@ describe('public TP semester, course and source-offered calendar export',()=>{
     expect(first.getFirstPropertyValue('x-studieplan-activity-kind')).toBe('assessment')
     expect(normalized.warnings.join(' ')).toContain('ikke tolket som en bekreftet innleveringsfrist')
     const parsed=parseCalendar(normalized.calendar,{courseId:'test',year:2026,semester:'autumn'})
-    expect(parsed.events[0]).toMatchObject({transparent:true,information:true})
+    expect(parsed.events[0]).toMatchObject({transparent:true,information:true,activityKind:'assessment'})
+    expect(parsed.events[0].activityKind).not.toBe('exam')
     const hidden=normalizeTpCalendar(calendar.toString(),scope({...semester,pubexdate:false}))
     expect(components(hidden.calendar).some(row=>String(row.getFirstPropertyValue('summary')).includes('WISEFLOW'))).toBe(false)
+  })
+  it.each(['Prøve eksamen','Prøve-eksamen','Mock-exam','Practice exam','Exam-preparation','Forberedelse til eksamen','Forelesning om eksamen','Lecture about the exam'])('keeps non-exam wording as structured assessment: %s',async title=>{
+    const semester=await sample('uit'),calendar=new ICAL.Component(ICAL.parse(await fixture('uit.ics'))),event=calendar.getFirstSubcomponent('vevent')
+    event.updatePropertyWithValue('summary',title)
+    const normalized=normalizeTpCalendar(calendar.toString(),scope(semester)),first=components(normalized.calendar)[0]
+    expect(first.getFirstPropertyValue('x-studieplan-activity-kind')).toBe('assessment')
+    expect(parseCalendar(normalized.calendar,{courseId:'test',year:2026,semester:'autumn'}).events[0]).toMatchObject({title,activityKind:'assessment'})
   })
   it('maps HiMolde anonymous JSON events conservatively with stable identity, cancellation and source offsets',async()=>{
     const semester=await sample('himolde'),selected=parseTpCourses(await json('himolde-courses.json'),semester,'himolde').find(row=>row.id==='IBE160¤1')
@@ -132,6 +149,14 @@ describe('public TP semester, course and source-offered calendar export',()=>{
     expect(isPublicTpJsonUrl(result.calendarUrl)).toBe(true)
     expect(isPublicTpCalendarUrl(result.calendarUrl)).toBe(true)
   })
+  it.each([401,403])('keeps anonymous bootstrap HTTP %s unconfirmed rather than asserting an access requirement',async(code)=>{
+    const fetchText=async(input)=>{const url=new URL(input)
+      if(url.pathname.endsWith('semesters.php'))return fixture('himolde-semesters.json')
+      if(url.pathname.endsWith('info.php'))return fixture('himolde-courses.json')
+      throw new Error(`HTTP ${code}. Årsaken er ikke bekreftet`)
+    }
+    await expect(publicTp('himolde','teaching-calendar',{q:'IBE160',year:'2026',semester:'autumn',sourceObjectId:'IBE160¤1'},{fetchText})).rejects.toMatchObject({status:'transport-error'})
+  })
   it('rejects malformed HiMolde JSON without replacing prior teaching and accepts a successful empty source',async()=>{
     const semester=await sample('himolde'),selected=parseTpCourses(await json('himolde-courses.json'),semester,'himolde').find(row=>row.id==='IBE160¤1')
     expect(()=>normalizeTpJsonEvents('{',{institution:'himolde',semester,selected})).toThrow(/lesbar JSON/)
@@ -151,7 +176,12 @@ describe('public TP semester, course and source-offered calendar export',()=>{
     const result=normalizeTpJsonEvents({events:[{...base,dtstart:'2026-11-16T09:00:00+01',dtend:'2026-11-16T12:00:00+01'},{...base,id:'IBE160-MARKER',dtstart:'2026-11-17T09:00:00+01',dtend:'2026-11-17T09:00:00+01'}]},{institution:'himolde',semester,selected}),parsed=parseCalendar(result.calendar,{courseId:'c',semester:'autumn',year:2026})
     expect(result.eventCount).toBe(1)
     expect(parsed.events).toHaveLength(1)
-    expect(parsed.events[0]).toMatchObject({title:'Skoleeksamen',start:'2026-11-16T08:00:00.000Z',end:'2026-11-16T11:00:00.000Z'})
+    expect(parsed.events[0]).toMatchObject({title:'Skoleeksamen',start:'2026-11-16T08:00:00.000Z',end:'2026-11-16T11:00:00.000Z',activityKind:'exam'})
+    const source={id:'tp-source',courseId:'c',name:'TP',groups:[]},course={id:'c',code:'IBE160',name:'IBE160',semester:'autumn',year:2026}
+    const first=mergeImport(emptyPlanner(),parsed.events,source,{course}).planner,stored=first.events[0]
+    const refreshed=mergeImport(first,[{...parsed.events[0],location:'Oppdatert rom'}],source).planner
+    expect(refreshed.events).toHaveLength(1)
+    expect(refreshed.events[0]).toMatchObject({id:stored.id,sourceKey:stored.sourceKey,activityKind:'exam',location:'Oppdatert rom'})
     expect(result.warnings.join(' ')).toContain('null-lange vurderingsmarkører')
     const marker={...base,id:'WRONG-MARKER',courseid:'OTHER',dtstart:'2026-11-17T09:00:00+01',dtend:'2026-11-17T09:00:00+01'}
     expect(()=>normalizeTpJsonEvents({events:[marker]},{institution:'himolde',semester,selected})).toThrow(/kildeidentitet/)

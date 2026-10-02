@@ -1,10 +1,12 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { validateDependencyGraph, canStartTask, actionUrgency, preserveMissingDependencies } from './task-dependencies.js'
+import { validWorkSteps, taskSteps, primaryWorkStep, legacyStepId, completeWorkStep, removeWorkStep } from './work-steps.js'
 
 export function validDeadline(value) {
-  if (typeof value !== 'string' || value.length !== 16 || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return false
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2})?$/.test(value)) return false
   if (Number(value.slice(0, 4)) < 1) return false
   try {
+    if (value.length === 10) return Temporal.PlainDate.from(value).toString() === value
     const plain = Temporal.PlainDateTime.from(value)
     return ['earlier', 'later'].some(disambiguation => plain.toZonedDateTime('Europe/Oslo', { disambiguation }).toPlainDateTime().equals(plain))
   } catch { return false }
@@ -14,7 +16,7 @@ export function validateDraft(draft, id = draft.id) {
   const errors = {}
   if (typeof draft.title !== 'string' || !draft.title.trim()) errors.title = 'Skriv et navn på oppgaven.'
   if (draft.course != null && typeof draft.course !== 'string') errors.course = 'Emne må være tekst.'
-  if (draft.deadlineLocal && !validDeadline(draft.deadlineLocal)) errors.deadlineLocal = 'Oppgi en gyldig dato og et gyldig klokkeslett.'
+  if (draft.deadlineLocal && !validDeadline(draft.deadlineLocal)) errors.deadlineLocal = 'Oppgi en gyldig dato, eventuelt med klokkeslett.'
   const unknown = draft.estimatedMinutes === '' || draft.estimatedMinutes == null
   if (!unknown && !validateAvailableMinutes(draft.estimatedMinutes).ok) errors.estimatedMinutes = 'Oppgi et positivt heltall i minutter, eller la feltet stå tomt.'
   if (draft.remainingMinutes != null && draft.remainingMinutes !== '' && (!/^\d+$/.test(String(draft.remainingMinutes)) || !Number.isSafeInteger(Number(draft.remainingMinutes)))) errors.remainingMinutes = 'Oppgi et heltall på 0 eller mer, eller velg Vet ikke.'
@@ -54,6 +56,7 @@ export function validTasks(tasks) {
       (task.submitted === undefined || typeof task.submitted === 'boolean') &&
       (!task.submitted || (task.requiresSubmission === true && task.completed)) &&
       (task.nextStep == null || validNextStep(task.nextStep)) &&
+      (task.steps === undefined || validWorkSteps(task.steps)) &&
       (task.priority === undefined || [1, 2, 3].includes(task.priority)) &&
       (task.courseId === undefined || typeof task.courseId === 'string') &&
       ['waitingReason', 'taskType', 'importSourceId', 'importEntryKey'].every(key => task[key] === undefined || typeof task[key] === 'string' && task[key].length <= 2000) &&
@@ -96,9 +99,10 @@ export function deleteTask(tasks, id) {
 }
 
 export function sortedTasks(tasks) {
+  const boundary = task => { try { return task.deadlineLocal ? deadlineInstant(task.deadlineLocal) : Infinity } catch { return Infinity } }
   return tasks.map((task, index) => ({ task, index })).sort((a, b) =>
     Number(!a.task.deadlineLocal) - Number(!b.task.deadlineLocal) ||
-    (a.task.deadlineLocal || '').localeCompare(b.task.deadlineLocal || '') ||
+    boundary(a.task) - boundary(b.task) ||
     (b.task.priority ?? 2) - (a.task.priority ?? 2) || a.index - b.index
   ).map(entry => entry.task)
 }
@@ -143,33 +147,62 @@ export function setNextStep(tasks, id, draft) {
   if (!tasks.some(task => task.id === id)) return { ok: false, reason: 'not-found' }
   const result = validateNextStepDraft(draft)
   if (!result.ok) return result
-  return { ok: true, tasks: tasks.map(task => task.id === id ? { ...task, nextStep: result.nextStep } : task) }
-}
-
-export function clearNextStep(tasks, id) {
-  if (!tasks.some(task => task.id === id)) return { ok: false, reason: 'not-found' }
   return { ok: true, tasks: tasks.map(task => {
     if (task.id !== id) return task
-    const updated = { ...task }
+    const current = primaryWorkStep(task)
+    const steps = taskSteps(task)
+    const baseId = legacyStepId(task.id)
+    let stepId = current?.id || baseId
+    if (!current && steps.some(item => item.id === stepId)) { let suffix = 2; while (steps.some(item => item.id === `${baseId}:${suffix}`)) suffix += 1; stepId = `${baseId}:${suffix}` }
+    const step = { id: stepId, title: result.nextStep.description, estimatedMinutes: result.nextStep.estimatedMinutes, completed: false, unblocksWaiting: Boolean(result.nextStep.unblocksWaiting), provenance: current?.provenance || { kind: 'manual' } }
+    const updated = { ...task, steps: current ? steps.map(item => item.id === current.id ? { ...item, ...step } : item) : [...steps, step] }
     delete updated.nextStep
     return updated
   }) }
 }
 
-// Only one active step is kept; completing it makes room for a new step. Neither
-// completion status nor the main estimate or submission flag is changed.
+// Date-only values remain date-only in storage/export. Scheduling uses the
+// exclusive start of the following Oslo day as a calculation boundary only.
+export function deadlineInstant(value) {
+  if (!validDeadline(value)) throw new RangeError('Ugyldig frist.')
+  return value.length === 10
+    ? Temporal.PlainDate.from(value).add({ days: 1 }).toZonedDateTime('Europe/Oslo').toInstant().epochMilliseconds
+    : Temporal.PlainDateTime.from(value).toZonedDateTime('Europe/Oslo', { disambiguation: 'reject' }).toInstant().epochMilliseconds
+}
+
+function deadlineBoundary(value) {
+  try { return value ? deadlineInstant(value) : Infinity } catch { return Infinity }
+}
+
+export function clearNextStep(tasks, id) {
+  const task = tasks.find(item => item.id === id)
+  if (!task) return { ok: false, reason: 'not-found' }
+  const primary = primaryWorkStep(task)
+  if (!primary) return { ok: true, tasks }
+  const result = removeWorkStep(task, primary.id)
+  return result.ok ? { ok: true, tasks: tasks.map(item => item.id === id ? result.task : item) } : result
+}
+
+// Completion retains the step's identity and history. Neither the task's own
+// completion status nor its main estimate or submission flag is changed.
 export function completeNextStep(tasks, id) {
   const task = tasks.find(item => item.id === id)
   if (!task) return { ok: false, reason: 'not-found' }
   if (!task.completed && !canStartTask(task, tasks, { nextStep: true })) return { ok: false, reason: 'blocked' }
-  const result = clearNextStep(tasks, id)
-  if (task.nextStep?.unblocksWaiting) result.tasks = result.tasks.map(item => item.id === id ? { ...item, waitingReason: '' } : item)
+  const active = primaryWorkStep(task)
+  if (!active) return { ok: true, tasks }
+  const completed = completeWorkStep(task, active.id)
+  if (!completed.ok) return completed
+  const result = { ok: true, tasks: tasks.map(item => item.id === id ? completed.task : item) }
+  if (active?.unblocksWaiting) result.tasks = result.tasks.map(item => item.id === id ? { ...item, waitingReason: '' } : item)
   return result
 }
 
 export function getActionMinutes(task) {
-  return task.nextStep?.estimatedMinutes ?? getRemainingRange(task)?.maxMinutes ?? null
+  return primaryWorkStep(task)?.estimatedMinutes ?? getRemainingRange(task)?.maxMinutes ?? null
 }
+
+export { taskSteps, primaryWorkStep }
 
 export function getRemainingMinutes(task) {
   const range = getRemainingRange(task)
@@ -213,31 +246,24 @@ export function validateAvailableMinutes(value) {
   return { ok: true, minutes: Number(value) }
 }
 
-// Calendar arithmetic keeps Monday at local midnight across daylight-saving changes.
-function localMidnightLabel(date) {
-  const pad = value => String(value).padStart(2, '0')
-  return `${String(date.getFullYear()).padStart(4, '0')}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T00:00`
-}
-
 export function weekBounds(now) {
-  const monday = new Date(now)
-  monday.setHours(0, 0, 0, 0)
-  monday.setDate(monday.getDate() - (monday.getDay() + 6) % 7)
-  const nextMonday = new Date(monday)
-  nextMonday.setDate(nextMonday.getDate() + 7)
-  return { start: localMidnightLabel(monday), end: localMidnightLabel(nextMonday) }
+  const today = Temporal.Instant.from(now.toISOString()).toZonedDateTimeISO('Europe/Oslo').toPlainDate()
+  const monday = today.subtract({ days: today.dayOfWeek - 1 })
+  return { start: `${monday}T00:00`, end: `${monday.add({ days: 7 })}T00:00` }
 }
 
 export function tasksThisWeek(tasks, now) {
   const { start, end } = weekBounds(now)
-  return sortedTasks(tasks.filter(task => task.deadlineLocal >= start && task.deadlineLocal < end))
+  const firstDate = start.slice(0, 10), nextDate = end.slice(0, 10)
+  return sortedTasks(tasks.filter(task => task.deadlineLocal && task.deadlineLocal.slice(0, 10) >= firstDate && task.deadlineLocal.slice(0, 10) < nextDate))
 }
 
 export function isOverdue(task, now) {
   if (!task.deadlineLocal) return false
   if (task.completed && (!task.requiresSubmission || task.submitted)) return false
-  const pad = value => String(value).padStart(2, '0')
-  const localMinute = `${localMidnightLabel(now).slice(0, 10)}T${pad(now.getHours())}:${pad(now.getMinutes())}`
+  const oslo = Temporal.Instant.from(now.toISOString()).toZonedDateTimeISO('Europe/Oslo')
+  const localMinute = `${oslo.toPlainDate()}T${String(oslo.hour).padStart(2, '0')}:${String(oslo.minute).padStart(2, '0')}`
+  if (task.deadlineLocal.length === 10) return localMinute.slice(0, 10) > task.deadlineLocal
   // Stored deadlines have no offset: both occurrences of a repeated minute share one wall-clock label.
   return localMinute > task.deadlineLocal || (localMinute === task.deadlineLocal &&
     (now.getSeconds() > 0 || now.getMilliseconds() > 0))
@@ -250,20 +276,21 @@ export function overdueCount(tasks, now) {
 export function selectTasksForMinutes(tasks, minutes, { includePartial = false } = {}) {
   if (!Number.isSafeInteger(minutes) || minutes <= 0) return []
   return tasks.map((task, index) => ({ task, index }))
-    .filter(({ task }) => canStartTask(task, tasks, { nextStep: Boolean(task.nextStep) }) && getRemainingRange(task)?.maxMinutes !== 0 && Number.isSafeInteger(getActionMinutes(task)) && getActionMinutes(task) > 0 && (getActionMinutes(task) <= minutes || includePartial && task.splittable !== false))
+    .filter(({ task }) => canStartTask(task, tasks, { nextStep: Boolean(primaryWorkStep(task)) }) && getRemainingRange(task)?.maxMinutes !== 0 && Number.isSafeInteger(getActionMinutes(task)) && getActionMinutes(task) > 0 && (getActionMinutes(task) <= minutes || includePartial && task.splittable !== false))
     .map(entry => ({ ...entry, urgency: actionUrgency(entry.task, tasks) }))
-    .sort((a, b) => (a.urgency.deadlineLocal || '9999-99').localeCompare(b.urgency.deadlineLocal || '9999-99') || b.urgency.count - a.urgency.count || (b.task.priority ?? 2) - (a.task.priority ?? 2) || a.index - b.index)
+    .sort((a, b) => deadlineBoundary(a.urgency.deadlineLocal) - deadlineBoundary(b.urgency.deadlineLocal) || b.urgency.count - a.urgency.count || (b.task.priority ?? 2) - (a.task.priority ?? 2) || a.index - b.index)
     .map(entry => entry.task)
 }
 
 export function suggestionReason(task, minutes, now = new Date(), index = 0, allTasks = []) {
-  const fit = task.nextStep ? `${getActionMinutes(task) <= minutes ? `Passer innen ${minutes} minutter. ` : ''}Neste steg: «${task.nextStep.description}», ${Math.min(getActionMinutes(task), minutes)} min${getActionMinutes(task) > minutes ? ' som deløkt' : ''}. Hele oppgaven er ikke ferdig etter steget`
+  const activeStep = primaryWorkStep(task)
+  const fit = activeStep ? `${getActionMinutes(task) <= minutes ? `Passer innen ${minutes} minutter. ` : ''}Neste steg: «${activeStep.title || activeStep.description}», ${Math.min(getActionMinutes(task), minutes)} min${getActionMinutes(task) > minutes ? ' som deløkt' : ''}. Hele oppgaven er ikke ferdig etter steget`
     : getActionMinutes(task) > minutes ? `En deløkt på ${minutes} min av ${formatEstimateRange(getRemainingRange(task))} gjenstående arbeid`
       : 'Passer innen ' + minutes + ' minutter'
   const { downstream } = actionUrgency(task, allTasks)
   const downstreamReason = downstream && (!task.deadlineLocal || downstream.deadlineLocal <= task.deadlineLocal)
     ? ` Oppgaven er en forutsetning for «${downstream.title}», med registrert frist ${downstream.deadlineLocal.replace('T', ' kl. ')}.` : ''
-  if (task.waitingReason && task.nextStep?.unblocksWaiting) return `${fit}. Du har registrert dette som handlingen som avklarer: ${task.waitingReason}.${downstreamReason}`
+  if (task.waitingReason && activeStep?.unblocksWaiting) return `${fit}. Du har registrert dette som handlingen som avklarer: ${task.waitingReason}.${downstreamReason}`
   if (downstreamReason) return `${fit}.${downstreamReason}`
   if (isOverdue(task, now)) return fit + ' og har en forfalt frist.'
   if (task.deadlineLocal) {

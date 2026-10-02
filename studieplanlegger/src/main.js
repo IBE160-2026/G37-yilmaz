@@ -1,4 +1,4 @@
-import { emptyPlanner } from './planner.js'
+import { emptyPlanner, validatePersonalActivity } from './planner.js'
 import { createSubjectsView } from './subjects-view.js'
 import './redesign.css'
 import { validateDraft, editTask, deleteTask, setTaskCompleted, setTaskSubmitted,
@@ -19,9 +19,13 @@ import { createOnboarding } from './onboarding.js'
 import { preserveMissingDependencies } from './task-dependencies.js'
 import { rankedSuggestions } from './daily-guidance.js'
 import { createStudySessionView } from './study-session-view.js'
+import { createWorkStepsView } from './work-steps-view.js'
+import { createTextRegistrationView } from './text-registration-view.js'
+import { resolveExactCourse, resolveExactTask, parseOsloDeadline, parseRemainingMinutes } from './text-registration.js'
+import { detachMissingTopicRelations, detachRemovedReviewSessions } from './review-planning.js'
 
 const storage = createStorage()
-let extras = {}, dataTools, sync, workView, replanView, onboarding, studySessionView
+let extras = {}, dataTools, sync, workView, replanView, onboarding, studySessionView, workStepsView, textRegistrationView
 let tasks = []
 let planner
 let subjects
@@ -38,6 +42,7 @@ let view = 'overview'
 let minutes = 30
 let minuteError = ''
 let visibleTasks = []
+let textRegistrationBusy = false
 const ui = createUI({
   closeWork(id, sessionId) { if (canEdit()) { workView.open(id, sessionId); refresh() } },
   start(id) {
@@ -46,6 +51,7 @@ const ui = createUI({
     if (task) { studySessionView.open(task, minutes); refresh() }
   },
   replan(taskId) { if (canEdit()) { replanView.open(taskId ? { taskId } : {}); refresh() } },
+  steps(taskId) { if (canEdit()) { workStepsView.open(taskId); refresh() } },
   saveCalendarPreferences(preferences) {
     if (!canEdit()) return { ok: false }
     const result = commitState({ ...snapshot(), calendarPreferences: preferences }, 'Kalenderinnstillinger', { history: false })
@@ -331,12 +337,12 @@ const ui = createUI({
     ui.message(message, null, planId)
   },
 })
-function hasEditor() { return draftId !== null || stepId !== null || sessionId !== null || Boolean(subjects?.isEditing()) || Boolean(workView?.isOpen()) || Boolean(replanView?.isOpen()) || Boolean(studySessionView?.isOpen()) }
+function hasEditor() { return draftId !== null || stepId !== null || sessionId !== null || Boolean(subjects?.isEditing()) || Boolean(workView?.isOpen()) || Boolean(replanView?.isOpen()) || Boolean(studySessionView?.isOpen()) || Boolean(workStepsView?.isOpen()) }
 function canEdit() { return readable && !hasEditor() }
 function snapshot() { return storage.snapshot() }
 function commitState(candidate, label = 'Studiedata', { history = true } = {}) {
   const before = snapshot()
-  candidate = { ...candidate, tasks: preserveMissingDependencies(candidate.tasks) }
+  candidate = detachRemovedReviewSessions(detachMissingTopicRelations({ ...candidate, tasks: preserveMissingDependencies(candidate.tasks) }))
   if (candidate.workLogs) candidate.workLogs = candidate.workLogs.map(log => {
     const exists = candidate.tasks.some(task => task.id === log.taskId)
     if (exists && log.taskDeleted) { const value = { ...log }; delete value.taskDeleted; return value }
@@ -355,14 +361,77 @@ function commitState(candidate, label = 'Studiedata', { history = true } = {}) {
     tasks = nextTasks; sessions = nextSessions; planner = nextPlanner; extras = rest
     if (history && nextHistory?.undo.at(-1)?.id !== before.history?.undo.at(-1)?.id) dataTools?.changed(nextHistory?.undo.at(-1))
   }
-  return result.ok ? result : { ...result, error: result.reason === 'conflict' ? 'En annen fane har endret dataene. Last inn på nytt før du lagrer.' : 'Kunne ikke lagre. Tidligere data og utkast er beholdt.' }
+  const historyEntryId = history && nextHistory?.undo.at(-1)?.id !== before.history?.undo.at(-1)?.id ? nextHistory.undo.at(-1).id : null
+  return result.ok ? { ...result, historyEntryId } : { ...result, error: result.reason === 'conflict' ? 'En annen fane har endret dataene. Last inn på nytt før du lagrer.' : 'Kunne ikke lagre. Tidligere data og utkast er beholdt.' }
 }
 function writeTasks(candidate, nextPlanner = planner) {
   const changed = tasks.find(task => JSON.stringify(task) !== JSON.stringify(candidate.find(t => t.id === task.id))) || candidate.find(task => !tasks.some(t => t.id === task.id))
   return commitState({ ...snapshot(), tasks: candidate, planner: nextPlanner }, changed ? `Oppgave: ${changed.title}` : 'Oppgave')
 }
+function confirmTextRegistration(proposal) {
+  if (textRegistrationBusy || !readable || hasEditor()) return { ok: false, error: 'En annen redigering pågår. Fullfør eller avbryt den først.' }
+  textRegistrationBusy = true
+  try {
+    const capturedNow = new Date(proposal.referenceTime)
+    const referenceTime = Number.isFinite(+capturedNow) ? capturedNow : new Date()
+    let candidate, savedTitle
+    if (proposal.action === 'activity') {
+      const parsedDate = parseOsloDeadline(proposal.dateInput, referenceTime)
+      if (!parsedDate.ok) return { ok: false, error: parsedDate.error }
+      let activity
+      try { activity = validatePersonalActivity({ id: crypto.randomUUID(), title: proposal.title, dateLocal: parsedDate.deadlineLocal, startLocal: proposal.startLocal, endLocal: proposal.endLocal }) } catch (error) { return { ok: false, error: error.message } }
+      const nextPlanner = { ...(planner || emptyPlanner()), events: [...(planner?.events || []), activity] }
+      const written = commitState({ ...snapshot(), planner: nextPlanner }, `Egen aktivitet: ${activity.title}`)
+      if (!written.ok) return { ok: false, error: written.error || 'Aktiviteten kunne ikke lagres. Forslaget er beholdt.' }
+      planner = nextPlanner; refresh()
+      return { ok: true, undoId: written.historyEntryId, message: `Egen aktivitet «${activity.title}» er lagt til.` }
+    } else if (proposal.action === 'create') {
+      let courseId = proposal.courseId || '', course = String(proposal.course || '').trim()
+      if (['uten emne', 'ikke et emne'].includes(course.toLocaleLowerCase('nb'))) { course = ''; courseId = '' }
+      if (course) {
+        const resolved = resolveExactCourse(planner?.courses || [], course)
+        if (!resolved.ok) return { ok: false, error: resolved.reason === 'ambiguous' ? 'Flere emner matcher nøyaktig. Korriger emnet.' : 'Emnet finnes ikke med nøyaktig kode eller navn.' }
+        courseId = resolved.value.id; course = resolved.value.code || resolved.value.name
+      } else courseId = ''
+      const deadline = proposal.deadlineInput ? parseOsloDeadline(proposal.deadlineInput, referenceTime) : { ok: true, deadlineLocal: '' }
+      if (!deadline.ok) return { ok: false, error: deadline.error }
+      const remaining = proposal.remainingInput ? parseRemainingMinutes(proposal.remainingInput) : { ok: true, minutes: undefined }
+      if (!remaining.ok) return { ok: false, error: remaining.error }
+      let id; do { id = crypto.randomUUID() } while (tasks.some(task => task.id === id))
+      const checked = validateDraft({ id, title: proposal.title, course, courseId, deadlineLocal: deadline.deadlineLocal, estimatedMinutes: null, ...(remaining.minutes === undefined ? {} : { remainingMinutes: remaining.minutes }) })
+      if (!checked.ok) return { ok: false, error: Object.values(checked.errors)[0] }
+      candidate = [...tasks, checked.task]; savedTitle = checked.task.title
+    } else {
+      let saved = tasks.find(task => task.id === proposal.taskId)
+      if (!saved && proposal.taskTitle) {
+        const resolved = resolveExactTask(tasks, proposal.taskTitle)
+        if (!resolved.ok) return { ok: false, error: resolved.reason === 'ambiguous' ? 'Flere oppgaver har dette navnet. Lag et nytt forslag og velg riktig oppgave.' : 'Oppgaven finnes ikke lenger med samme identitet. Lag et nytt forslag.' }
+        saved = resolved.value
+      }
+      const selectedChoice = proposal.taskChoices?.find(choice => choice.id === proposal.taskId), namedTarget = selectedChoice ? null : resolveExactTask(tasks, proposal.taskTitle)
+      const validIdentity = saved && (selectedChoice ? saved.title === selectedChoice.title : namedTarget.ok && namedTarget.value.id === saved.id)
+      if (!validIdentity) return { ok: false, error: 'Oppgaven finnes ikke lenger med samme identitet. Lag et nytt forslag.' }
+      const key = proposal.action === 'deadline' ? 'deadlineLocal' : 'remainingMinutes'
+      const currentValue = saved[key] ?? (key === 'deadlineLocal' ? '' : null), expectedOld = proposal.oldValue === undefined ? currentValue : proposal.oldValue
+      if (currentValue !== expectedOld) return { ok: false, error: 'Verdien er endret siden forslaget ble laget. Lag et nytt forslag.' }
+      if (!(proposal.action === 'deadline' ? proposal.deadlineInput : proposal.remainingInput)?.trim()) return { ok: true, undoable: false, message: 'Ingen endring å lagre.' }
+      const parsed = proposal.action === 'deadline' ? parseOsloDeadline(proposal.deadlineInput, referenceTime) : parseRemainingMinutes(proposal.remainingInput)
+      if (!parsed.ok) return { ok: false, error: parsed.error }
+      const nextValue = proposal.action === 'deadline' ? parsed.deadlineLocal : parsed.minutes
+      if (currentValue === nextValue) return { ok: true, undoable: false, message: 'Ingen endring å lagre.' }
+      const draft = { ...saved, [key]: nextValue, estimatedMinutes: saved.estimatedMinutes == null ? '' : String(saved.estimatedMinutes), remainingMinutes: key === 'remainingMinutes' ? nextValue : saved.remainingMinutes }
+      const checked = editTask(tasks, saved.id, draft)
+      if (!checked.ok) return { ok: false, error: Object.values(checked.errors || {})[0] || 'Endringen er ikke gyldig.' }
+      candidate = checked.tasks; savedTitle = saved.title
+    }
+    const written = writeTasks(candidate)
+    if (!written.ok) return { ok: false, error: written.error || 'Endringen kunne ikke lagres. Forslaget er beholdt.' }
+    tasks = candidate; refresh()
+    return { ok: true, undoId: written.historyEntryId, message: proposal.action === 'create' ? `Oppgaven «${savedTitle}» er opprettet.` : `Oppgaven «${savedTitle}» er oppdatert.` }
+  } finally { textRegistrationBusy = false }
+}
 function persistAction(result, id, action, message, stepActionId = null) {
-  if (!result.ok) { refresh(); return }
+  if (!result.ok) { refresh(); if (result.error) { ui.focusTask(id, action); ui.taskMessage(id, result.error) }; return }
   if (!writeTasks(result.tasks).ok) {
     refresh()
     ui.focusTask(id, action)
@@ -390,9 +459,21 @@ function refresh() {
   subjects?.render({ tasks, planner, view, now, minutes, minuteError, readable })
   const model = { ...extras, planner, courseFilter, tasks, sessions, capacity: deriveCapacity(tasks, sessions || [], now, planner?.events || [], extras), readable, visibleTasks, candidates, view, now, minutes, minuteError, showAlternatives, editing: hasEditor() }
   ui.render(model)
+  textRegistrationView?.render(model)
   onboarding?.render(model)
   dataTools?.render(model)
 }
+textRegistrationView = createTextRegistrationView(document.querySelector('#text-registration'), {
+  confirm: confirmTextRegistration,
+  undo(expectedId) {
+    if (!expectedId || extras.history?.undo.at(-1)?.id !== expectedId) return { ok: false, error: 'En nyere endring er lagret. Bruk vanlig angre for den nyeste endringen.' }
+    const result = undoLast(snapshot(), extras.history || emptyHistory())
+    if (!result.ok) return { ok: false, error: 'Det finnes ingen endring å angre.' }
+    const saved = commitState({ ...result.state, history: result.history }, 'Angre tekstregistrering', { history: false })
+    if (saved.ok) refresh()
+    return saved
+  },
+})
 function read() {
   const result = storage.read()
   readable = result.ok
@@ -475,6 +556,7 @@ workView = createWorkLogView({ state: snapshot, commit: commitState, onClose: re
 replanView = createReplanningView({ state: snapshot, commit: commitState, onClose: refresh,
   advanced() { view = 'capacity'; refresh(); document.querySelector('.work-window-form input[name=startLocal]')?.focus() } })
 studySessionView = createStudySessionView({ onClose: refresh, finish(taskId, plannedMinutes, stepOnly) { workView.open(taskId, undefined, 'done', { plannedMinutes, stepOnly }); refresh() } })
+workStepsView = createWorkStepsView({ state: snapshot, commit: commitState, onClose: refresh })
 onboarding = createOnboarding({
   begin() { if (!extras.onboarding) commitState({ ...snapshot(), onboarding: { dismissed: false, completed: false } }, 'Startet oppstart', { history: false }) },
   dismiss(completed) { if (commitState({ ...snapshot(), onboarding: { dismissed: true, completed } }, 'Oppstart satt på pause', { history: false }).ok) refresh() },

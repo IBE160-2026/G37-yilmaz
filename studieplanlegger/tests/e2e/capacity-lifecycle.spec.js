@@ -32,7 +32,7 @@ test('every task lifecycle action preserves study sessions, including a failed a
     await page.locator('#step-description').fill(description)
     await page.locator('#step-estimatedMinutes').fill('15')
     await page.locator('#step-form').getByRole('button', { name: 'Lagre neste steg', exact: true }).click()
-    return { ...parent, nextStep: { description, estimatedMinutes: 15 } }
+    return { ...parent, steps: [{ id: `${parent.id}:legacy-next-step`, title: description, estimatedMinutes: 15, completed: false, provenance: { kind: 'manual' } }] }
   }
 
   await freeze(page, '2026-09-07T09:00:00+02:00')
@@ -73,16 +73,18 @@ test('every task lifecycle action preserves study sessions, including a failed a
   await openMenu(page, parent.title)
   await action('Fjern neste steg').click()
   await expect(row(page, parent.title).locator('.next-step-box')).toBeHidden()
-  expect(await assertState([parent])).toBe(initialCapacity)
+  const withoutStep = { ...parent, steps: [] }
+  expect(await assertState([withoutStep])).toBe(initialCapacity)
   expect(await writes(page)).toHaveLength(attemptsBeforeFailure + 2)
 
   const secondStep = await addStep('Lag en disposisjon')
   expect(await assertState([secondStep])).toBe(initialCapacity)
   await action('Neste steg gjort').click()
-  expect(await assertState([parent])).toBe(initialCapacity)
+  expect(await assertState([{ ...secondStep, steps: secondStep.steps.map(step => ({ ...step, completed: true })) }])).toBe(initialCapacity)
   await openMenu(page, parent.title)
   await completed().check()
-  const ready = { ...parent, completed: true, remainingMinutes: 0 }
+  const completedSteps = secondStep.steps.map(step => ({ ...step, completed: true }))
+  const ready = { ...parent, steps: completedSteps, completed: true, remainingMinutes: 0 }
   await assertState([ready], doneSummary)
   await expect(row(page, parent.title)).toContainText('Klar til levering')
   await action('Bekreft levert').click()
@@ -97,11 +99,12 @@ test('every task lifecycle action preserves study sessions, including a failed a
   await action('Rediger').click()
   await page.locator('#remainingMinutes').fill('90')
   await save(page).click()
-  expect(await assertState([parent])).toBe(initialCapacity)
+  const reopened = { ...parent, steps: completedSteps }
+  expect(await assertState([reopened])).toBe(initialCapacity)
 
   const beforeReload = await raw(page)
   await page.reload()
-  expect(await assertState([parent])).toBe(initialCapacity)
+  expect(await assertState([reopened])).toBe(initialCapacity)
   expect(await raw(page)).toBe(beforeReload)
   expect(await writes(page)).toEqual([])
 })

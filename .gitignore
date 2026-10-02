@@ -78,6 +78,10 @@ traces/
 *.log
 
 # Locally archived historical delivery material (kept outside Git after 2026-09-20 cleanup)
+/.tmp/
+/.review-*/
+/local-archives/
+/*.zip
 /.docs/implementation-artifacts/assistant-reflection-support.md
 /.docs/implementation-artifacts/assistant-trial-report.md
 /.docs/implementation-artifacts/project-reflection.md

@@ -97,6 +97,15 @@ describe('simple study-time contract', () => {
     expect(applied.state.tasks[0].remainingEstimate).toEqual({ minMinutes: 60, maxMinutes: 120 })
   })
 
+  it('plans the earlier timed boundary before a date-only deadline on the same Oslo date', () => {
+    const before = state({
+      tasks: [task('date', { remainingMinutes: 30, deadlineLocal: '2026-09-26' }), task('timed', { remainingMinutes: 30, deadlineLocal: '2026-09-26T12:00' })],
+      workWindows: [{ id: 'morning', start: '2026-09-26T08:00:00Z', end: '2026-09-26T09:10:00Z' }],
+    })
+    const preview = createReplan(before, { now })
+    expect(preview.proposed.map(session => session.taskId)).toEqual(['timed', 'date'])
+  })
+
   it('rejects a preview after task, calendar or preference state changes', () => {
     const before = state({ tasks: [task('task', { remainingMinutes: 30 })] })
     const preview = createReplan(before, { now, availability: availabilityFor(before, { now, choice: 'weekend' }), taskIds: ['task'] })

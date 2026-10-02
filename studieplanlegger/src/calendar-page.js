@@ -5,14 +5,17 @@ import { calendarAxis, axisSegments } from './calendar-axis.js'
 import { courseColor, formatDay, formatDeadline } from './calendar.js'
 import './calendar-page.css'
 import { createCalendarViewport } from './calendar-viewport.js'
+import { calendarExportItems, calendarExportOmissions, downloadCalendarIcs } from './calendar-export.js'
+import { nameFirstLabel, sortByVisibleName } from './name-sort.js'
+import { normalizeCalendarPreferences } from './calendar-preferences.js'
 
 const names = { day: 'Dag', week: 'Uke', month: 'Måned', agenda: 'Agenda' }
-const kinds = { teaching: 'Undervisning', deadline: 'Frist', session: 'Studieøkt', work: 'Arbeidstid', busy: 'Opptatt', information: 'Informasjon' }
+const kinds = { teaching: 'Undervisning', personal: 'Egen aktivitet', deadline: 'Oppgavefrist', session: 'Studieøkt', work: 'Arbeidstid', busy: 'Opptatt', information: 'Informasjon' }
 const el = (tag, text, className) => { const node = document.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node }
 const button = (text, fn, className = 'secondary') => { const node = el('button', text, className); node.type = 'button'; node.onclick = fn; return node }
 export function createCalendarPage(actions) {
   let model, entries = [], signature = '', opener, pageScroll, viewportScroll, revealContent = false, preferencesSignature = 'null'
-  const defaults = () => ({ version: 1, view: matchMedia('(max-width: 760px)').matches ? 'day' : 'week', weekMode: 'full', date: calendarToday(model?.now), courseId: '', kinds: Object.keys(kinds), scroll: {}, completed: false, cancelled: false })
+  const defaults = () => ({ version: 2, view: matchMedia('(max-width: 760px)').matches ? 'day' : 'week', weekMode: 'full', date: calendarToday(model?.now), courseId: '', kinds: Object.keys(kinds), scroll: {}, completed: false, cancelled: false })
   let state = defaults()
   const host = el('section', null, 'calendar-page panel'); host.id = 'full-calendar'; host.hidden = true
   document.querySelector('.work-area').prepend(host)
@@ -25,6 +28,38 @@ export function createCalendarPage(actions) {
   const previous = button('Forrige', () => move(-1)), following = button('Neste', () => move(1))
   previous.setAttribute('aria-label', 'Forrige periode'); following.setAttribute('aria-label', 'Neste periode')
   toolbar.append(previous, button('I dag', () => change({ date: calendarToday(model.now) })), following, dateLabel)
+  const exportDialog = el('dialog', null, 'editor-dialog connected-dialog calendar-export-dialog'); document.body.append(exportDialog)
+  const exportFeedback = el('span', null, 'calendar-export-feedback'); exportFeedback.setAttribute('role', 'status'); exportFeedback.setAttribute('aria-live', 'polite')
+  const exportButton = button('Eksporter kalender', () => {
+    const dates = calendarRange(state.date, state.view, state.weekMode)
+    exportDialog.innerHTML = `<h2 id="calendar-export-heading">Eksporter kalenderkopi</h2><p>Valgt periode: <strong>${dates[0]}–${dates.at(-1)}</strong>.</p><label><input name="sessions" type="checkbox" checked>Studieøkter</label><label><input name="deadlines" type="checkbox" checked>Frister</label><label><input name="teaching" type="checkbox">Undervisning</label><label><input name="personal" type="checkbox">Egne aktiviteter</label><p class="muted">Dette er en kopi, ikke synkronisering. Import i en ekstern kalender kan lage duplikater ved gjentatt import.</p><p role="alert"></p><div class="actions"><button type="button" data-download>Last ned .ics</button><button type="button" class="secondary" data-cancel>Avbryt</button></div>`
+    exportDialog.querySelector('h2').textContent = 'Eksporter kalender'
+    const alert = exportDialog.querySelector('[role=alert]')
+    const exportStatus = el('p'); exportStatus.dataset.exportStatus = ''; exportStatus.setAttribute('role', 'status'); alert.before(exportStatus)
+    const omissions = el('ul'); omissions.dataset.exportOmissions = ''; omissions.setAttribute('aria-label', 'Utelatte frister'); alert.before(omissions)
+    exportDialog.setAttribute('aria-labelledby', 'calendar-export-heading')
+    exportDialog.querySelector('[data-cancel]').onclick = () => { exportDialog.close(); exportButton.focus() }
+    const exportOptions = () => ({ from: dates[0], to: dates.at(-1), includeSessions: exportDialog.querySelector('[name=sessions]').checked, includeDeadlines: exportDialog.querySelector('[name=deadlines]').checked, includeTeaching: exportDialog.querySelector('[name=teaching]').checked, includePersonal: exportDialog.querySelector('[name=personal]').checked })
+    const updateExportStatus = () => {
+      const options = exportOptions(), count = calendarExportItems(model, options).length, omitted = calendarExportOmissions(model, options)
+      const countText = count ? `${count} ${count === 1 ? 'aktivitet' : 'aktiviteter'} blir eksportert.` : 'Ingen aktiviteter finnes i valgt periode med valgte typer.'
+      const omittedText = omitted.length ? ` ${omitted.length} ${omitted.length === 1 ? 'frist er' : 'frister er'} utelatt. Se årsaken for hver frist nedenfor.` : ''
+      exportStatus.textContent = countText + omittedText
+      omissions.replaceChildren(...omitted.map(item => el('li', `${item.title || 'Oppgave uten tittel'} (${item.deadlineLocal}): ${item.reason}`)))
+      omissions.hidden = !omitted.length
+      exportDialog.querySelector('[data-download]').disabled = count === 0
+    }
+    exportDialog.querySelectorAll('input[type=checkbox]').forEach(control => control.addEventListener('change', updateExportStatus))
+    exportDialog.querySelector('[data-download]').onclick = () => {
+      try {
+        downloadCalendarIcs(model, exportOptions())
+        exportDialog.close(); exportFeedback.textContent = 'Kalenderfil lastet ned. Dette er en kopi, ikke synkronisering.'; exportButton.focus()
+      } catch { exportDialog.querySelector('[role=alert]').textContent = 'Kalenderfilen kunne ikke lages. Ingen data er endret.' }
+    }
+    updateExportStatus(); exportDialog.showModal(); exportDialog.querySelector('[name=sessions]').focus()
+  })
+  exportButton.title = 'Laster ned valgte lagrede oppføringer. Filen er en kopi og synkroniseres ikke.'
+  toolbar.append(exportButton, exportFeedback)
   const weekLabel = el('label', 'Ukedager'), weekSelect = el('select'); weekSelect.id = 'calendar-week-mode'
   weekSelect.append(new Option('Hele uken', 'full'), new Option('Arbeidsuke', 'workweek')); weekLabel.append(weekSelect); toolbar.append(weekLabel)
   weekSelect.onchange = () => change({ weekMode: weekSelect.value })
@@ -59,12 +94,14 @@ export function createCalendarPage(actions) {
     if (host.hidden) return
     const nav = document.querySelector('.view-actions'), mobile = nav && getComputedStyle(nav).position === 'fixed'
     const bottom = mobile ? nav.getBoundingClientRect().top : innerHeight
+    const documentTop = viewport.getBoundingClientRect().top + scrollY
     const minimum = Math.min(240, innerHeight * .35)
-    if (reveal && bottom - viewport.getBoundingClientRect().top - 12 < minimum) {
+    const available = bottom - documentTop - 12
+    if (reveal && available < minimum) {
       viewport.style.height = `${minimum}px`
       window.scrollBy({ top: viewport.getBoundingClientRect().top - (bottom - minimum - 12), behavior: 'instant' })
     }
-    viewport.style.height = `${Math.max(100, bottom - viewport.getBoundingClientRect().top - 12)}px`
+    viewport.style.height = `${Math.max(minimum, available)}px`
   }
   window.addEventListener('resize', layout)
   host.addEventListener('toggle', layout, true)
@@ -83,33 +120,35 @@ export function createCalendarPage(actions) {
   dialog.addEventListener('cancel', event => { event.preventDefault(); closeDetails() })
   function showDetails(entry, control) {
     opener = control; pageScroll = { x: scrollX, y: scrollY }; viewportScroll = { x: viewport.scrollLeft, y: viewport.scrollTop }
-    dialog.replaceChildren(el('p', kinds[entry.kind], 'eyebrow'), el('h2', entry.title)); dialog.querySelector('h2').id = 'calendar-details-title'; dialog.setAttribute('aria-labelledby', 'calendar-details-title')
+    dialog.replaceChildren(el('p', entry.isExam ? '📝 Eksamen' : kinds[entry.kind], 'eyebrow'), el('h2', entry.title)); dialog.classList.toggle('is-exam', Boolean(entry.isExam)); dialog.classList.toggle('is-personal', entry.kind === 'personal'); dialog.querySelector('h2').id = 'calendar-details-title'; dialog.setAttribute('aria-labelledby', 'calendar-details-title')
     const course = model.planner?.courses.find(c => c.id === entry.courseId)
-    const dateFormat = new Intl.DateTimeFormat('nb-NO', { dateStyle: 'full', timeStyle: 'short', timeZone: OSLO })
-    dialog.append(el('p', course ? `${course.code} ${course.name}` : entry.course || 'Emne ikke oppgitt'))
-    dialog.append(el('p', entry.warning ? formatDeadline(entry.local, { year: true }) : entry.point ? dateFormat.format(new Date(entry.start)) : `${dateFormat.format(new Date(entry.start))} - ${dateFormat.format(new Date(entry.end))}`), el('p', `${timeLabel(entry)} · Europe/Oslo`), el('p', entry.location || 'Sted ikke oppgitt'))
+    const dateFormat = new Intl.DateTimeFormat('nb-NO', { dateStyle: 'full', timeStyle: 'short', timeZone: OSLO }), dateOnlyFormat = new Intl.DateTimeFormat('nb-NO', { dateStyle: 'full', timeZone: OSLO })
+    dialog.append(el('p', course ? `${course.code} ${course.name}` : entry.kind === 'personal' ? 'Uten emne' : entry.course || 'Emne ikke oppgitt'))
+    dialog.append(el('p', entry.warning ? formatDeadline(entry.local, { year: true }) : entry.point && entry.allDay ? dateOnlyFormat.format(new Date(entry.start)) : entry.point ? dateFormat.format(new Date(entry.start)) : `${dateFormat.format(new Date(entry.start))} - ${dateFormat.format(new Date(entry.end))}`), el('p', `${timeLabel(entry)} · Europe/Oslo`), el('p', entry.location || 'Sted ikke oppgitt'))
     if (!entry.point && !entry.warning) dialog.append(el('p', `Faktisk varighet: ${(entry.end - entry.start) / 60000} minutter.`))
     for (const text of [entry.warning, entry.cancelled ? 'Avlyst i kilden' : '', entry.description, entry.notes, entry.conflict?.message]) if (text) dialog.append(el('p', text))
     const controls = el('div', null, 'actions')
-    const edit = entry.kind === 'deadline' ? () => actions.edit(entry.id) : entry.kind === 'session' ? () => actions.editSession(entry.id) : ['teaching', 'information'].includes(entry.kind) ? () => actions.editEvent(entry.id) : () => actions.view('capacity')
+    const edit = entry.kind === 'deadline' ? () => actions.edit(entry.id) : entry.kind === 'session' ? () => actions.editSession(entry.id) : ['teaching', 'information', 'personal'].includes(entry.kind) ? () => actions.editEvent(entry.id) : () => actions.view('capacity')
     controls.append(button('Rediger', () => { closeDetails(); edit() }), button('Lukk detaljer', closeDetails)); dialog.append(controls); dialog.showModal(); controls.lastChild.focus({ preventScroll: true })
   }
   function entryButton(entry, date, compact = false) {
-    const control = button('', () => showDetails(entry, control), `calendar-entry entry-${entry.kind}${entry.cancelled ? ' is-cancelled' : ''}${entry.point ? ' is-point' : ''}`)
+    const unassigned = entry.kind === 'personal' || entry.kind === 'deadline' && !entry.courseId && !entry.course && !entry.courseCode
+    const control = button('', () => showDetails(entry, control), `calendar-entry entry-${entry.kind}${entry.cancelled ? ' is-cancelled' : ''}${entry.point ? ' is-point' : ''}${entry.isExam ? ' is-exam' : ''}${unassigned ? ' is-unassigned' : ''}`)
     control.dataset.calendarKey = entry.key
     control.dataset.calendarFocusKey = entry.key
     const course = model.planner?.courses.find(c => c.id === entry.courseId), code = course?.code || entry.courseCode || '', context = [code || course?.name || entry.course, entry.location].filter(Boolean).join(' · ')
     if (code) control.style.setProperty('--course-color', courseColor(code))
     const when = date ? `${formatDay(date, { year: true })} · ${timeLabel(entry)}` : timeLabel(entry)
-    const kindLabel = `${kinds[entry.kind]}${context ? ` · ${context}` : ''}`
+    const kindLabel = `${entry.isExam ? '📝 Eksamen' : kinds[entry.kind]}${context ? ` · ${context}` : ''}`
     const whenClass = compact ? 'entry-time entry-time-compact' : 'entry-time'
     const title = code && !entry.title.toLocaleUpperCase('nb').startsWith(code.toLocaleUpperCase('nb')) ? `${code} · ${entry.title}` : entry.title
-    control.append(el('span', when, whenClass), el('strong', title), el('span', kindLabel, 'entry-kind'))
+    if (entry.isExam) control.append(el('span', '📝 Eksamen', 'exam-badge'), ...(code ? [el('span', code, 'exam-course')] : []), el('strong', entry.title), el('span', when, whenClass), el('span', context, 'entry-kind'))
+    else control.append(el('span', when, whenClass), el('strong', title), el('span', kindLabel, 'entry-kind'))
     if (compact) control.classList.add('is-short')
     const continuation = [entry.start < entry.clippedStart ? 'Fortsetter fra forrige dag' : '', entry.end > entry.clippedEnd ? 'Fortsetter neste dag' : ''].filter(Boolean).join(' · ')
     if (continuation) control.append(el('span', continuation, 'entry-continuation'))
-    control.title = `${kinds[entry.kind]}: ${entry.title}. ${when}. ${kindLabel}`
-    const description = `${kinds[entry.kind]}: ${entry.title}. ${when}. ${kindLabel}${continuation ? `. ${continuation}` : ''}`
+    control.title = `${entry.isExam ? 'Eksamen' : kinds[entry.kind]}: ${entry.title}. ${when}. ${kindLabel}`
+    const description = `${entry.isExam ? 'Eksamen' : kinds[entry.kind]}: ${entry.title}. ${when}. ${kindLabel}${continuation ? `. ${continuation}` : ''}`
     control.setAttribute('aria-label', compact ? `Kort varighet: ${description}` : description)
     return control
   }
@@ -150,8 +189,9 @@ export function createCalendarPage(actions) {
   }
   function render(next) {
     if (!next) return; model = next
-    const incomingPreferences = JSON.stringify(model.calendarPreferences || null)
-    if (incomingPreferences !== preferencesSignature) { preferencesSignature = incomingPreferences; state = model.calendarPreferences ? structuredClone(model.calendarPreferences) : defaults(); dateInput.value = state.date }
+    const normalizedPreferences = normalizeCalendarPreferences(model.calendarPreferences)
+    const incomingPreferences = JSON.stringify(normalizedPreferences || null)
+    if (incomingPreferences !== preferencesSignature) { preferencesSignature = incomingPreferences; state = normalizedPreferences || defaults(); dateInput.value = state.date }
     host.hidden = model.view !== 'calendar' || !model.readable
     if (host.hidden || dialog.open || host.querySelector('.calendar-short-chooser[open]')) return
     const nextSignature = JSON.stringify([model.tasks, model.sessions, model.planner, model.workWindows, model.busyWindows, state.view, state.weekMode, state.date, state.courseId, state.kinds, state.completed, state.cancelled])
@@ -159,7 +199,7 @@ export function createCalendarPage(actions) {
     const previousFocus = document.activeElement?.dataset.calendarFocusKey
     entries = calendarEntries(model)
     const all = el('option', 'Alle emner'); all.value = ''; courseSelect.replaceChildren(all)
-    for (const course of model.planner?.courses || []) { const choice = el('option', `${course.code} ${course.name}`); choice.value = course.id; courseSelect.append(choice) }
+    for (const course of sortByVisibleName(model.planner?.courses || [])) { const choice = el('option', nameFirstLabel(course)); choice.value = course.id; courseSelect.append(choice) }
     if (!(model.planner?.courses || []).some(c => c.id === state.courseId)) state.courseId = ''
     courseSelect.value = state.courseId
     for (const mode of modes.children) mode.setAttribute('aria-pressed', String(mode.dataset.calendarView === state.view))

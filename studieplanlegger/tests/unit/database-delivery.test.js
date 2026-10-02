@@ -92,7 +92,7 @@ describe('SQLite state repository', () => {
     expect(upgraded.db.prepare("PRAGMA foreign_key_list('tasks')").all().length).toBeGreaterThan(0)
     expect(upgraded.db.prepare('PRAGMA foreign_keys').get().foreign_keys).toBe(1)
     expect(upgraded.db.prepare('PRAGMA foreign_key_check').all()).toEqual([])
-    expect(upgraded.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }])
+    expect(upgraded.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }, { version: 4 }, { version: 5 }])
     expect(upgraded.db.prepare('SELECT applied_at FROM schema_migrations WHERE version=1').get().applied_at).toBe('2026-09-01T08:00:00Z')
     expect(upgraded.db.prepare('SELECT revision,updated_at FROM state_meta').get()).toEqual({ revision: 7, updated_at: '2026-09-01T08:00:00Z' })
     expect(upgraded.db.prepare('SELECT provider,source_record_id FROM courses WHERE id=?').get('course')).toEqual({ provider: 'legacy-provider', source_record_id: 'legacy-course' })
@@ -103,7 +103,7 @@ describe('SQLite state repository', () => {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const reopened = new StateDatabase(filename)
       expect(reopened.read()).toEqual(expected)
-      expect(reopened.db.prepare('SELECT version FROM schema_migrations').all()).toHaveLength(3)
+      expect(reopened.db.prepare('SELECT version FROM schema_migrations').all()).toHaveLength(5)
       reopened.close()
     }
   })
@@ -159,7 +159,7 @@ describe('SQLite state repository', () => {
     expect(upgraded.read()).toEqual({ revision: 1, envelope: expected })
     expect(upgraded.db.prepare("PRAGMA table_info('state_meta')").all().some(column => column.name === 'shape_json')).toBe(true)
     expect(upgraded.db.prepare("PRAGMA foreign_key_list('tasks')").all().length).toBeGreaterThan(0)
-    expect(upgraded.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }])
+    expect(upgraded.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }, { version: 4 }, { version: 5 }])
     upgraded.close()
 
     const reopened = new StateDatabase(filename)
@@ -174,7 +174,7 @@ describe('SQLite state repository', () => {
     expect(db.db.prepare("PRAGMA foreign_key_list('tasks')").all().length).toBeGreaterThan(0)
     expect(db.db.prepare('PRAGMA foreign_keys').get().foreign_keys).toBe(1)
     expect(db.db.prepare('PRAGMA foreign_key_check').all()).toEqual([])
-    expect(db.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }])
+    expect(db.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }, { version: 4 }, { version: 5 }])
     db.close()
   })
 
@@ -191,6 +191,40 @@ describe('SQLite state repository', () => {
     expect(() => db.db.prepare("INSERT INTO sessions(id,position,task_id,payload_json) VALUES('bad',99,'missing','{}')").run()).toThrow()
     expect(db.db.prepare('SELECT provider FROM courses WHERE id=?').get('course').provider).toBeNull()
     db.close()
+  })
+
+  it('preserves completed review session identities without a dangling live-session foreign key', () => {
+    const { db, filename } = database(), expected = state()
+    const session = { ...expected.sessions[0], reviewKey: 'review:topic:assessment', reviewTopicId: 'topic' }
+    expected.sessions = [session]
+    expected.topics = [{ id: 'topic', title: 'Synthetic review topic', taskId: 'first' }]
+    expected.assessments = [{ id: 'assessment', topicId: 'topic', sessionId: session.id, rating: 1, assessedAt: '2026-09-21T08:00:00.000Z' }]
+    expected.reviewDecisions = [{ id: 'decision', assessmentId: 'assessment', reviewKey: session.reviewKey,
+      status: 'approved', decidedAt: '2026-09-21T08:00:00.000Z', sessionId: session.id }]
+    try {
+      db.save(expected, 0)
+      expect(db.db.prepare('SELECT session_id FROM review_decisions').get().session_id).toBe(session.id)
+
+      expected.sessions = []
+      expected.workLogs = [{ id: 'completed-review', operationId: 'synthetic-closeout', taskId: 'first',
+        sessionId: session.id, sessionSnapshot: structuredClone(session), taskSnapshot: structuredClone(expected.tasks[0]),
+        at: '2026-09-22T08:30:00.000Z', outcome: 'done', actualMinutes: 30, plannedMinutes: 30,
+        remainingMinutes: 0, interrupted: false, historyComplete: false }]
+      expect(db.save(expected, 1)).toEqual({ revision: 2, envelope: expected })
+      expect(db.db.prepare('SELECT session_id,payload_json FROM review_decisions').get()).toEqual({
+        session_id: null, payload_json: JSON.stringify(expected.reviewDecisions[0]),
+      })
+      expect(db.db.prepare('PRAGMA foreign_key_check').all()).toEqual([])
+      expect(db.db.prepare('PRAGMA integrity_check').all()).toEqual([{ integrity_check: 'ok' }])
+    } finally { db.close() }
+
+    const reopened = new StateDatabase(filename)
+    try {
+      expect(reopened.read()).toEqual({ revision: 2, envelope: expected })
+      expect(reopened.db.prepare('SELECT session_id FROM review_decisions').get().session_id).toBeNull()
+      expect(reopened.db.prepare('PRAGMA foreign_key_check').all()).toEqual([])
+      expect(reopened.db.prepare('PRAGMA integrity_check').all()).toEqual([{ integrity_check: 'ok' }])
+    } finally { reopened.close() }
   })
 
   it('migrates one exact browser envelope once, archives raw input and survives reopen', () => {
@@ -227,6 +261,10 @@ describe('SQLite state repository', () => {
     const changed = { ...expected, tasks: expected.tasks.map(value => ({ ...value, title: `${value.title} (endret)` })) }
     db.save(changed, 1, { snapshot: true })
     expect(db.recovery().data).toEqual(expected)
+    expect(() => db.purge(2)).toThrow('unreadable-legacy-archive:invalid')
+    expect(db.read().envelope.workLogs).toEqual([log])
+    expect(db.recovery().data.workLogs).toEqual([log])
+    db.db.prepare("DELETE FROM legacy_archives WHERE fingerprint='invalid'").run()
     const purged = db.purge(2)
     expect(purged.envelope.workLogs).toBeUndefined()
     expect(purged.envelope.history).toEqual({ version: 1, undo: [], trash: [] })
@@ -234,11 +272,10 @@ describe('SQLite state repository', () => {
     expect(db.recovery().data.history).toEqual({ version: 1, undo: [], trash: [] })
     for (const row of db.db.prepare('SELECT payload_json FROM recovery_snapshots').all()) expect(JSON.parse(row.payload_json).workLogs).toBeUndefined()
     const archives = db.db.prepare('SELECT fingerprint,raw FROM legacy_archives ORDER BY fingerprint').all()
-    for (const row of archives.filter(row => row.fingerprint !== 'invalid')) {
+    for (const row of archives) {
       expect(JSON.parse(row.raw).workLogs).toBeUndefined()
       expect(JSON.parse(row.raw).history).toEqual({ version: 1, undo: [], trash: [] })
     }
-    expect(archives.find(row => row.fingerprint === 'invalid').raw).toBe('not-json')
     db.close()
   })
 
@@ -295,7 +332,7 @@ describe('SQLite state repository', () => {
     expect(upgraded.read()).toEqual({ revision: 1, envelope: expected })
     expect(upgraded.db.prepare("PRAGMA foreign_key_list('tasks')").all().length).toBeGreaterThan(0)
     expect(upgraded.db.prepare('PRAGMA foreign_key_check').all()).toEqual([])
-    expect(upgraded.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }])
+    expect(upgraded.db.prepare('SELECT version FROM schema_migrations ORDER BY version').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }, { version: 4 }, { version: 5 }])
     upgraded.close()
   })
 })

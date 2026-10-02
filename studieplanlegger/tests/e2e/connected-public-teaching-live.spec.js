@@ -66,6 +66,14 @@ for (const [institution, code, objectLabel, width, expectedSourceObjectId] of sa
     await expect(groups.first()).toBeVisible()
     const labelsDoNotOverlap = await preview.locator('.activity-choices label').evaluateAll(labels => labels.every((label, index) => !labels[index + 1] || label.getBoundingClientRect().bottom <= labels[index + 1].getBoundingClientRect().top))
     expect(labelsDoNotOverlap).toBe(true)
+    const sourceTextFitsLabels = await preview.locator('.activity-choices label').evaluateAll(labels => labels.every(label => {
+      const span = label.querySelector('span'), box = label.getBoundingClientRect()
+      if (!span) return false
+      const range = document.createRange(); range.selectNodeContents(span)
+      const text = range.getBoundingClientRect()
+      return text.top >= box.top - 1 && text.bottom <= box.bottom + 1 && text.left >= box.left - 1 && text.right <= box.right + 1
+    }))
+    expect(sourceTextFitsLabels, 'Rendered source text must fit each activity label, including wrapped mobile text').toBe(true)
     expect(await saved()).toEqual(before)
     if (attempt === 0) expect(await groups.evaluateAll(nodes => nodes.every(node => !node.checked))).toBe(true)
     await groups.first().check()

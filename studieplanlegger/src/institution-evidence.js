@@ -137,7 +137,7 @@ Object.assign(programScopes,{
   skrivekunst:'Ett offentlig årsstudium på 60 studiepoeng, fulltid over høst og vår i Bergen. Det modelleres som én samlet flersemester-programenhet; faglige undervisningsdeler, oppgaver og frister blir ikke gjort om til oppdiktede emner.'
 })
 export function institutionEvidence(id,name) {
-  const row=sourceRows[id],data={institution:{label:'Institusjon',status:statuses.F,url:'https://www.nokut.no/hogare-utdanning/akkrediterte-institusjonar/',checkedAt:'2026-09-12',scope:`${name} står i NOKUTs daterte oversikt på 49 institusjoner. Dette dokumenterer institusjonsidentiteten.`}}
+  const row=sourceRows[id],data={institution:{label:'Institusjon',status:statuses.F,url:'https://www.nokut.no/hogare-utdanning/akkrediterte-institusjonar/',checkedAt:'2026-09-12',scope:`${name} inngår i det lokale inventaret fra NOKUT-kontrollen 12. september (49 identiteter). Ny kontroll 1. oktober viser 48 gjeldende navn; historiske Ekko beholdes separat for eksisterende data. Inventaret dokumenterer identitet, ikke importdekning.`}}
   keys.forEach((key,index)=>{
     let code=row?.statuses[index]||'U',url=row?.url||data.institution.url,checkedAt='2026-09-09',scope=''
     if(code==='U')scope=`${datatypeLabels[key]} er ikke undersøkt til en bekreftet kontrakt ved dette lærestedet. Programlenken eller NOKUT-listen er bare undersøkelsens inngang.`

@@ -34,7 +34,7 @@ export function formatDay(label, { weekday = false, year = false } = {}) {
 
 export function formatDeadline(localLabel, options) {
   if (!localLabel) return 'Ingen frist'
-  return `${formatDay(localLabel, options)} kl. ${localLabel.slice(11, 16)}`
+  return localLabel.length === 10 ? formatDay(localLabel, options) : `${formatDay(localLabel, options)} kl. ${localLabel.slice(11, 16)}`
 }
 
 export function monthGrid(year, month) {
@@ -180,7 +180,7 @@ function createDeadlineCalendar(host, { edit, editSession }) {
           const time = element('time', 'calendar-task-time')
           const content = element('div', 'calendar-task-content')
           const metadata = element('div', 'calendar-task-meta')
-          const kind = element('span', 'calendar-event-kind calendar-deadline-kind', 'Frist')
+          const kind = element('span', 'calendar-event-kind calendar-deadline-kind', 'Oppgavefrist')
           const course = element('span', 'calendar-task-course')
           const title = element('h4', 'calendar-task-title')
           const status = element('span', 'calendar-task-status')
@@ -195,10 +195,11 @@ function createDeadlineCalendar(host, { edit, editSession }) {
           card = { item, time, course, title, status, overdue, editButton }
           cards.set(task.id, card)
         }
-        card.item.style.setProperty('--course-color', courseColor(task.course))
+        card.item.style.setProperty('--course-color', task.course ? courseColor(task.course) : '#7c5c3e')
+        card.item.classList.toggle('is-unassigned', !task.course)
         card.item.classList.toggle('is-ready', Boolean(task.requiresSubmission && task.completed && !task.submitted))
         card.item.classList.toggle('is-completed', task.completed)
-        setText(card.time, `kl. ${(task.deadlineLocal || '').slice(11, 16)}`)
+        setText(card.time, task.deadlineLocal?.length === 10 ? 'Frist – klokkeslett ikke oppgitt' : `kl. ${(task.deadlineLocal || '').slice(11, 16)}`)
         card.time.dateTime = task.deadlineLocal
         setText(card.course, task.course)
         setText(card.title, task.title)
