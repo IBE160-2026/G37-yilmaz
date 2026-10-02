@@ -9,6 +9,7 @@ import { validImportSources } from './import-source-contract.js'
 import { validConnectedPreferences } from './planning-rules.js'
 import { validateDependencyGraph } from './task-dependencies.js'
 import { createServerStorage } from './server-storage.js'
+import { validTopics, validAssessments, validReviewDecisions, hasReviewSession } from './review-planning.js'
 
 export const STORAGE_KEY = 'studieplanlegger:v1'
 export const RECOVERY_KEY = 'studieplanlegger:recovery:v1'
@@ -40,8 +41,12 @@ export function validEnvelope(value, { relations = false } = {}) {
   if (!value || !validConnectedPreferences(value) || value.workLogs !== undefined && !validWorkLogs(value.workLogs, relations ? value : undefined) || value.importSources !== undefined && !validImportSources(value.importSources, relations ? value : undefined)) return false
   if (relations && !validImportSources(value.importSources || [], value)) return false
   if (value?.calendarPreferences !== undefined && (!validCalendarPreferences(value.calendarPreferences) || relations && value.calendarPreferences.courseId && !value.planner?.courses.some(course => course.id === value.calendarPreferences.courseId))) return false
-  if (!value || value.schemaVersion !== 1 || !validTasks(value.tasks) || (value.sessions !== undefined && !validSessions(value.sessions)) || (value.planner !== undefined && !validPlanner(value.planner)) || (value.workWindows !== undefined && !validWindows(value.workWindows)) || (value.busyWindows !== undefined && !validWindows(value.busyWindows)) || (value.history !== undefined && !validHistory(value.history, value))) return false
-  return !relations || (validateDependencyGraph(value.tasks, { relations: true }).ok && value.tasks.every(task => (!task.courseId || value.planner?.courses.some(course => course.id === task.courseId)) && (!task.importSourceId || value.importSources?.some(source => source.id === task.importSourceId && source.entries.some(entry => entry.key === task.importEntryKey && entry.targetId === task.id)))) && (value.sessions || []).every(session => !session.taskId || value.tasks.some(task => task.id === session.taskId)) && (value.planner?.events || []).every(event => !event.sourceId || value.planner.sources.some(source => source.id === event.sourceId && source.courseId === event.courseId)))
+  if (!value || value.schemaVersion !== 1 || !validTasks(value.tasks) || (value.sessions !== undefined && !validSessions(value.sessions)) || (value.planner !== undefined && !validPlanner(value.planner)) || (value.workWindows !== undefined && !validWindows(value.workWindows)) || (value.busyWindows !== undefined && !validWindows(value.busyWindows)) || (value.history !== undefined && !validHistory(value.history, value)) ||
+    (value.topics !== undefined && !validTopics(value.topics)) || (value.assessments !== undefined && !validAssessments(value.assessments, relations ? value : undefined)) || (value.reviewDecisions !== undefined && !validReviewDecisions(value.reviewDecisions, relations ? value : undefined))) return false
+  return !relations || (validateDependencyGraph(value.tasks, { relations: true }).ok && value.tasks.every(task => (!task.courseId || value.planner?.courses.some(course => course.id === task.courseId)) && (!task.importSourceId || value.importSources?.some(source => source.id === task.importSourceId && source.entries.some(entry => entry.key === task.importEntryKey && entry.targetId === task.id)))) && (value.sessions || []).every(session => (!session.taskId || value.tasks.some(task => task.id === session.taskId)) && (!session.reviewKey || value.reviewDecisions?.some(decision => decision.reviewKey === session.reviewKey))) && (value.planner?.events || []).every(event => !event.sourceId || value.planner.sources.some(source => source.id === event.sourceId && source.courseId === event.courseId)) && (value.topics || []).every(topic => (!topic.taskId || value.tasks.some(task => task.id === topic.taskId)) && (!topic.courseId || value.planner?.courses.some(course => course.id === topic.courseId))) && (value.reviewDecisions || []).every(decision => {
+    const linked = hasReviewSession(value, decision)
+    return ['approved', 'adjusted'].includes(decision.status) ? Boolean(linked) : !decision.sessionId || Boolean(linked)
+  }))
 }
 export function createStorage(getStorage) {
   if (getStorage === undefined && globalThis.__STUDIEPLAN_API__ === true) return createServerStorage()

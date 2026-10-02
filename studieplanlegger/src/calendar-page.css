@@ -2,6 +2,9 @@ body[data-design-view='calendar'] .workspace { grid-template-columns: minmax(0, 
 .calendar-page { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 16px; }
 .calendar-page h2 { margin: 0; align-self: center; font-size: 1.0625rem; }
 .full-calendar-toolbar, .full-calendar-viewport { grid-column: 1 / -1; }
+.calendar-export-dialog [data-export-status] { font-weight: 700; }
+.calendar-export-feedback { flex-basis: 100%; color: var(--ink-soft); font-size: .875rem; }
+.calendar-export-feedback:empty { display: none; }
 .full-calendar-toolbar, .full-calendar-modes { display: flex; flex-wrap: wrap; align-items: end; gap: 6px; margin: 0; }
 .full-calendar-modes button[aria-pressed='true'] { color: white; background: var(--blue); }
 .full-calendar-toolbar label { max-width: 220px; }
@@ -136,4 +139,14 @@ body[data-design-view='calendar'] #hovedinnhold { padding-top: 16px; }
 @media (min-width: 761px) and (max-width: 1100px) {
   .calendar-time-grid.week { min-width: calc(3.5rem + var(--calendar-days, 7) * 140px); }
   #full-calendar:has(.full-calendar-viewport[data-mode='week']) .calendar-narrow-week-hint { display: block; }
+}
+.calendar-entry.entry-personal {
+  --course-color: #7c5c3e;
+  border-inline-start-color: #7c5c3e;
+  background: color-mix(in srgb, #7c5c3e 12%, var(--surface, white));
+}
+.calendar-entry.is-unassigned,
+.calendar-details.is-personal {
+  --course-color: #7c5c3e;
+  border-color: #7c5c3e;
 }

@@ -1,4 +1,5 @@
 import { getActionMinutes } from './tasks.js'
+import { primaryWorkStep } from './work-steps.js'
 
 const el = (tag, text, className = '') => { const node = document.createElement(tag); node.className = className; if (text) node.textContent = text; return node }
 
@@ -13,17 +14,18 @@ export function createStudySessionView(actions) {
     open(task, availableMinutes) {
       opener = document.activeElement; taskId = task.id; started = false
       plannedMinutes = Math.min(getActionMinutes(task), availableMinutes)
-      const heading = el('h2', task.nextStep ? task.nextStep.description : task.title); heading.id = 'study-session-heading'
+      const step = primaryWorkStep(task)
+      const heading = el('h2', step ? step.title || step.description : task.title); heading.id = 'study-session-heading'
       dialog.setAttribute('aria-labelledby', heading.id)
-      const context = el('p', `Planlagt varighet: ${plannedMinutes} minutter. ${task.nextStep ? `Oppgave: ${task.title}.` : 'Dette gjelder hele den registrerte oppgaven.'}`)
+      const context = el('p', `Planlagt varighet: ${plannedMinutes} minutter. ${step ? `Oppgave: ${task.title}. Stegets tid er allerede inkludert i oppgavens gjenstående arbeid.` : 'Dette gjelder hele den registrerte oppgaven.'}`)
       const note = el('p', 'Start registrerer ikke fremdrift. Du bekrefter selv hva som skjedde når økten avsluttes.', 'muted')
       const actionsRow = el('div', '', 'actions'), start = el('button', 'Start økten'), cancel = el('button', 'Avbryt', 'secondary')
       start.type = cancel.type = 'button'; cancel.onclick = close
       start.onclick = () => {
         if (!started) {
-          started = true; start.textContent = 'Avslutt økten'; context.textContent = `${task.nextStep ? task.nextStep.description : task.title} · ${plannedMinutes} minutter planlagt.`; note.textContent = 'Økten er startet lokalt. Ingenting regnes som utført før du velger et utfall.'; start.focus()
+          started = true; start.textContent = 'Avslutt økten'; context.textContent = `${step ? step.title || step.description : task.title} · ${plannedMinutes} minutter planlagt.`; note.textContent = 'Økten er startet lokalt. Ingenting regnes som utført før du velger et utfall.'; start.focus()
         } else {
-          close(); actions.finish(taskId, plannedMinutes, Boolean(task.nextStep))
+          close(); actions.finish(taskId, plannedMinutes, Boolean(step))
         }
       }
       actionsRow.append(start, cancel); dialog.replaceChildren(heading, context, note, actionsRow); dialog.showModal(); start.focus()

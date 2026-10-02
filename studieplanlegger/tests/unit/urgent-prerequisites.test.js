@@ -40,6 +40,13 @@ describe('R4 downstream recorded deadlines determine next-action urgency', () =>
     expect(ids(selectTasksForMinutes(tasks, 30))).toEqual(['own-urgent', 'prerequisite', 'priority', 'stable-first', 'stable-second'])
   })
 
+  it('orders date-only deadlines by their exclusive next-day Oslo boundary', () => {
+    const tasks = [task('date-only', { deadlineLocal: '2026-09-20' }), task('timed', { deadlineLocal: '2026-09-20T12:00' })]
+    expect(ids(selectTasksForMinutes(tasks, 30))).toEqual(['timed', 'date-only'])
+    const dependencies = [task('start'), task('all-day', { dependencyIds: ['start'], deadlineLocal: '2026-09-20' }), task('noon', { dependencyIds: ['start'], deadlineLocal: '2026-09-20T12:00' })]
+    expect(actionUrgency(dependencies[0], dependencies)).toMatchObject({ deadlineLocal: '2026-09-20T12:00', downstream: { id: 'noon' } })
+  })
+
   it('retains step, partial, unknown and blocking distinctions under downstream urgency', () => {
     const tasks = [task('step', { remainingMinutes: null, nextStep: { description: 'Les kravene', estimatedMinutes: 20 } }), task('partial', { remainingMinutes: 240 }), task('indivisible', { remainingMinutes: 240, splittable: false }), task('unknown', { remainingMinutes: null }), task('urgent', { dependencyIds: ['step', 'partial', 'indivisible', 'unknown'], deadlineLocal: '2026-09-20T12:00' })]
     expect(ids(selectTasksForMinutes(tasks, 30))).toEqual(['step'])

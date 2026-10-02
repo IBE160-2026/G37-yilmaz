@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { calendarRange, calendarEntries, dayBounds, entriesForDay } from '../../src/calendar-model.js'
-import { validCalendarPreferences } from '../../src/calendar-preferences.js'
+import { normalizeCalendarPreferences, validCalendarPreferences } from '../../src/calendar-preferences.js'
 import { dailyOverview } from '../../src/daily-overview.js'
 import { exportBackup, previewBackup } from '../../src/backup.js'
 import { resolveImportedCourse, mergeCourseOnly, mergeImport } from '../../src/planner.js'
@@ -25,6 +25,8 @@ describe('calendar and daily identities', () => {
   })
   it('accepts old preferences and roundtrips independent workweek scrolling in backups', () => {
     expect(validCalendarPreferences(preferences)).toBe(true)
+    expect(normalizeCalendarPreferences(preferences)).toMatchObject({ version: 2, kinds: ['teaching', 'session', 'deadline', 'personal'] })
+    expect(normalizeCalendarPreferences({ ...preferences, version: 2 })).toMatchObject({ version: 2, kinds: ['teaching', 'session', 'deadline'] })
     const value = { ...preferences, weekMode: 'workweek', scroll: { ...preferences.scroll, 'week:2026-09-08:workweek': { top: 600, left: 20 } } }
     const state = { schemaVersion: 1, tasks: [], calendarPreferences: value }
     expect(previewBackup(JSON.stringify(exportBackup(state)), state).data.calendarPreferences).toEqual(value)

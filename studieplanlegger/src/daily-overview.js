@@ -8,17 +8,21 @@ const compactTime = (entry, date) => {
   const localDate = entry.local?.slice(0, 10) || osloLocal(new Date(entry.start).toISOString()).slice(0, 10)
   const day = localDate === date ? 'i dag' : formatDay(localDate, { year: true })
   if (entry.warning) return day + ' kl. ' + entry.local.slice(11) + ' (må presiseres)'
-  if (entry.point) return day + ' kl. ' + eventClock.format(new Date(entry.start))
+  if (entry.kind === 'personal' && entry.timingPrecision === 'date') return day + ' · Tid ikke oppgitt'
+  if (entry.kind === 'personal' && entry.timingPrecision === 'start') return day + ' kl. ' + eventClock.format(new Date(entry.start)) + ' · Varighet ikke oppgitt'
+  if (entry.kind === 'deadline' && entry.allDay) return day + ' · Frist – klokkeslett ikke oppgitt'
   if (entry.allDay) {
+    if (entry.point) return day
     const lastDate = osloLocal(new Date(entry.end - 1).toISOString()).slice(0, 10)
     return day + ' · Hele dagen' + (lastDate !== localDate ? ' (til ' + formatDay(lastDate, { year: true }) + ')' : '')
   }
+  if (entry.point) return day + ' kl. ' + eventClock.format(new Date(entry.start))
   const endDate = osloLocal(new Date(entry.end).toISOString()).slice(0, 10)
   return day + ' kl. ' + timeLabel(entry) + (endDate !== localDate ? ' (til ' + formatDay(endDate, { year: true }) + ')' : '')
 }
 export function dailyOverview(model) {
   const now = +model.now, date = calendarToday(model.now), bounds = dayBounds(date), entries = calendarEntries(model)
-  const activity = entries.filter(e => !e.cancelled && ['teaching', 'session'].includes(e.kind) && e.end > now).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key))[0]
+  const activity = entries.filter(e => !e.cancelled && ['teaching', 'personal', 'session'].includes(e.kind) && (e.end > now || e.point && (e.start >= now || e.kind === 'personal' && e.dateLocal >= date))).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key))[0]
   const deadlines = entries.filter(e => e.kind === 'deadline' && !e.done).sort((a, b) => (a.local || '').localeCompare(b.local || '') || a.key.localeCompare(b.key))
   const today = model.tasks.filter(task => pending(task) && (task.deadlineLocal?.slice(0, 10) === date || entries.some(e => e.kind === 'session' && e.taskId === task.id && e.start < bounds.end && e.end > bounds.start)))
   const deadline = deadlines.find(e => e.start >= now) || deadlines.at(-1)
@@ -52,10 +56,10 @@ export function createDailyOverview(actions) {
     host.append(statusCard)
     planHost.replaceChildren(el('h2', 'Neste på planen'))
     const rowSessionKeys = new Set(data.rows.flatMap(row => row.sessions.map(session => session.key)))
-    const upcoming = calendarEntries(model).filter(entry => !entry.cancelled && ['teaching', 'session'].includes(entry.kind) && entry.end > +model.now && !rowSessionKeys.has(entry.key)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 3)
+    const upcoming = calendarEntries(model).filter(entry => !entry.cancelled && ['teaching', 'personal', 'session'].includes(entry.kind) && (entry.end > +model.now || entry.point && (entry.start >= +model.now || entry.kind === 'personal' && entry.dateLocal >= date)) && !rowSessionKeys.has(entry.key)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 3)
     if (upcoming.length) {
       planHost.append(el('h3', 'Kommende aktiviteter'))
-      for (const entry of upcoming) { const row = el('div', ''); row.className = 'daily-row'; row.dataset.dailyRow = entry.key; row.append(el('p', `${entry.title} · ${compactTime(entry, date)}`), button('Åpne', `${entry.key}:open`, () => entry.kind === 'session' ? actions.editSession(entry.id) : actions.editEvent(entry.id))); planHost.append(row) }
+      for (const entry of upcoming) { const row = el('div', ''); row.className = `daily-row${entry.isExam ? ' is-exam' : ''}${entry.kind === 'personal' ? ' is-personal' : ''}`; row.dataset.dailyRow = entry.key; row.append(el('p', `${entry.kind === 'personal' ? 'Egen aktivitet · ' : entry.isExam ? '📝 Eksamen · ' : ''}${entry.title} · ${compactTime(entry, date)}`), button('Åpne', `${entry.key}:open`, () => entry.kind === 'session' ? actions.editSession(entry.id) : actions.editEvent(entry.id))); planHost.append(row) }
     } else planHost.append(el('p', 'Ingen kommende aktivitet er registrert.'))
     const visibleRows = data.rows.slice(0, 3), firstToday = data.rows.find(row => data.today.some(task => task.id === row.task.id))
     if (firstToday && !visibleRows.includes(firstToday)) visibleRows[Math.max(0, visibleRows.length - 1)] = firstToday

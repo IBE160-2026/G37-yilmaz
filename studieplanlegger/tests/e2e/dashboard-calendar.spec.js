@@ -213,7 +213,8 @@ test('editing from calendar, suggestion and task list updates one shared task an
   await expect(dayRows(page)).toHaveCount(0)
   await day(page, '2026-09-04').click()
   await expect(dayRows(page)).toContainText('kl. 21:15')
-  expect((await saved(page)).tasks).toEqual([{ ...selected, title: 'Rapporten er oppdatert', course: 'IBE160 nytt emne', deadlineLocal: '2026-09-04T21:15', nextStep: { description: 'Lag en kort disposisjon', estimatedMinutes: 20 } }])
+  const { nextStep: _legacyStep, ...migratedSelected } = selected
+  expect((await saved(page)).tasks).toEqual([{ ...migratedSelected, title: 'Rapporten er oppdatert', course: 'IBE160 nytt emne', deadlineLocal: '2026-09-04T21:15', steps: [{ id: `${selected.id}:legacy-next-step`, title: 'Lag en kort disposisjon', estimatedMinutes: 20, completed: false, provenance: { kind: 'legacy-next-step' } }] }])
   expect(await writes(page)).toHaveLength(3)
   await page.reload()
   await navigate(page, 'all')

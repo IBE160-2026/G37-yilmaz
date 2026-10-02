@@ -52,6 +52,19 @@ async function fetchSavedPreview(page, controls, option = '0') {
   return page.locator('#import-preview')
 }
 
+test('public teaching choices are name-first and sorted in Norwegian order', async ({ page }) => {
+  await bootSavedPlan(page)
+  await page.route('**/api/import/providers/nord/teaching-search?*', route => route.fulfill({ json: { status: 'ok', results: [
+    { id: 'aa', name: 'Årsvalg', code: 'Å3', sourceObjectId: 'aa' },
+    { id: 'o', name: 'Økonomi', code: 'Ø2', sourceObjectId: 'o' },
+    { id: 'a', name: 'Anatomi', code: 'A1', sourceObjectId: 'a' },
+    { id: 'ae', name: 'Æresvalg', code: 'Æ1', sourceObjectId: 'ae' },
+  ] } }))
+  const controls = await openSavedTeaching(page)
+  await controls.search.click()
+  await expect(controls.options.locator('option')).toHaveText(['Velg', 'Anatomi · A1', 'Æresvalg · Æ1', 'Økonomi · Ø2', 'Årsvalg · Å3'])
+})
+
 test('R14 saved program source notes remain one readable text paragraph after reload', async ({ page }, info) => {
   const note = 'Kilden oppgir ikke hvilket valgemne studenten skal ta. Bekreft valget selv. <img src=x onerror=alert(1)> er bare kildetekst.'
   const data = structuredClone(existingPlan)
@@ -215,7 +228,10 @@ test('saved-course teaching can be selected by keyboard with large text and a fa
   await tabTo(page, summary); await page.keyboard.press('Enter')
   await expect(page.locator('#calendar-import-form')).toBeHidden()
   const institution = page.getByRole('combobox', { name: 'Lærested for offentlig undervisning', exact: true })
-  await tabTo(page, institution); await page.keyboard.press('Home'); await page.keyboard.press('ArrowDown'); await page.keyboard.press('Enter')
+  await tabTo(page, institution); await page.keyboard.press('Home')
+  const nordIndex = await institution.locator('option').evaluateAll(options => options.findIndex(option => option.value === 'nord'))
+  for (let index = 0; index < nordIndex; index += 1) await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
   await expect(institution).toHaveValue('nord')
   const course = page.getByRole('combobox', { name: 'Lagret emne for undervisning', exact: true })
   await tabTo(page, course); await page.keyboard.press('Home'); await page.keyboard.press('ArrowDown'); await page.keyboard.press('Enter')

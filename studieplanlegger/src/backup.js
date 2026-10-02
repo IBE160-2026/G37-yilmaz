@@ -24,7 +24,7 @@ function portableData(value) {
       for (const match of item.matchAll(/(?:https?|webcal):\/\/[^\s<>"']+/gi)) {
         try { const url = new URL(match[0]); if (url.username || url.password || [...url.searchParams.keys()].some(credentialParameter) || [...new URLSearchParams(url.hash.slice(1)).keys()].some(credentialParameter)) connection(match[0]) } catch { /* Unparseable text is not executed. */ }
       }
-      if (/^(id|sourceId|courseId|taskId|sourceKey|sourceUid|operationId|sessionId|importSourceId|importEntryKey|targetId|dependencyIds|missingDependencyIds|key)$/.test(key)) {
+      if (/^(id|sourceId|courseId|taskId|topicId|assessmentId|sourceKey|sourceUid|operationId|sessionId|importSourceId|importEntryKey|targetId|dependencyIds|missingDependencyIds|reviewKey|key)$/.test(key)) {
         identities.add(item)
         const url = item.match(/(?:https?|webcal):\/\/\S+/i)?.[0]; if (url) connection(url)
       }
@@ -43,7 +43,7 @@ function portableData(value) {
   for (const id of affected) { let alias; do { alias = `export-id-${++serial}` } while (used.has(alias)); used.add(alias); replacements.set(id, alias) }
   const ids = [...replacements.keys()].sort((a, b) => b.length - a.length)
   const credentialPatterns = [...credentials].sort((a, b) => b.length - a.length).map(token => new RegExp(`(?<![\\p{L}\\p{N}_-])${token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_-])`, 'gu'))
-  const structural = /^(?:id|sourceId|courseId|taskId|sourceKey|sourceUid|operationId|sessionId|importSourceId|importEntryKey|targetId|dependencyIds|missingDependencyIds|key|start|end|startLocal|endLocal|dateLocal|endDateLocal|deadlineLocal|startTime|endTime|at|lastUpdated|lastAttempt|lastSuccess|createdAt|savedAt)$/
+  const structural = /^(?:id|sourceId|courseId|taskId|topicId|assessmentId|sourceKey|sourceUid|operationId|sessionId|importSourceId|importEntryKey|targetId|dependencyIds|missingDependencyIds|reviewKey|key|start|end|startLocal|endLocal|dateLocal|endDateLocal|deadlineLocal|startTime|endTime|at|assessedAt|decidedAt|lastUpdated|lastAttempt|lastSuccess|createdAt|savedAt)$/
   function safeText(text, key = '') {
     if (replacements.has(text)) return replacements.get(text)
     if (!structural.test(key)) for (const id of ids) text = text.replace(new RegExp(`(?<![\\p{L}\\p{N}_-])${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_-])`, 'gu'), () => replacements.get(id))
@@ -67,7 +67,22 @@ function portableData(value) {
     }
     return result
   }
-  return { data: copy(value), rekeyedIds: replacements.size }
+  const data = copy(value)
+  // reviewKey is derived, not an independent identity. Rebuild it after ID
+  // redaction and keep the linked review session on the same derived key.
+  const assessments = new Map((data.assessments || []).map(item => [item.id, item]))
+  const changedKeys = new Map()
+  for (const decision of data.reviewDecisions || []) {
+    const assessment = assessments.get(decision.assessmentId)
+    if (!assessment) continue
+    const oldKey = decision.reviewKey, nextKey = `review:${assessment.topicId}:${assessment.id}`
+    decision.reviewKey = nextKey; changedKeys.set(oldKey, { key: nextKey, topicId: assessment.topicId, sessionId: decision.sessionId })
+  }
+  for (const session of data.sessions || []) {
+    const link = [...changedKeys.values()].find(item => item.sessionId === session.id) || changedKeys.get(session.reviewKey)
+    if (link) { session.reviewKey = link.key; session.reviewTopicId = link.topicId }
+  }
+  return { data, rekeyedIds: replacements.size }
 }
 export const withoutConnections = value => portableData(value).data
 export function exportBackup(state, now = new Date()) {
@@ -75,7 +90,7 @@ export function exportBackup(state, now = new Date()) {
   if (!validEnvelope(data, { relations: true })) throw new Error('Dataene har ugyldige relasjoner. Ingen sikkerhetskopi ble laget.')
   return { format: 'studieplan-local-backup', backupVersion: BACKUP_VERSION, createdAt: now.toISOString(), rekeyedIds, data }
 }
-const count = state => ({ tasks: state.tasks.length, courses: state.planner?.courses.length || 0, events: state.planner?.events.length || 0, sessions: state.sessions?.length || 0, sources: state.planner?.sources.length || 0, trash: state.history?.trash.length || 0 })
+const count = state => ({ tasks: state.tasks.length, courses: state.planner?.courses.length || 0, events: state.planner?.events.length || 0, sessions: state.sessions?.length || 0, sources: state.planner?.sources.length || 0, topics: state.topics?.length || 0, assessments: state.assessments?.length || 0, reviewDecisions: state.reviewDecisions?.length || 0, trash: state.history?.trash.length || 0 })
 export function previewLocalRecovery(saved, current) {
   if (!validEnvelope(saved?.data, { relations: true })) return { ok: false, error: 'Ugyldig lokal gjenopprettingskopi. Dataene er beholdt.' }
   const data = structuredClone(saved.data)

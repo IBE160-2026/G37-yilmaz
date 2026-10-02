@@ -61,6 +61,30 @@ test('viewport clipping follows scroll and resize without changing duration, foc
   await testInfo.attach('viewport-state.json', { body: JSON.stringify({ metrics: await metrics(page), before: before.planner, after: after.planner }), contentType: 'application/json' })
 })
 
+test('document and internal calendar height stay stable at both scroll bottoms through refreshes', async ({ page }, testInfo) => {
+  await boot(page, dense())
+  await page.screenshot({ path: testInfo.outputPath('calendar-scroll-top-1280.png'), fullPage: true })
+  for (const mode of ['week', 'day', 'month', 'agenda']) {
+    await page.getByRole('button', { name: new RegExp(`^${mode === 'week' ? 'Uke' : mode === 'day' ? 'Dag' : mode === 'month' ? 'Måned' : 'Agenda'}$`) }).click()
+    const viewport = page.locator('.full-calendar-viewport')
+    await viewport.evaluate(node => node.scrollTo({ top: node.scrollHeight, left: node.scrollWidth }))
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight))
+    const before = await page.evaluate(() => ({ documentHeight: document.documentElement.scrollHeight, viewportHeight: document.querySelector('.full-calendar-viewport').getBoundingClientRect().height }))
+    await page.waitForTimeout(2200)
+    const after = await page.evaluate(() => {
+      const viewport = document.querySelector('.full-calendar-viewport')
+      return { documentHeight: document.documentElement.scrollHeight, viewportHeight: viewport.getBoundingClientRect().height,
+        internalBottom: viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 2,
+        documentBottom: scrollY + innerHeight >= document.documentElement.scrollHeight - 2 }
+    })
+    expect(after.documentHeight).toBe(before.documentHeight)
+    expect(after.viewportHeight).toBe(before.viewportHeight)
+    expect(after.internalBottom).toBe(true)
+    expect(after.documentBottom).toBe(true)
+    if (mode === 'week') await page.screenshot({ path: testInfo.outputPath('calendar-scroll-bottom-1280.png'), fullPage: true })
+  }
+})
+
 test('horizontal visibility starts after the viewport left border', async ({ page }) => {
   await boot(page)
   const control = page.locator('[data-viewport-entry="event:clipped"]')

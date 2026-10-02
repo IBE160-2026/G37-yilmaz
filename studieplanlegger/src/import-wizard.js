@@ -1,4 +1,5 @@
 import { institutions, institutionById, INVENTORY_SOURCE } from './institutions.js'
+import { nameFirstLabel, sortByVisibleName } from './name-sort.js'
 const el = (tag, text) => { const node = document.createElement(tag); if (text) node.textContent = text; return node }
 const button = (text, action) => { const node = el('button', text); node.type = 'button'; node.className = 'secondary'; node.onclick = action; return node }
 export function createImportWizard({ form, previewHost, api, onCourse, feedback, manual }) {
@@ -8,7 +9,7 @@ export function createImportWizard({ form, previewHost, api, onCourse, feedback,
   const info = el('p'), controls = el('div'); controls.className = 'actions'
   host.append(progress, info); form.after(resultsHost, controls)
   const university = form.elements.university; university.replaceChildren()
-  for (const item of institutions) university.append(new Option(item.name, item.id))
+  for (const item of sortByVisibleName(institutions)) university.append(new Option(item.name, item.id))
   university.value = 'ntnu'
   const campus = el('label', 'Campus (valgfritt)'), campusInput = el('input'); campusInput.name = 'campus'; campusInput.placeholder = 'For eksempel Trondheim eller Bergen'; campus.append(campusInput); form.querySelector('button').before(campus)
   form.elements.code.setAttribute('placeholder', 'Emnekode eller navn')
@@ -63,8 +64,8 @@ export function createImportWizard({ form, previewHost, api, onCourse, feedback,
       const data = await api(`/api/import/providers/${university.value}/search?${new URLSearchParams(query)}`)
       if (version !== selectionVersion) return
       if (data.status !== 'ok') throw new Error(`${{ 'not-found': 'Ingen emner funnet', 'no-matching-results': 'Ingen treff med valgte filtre', 'semester-unavailable': 'Semesteret er ikke tilgjengelig', 'access-required': 'Krever tilgang', 'schema-verification-required': 'Krever autentisert skjemakontroll', 'transport-error': 'Kilden kunne ikke nås' }[data.status] || data.status}. ${data.error || 'Prøv et annet søk.'}`)
-      results = data.results; step = 3; resultsHost.replaceChildren(); resultsHost.hidden = false
-      for (const item of results) resultsHost.append(button(`${item.code} · ${item.name} · ${item.campus || 'Campus mangler'}`, () => choose(item)))
+      results = sortByVisibleName(data.results); step = 3; resultsHost.replaceChildren(); resultsHost.hidden = false
+      for (const item of results) resultsHost.append(button(nameFirstLabel(item, [item.campus || 'Campus mangler']), () => choose(item)))
       for (const warning of data.warnings || []) resultsHost.append(el('p', warning))
       feedback(`${results.length} treff. Velg riktig semester-/campusvariant.`); render()
     } catch (error) { feedback(error.message, true) } finally { busy = false }

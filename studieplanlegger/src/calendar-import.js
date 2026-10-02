@@ -1,6 +1,7 @@
 import ICAL from 'ical.js'
 import { Temporal } from '@js-temporal/polyfill'
 import { OSLO, semesterWindow } from './planner.js'
+import { normalizeActivityKind } from './event-kind.js'
 
 function registerZone(tzid) {
   if (ICAL.TimezoneService.has(tzid)) return
@@ -49,12 +50,15 @@ export function parseCalendar(input, { courseId, semester, year }) {
       const endTime = end.isDate ? Temporal.PlainDate.from(end.toString()).toZonedDateTime(fallback).epochMilliseconds : end.toUnixTime() * 1000
       if (endTime <= startTime) { skipped = true; warnings.push('En økt har manglende eller ugyldig varighet og er utelatt.'); return }
       if (endTime <= from || startTime >= until) return
-      const sourceTitle = item.summary?.trim(), assessment = item.component.getFirstPropertyValue('x-studieplan-activity-kind') === 'assessment'
-      const title = sourceTitle && assessment ? `Vurdering fra kilden: ${sourceTitle}` : sourceTitle
+      const sourceTitle = item.summary?.trim(), activityKind = normalizeActivityKind(item.component.getFirstPropertyValue('x-studieplan-activity-kind'))
+      const assessment = activityKind === 'exam' || activityKind === 'assessment', title = sourceTitle
+      // Older TP imports used this display prefix as part of content identity.
+      // Keep that identity/group input stable without changing the source title shown to students.
+      const identityTitle = sourceTitle && assessment ? `Vurdering fra kilden: ${sourceTitle}` : sourceTitle
       if (!title || !item.uid) { skipped = true; warnings.push('En økt mangler navn eller kilde-ID og er utelatt.'); return }
       const startISO = new Date(startTime).toISOString(), endISO = new Date(endTime).toISOString()
       const explicitGroup = item.component.getFirstPropertyValue('x-group')
-      const sourceKey = identityMode === 'content' ? JSON.stringify([title, recurrence?.toString() || startISO, explicitGroup || title, item.location || '']) : JSON.stringify([item.uid, recurrence?.toString() || 'single'])
+      const sourceKey = identityMode === 'content' ? JSON.stringify([identityTitle, recurrence?.toString() || startISO, explicitGroup || identityTitle, item.location || '']) : JSON.stringify([item.uid, recurrence?.toString() || 'single'])
       const identity = JSON.stringify([item.uid, title, startISO, endISO, explicitGroup, item.location, item.description])
       if (seenKeys.has(sourceKey)) {
         if (seenKeys.get(sourceKey) !== identity) throw new Error('Aktiviteter med samme identitet kan ikke skilles sikkert. Velg en tydeligere gruppe- eller kalenderavgrensning.')
@@ -66,7 +70,7 @@ export function parseCalendar(input, { courseId, semester, year }) {
       if (information && !transparent) warnings.push('Kilden har kommentar-/informasjonsoppføringer uten TRANSP. De vises som informasjon og reserverer ikke arbeidstid.')
       const groupMissing = (timeEdit || normalizedTp) && !explicitGroup
       if (groupMissing) warnings.push('Kalenderkilden mangler gruppenummer. Aktivitetstypen er ikke en gruppeidentitet. Kontroller tidspunkt og sted; øvinger velges ikke automatisk.')
-      events.push({ sourceKey, sourceUid: item.uid, title, courseId, start: startISO, end: endISO, location: item.location || '', description: item.description || '', group: explicitGroup || title, ...(groupMissing ? { groupMissing: true } : {}), transparent, information, allDay: start.isDate, cancelled: false })
+      events.push({ sourceKey, sourceUid: item.uid, title, courseId, start: startISO, end: endISO, location: item.location || '', description: item.description || '', group: explicitGroup || identityTitle, ...(activityKind ? { activityKind } : {}), ...(groupMissing ? { groupMissing: true } : {}), transparent, information, allDay: start.isDate, cancelled: false })
       if (events.length > 5000) throw new Error('Kalenderen har over 5000 økter i semesteret. Eksporter færre emner eller grupper.')
     }
     for (const component of components.filter(c => !c.hasProperty('recurrence-id'))) {

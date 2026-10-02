@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import ICAL from 'ical.js'
 import { parsePhsExamCalendar, fetchPhsExamCalendar, phsExamSources } from '../../server/providers/phs-calendar.js'
+import { parseCalendar } from '../../src/calendar-import.js'
+import { emptyPlanner, mergeImport } from '../../src/planner.js'
 
 const url = level => `https://www.politihogskolen.no/for-studenter/eksamen/eksamensoversikt-${level}`
 const fixture = level => readFile(new URL(`../fixtures/phs-programs/exams-${level}.html`, import.meta.url), 'utf8')
@@ -15,10 +17,23 @@ describe('published PHS exams, with explicit selection and no assumed personal a
     expect(field(task, 'due').toString()).toBe('2026-12-14T11:00:00Z')
     const exam = items.find(item => field(item, 'summary').includes('STRAFF01') && field(item, 'summary').includes('Ny'))
     expect(field(exam, 'dtstart').toString()).toBe('2026-10-13T07:00:00Z'); expect(field(exam, 'dtend').toString()).toBe('2026-10-13T13:00:00Z'); expect(field(exam, 'transp')).toBe('OPAQUE')
+    expect(field(exam, 'x-studieplan-activity-kind')).toBe('exam')
     const oral = items.find(item => field(item, 'summary').includes('POLISAMF01') && field(item, 'summary').includes('Ordinær'))
     expect(field(oral, 'dtstart').toString()).toBe('2026-11-26'); expect(field(oral, 'dtend').toString()).toBe('2026-12-10'); expect(field(oral, 'transp')).toBe('TRANSPARENT')
     expect(result.unresolved.some(row => row.sourceExcerpt.includes('Mandag 18. mai') && row.reason.includes('Ukedag'))).toBe(true)
     expect(result.authoritative).toBe(false); expect(items.every(item => !field(item, 'description').includes('<'))).toBe(true)
+
+    const course = { id: 'phs-course', code: 'PHS', name: 'Politihøgskolen', semester: 'autumn', year: 2026 }
+    const parsed = parseCalendar(result.calendar, { courseId: course.id, semester: course.semester, year: course.year })
+    const source = { id: 'phs-source', courseId: course.id, name: 'PHS eksamensoversikt', groups: [] }
+    const incomingExam = parsed.events.find(event => event.title.includes('STRAFF01') && event.title.includes('Ny'))
+    expect(incomingExam).toMatchObject({ activityKind: 'exam' })
+    const first = mergeImport(emptyPlanner(), parsed.events, source, { course }).planner
+    const storedExam = first.events.find(event => event.sourceKey === incomingExam.sourceKey)
+    const refreshed = mergeImport(first, parsed.events.map(event => event.sourceKey === incomingExam.sourceKey ? { ...event, location: 'Oppdatert eksamensrom' } : event), source).planner
+    const updatedExam = refreshed.events.find(event => event.sourceKey === incomingExam.sourceKey)
+    expect(updatedExam).toMatchObject({ id: storedExam.id, activityKind: 'exam', location: 'Oppdatert eksamensrom' })
+    expect(refreshed.events.filter(event => event.sourceKey === incomingExam.sourceKey)).toHaveLength(1)
   })
   it('reads all master rows, preserves retake/cohort labels and does not infer deadline clocks', async () => {
     const result = parsePhsExamCalendar(await fixture('ma'), url('ma')), items = components(result)

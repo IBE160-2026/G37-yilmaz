@@ -33,6 +33,7 @@ export function createCapacityView(actions) {
   const sessions = new Map()
   const tasks = new Map()
   let disabled = true
+  $('#compare-plans').addEventListener('click', () => actions.replan())
   $('#new-session').addEventListener('click', actions.openSession)
   $('#cancel-session').addEventListener('click', actions.cancelSession)
   form.addEventListener('submit', event => {
@@ -86,6 +87,7 @@ export function createCapacityView(actions) {
     disable(value) {
       disabled = value
       $('#new-session').disabled = value
+      $('#compare-plans').disabled = value
       for (const row of sessions.values()) { row.edit.disabled = value; row.delete.disabled = value; row.close.disabled = value }
       for (const row of tasks.values()) row.edit.disabled = value
     },
@@ -103,7 +105,8 @@ export function createCapacityView(actions) {
       }
       const required = capacity.totalRequiredMaxMinutes === null ? `minst ${capacity.totalRequiredMinMinutes}` : capacity.totalRequiredMinMinutes !== undefined && capacity.totalRequiredMinMinutes !== capacity.totalRequiredMaxMinutes ? `${capacity.totalRequiredMinMinutes}–${capacity.totalRequiredMaxMinutes}` : capacity.totalRequiredMinutes
       const missing = capacity.totalMissingMaxMinutes === null ? `minst ${capacity.totalMissingMinMinutes}` : `opptil ${capacity.totalMissingMaxMinutes ?? capacity.totalMissingMinutes}`
-      setText($('#capacity-summary'), `${required} min kjent arbeid${capacity.unknownTaskCount ? ` · ${capacity.unknownTaskCount} oppgaver med ukjent øvre grense` : ''} · ${capacity.totalAllocatedMinutes} min satt av · ${missing} min ikke planlagt · ${capacity.spareMinutes} min ledig i øktene.`)
+      const spare = capacity.uncertainPersonalCount ? `${capacity.spareMinutes} min beregnet ledig ut fra kjente tider` : `${capacity.spareMinutes} min ledig i øktene`
+      setText($('#capacity-summary'), `${required} min kjent arbeid${capacity.unknownTaskCount ? ` · ${capacity.unknownTaskCount} oppgaver med ukjent øvre grense` : ''} · ${capacity.totalAllocatedMinutes} min satt av · ${missing} min ikke planlagt · ${spare}.`)
       setText($('#capacity-warnings'), capacity.warnings.join(' '))
       $('#capacity-warnings').hidden = !capacity.warnings.length
       $('#sessions-empty').hidden = savedSessions.length > 0

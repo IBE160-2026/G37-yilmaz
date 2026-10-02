@@ -1,8 +1,156 @@
 # Import coverage and access requirements
 
-## Gjeldende kildekontrakter og datatypebevis, 2026-09-20
+## Ny nasjonal kontroll — 2026-10-01
 
-**Gjeldende status:** 48 av de 49 kartlagte institusjonene har nå en registrert programadapter. AHO er lagt til etter de sju R27-kontraktene for Nord, UiA, UiO, Høgskolen i Molde, NIH, Høgskolen i Østfold og Skrivekunstakademiet. Alle 48 identiteter går gjennom den faktiske middleware-grensen, men «adapter registrert» betyr fortsatt ikke at alle programmer, kull eller datatyper er ekte verifisert. Videre utvidelse av institusjonsdekningen er satt på pause; nasjonal full dekning og alle datatypevarianter er derfor uttrykkelig åpne krav, ikke skjult ferdigstatus.
+[NOKUTs gjeldende liste](https://www.nokut.no/hogare-utdanning/akkrediterte-institusjonar/) har **48 navn: 11 universiteter, 9 vitenskapelige høyskoler, 15 akkrediterte høyskoler og 13 med akkrediterte studietilbud**. Appens **49 lokale identiteter** beholdes, inkludert historiske Ekko, slik at eksisterende relasjoner og data bevares. De 48 gjeldende identitetene har registrert programadapter og minst én tidligere avgrenset ekte programprøve. Dette er fortsatt ikke full nasjonal dekning; dagens kontroll gjentar ikke alle programprøvene.
+
+Matrisen er beregnet på nytt fra gjeldende `institutions` og datatypebevis. For de 48 programadapterne er studieår **22 V / 3 L / 23 N**, kull **25 V / 1 L / 22 N**, studiesemester **36 V / 2 L / 10 N**, kalendersemester **23 V / 1 L / 24 N**, obligatorisk **22 V / 8 L / 18 N**, valgemner **8 V / 23 L / 16 N / 1 Ø**, programemneinformasjon **48 V**. Ekko har separat Ø for program og U for disse sju øvrige programfeltene. For alle 49 lokale identiteter er undervisning **27 V / 6 M / 5 A / 2 F / 8 Ø / 1 T** (kodens 9 Ø presiseres til 8 Ø og ett vellykket tomt historisk oppslag nedenfor), campus **20 V / 3 F / 25 N / 1 Ø**, grupper **1 V / 4 L / 23 N / 6 A / 4 M / 11 Ø**, personlig timeplan **25 A / 24 Ø**. V beholder sin opprinnelige prøvedato og avgrensning; en ny kildehenting er ikke ny full UI-aksept.
+
+| Kontrakt | Faktisk støtte og avgrensning |
+| --- | --- |
+| Separat emnesøk | **7 institusjoner:** NTNU, NMBU, HVL, UiB, UiT, NMH og Sámi. Programemner ved 48 institusjoner gir ikke 48 selvstendige emnesøk. HVLs TimeEdit gir etiketter, ikke full beskrivelse/studiepoeng. |
+| Periodebestemte emnedetaljer | **9 provider-ruter:** NTNU, NMBU, UiB, UiT, NMH, Sámi, Kristiania, KHiO og PHS. De tre siste er detaljruter for kildevalgte programemner, uten separat emnesøk. 48 V i Emneinfo betyr publisert programemneinformasjon, ikke komplette beskrivelser ved alle læresteder. |
+| Program/modell/semester | 48 adaptere med ulike HTML-/JSON-/PDF-kontrakter. Modell, planutgave, kull, studieår, studiesemester og kalendersemester er separate valg. Manglende felt, upubliserte semestre, åpne valg og studentavklarte perioder telles ikke som direkte kildeimport. |
+| Undervisning | 10 offentlige TP-adaptere, 13 TimeEdit-adaptere samt NTNUs emnelenkede TP-kalender. Sámi-adapteren har fortsatt ingen gyldig aktivitet i den prøvde kilden. Ansgar/FIH/Gestalt/HØFY bruker egne klasse-/samlingskontrakter. 27 V dokumenterer historiske representative undervisningsprøver, ikke alle emner/campus/grupper. |
+| Eksamen/innlevering | PHS har separat blandet eksamens-/fristoversikt; offentlig TP håndhever publiseringsflagg og strukturerte eksamen/vurdering-merker. Dette er ingen full nasjonal eksamensdekning eller personlig eksamensoppmelding. Generell vurdering og eksamensforberedelse blir ikke eksamen; undervisningstitler blir ikke oppgaver automatisk. |
+| Lenke/fil | Generell offentlig HTTPS/webcal- og lokal ICS-import er tilgjengelig uavhengig av institusjon. Lokal TXT/PDF/DOCX/CSV/ICS-dokumentimport er separat; XLSX støttes ikke. Privat institusjonskalender krever studentens eget uttrykkelige fil-/lenkevalg, og bekrefter ikke anonym personlig tilgang. |
+
+**Nye, avgrensede apptransportprøver 1. oktober:** `verify:teaching:live` avsluttet med exit 0: HiMolde IBE110/IBE430/IBE160, høst 2026, valgte objekter `IBE110¤1`/`IBE430¤1`/`IBE160¤1`, ga **26/13/32** gyldige hendelser. NTNU ARK1001/EXPH0100, høst 2026, emnesidens faktiske kalenderlenke, ga **42/141**. Dette tester kildehenting/parsing, ikke nye program- eller personlige gruppevalg. De første sandbox-forsøkene ga EACCES før kilden; den samme avgrensede kjøringen med godkjent nettverkstilgang bestod. Den frakoblede undervisningsmatrisen bestod **89/89 i 10 filer**, exit 0; fixturer er ikke live-bevis.
+
+**Nye ekte nettleserforløp:** Kristiania PGR102/161320.5 og NIH IDR107/25097.10, høst 2026, bestod **2/2**, normal exit 0, på isolert loopback-port 5337 etter retting av en reprodusert lagringsfeil: vanlig undervisnings `activityKind: ''` fra kildesnapshot ble avvist av lagringsvalideringen. Den tomme normaliserte typen godtas nå, mens ukjente typer fortsatt avvises; fixturregresjonen bekrefter gyldig lagring og stabile ID-er ved gjentakelse. Kristiania ga 58 rå/49 gyldige aktiviteter; NIH 26 rå, med ett eksplisitt aktivitetsvalg lagret. Begge forløp kontrollerte ekte kildevalg, forhåndsvisning, uttrykkelig valg, lagring, omlasting og gjentakelse. Første kjøring feilet ved Kristiania-bekreftelsen og NIH kjørte ikke; den er ikke telt som bestått. Sluttbildene ble åpnet: Kristiania 390/1440 px er lesbar. Første NIH-bilde ved 390 px avdekket overlappende kildeetiketter som den gamle etikettboks-målingen ikke fanget. Etter retting til automatisk radhøyde og tekstbryting bestod NIH alene 1/1, normal exit 0, på 8,0 sekunder. Testen måler nå faktisk gjengitt tekst inne i hver etikett med Range-geometri. Det nye NIH-bildet ble åpnet og viste lesbar tekst uten overlapp; aktivitetslisten beholder lokal rulling.
+
+**Uavklarte offentlige undervisningsinnganger:** Ett nytt anonymt forsøk per inngang gjennom appens avgrensede transport ga AHO [semesterliste](https://tp.educloud.no/aho/ws/services/semesters.php) **404**, FHS [semesterliste](https://tp.educloud.no/fhs/ws/services/semesters.php) **401**, NLA [TimeEdit](https://cloud.timeedit.net/nla/web/) **412**, KRUS [TimeEdit](https://cloud.timeedit.net/krus/web/) **412** og NBI [publisert kortlenke](https://goo.gl/ObktP9) **401**. Årsakene er fortsatt ukjente; kodene brukes ikke som bevis for innloggingsplikt. Avgrensede søk i offisielle alternative innganger fant ingen implementert erstatning: AHO har eldre offentlig samlings-PDF, FHS offentlig programinformasjon/arrangementer, NLA beskriver separat personlig Canvas, KRUS separat studentportal. Disse er ikke løftet til fungerende undervisningsimport.
+
+**HLT-korreksjon:** [Semesterplansiden](https://hlt.no/semesterplan/) publiserer nå høst 2026 som [offisiell Excel-utgave](https://hlt.no/wp-content/uploads/2026/06/Semesterplan-H26.xlsx), HTTP 200, 63 743 byte. Regnearket har dato-/ukekolonner, emner og en uttrykkelig forklaring om antall undervisningstimer på angitt dato; ingen start/slutt er utledet. Det gamle «nyeste vår 2026»-utsagnet er historisk. XLSX har ingen implementert parser eller HLT-undervisningsadapter og forblir **F**, ikke L/V. En sikker ny adapter må skille daterte timer, obligatoriske fargemarkeringer, eksamener og motstridende arkinnhold; dagens datopresisjon alene løser ikke tabellkontrakten.
+
+Nasjonale restkrav er fortsatt åpne: historisk Ekko-planarkiv, alle svake felt/varianter i matrisen, de fem mislykkede offentlige undervisningskildene, Sámi med null gyldige aktiviteter, HLT XLSX, Noroff startinformasjon uten full intervallplan, de dokumenterte tilgangskildene og personlig gruppetilhørighet. Fil/manuell registrering er et alternativ, ikke ferdig direkte institusjonsdekning. Denne bestillingen gjenopptar kontrollen av restene; eldre omtale av pause betyr ikke at kravet er oppfylt.
+
+## Supplerende institusjonsmatrise — emnesøk, detaljer og eksamen, 2026-10-01
+
+Denne matrisen følger de faktiske `search`/`details`-rutene i `server/providers/index.js`, TP-kontrakten, PHS-eksamensadapteren og de daterte prøvene ovenfor. **N** betyr ingen implementert separat rute, ikke fravær av en offentlig institusjonskatalog. **U** betyr at direkte offentlig eksamensimport ikke er undersøkt til en egen kontrakt; undervisningsimport gir ikke automatisk eksamensbevis. **L** er implementert med lokale kontrakttester 1. oktober (inkludert 388/388 adaptertester); **V** beholder den tidligere dokumenterte ekte flyten. Programinfo V gjelder programemnets publiserte felt, ikke en separat detaljrute eller komplett beskrivelse.
+
+Emnesøk/-detaljer V gjelder tidligere avgrensede prøver: NTNU 9. september og NMBU/HVL/UiB/UiT 12. september 2026. NMH/Sámi og detaljvalg for Kristiania/KHiO/PHS merkes konservativt L her; et ekte programforløp alene løfter ikke en separat detaljrute til V. TP-eksamen L gjelder publiseringsflagg og semantikk i lokale offentlige TP-fixturer; NTNUs emnelenkede kalender og smale eksamensgjenkjenning er en separat L-kontrakt. PHS V gjelder den blandede offentlige eksamens-/fristflyten 12. september 2026, uten personlig eksamensoppmelding.
+
+**Fil/lenke L*** er den felles brukerinitierte ICS-/offentlige HTTPS-flyten, lokalt regresjonstestet 1. oktober, tilgjengelig ved alle lokale identiteter. Stjernen betyr et alternativ brukeren selv velger; den er ikke integrasjon med institusjonen eller bevis for en tilgjengelig offentlig/personlig feed. Selvstendige institusjonsfeil og tilgangskrav beholdes i hovedmatrisen.
+
+| Lokal institusjonsidentitet | Emnesøk | Separat emnedetaljrute | Programemneinfo | Offentlig eksamen | Brukerfil / lenke |
+| --- | --- | --- | --- | --- | --- |
+| Nord universitet | N | N | V | L (TP) | L* / L* |
+| Norges miljø- og biovitenskapelige universitet | V | V | V | U | L* / L* |
+| NTNU Norges teknisk-naturvitenskapelige universitet | V | V | V | L (NTNU) | L* / L* |
+| OsloMet - storbyuniversitetet | N | N | V | L (TP) | L* / L* |
+| UiT Norges arktiske universitet | V | V | V | L (TP) | L* / L* |
+| Universitetet i Agder | N | N | V | L (TP) | L* / L* |
+| Universitetet i Bergen | V | V | V | L (TP) | L* / L* |
+| Universitetet i Innlandet | N | N | V | L (TP) | L* / L* |
+| Universitetet i Oslo | N | N | V | L (TP) | L* / L* |
+| Universitetet i Stavanger | N | N | V | L (TP) | L* / L* |
+| Universitetet i Sørøst-Norge | N | N | V | U | L* / L* |
+| Arkitektur- og designhøgskolen i Oslo | N | N | V | U | L* / L* |
+| MF vitenskapelig høyskole for teologi, religion og samfunn | N | N | V | U | L* / L* |
+| Handelshøyskolen BI | N | N | V | U | L* / L* |
+| Høgskolen i Molde - vitenskapelig høgskole i logistikk | N | N | V | L (TP) | L* / L* |
+| Kunsthøgskolen i Oslo | N | L | V | U | L* / L* |
+| Norges Handelshøyskole | N | N | V | U | L* / L* |
+| Norges idrettshøgskole | N | N | V | U | L* / L* |
+| Norges musikkhøgskole | L | L | V | U | L* / L* |
+| VID vitenskapelige høgskole | N | N | V | U | L* / L* |
+| Ansgar Høyskole | N | N | V | U | L* / L* |
+| Bergen Arkitekthøgskole | N | N | V | U | L* / L* |
+| Dronning Mauds Minne Høgskole for barnehagelærerutdanning | N | N | V | U | L* / L* |
+| Fjellhaug Internasjonale Høgskole | N | N | V | U | L* / L* |
+| Forsvarets høgskole | N | N | V | U | L* / L* |
+| Høgskulen i Volda | N | N | V | U | L* / L* |
+| Høgskolen i Østfold | N | N | V | L (TP) | L* / L* |
+| Høyskolen for ledelse og teologi | N | N | V | U | L* / L* |
+| Høyskolen Kristiania | N | L | V | U | L* / L* |
+| Høgskulen på Vestlandet | V | N | V | U | L* / L* |
+| Lovisenberg diakonale høgskole | N | N | V | U | L* / L* |
+| NLA Høgskolen | N | N | V | U | L* / L* |
+| Politihøgskolen | N | L | V | V (PHS) | L* / L* |
+| Sámi allaskuvla/Samisk høgskole | L | L | V | U | L* / L* |
+| Steinerhøyskolen | N | N | V | U | L* / L* |
+| Barratt Due Musikkinstitutt | N | N | V | U | L* / L* |
+| Ekko Digitale AS | N | N | U | U | L* / L* |
+| Høgskulen for grøn utvikling (HGUt) | N | N | V | U | L* / L* |
+| Høyskolen for dansekunst | N | N | V | U | L* / L* |
+| Høyskolen for yrkesfag | N | N | V | U | L* / L* |
+| Kriminalomsorgens høgskole og utdanningssenter KRUS | N | N | V | U | L* / L* |
+| Lillehammer Institute of Music Production and Industries (LIMPI) | N | N | V | U | L* / L* |
+| Norges Høyskole for Helsefag | N | N | V | U | L* / L* |
+| Noroff | N | N | V | U | L* / L* |
+| Norsk barnebokinstitutt | N | N | V | U | L* / L* |
+| Norsk Gestaltinstitutt | N | N | V | U | L* / L* |
+| NSKI Høyskole | N | N | V | U | L* / L* |
+| Oslo Nye Høyskole | N | N | V | U | L* / L* |
+| Skrivekunstakademiet | N | N | V | U | L* / L* |
+
+Emnesøk: **5 V / 2 L / 42 N**. Separate detaljer: **4 V / 5 L / 40 N**. Programinfo: **48 V / 1 U**. Eksamen: **1 V / 11 L / 37 U**. Disse ekstra aksene er dokumentasjon av reelle ruter og avgrenset evidens, ikke nye påstander om nasjonal dekning.
+
+## Gjeldende full datatypeoversikt — 2026-10-01
+
+**Datatypeoversikt.** V = ekte import verifisert i avgrenset prøve; L = implementert/lokalt testet; F = offentlig kilde funnet; N = datatypen ikke direkte implementert/bekreftet; M = observert kildefeil med konkret ukjent årsak; A = dokumentert særskilt tilgang; T = vellykket offentlig oppslag med tomt resultat i den undersøkte perioden (dokumentasjonsstatus); Ø = ingen egnet kilde i avgrenset undersøkelse; U = fortsatt uundersøkt for denne datatypen. O/V-kolonnene gjelder obligatoriske/valgfrie emner, ikke total studiepoengdekning. Datoen for hver enkelt observasjon og presist omfang står i appens kildefelt.
+
+| Lærested og programkilde | Program | År | Kull | Modell† | Studiesem. | Kalender | O | V | Emneinfo | Undervisning | Campus | Grupper | Personlig |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [Nord universitet](https://www.nord.no/studier/studieplaner) | V | V | V | L | V | V | V | V | V | V | V | N | A |
+| [Norges miljø- og biovitenskapelige universitet](https://www.nmbu.no/studier) | V | V | V | L | V | V | V | N | V | V | V | N | Ø |
+| [NTNU Norges teknisk-naturvitenskapelige universitet](https://www.ntnu.no/studier/studieplan) | V | V | V | L | V | V | V | L | V | V | V | V | A |
+| [OsloMet - storbyuniversitetet](https://student.oslomet.no/studier) | V | V | V | L | V | V | V | L | V | V | F | N | A |
+| [UiT Norges arktiske universitet](https://uit.no/utdanning) | V | V | L | L | V | V | V | L | V | V | V | N | A |
+| [Universitetet i Agder](https://www.uia.no/studier/program/) | V | V | V | L | V | V | V | V | V | V | V | N | Ø |
+| [Universitetet i Bergen](https://www4.uib.no/studier/program) | V | L | N | L | V | N | L | L | V | V | N | N | A |
+| [Universitetet i Innlandet](https://studiekatalog.edutorium.no/inn/nb/program) | V | V | V | L | V | V | V | L | V | V | V | N | Ø |
+| [Universitetet i Oslo](https://www.uio.no/studier/program/) | V | N | N | L | V | N | V | V | V | V | N | N | A |
+| [Universitetet i Stavanger](https://www.uis.no/nb/student/studieprogram-og-emner) | V | V | N | L | V | N | V | L | V | V | N | N | A |
+| [Universitetet i Sørøst-Norge](https://www.usn.no/studier/studie-og-emneplaner/) | V | V | V | L | V | V | V | L | V | V | F | N | A |
+| [Arkitektur- og designhøgskolen i Oslo](https://www.aho.no/studier/program/) | V | V | V | L | V | V | V | V | V | M | V | Ø | Ø |
+| [MF vitenskapelig høyskole for teologi, religion og samfunn](https://mf.no/studier/programmer) | V | N | N | L | V | N | N | L | V | V | N | N | A |
+| [Handelshøyskolen BI](https://www.bi.no/studier-og-kurs/) | V | N | N | L | V | N | N | N | V | A | V | A | A |
+| [Høgskolen i Molde - vitenskapelig høgskole i logistikk](https://www.himolde.no/studier/programmer/) | V | N | V | L | N | V | V | V | V | V | N | N | A |
+| [Kunsthøgskolen i Oslo](https://khio.no/studieprogrammer) | V | N | N | L | N | N | N | N | V | V | N | N | Ø |
+| [Norges Handelshøyskole](https://www.nhh.no/studier/) | V | N | V | L | L | N | N | N | V | V | N | N | A |
+| [Norges idrettshøgskole](https://www.nih.no/studier/programmer/) | V | N | N | L | N | N | V | V | V | V | N | N | Ø |
+| [Norges musikkhøgskole](https://student.nmh.no/studiehandboker) | V | N | V | L | N | N | N | N | V | V | N | N | Ø |
+| [VID vitenskapelige høgskole](https://www.vid.no/studier/studieplaner) | V | V | V | L | V | V | V | L | V | A | V | A | A |
+| [Ansgar Høyskole](https://www.ansgarhoyskole.no/student/kalender) | V | V | N | L | V | V | N | L | V | V | N | L | Ø |
+| [Bergen Arkitekthøgskole](https://bas.org/en/master-i-arkitektur/) | V | N | N | L | V | N | N | N | V | Ø | N | Ø | Ø |
+| [Dronning Mauds Minne Høgskole for barnehagelærerutdanning](https://studier.dmmh.no/nb/program) | V | V | V | L | V | V | L | V | V | A | N | A | A |
+| [Fjellhaug Internasjonale Høgskole](https://fih.fjellhaug.no/studier/) | V | N | N | L | V | N | N | L | V | V | V | L | Ø |
+| [Forsvarets høgskole](https://www.forsvaret.no/utdanning/utdanninger) | V | V | V | L | V | V | V | L | V | M | V | M | A |
+| [Høgskulen i Volda](https://www.hivolda.no/studieplaner/2026) | V | V | V | L | V | V | L | L | V | V | N | N | Ø |
+| [Høgskolen i Østfold](https://www.hiof.no/studier/programmer/) | V | N | V | L | N | V | V | V | V | V | N | N | A |
+| [Høyskolen for ledelse og teologi](https://hlt.no/studietilbud/) | V | N | N | L | V | N | N | L | V | F | N | Ø | A |
+| [Høyskolen Kristiania](https://www.kristiania.no/studieportal/) | V | V | V | L | V | V | N | N | V | V | V | N | A |
+| [Høgskulen på Vestlandet](https://www.hvl.no/studier/studieprogram/studietilbod/) | V | V | V | L | V | V | V | L | V | V | V | N | Ø |
+| [Lovisenberg diakonale høgskole](https://ldh.no/studietilbud) | V | N | V | L | V | N | N | N | V | V | N | N | Ø |
+| [NLA Høgskolen](https://www.nla.no/for-studenter/Studie-%20og%20emneplaner) | V | N | V | L | V | N | L | L | V | M | V | M | A |
+| [Politihøgskolen](https://www.politihogskolen.no/studier/) | V | V | V | L | V | V | V | L | V | Ø | V | Ø | A |
+| [Sámi allaskuvla/Samisk høgskole](https://samas.no/nb/studier) | V | L | V | L | V | L | L | L | V | M | N | N | Ø |
+| [Steinerhøyskolen](https://www.steinerhoyskolen.no/for-studenter/ressurser) | V | N | N | L | V | N | N | N | V | V | V | N | Ø |
+| [Barratt Due Musikkinstitutt](https://barrattdue.no/studier/) | V | N | N | L | N | N | N | L | V | Ø | N | Ø | Ø |
+| [Ekko Digitale AS](https://virksomhet.brreg.no/nb/oppslag/enheter/929768671) | Ø | U | U | N | U | U | U | U | U | Ø | Ø | Ø | Ø |
+| [Høgskulen for grøn utvikling (HGUt)](https://hgut.no/) | V | N | N | L | N | N | L | L | V | Ø | N | Ø | Ø |
+| [Høyskolen for dansekunst](https://www.hfdk.no/for-studenter/studieplan-og-emner) | V | N | N | L | N | N | N | N | V | A | N | A | A |
+| [Høyskolen for yrkesfag](https://hfy.no/) | V | N | N | L | L | N | N | N | V | V | N | L | Ø |
+| [Kriminalomsorgens høgskole og utdanningssenter KRUS](https://www.krus.no/for-aspiranter-og-studenter) | V | V | V | L | V | V | L | L | V | M | N | M | A |
+| [Lillehammer Institute of Music Production and Industries (LIMPI)](https://limpimusic.com/program/) | V | V | V | L | V | V | V | L | V | Ø | N | Ø | Ø |
+| [Norges Høyskole for Helsefag](https://nhfh.no/studier/) | V | N | N | L | V | N | N | N | V | Ø | V | A | A |
+| [Noroff](https://studiekatalog.edutorium.no/nuc/en/programme) | V | V | V | L | V | V | N | N | V | F | F | Ø | A |
+| [Norsk barnebokinstitutt](https://barnebokinstituttet.no/utdanninger-og-kurs/) | V | N | N | L | V | N | V | N | V | M | N | M | Ø |
+| [Norsk Gestaltinstitutt](https://gestalt.no/) | V | N | N | L | N | N | V | N | V | V | V | L | Ø |
+| [NSKI Høyskole](https://www.nski.no/studietilbud) | V | N | N | L | N | N | N | N | V | Ø | N | Ø | Ø |
+| [Oslo Nye Høyskole](https://oslonyehoyskole.no/studier) | V | L | N | L | V | N | L | L | V | A | V | A | A |
+| [Skrivekunstakademiet](https://www.skrivekunst.no/arsstudium/) | V | V | N | L | V | V | V | Ø | V | T | V | Ø | Ø |
+
+
+† **Studiemodell føres separat:** 48 L / 1 N gjelder adapterens implementerte og lokalt kontrakttestede `models`-struktur med perioder, emner og valg, ikke en påstand om komplett offisiell studiemodell eller alle modellvarianter. En enkelt adaptermodell kan være en normalisert årsoversikt eller et ufullstendig kildeutdrag. Offisielt navngitte modellvalg, planutgaver, heltid/deltid og retninger må vurderes mot de daterte prøvene og kildebegrensningene nedenfor; programstatus V løfter ikke automatisk denne aksen til V. Manglende eller uverifiserte modeller/varianter er fortsatt nasjonale restkrav.
+
+**Tomt resultat holdes adskilt:** Skrivekunsts historiske, vellykkede kalenderoppslag september 2026–februar 2027 har T, uten påstand om at kalenderen alltid er tom. Sámi har derimot råoppføringer som alle ble forkastet og beholder M for ugyldige kildeaktiviteter, ikke et vellykket tomt oppslag. Dokumentasjonens undervisningstotal er 27 V / 6 M / 5 A / 2 F / 8 Ø / 1 T = 49. Kodens eldre evidenssymboler har 9 Ø fordi T er et presisert dokumentasjonsunderutfall av én av disse radene; kodestatusene er ikke blitt omdefinert.
+
+## Historiske kildekontrakter og datatypebevis, 2026-09-20
+
+**Historisk status 20. september (tidligere pause er opphevet av dette oppdraget):** 48 av de 49 kartlagte institusjonene har nå en registrert programadapter. AHO er lagt til etter de sju R27-kontraktene for Nord, UiA, UiO, Høgskolen i Molde, NIH, Høgskolen i Østfold og Skrivekunstakademiet. Alle 48 identiteter går gjennom den faktiske middleware-grensen, men «adapter registrert» betyr fortsatt ikke at alle programmer, kull eller datatyper er ekte verifisert. Videre utvidelse av institusjonsdekningen er satt på pause; nasjonal full dekning og alle datatypevarianter er derfor uttrykkelig åpne krav, ikke skjult ferdigstatus.
 
 AHOs offisielle studieplansider løste det tidligere programrestkravet. Programoversikten, programsidene, planarkivet og planutgavene svarte HTTP 200 fra appmiljøet. Master i design 2026–2031 ga 10 perioder og 31 emner og bestod ekte kildevalg, forhåndsvisning, lagring, omlasting og gjentakelse; Master i arkitektur 2026–2031 ga 9 publiserte perioder og 44 emner gjennom den ekte serverkjeden. Moodle er ikke grunnlaget for adapteren. Den separate offentlige TP-undervisningsinngangen beholder status `M` etter den tidligere HTTP 404-observasjonen.
 
@@ -46,60 +194,6 @@ Institusjonskalenderen støtter Plandisc som kapasitetsfri informasjon, HØFY og
 **Campus, grupper og personlig timeplan.** De fire åpne campusfeltene er avklart uten å trekke campus fra romnavn eller hovedadresse: UiB, DMMH og Volda står `N`, mens historiske Ekko står `Ø`. De 19 åpne gruppefeltene er fordelt etter faktisk kilde: HFDK/NHFH `A`; FHS/NLA/KRUS/NBI `M`; AHO/NIH/HiMolde `N`; og BAS/HLT/PHS/Barratt Due/Ekko/HGUt/LIMPI/Noroff/NSKI/Skrivekunst `Ø`. For personlig timeplan skiller appen nå mellom 25 dokumenterte innloggingskrevende institusjonskilder (`A`) og 24 avgrensede undersøkelser uten egnet anonym personlig kilde (`Ø`). En offentlig emne-/gruppeplan kan fortsatt settes sammen lokalt fra studentens bekreftede valg, men omtales ikke som institusjonens private personlige timeplan. Studentens egen kalenderfil eller abonnementslenke er fortsatt et separat alternativ.
 
 **Programimportens ene institusjonsrestkrav.** AHO-restkravet er løst med offisielle studieplansider og verifisert anonym transport. Ekko har ingen gjeldende selvstendig program-/kullkatalog etter den dokumenterte fusjonen med ONH; historisk Ekko-import krever et offisielt arkiv eller studentens dokument. De tidligere 403-observasjonene for Nord, UiA, UiO, Molde, NIH og HiØ er erstattet av HTTP 200-kontroller og implementerte adaptere. Skrivekunstakademiets faktiske struktur er implementert uten kunstige underemner. Manuell registrering og dokumentimport er fortsatt alternativer og telles ikke som direkte institusjonsintegrasjon.
-
-**Datatypeoversikt.** V = ekte import verifisert i avgrenset prøve; L = implementert/lokalt testet; F = offentlig kilde funnet; N = datatypen ikke direkte implementert/bekreftet; M = observert kildefeil med konkret ukjent årsak; A = dokumentert særskilt tilgang; Ø = ingen egnet kilde i avgrenset undersøkelse; U = fortsatt uundersøkt for denne datatypen. O/V-kolonnene gjelder obligatoriske/valgfrie emner, ikke total studiepoengdekning. Datoen for hver enkelt observasjon og presist omfang står i appens kildefelt.
-
-| Lærested og programkilde | Program | År | Kull | Studiesem. | Kalender | O | V | Emneinfo | Undervisning | Campus | Grupper | Personlig |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Nord universitet](https://www.nord.no/studier/studieplaner) | V | V | V | V | V | V | V | V | V | V | N | A |
-| [Norges miljø- og biovitenskapelige universitet](https://www.nmbu.no/studier) | V | V | V | V | V | V | N | V | V | V | N | Ø |
-| [NTNU Norges teknisk-naturvitenskapelige universitet](https://www.ntnu.no/studier/studieplan) | V | V | V | V | V | V | L | V | V | V | V | A |
-| [OsloMet - storbyuniversitetet](https://student.oslomet.no/studier) | V | V | V | V | V | V | L | V | V | F | N | A |
-| [UiT Norges arktiske universitet](https://uit.no/utdanning) | V | V | L | V | V | V | L | V | V | V | N | A |
-| [Universitetet i Agder](https://www.uia.no/studier/program/) | V | V | V | V | V | V | V | V | V | V | N | Ø |
-| [Universitetet i Bergen](https://www4.uib.no/studier/program) | V | L | N | V | N | L | L | V | V | N | N | A |
-| [Universitetet i Innlandet](https://studiekatalog.edutorium.no/inn/nb/program) | V | V | V | V | V | V | L | V | V | V | N | Ø |
-| [Universitetet i Oslo](https://www.uio.no/studier/program/) | V | N | N | V | N | V | V | V | V | N | N | A |
-| [Universitetet i Stavanger](https://www.uis.no/nb/student/studieprogram-og-emner) | V | V | N | V | N | V | L | V | V | N | N | A |
-| [Universitetet i Sørøst-Norge](https://www.usn.no/studier/studie-og-emneplaner/) | V | V | V | V | V | V | L | V | V | F | N | A |
-| [Arkitektur- og designhøgskolen i Oslo](https://www.aho.no/studier/program/) | V | V | V | V | V | V | V | V | M | V | Ø | Ø |
-| [MF vitenskapelig høyskole for teologi, religion og samfunn](https://mf.no/studier/programmer) | V | N | N | V | N | N | L | V | V | N | N | A |
-| [Handelshøyskolen BI](https://www.bi.no/studier-og-kurs/) | V | N | N | V | N | N | N | V | A | V | A | A |
-| [Høgskolen i Molde - vitenskapelig høgskole i logistikk](https://www.himolde.no/studier/programmer/) | V | N | V | N | V | V | V | V | V | N | N | A |
-| [Kunsthøgskolen i Oslo](https://khio.no/studieprogrammer) | V | N | N | N | N | N | N | V | V | N | N | Ø |
-| [Norges Handelshøyskole](https://www.nhh.no/studier/) | V | N | V | L | N | N | N | V | V | N | N | A |
-| [Norges idrettshøgskole](https://www.nih.no/studier/programmer/) | V | N | N | N | N | V | V | V | V | N | N | Ø |
-| [Norges musikkhøgskole](https://student.nmh.no/studiehandboker) | V | N | V | N | N | N | N | V | V | N | N | Ø |
-| [VID vitenskapelige høgskole](https://www.vid.no/studier/studieplaner) | V | V | V | V | V | V | L | V | A | V | A | A |
-| [Ansgar Høyskole](https://www.ansgarhoyskole.no/student/kalender) | V | V | N | V | V | N | L | V | V | N | L | Ø |
-| [Bergen Arkitekthøgskole](https://bas.org/en/master-i-arkitektur/) | V | N | N | V | N | N | N | V | Ø | N | Ø | Ø |
-| [Dronning Mauds Minne Høgskole for barnehagelærerutdanning](https://studier.dmmh.no/nb/program) | V | V | V | V | V | L | V | V | A | N | A | A |
-| [Fjellhaug Internasjonale Høgskole](https://fih.fjellhaug.no/studier/) | V | N | N | V | N | N | L | V | V | V | L | Ø |
-| [Forsvarets høgskole](https://www.forsvaret.no/utdanning/utdanninger) | V | V | V | V | V | V | L | V | M | V | M | A |
-| [Høgskulen i Volda](https://www.hivolda.no/studieplaner/2026) | V | V | V | V | V | L | L | V | V | N | N | Ø |
-| [Høgskolen i Østfold](https://www.hiof.no/studier/programmer/) | V | N | V | N | V | V | V | V | V | N | N | A |
-| [Høyskolen for ledelse og teologi](https://hlt.no/studietilbud/) | V | N | N | V | N | N | L | V | F | N | Ø | A |
-| [Høyskolen Kristiania](https://www.kristiania.no/studieportal/) | V | V | V | V | V | N | N | V | V | V | N | A |
-| [Høgskulen på Vestlandet](https://www.hvl.no/studier/studieprogram/studietilbod/) | V | V | V | V | V | V | L | V | V | V | N | Ø |
-| [Lovisenberg diakonale høgskole](https://ldh.no/studietilbud) | V | N | V | V | N | N | N | V | V | N | N | Ø |
-| [NLA Høgskolen](https://www.nla.no/for-studenter/Studie-%20og%20emneplaner) | V | N | V | V | N | L | L | V | M | V | M | A |
-| [Politihøgskolen](https://www.politihogskolen.no/studier/) | V | V | V | V | V | V | L | V | Ø | V | Ø | A |
-| [Sámi allaskuvla/Samisk høgskole](https://samas.no/nb/studier) | V | L | V | V | L | L | L | V | M | N | N | Ø |
-| [Steinerhøyskolen](https://www.steinerhoyskolen.no/for-studenter/ressurser) | V | N | N | V | N | N | N | V | V | V | N | Ø |
-| [Barratt Due Musikkinstitutt](https://barrattdue.no/studier/) | V | N | N | N | N | N | L | V | Ø | N | Ø | Ø |
-| [Ekko Digitale AS](https://virksomhet.brreg.no/nb/oppslag/enheter/929768671) | Ø | U | U | U | U | U | U | U | Ø | Ø | Ø | Ø |
-| [Høgskulen for grøn utvikling (HGUt)](https://hgut.no/) | V | N | N | N | N | L | L | V | Ø | N | Ø | Ø |
-| [Høyskolen for dansekunst](https://www.hfdk.no/for-studenter/studieplan-og-emner) | V | N | N | N | N | N | N | V | A | N | A | A |
-| [Høyskolen for yrkesfag](https://hfy.no/) | V | N | N | L | N | N | N | V | V | N | L | Ø |
-| [Kriminalomsorgens høgskole og utdanningssenter KRUS](https://www.krus.no/for-aspiranter-og-studenter) | V | V | V | V | V | L | L | V | M | N | M | A |
-| [Lillehammer Institute of Music Production and Industries (LIMPI)](https://limpimusic.com/program/) | V | V | V | V | V | V | L | V | Ø | N | Ø | Ø |
-| [Norges Høyskole for Helsefag](https://nhfh.no/studier/) | V | N | N | V | N | N | N | V | Ø | V | A | A |
-| [Noroff](https://studiekatalog.edutorium.no/nuc/en/programme) | V | V | V | V | V | N | N | V | F | F | Ø | A |
-| [Norsk barnebokinstitutt](https://barnebokinstituttet.no/utdanninger-og-kurs/) | V | N | N | V | N | V | N | V | M | N | M | Ø |
-| [Norsk Gestaltinstitutt](https://gestalt.no/) | V | N | N | N | N | V | N | V | V | V | L | Ø |
-| [NSKI Høyskole](https://www.nski.no/studietilbud) | V | N | N | N | N | N | N | V | Ø | N | Ø | Ø |
-| [Oslo Nye Høyskole](https://oslonyehoyskole.no/studier) | V | L | N | V | N | L | L | V | A | V | A | A |
-| [Skrivekunstakademiet](https://www.skrivekunst.no/arsstudium/) | V | V | N | V | V | V | Ø | V | Ø | V | Ø | Ø |
 
 **Bevis og gjenstående arbeid.** [VERIFICATION.md](VERIFICATION.md) oppgir daterte nettleser- og serverkontroller. Offentlige fixturer er regresjonsgrunnlag, ikke nye nettleserakseptanser, og lokale rårapporter følger ikke Git-klonen. Nasjonal full dekning (T3), manglende kildefelt og det presise Ekko-restkravet holdes åpne; antall fungerende eksempler lukker ikke disse kravene.
 

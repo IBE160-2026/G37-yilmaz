@@ -28,7 +28,7 @@ it('uses remaining work for quick suggestions and active next step once, excludi
 it('retains remaining estimate through step, completion, undo and submission transitions; empty edit explicitly means unknown', () => {
   const source = [{ ...task, remainingMinutes: 45, requiresSubmission: true }]
   const step = setNextStep(source, task.id, { description: 'Les', estimatedMinutes: '10' }).tasks
-  expect(completeNextStep(step, task.id).tasks).toEqual(source)
+  expect(completeNextStep(step, task.id).tasks[0]).toMatchObject({ ...source[0], steps: [{ completed: true }] })
   const done = setTaskCompleted(source, task.id, true).tasks
   expect(done[0].remainingMinutes).toBe(45)
   expect(setTaskCompleted(done, task.id, false).tasks).toEqual(source)

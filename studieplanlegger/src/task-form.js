@@ -1,8 +1,9 @@
 import { validateCourse, semesterLabel, osloYear } from './planner.js'
 import { getRemainingMinutes } from './tasks.js'
 import { personalEstimate } from './personal-estimates.js'
+import { nameFirstLabel, sortByVisibleName } from './name-sort.js'
 export function courseOptionLabels(courses) {
-  const base = c => [c.code, c.name, c.university || 'Institusjon ikke oppgitt', c.campus, semesterLabel(c.semester, c.year)].filter(Boolean).join(' · ')
+  const base = c => nameFirstLabel(c, [c.university || 'Institusjon ikke oppgitt', c.campus, semesterLabel(c.semester, c.year)])
   return new Map(courses.map(course => {
     const name = base(course), peers = courses.filter(c => base(c) === name).sort((a, b) => a.id.localeCompare(b.id))
     return [course.id, peers.length > 1 ? `${name} · Valg ${peers.findIndex(c => c.id === course.id) + 1}` : name]
@@ -41,7 +42,7 @@ export function createTaskForm(form) {
   function options() {
     const selected = selector.value
     selector.replaceChildren(new Option('Emnetekst uten kobling', '')); list.replaceChildren()
-    for (const course of [...courses, ...(pending ? [pending] : [])]) { selector.append(new Option(label(course), course.id)); list.append(new Option(label(course), label(course))) }
+    for (const course of sortByVisibleName([...courses, ...(pending ? [pending] : [])])) { selector.append(new Option(label(course), course.id)); list.append(new Option(label(course), label(course))) }
     selector.value = selected
   }
   input.addEventListener('input', () => {

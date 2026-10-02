@@ -50,6 +50,10 @@ export class StateDatabase {
         CREATE TABLE IF NOT EXISTS missing_dependencies (task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, missing_id TEXT NOT NULL, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(task_id, missing_id));
         CREATE TABLE IF NOT EXISTS work_logs (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, task_id TEXT, operation_id TEXT UNIQUE, outcome TEXT, payload_json TEXT NOT NULL);
         CREATE INDEX IF NOT EXISTS work_logs_task_id ON work_logs(task_id);
+        CREATE TABLE IF NOT EXISTS topics (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, task_id TEXT REFERENCES tasks(id) ON DELETE CASCADE, payload_json TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS assessments (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, topic_id TEXT NOT NULL REFERENCES topics(id) ON DELETE CASCADE, session_id TEXT, assessed_at TEXT NOT NULL, payload_json TEXT NOT NULL);
+        CREATE INDEX IF NOT EXISTS assessments_topic_id ON assessments(topic_id);
+        CREATE TABLE IF NOT EXISTS review_decisions (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, assessment_id TEXT NOT NULL REFERENCES assessments(id) ON DELETE CASCADE, review_key TEXT NOT NULL UNIQUE, status TEXT NOT NULL, session_id TEXT REFERENCES sessions(id) ON DELETE SET NULL, payload_json TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS planner_events (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, source_id TEXT REFERENCES planner_sources(id) ON DELETE RESTRICT, start_at TEXT, payload_json TEXT NOT NULL);
         CREATE INDEX IF NOT EXISTS planner_events_course_id ON planner_events(course_id);
         CREATE TABLE IF NOT EXISTS planner_sources (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE RESTRICT, kind TEXT, payload_json TEXT NOT NULL);
@@ -65,9 +69,16 @@ export class StateDatabase {
       }
       this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(1,datetime('now'))").run()
       this.db.prepare("INSERT OR IGNORE INTO state_meta(singleton,revision,preferences_json,shape_json,updated_at) VALUES(1,0,'{\"schemaVersion\":1}','{}',datetime('now'))").run()
-      if (this.db.prepare("PRAGMA foreign_key_list('tasks')").all().length === 0) this._upgradeForeignKeys()
+        if (this.db.prepare("PRAGMA foreign_key_list('tasks')").all().length === 0) this._upgradeForeignKeys()
+        if (this.db.prepare("PRAGMA foreign_key_list('topics')").all().length < 2 || !this.db.prepare("PRAGMA foreign_key_list('review_decisions')").all().some(row => row.from === 'session_id')) this._upgradeForeignKeys()
+        // A closeout removes the ordinary session and keeps its ID in work_logs;
+        // assessment.session_id is therefore a validated historical relation,
+        // not an FK to the live sessions table.
+        if (!this.db.prepare("PRAGMA table_info('assessments')").all().some(column => column.name === 'session_id')) this.db.exec('ALTER TABLE assessments ADD COLUMN session_id TEXT')
       this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(2,datetime('now'))").run()
       this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(3,datetime('now'))").run()
+        this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(4,datetime('now'))").run()
+        this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version,applied_at) VALUES(5,datetime('now'))").run()
       const violations = this.db.prepare('PRAGMA foreign_key_check').all()
       if (violations.length) throw new Error(`Database migration failed foreign-key validation (${violations.length} violation${violations.length === 1 ? '' : 's'}).`)
       this.db.exec('COMMIT')
@@ -81,7 +92,7 @@ export class StateDatabase {
   _upgradeForeignKeys() {
     const current = this.read()
     const { updated_at: updatedAt } = this.db.prepare('SELECT updated_at FROM state_meta WHERE singleton=1').get()
-    for (const table of ['dependencies','missing_dependencies','sessions','work_logs','planner_events','planner_sources','import_entries','import_sources','tasks','courses','windows','history_state']) this.db.exec(`DROP TABLE IF EXISTS ${table}`)
+    for (const table of ['review_decisions','assessments','topics','dependencies','missing_dependencies','sessions','work_logs','planner_events','planner_sources','import_entries','import_sources','tasks','courses','windows','history_state']) this.db.exec(`DROP TABLE IF EXISTS ${table}`)
     this.db.exec(`
         CREATE TABLE courses (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, provider TEXT, source_record_id TEXT, payload_json TEXT NOT NULL);
         CREATE TABLE tasks (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, completed INTEGER NOT NULL, payload_json TEXT NOT NULL);
@@ -92,6 +103,10 @@ export class StateDatabase {
         CREATE TABLE missing_dependencies (task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, missing_id TEXT NOT NULL, position INTEGER NOT NULL, payload_json TEXT NOT NULL, PRIMARY KEY(task_id, missing_id));
         CREATE TABLE work_logs (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, task_id TEXT, operation_id TEXT UNIQUE, outcome TEXT, payload_json TEXT NOT NULL);
         CREATE INDEX work_logs_task_id ON work_logs(task_id);
+        CREATE TABLE topics (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, task_id TEXT REFERENCES tasks(id) ON DELETE CASCADE, payload_json TEXT NOT NULL);
+        CREATE TABLE assessments (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, topic_id TEXT NOT NULL REFERENCES topics(id) ON DELETE CASCADE, session_id TEXT, assessed_at TEXT NOT NULL, payload_json TEXT NOT NULL);
+        CREATE INDEX assessments_topic_id ON assessments(topic_id);
+        CREATE TABLE review_decisions (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, assessment_id TEXT NOT NULL REFERENCES assessments(id) ON DELETE CASCADE, review_key TEXT NOT NULL UNIQUE, status TEXT NOT NULL, session_id TEXT REFERENCES sessions(id) ON DELETE SET NULL, payload_json TEXT NOT NULL);
         CREATE TABLE planner_sources (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE RESTRICT, kind TEXT, payload_json TEXT NOT NULL);
         CREATE TABLE planner_events (id TEXT PRIMARY KEY, position INTEGER NOT NULL UNIQUE, course_id TEXT REFERENCES courses(id) ON DELETE RESTRICT, source_id TEXT REFERENCES planner_sources(id) ON DELETE RESTRICT, start_at TEXT, payload_json TEXT NOT NULL);
         CREATE INDEX planner_events_course_id ON planner_events(course_id);
@@ -107,7 +122,7 @@ export class StateDatabase {
   close() { this.db.close() }
   revision() { return this.db.prepare('SELECT revision FROM state_meta WHERE singleton=1').get().revision }
   isEmpty() {
-    return this.revision() === 0 && ['tasks', 'courses', 'sessions', 'work_logs', 'planner_events', 'planner_sources', 'import_sources']
+    return this.revision() === 0 && ['tasks', 'courses', 'sessions', 'work_logs', 'topics', 'assessments', 'review_decisions', 'planner_events', 'planner_sources', 'import_sources']
       .every(table => this.db.prepare(`SELECT COUNT(*) count FROM ${table}`).get().count === 0)
   }
 
@@ -146,6 +161,9 @@ export class StateDatabase {
     const sessions = rows('sessions'); if (sessions.length || shape.hasSessions) state.sessions = sessions
     if (courses.length || events.length || sources.length || shape.hasPlanner) state.planner = { ...(shape.planner || {}), courses, events, sources }
     const workLogs = rows('work_logs'); if (workLogs.length || shape.hasWorkLogs) state.workLogs = workLogs
+    const topics = rows('topics'); if (topics.length || shape.hasTopics) state.topics = topics
+    const assessments = rows('assessments'); if (assessments.length || shape.hasAssessments) state.assessments = assessments
+    const reviewDecisions = rows('review_decisions'); if (reviewDecisions.length || shape.hasReviewDecisions) state.reviewDecisions = reviewDecisions
     const importSources = this.db.prepare('SELECT payload_json, id FROM import_sources ORDER BY position').all().map(row => ({ ...parse(row.payload_json), entries: this.db.prepare('SELECT payload_json FROM import_entries WHERE source_id=? ORDER BY position').all(row.id).map(entry => parse(entry.payload_json)) }))
     if (importSources.length || shape.hasImportSources) state.importSources = importSources
     for (const [key, kind] of [['workWindows', 'work'], ['busyWindows', 'busy']]) {
@@ -158,7 +176,7 @@ export class StateDatabase {
   }
 
   _replace(envelope, nextRevision) {
-    for (const table of ['dependencies','missing_dependencies','import_entries','planner_events','planner_sources','sessions','work_logs','tasks','courses','import_sources','windows','history_state']) this.db.exec(`DELETE FROM ${table}`)
+    for (const table of ['review_decisions','assessments','topics','dependencies','missing_dependencies','import_entries','planner_events','planner_sources','sessions','work_logs','tasks','courses','import_sources','windows','history_state']) this.db.exec(`DELETE FROM ${table}`)
     const insertPayloads = (table, values, columns, fields) => {
       if (!values?.length) return
       const statement = this.db.prepare(`INSERT INTO ${table} (${columns.join(',')}) VALUES (${columns.map(() => '?').join(',')})`)
@@ -178,6 +196,12 @@ export class StateDatabase {
     }
     insertPayloads('sessions', envelope.sessions, ['id','position','task_id','date_local','payload_json'], (v,p) => [v.id,p,v.taskId ?? null,v.dateLocal ?? null])
     insertPayloads('work_logs', envelope.workLogs, ['id','position','task_id','operation_id','outcome','payload_json'], (v,p) => [v.id,p,v.taskId ?? null,v.operationId ?? null,v.outcome ?? null])
+    insertPayloads('topics', envelope.topics, ['id','position','course_id','task_id','payload_json'], (v,p) => [v.id,p,v.courseId ?? null,v.taskId ?? null])
+      insertPayloads('assessments', envelope.assessments, ['id','position','topic_id','session_id','assessed_at','payload_json'], (v,p) => [v.id,p,v.topicId,v.sessionId ?? null,v.assessedAt])
+    // Completed reviews keep their exact session identity in payload_json and
+    // work-log snapshots; this FK column only points to a still-live session.
+    const liveSessionIds = new Set((envelope.sessions || []).map(session => session.id))
+    insertPayloads('review_decisions', envelope.reviewDecisions, ['id','position','assessment_id','review_key','status','session_id','payload_json'], (v,p) => [v.id,p,v.assessmentId,v.reviewKey,v.status,liveSessionIds.has(v.sessionId) ? v.sessionId : null])
     insertPayloads('planner_sources', envelope.planner?.sources, ['id','position','course_id','kind','payload_json'], (v,p) => [v.id,p,v.courseId ?? null,v.kind ?? null])
     insertPayloads('planner_events', envelope.planner?.events, ['id','position','course_id','source_id','start_at','payload_json'], (v,p) => [v.id,p,v.courseId || null,v.sourceId ?? null,v.start ?? null])
     const importSource = this.db.prepare('INSERT INTO import_sources(id,position,kind,content_hash,payload_json) VALUES (?,?,?,?,?)')
@@ -190,12 +214,15 @@ export class StateDatabase {
     const windowStatement = this.db.prepare('INSERT INTO windows(kind,id,position,payload_json) VALUES (?,?,?,?)')
     for (const [key, kind] of [['workWindows','work'],['busyWindows','busy']]) (envelope[key] || []).forEach((value, position) => windowStatement.run(kind, value.id, position, json(value)))
     if (envelope.history !== undefined) this.db.prepare('INSERT INTO history_state(singleton,payload_json) VALUES (1,?)').run(json(envelope.history))
-    const { tasks, sessions, planner, workLogs, importSources, workWindows, busyWindows, history, ...preferences } = envelope
+    const { tasks, sessions, planner, workLogs, importSources, workWindows, busyWindows, history, topics, assessments, reviewDecisions, ...preferences } = envelope
     const shape = {
       hasSessions: sessions !== undefined,
       hasPlanner: planner !== undefined,
       planner: planner ? Object.fromEntries(Object.entries(planner).filter(([key]) => !['courses','events','sources'].includes(key))) : undefined,
       hasWorkLogs: workLogs !== undefined,
+      hasTopics: topics !== undefined,
+      hasAssessments: assessments !== undefined,
+      hasReviewDecisions: reviewDecisions !== undefined,
       hasImportSources: importSources !== undefined,
       hasWorkWindows: workWindows !== undefined,
       hasBusyWindows: busyWindows !== undefined,
@@ -269,8 +296,9 @@ export class StateDatabase {
       const updateArchive = this.db.prepare('UPDATE legacy_archives SET raw=? WHERE fingerprint=?')
       for (const row of this.db.prepare('SELECT fingerprint,raw FROM legacy_archives').all()) {
         let value
-        try { value = parse(row.raw) } catch { continue }
-        if (validEnvelope(value, { relations: true })) updateArchive.run(json(purgeWorkHistory(value)), row.fingerprint)
+        try { value = parse(row.raw) } catch { throw new TypeError(`unreadable-legacy-archive:${row.fingerprint}`) }
+        if (!validEnvelope(value, { relations: true })) throw new TypeError(`unreadable-legacy-archive:${row.fingerprint}`)
+        updateArchive.run(json(purgeWorkHistory(value)), row.fingerprint)
       }
       this.db.exec('COMMIT')
       return { revision: nextRevision, envelope: purged }

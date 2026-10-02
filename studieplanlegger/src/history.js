@@ -6,12 +6,13 @@ import { validWorkLogs } from './work-log.js'
 import { validImportSources } from './import-source-contract.js'
 import { validConnectedPreferences } from './planning-rules.js'
 import { validateDependencyGraph } from './task-dependencies.js'
+import { validTopics, validAssessments, validReviewDecisions } from './review-planning.js'
 const clone = value => value === undefined ? undefined : structuredClone(value)
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const sourceBookkeeping = new Set(['lastAttempt', 'lastSuccess', 'lastUpdated', 'lastError', 'failures'])
 const semantic = (value, path) => path === 'planner.sources' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => !sourceBookkeeping.has(key))) : path === 'planner.courses' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'teachingCheck')) : value
 const scalarPaths = ['planningPreferences', 'studyTimePreference', 'personalization', 'onboarding']
-const paths = ['tasks', 'sessions', 'workWindows', 'busyWindows', 'planner.courses', 'planner.events', 'planner.sources', 'workLogs', 'importSources', ...scalarPaths]
+const paths = ['tasks', 'sessions', 'workWindows', 'busyWindows', 'planner.courses', 'planner.events', 'planner.sources', 'workLogs', 'importSources', 'topics', 'assessments', 'reviewDecisions', ...scalarPaths]
 const get = (value, path) => path.split('.').reduce((node, key) => node?.[key], value)
 const collection = (value, path) => scalarPaths.includes(path) ? get(value, path) === undefined ? [] : [{ id: path, value: get(value, path) }] : get(value, path) || []
 function set(value, path, next) {
@@ -39,6 +40,9 @@ export function validHistory(value, envelope) {
       if (change.path === 'planner.sources' && !validPlanner({ courses, events: [], sources: [item] })) return false
       if (change.path === 'workLogs' && !validWorkLogs([item])) return false
       if (change.path === 'importSources' && !validImportSources([item])) return false
+      if (change.path === 'topics' && !validTopics([item])) return false
+      if (change.path === 'assessments' && !validAssessments([item])) return false
+      if (change.path === 'reviewDecisions' && !validReviewDecisions([item])) return false
       if (scalarPaths.includes(change.path) && (item.id !== change.path || !validConnectedPreferences({ [change.path]: item.value }))) return false
     }
   }

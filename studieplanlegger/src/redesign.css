@@ -370,8 +370,10 @@ body[data-design-view='overview'] #task-list :is(.task-estimate, .capacity-expla
 .teaching-status-ready { color: var(--green-strong); background: var(--green-wash); }
 .teaching-status-failed, .teaching-status-access-required { color: #973f22; background: #fff2e6; }
 .preview-events { max-height: 260px; overflow: auto; padding-left: 22px; font-size: .8125rem; }
-.teaching-choice-list { max-height: 260px; overflow: auto; overscroll-behavior: contain; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
-.teaching-choice-list label { min-height: 36px; margin: 0; padding: 5px 2px; }
+.teaching-choice-list { display: grid; grid-auto-rows: max-content; max-height: 260px; overflow: auto; overscroll-behavior: contain; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+.teaching-choice-list label { min-width: 0; min-height: 36px; height: auto; align-items: flex-start; margin: 0; padding: 5px 2px; }
+.teaching-choice-list label > span { min-width: 0; line-height: 1.35; overflow-wrap: anywhere; }
+.teaching-choice-list input { flex-shrink: 0; }
 .import-message { padding: 12px; background: #edf5eb; color: #345b3c; border-radius: 8px; }
 .import-message.is-error, .import-warning { color: #973f22; background: #fff2e6; padding: 12px; border-radius: 8px; }
 .feedback-bar { color: #294d3c; border: 1px solid #cbdccf; background: #f0f7ee; border-radius: 10px; margin-bottom: 18px; animation: panel-enter 220ms ease; }
@@ -547,3 +549,27 @@ body[data-account-state='partial'][data-design-view='overview'] #empty-dashboard
   .daily-task-actions > button { padding: 8px 10px; }
   .daily-task-actions .daily-menu button { margin: 2px 0; width: 100%; text-align: left; }
 }
+/* Local, rule-based text registration keeps the draft and proposal visibly
+   separate from the ordinary task editor. */
+.text-registration { margin: 1rem 0; padding: 1rem; border: 1px solid var(--border, #d8d8d8); border-radius: .75rem; background: var(--surface-soft, #faf9f5); }
+.text-registration-form label, .text-registration-field { display: grid; gap: .35rem; }
+.text-registration-form textarea { width: 100%; resize: vertical; }
+.text-registration-proposal { display: grid; gap: .75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border, #d8d8d8); }
+.text-registration-feedback:not(:empty) { margin-top: .75rem; }
+.is-exam { --exam-accent: #9a3f28; border-inline-start: .35rem solid var(--exam-accent) !important; }
+.exam-badge { font-weight: 800; color: var(--exam-accent, #742f20); }
+.exam-course { font-weight: 750; overflow-wrap: anywhere; }
+.calendar-entry.is-exam { align-content: start; gap: .1rem; }
+.calendar-entry.is-exam > * { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+  .text-registration { scroll-margin-bottom: 5.5rem; }
+  .text-registration input, .text-registration textarea, .text-registration select, .text-registration button { scroll-margin-block: 1rem 5.5rem; }
+}
+.text-registration-summary { font-weight: 700; margin-block: .75rem; }
+.text-registration-summary p { margin: .15rem 0; }
+.text-registration-details { margin-block: .5rem 1rem; }
+.text-registration-details > summary { cursor: pointer; font-weight: 600; }
+.event-card.is-personal,
+.calendar-teaching button.is-personal,
+.compact-agenda-item.kind-personal,
+.daily-row.is-personal { border-inline-start: .3rem solid #7c5c3e; }

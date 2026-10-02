@@ -102,3 +102,20 @@ for(const id of noAnonymousPersonal){
   const source=latestTeachingEvidence[id]?.publicTeaching?.url||'https://www.nokut.no/hogare-utdanning/akkrediterte-institusjonar/'
   latestTeachingEvidence[id]={...(latestTeachingEvidence[id]||{}),personalTimetable:current(NONE,source,'The bounded official public sources provide programme, course, class or activity information only. No anonymous institution-authenticated personal timetable was found. The app may compose a local schedule solely from courses, groups and activities the student explicitly confirms; this is labelled separately from an institutional personal timetable.')}
 }
+
+// Bounded official source checks, 1 October 2026. Reachability is separate
+// from the historical verified browser flow and does not promote coverage.
+for (const [id, url, http] of [
+  ['aho','https://tp.educloud.no/aho/ws/services/semesters.php',404],
+  ['fhs','https://tp.educloud.no/fhs/ws/services/semesters.php',401],
+  ['nla','https://cloud.timeedit.net/nla/web/',412],
+  ['krus','https://cloud.timeedit.net/krus/web/',412],
+  ['nbi','https://goo.gl/ObktP9',401],
+]) latestTeachingEvidence[id].publicTeaching = {
+  status:M, url, checkedAt:'2026-10-01',
+  scope:`Ett nytt avgrenset anonymt leseforsøk gjennom appens offentlige transport ga HTTP ${http} 1. oktober 2026. Årsaken er fortsatt ukjent; responsen beviser ikke innloggingsplikt. Ingen lesbar undervisningskontrakt ble bekreftet. Offentlig programimport og dokumentert personlig tilgang er separate datatyper; fil eller manuell registrering er alternativer.`
+}
+latestTeachingEvidence.hlt.publicTeaching = {
+  status:F, url:'https://hlt.no/semesterplan/', checkedAt:'2026-10-01',
+  scope:'Den offisielle siden publiserer nå Høsten 2026 som Semesterplan-H26.xlsx (HTTP 200), med dato-/ukekolonner og antall undervisningstimer. Den tidligere våren-2026-only-observasjonen er historisk. Regnearket er ikke en implementert XLSX-importkontrakt; ingen start-/sluttklokkeslett eller undervisningsreservasjoner er utledet. Programimport, manuell datoaktivitet og lokal dokumentimport av støttede formater er separate alternativer.'
+}

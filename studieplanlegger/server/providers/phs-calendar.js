@@ -71,6 +71,7 @@ export function parsePhsExamCalendar(html, sourceUrl) {
     const component = new ICAL.Component(due ? 'vtodo' : 'vevent')
     component.addPropertyWithValue('uid', `${stamp(`${url.href}:${identity}`)}@public.phs.no`)
     component.addPropertyWithValue('summary', `${due ? 'Innlevering' : 'Eksamen'} ${row.code} · ${row.section}`)
+    if (!due) component.addPropertyWithValue('x-studieplan-activity-kind', 'exam')
     component.addPropertyWithValue('description', `${row.excerpt}\nPublisert eksamensoversikt. Velg bare egen eksamen; oppmelding, personlig tidspunkt og emnetilknytning er ikke antatt.`)
     component.addPropertyWithValue('url', url.href)
     if (due) {

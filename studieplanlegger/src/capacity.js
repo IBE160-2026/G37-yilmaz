@@ -1,5 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill'
-import { subtractTeaching, osloLocal, toInstant, OSLO } from './planner.js'
+import { subtractTeaching, osloLocal, toInstant, OSLO, uncertainPersonalTiming } from './planner.js'
 import { extendedSessionInterval, deriveWorkCapacity, wholeMinuteIntervals, contiguousWorkInterval } from './work-capacity.js'
 import { getRemainingMinutes, getRemainingRange } from './tasks.js'
 import { taskBlockers } from './task-dependencies.js'
@@ -12,9 +12,13 @@ function localLabel(date) {
 }
 
 function localDate(value) {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return null
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2})?$/.test(value)) return null
   if (Number(value.slice(0, 4)) < 1) return null
-  try { const date = new Date(Temporal.PlainDateTime.from(value).toZonedDateTime(OSLO, { disambiguation: 'compatible' }).epochMilliseconds); return localLabel(date) === value ? date : null } catch { return null }
+  try {
+    if (value.length === 10) return new Date(Temporal.PlainDate.from(value).add({ days: 1 }).toZonedDateTime(OSLO).epochMilliseconds)
+    const date = new Date(Temporal.PlainDateTime.from(value).toZonedDateTime(OSLO, { disambiguation: 'compatible' }).epochMilliseconds)
+    return localLabel(date) === value ? date : null
+  } catch { return null }
 }
 
 // Offset-free input cannot distinguish the two occurrences of an autumn clock
@@ -101,6 +105,8 @@ function sumMinutes(entries, field) {
 export function deriveCapacity(tasks, sessions = [], now = new Date(), events = [], options = {}) {
   if (options.workWindows !== undefined || options.busyWindows !== undefined || (Array.isArray(sessions) && sessions.some(session => session?.taskId || session?.endDateLocal))) return deriveWorkCapacity(tasks, sessions, now, events, options.workWindows, options.busyWindows, options.planningPreferences)
   const warnings = []
+  const uncertainPersonal = events.filter(event => uncertainPersonalTiming(event, now)).length
+  if (uncertainPersonal) warnings.push(`${uncertainPersonal} ${uncertainPersonal === 1 ? 'egen aktivitet har' : 'egne aktiviteter har'} ukjent tidspunkt eller varighet. Tiden behandles ikke som sikkert ledig.`)
   const originalIntervals = disjointIntervals(sessions, warnings)
   const intervals = wholeMinuteIntervals(subtractTeaching(originalIntervals, events))
   const occupiedMinutes = minutesBefore(originalIntervals) - minutesBefore(intervals)
@@ -214,5 +220,5 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
   return { tasks: entries, unknownTaskCount: tasks.filter(task => getRemainingRange(task)?.maxMinutes == null).length, totalRequiredMinutes,
     totalRequiredMinMinutes: sumMinutes(entries, 'requiredMinMinutes'), totalRequiredMaxMinutes: openRequired ? null : totalRequiredMinutes,
     totalAllocatedMinutes, totalMissingMinutes, totalMissingMinMinutes: sumMinutes(entries, 'missingMinMinutes'), totalMissingMaxMinutes: openMissing ? null : totalMissingMinutes,
-    totalCapacityMinutes, spareMinutes: totalCapacityMinutes - totalAllocatedMinutes, totalLostMinutes, warnings, planningNote: capacityPlanningNote(options.planningPreferences) }
+    totalCapacityMinutes, spareMinutes: totalCapacityMinutes - totalAllocatedMinutes, totalLostMinutes, uncertainPersonalCount: uncertainPersonal, warnings, planningNote: capacityPlanningNote(options.planningPreferences) }
 }

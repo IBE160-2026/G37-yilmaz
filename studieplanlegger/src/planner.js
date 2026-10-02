@@ -3,6 +3,7 @@ import { validProgramBinding } from './program-provenance.js'
 
 export const emptyPlanner = () => ({ courses: [], events: [], sources: [] })
 export const OSLO = 'Europe/Oslo'
+const matchesLocalDate = (instantValue, dateLocal) => !instantValue || osloLocal(instantValue).slice(0, 10) === dateLocal
 export const osloYear = (instant = Temporal.Now.instant()) => instant.toZonedDateTimeISO(OSLO).year
 export const osloLocal = instant => Temporal.Instant.from(instant).toZonedDateTimeISO(OSLO).toPlainDateTime().toString({ smallestUnit: 'minute' })
 export const toInstant = local => Temporal.PlainDateTime.from(local).toZonedDateTime(OSLO, { disambiguation: 'reject' }).toInstant().toString()
@@ -33,7 +34,9 @@ export function sourceHref(value) {
 export function validPlanner(value) {
   if (!value || !unique(value.courses) || !unique(value.events) || !unique(value.sources)) return false
   return value.courses.every(c => text(c.name) && c.name.trim() && text(c.code) && text(c.university) && text(c.notes ?? '') && ['sourceUrl', 'entryUrl'].every(key => c[key] === undefined || text(c[key]) && c[key].length <= 2048) && ['spring', 'autumn'].includes(c.semester) && Number.isInteger(c.year) && c.year >= 1900 && c.year <= 2200 && (c.credits == null || (Number.isFinite(c.credits) && c.credits >= 0)) && (c.programBinding === undefined || validProgramBinding(c.programBinding)) && (c.teachingCheck===undefined||validTeachingCheck(c.teachingCheck))) &&
-    value.events.every(e => text(e.title) && e.title.trim() && text(e.courseId) && (value.courses.some(c => c.id === e.courseId) || e.courseId === '' && text(e.importSourceId) && !!e.importSourceId.trim()) && (e.importSourceId === undefined || text(e.importSourceId) && !!e.importSourceId.trim() && text(e.importEntryKey) && !!e.importEntryKey.trim()) && instant(e.start) && instant(e.end) && Date.parse(e.end) > Date.parse(e.start) && text(e.notes ?? '') && (e.cancelled === undefined || typeof e.cancelled === 'boolean') && (e.deleted === undefined || typeof e.deleted === 'boolean')) &&
+    value.events.every(e => e.activityKind === 'personal'
+      ? text(e.title) && !!e.title.trim() && e.courseId === '' && e.sourceId === undefined && e.importSourceId === undefined && /^\d{4}-\d{2}-\d{2}$/.test(e.dateLocal || '') && (() => { try { Temporal.PlainDate.from(e.dateLocal); return true } catch { return false } })() && text(e.notes ?? '') && (e.location === undefined || text(e.location)) && (e.start === undefined || instant(e.start)) && (e.end === undefined || instant(e.end)) && matchesLocalDate(e.start, e.dateLocal) && matchesLocalDate(e.end, e.dateLocal) && (e.end === undefined || e.start !== undefined && Date.parse(e.end) > Date.parse(e.start)) && (e.cancelled === undefined || typeof e.cancelled === 'boolean') && (e.deleted === undefined || typeof e.deleted === 'boolean')
+      : text(e.title) && e.title.trim() && text(e.courseId) && (value.courses.some(c => c.id === e.courseId) || e.courseId === '' && text(e.importSourceId) && !!e.importSourceId.trim()) && (e.importSourceId === undefined || text(e.importSourceId) && !!e.importSourceId.trim() && text(e.importEntryKey) && !!e.importEntryKey.trim()) && instant(e.start) && instant(e.end) && Date.parse(e.end) > Date.parse(e.start) && text(e.notes ?? '') && (e.activityKind === undefined || ['', 'exam', 'assessment'].includes(e.activityKind)) && (e.cancelled === undefined || typeof e.cancelled === 'boolean') && (e.deleted === undefined || typeof e.deleted === 'boolean')) &&
     value.sources.every(s => text(s.courseId) && value.courses.some(c => c.id === s.courseId) && ['file', 'url'].includes(s.kind) && (s.kind !== 'url' || (s.reconnectRequired === true && s.url === undefined) || (text(s.url) && s.url.startsWith('https://'))) && text(s.name) && instant(s.lastUpdated) && ['groups','excludedKeys','allGroups','pendingGroups','commonGroups'].every(key => s[key] === undefined || Array.isArray(s[key]) && s[key].every(text)) && Array.isArray(s.groups))
 }
 export function validateCourse(draft, previous = {}) {
@@ -55,9 +58,33 @@ export function validateEvent(draft, previous = {}) {
   if (Date.parse(end) <= Date.parse(start)) throw new Error('Slutt må være etter start.')
   return { ...previous, id: previous.id || crypto.randomUUID(), title: draft.title.trim(), courseId: draft.courseId, start, end, location: draft.location?.trim() || '', notes: draft.notes || '', allDay: draft.allDay ?? previous.allDay ?? false, cancelled: draft.cancelled ?? previous.cancelled ?? false }
 }
-export const externalFields = ['title', 'courseId', 'start', 'end', 'location', 'description', 'group', 'allDay', 'cancelled', 'transparent', 'information', 'groupMissing']
+export function validatePersonalActivity(draft, previous = {}) {
+  if (!draft.title?.trim()) throw new Error('Skriv et navn på aktiviteten.')
+  let date
+  try { date = Temporal.PlainDate.from(draft.dateLocal).toString() } catch { throw new Error('Oppgi en gyldig dato.') }
+  const startLocal = String(draft.startLocal || '').trim(), endLocal = String(draft.endLocal || '').trim()
+  if (endLocal && !startLocal) throw new Error('Oppgi starttid før sluttid.')
+  let start, end
+  try {
+    if (startLocal) start = toInstant(startLocal.includes('T') ? startLocal : `${date}T${startLocal}`)
+    if (endLocal) end = toInstant(endLocal.includes('T') ? endLocal : `${date}T${endLocal}`)
+  } catch { throw new Error('Oppgi gyldig dato og klokkeslett i norsk tid.') }
+  if (!matchesLocalDate(start, date) || !matchesLocalDate(end, date)) throw new Error('Start og slutt må være på valgt dato i norsk tid.')
+  if (end && Date.parse(end) <= Date.parse(start)) throw new Error('Slutt må være etter start.')
+  const result = { ...previous, id: previous.id || draft.id || crypto.randomUUID(), title: draft.title.trim(), activityKind: 'personal', courseId: '', dateLocal: date,
+    location: draft.location?.trim() || '', notes: draft.notes || '', cancelled: draft.cancelled ?? previous.cancelled ?? false }
+  delete result.start; delete result.end; delete result.sourceId; delete result.sourceKey; delete result.sourceBase; delete result.importSourceId; delete result.importEntryKey
+  if (start) result.start = start
+  if (end) result.end = end
+  return result
+}
+export const externalFields = ['title', 'courseId', 'start', 'end', 'location', 'description', 'group', 'activityKind', 'allDay', 'cancelled', 'transparent', 'information', 'groupMissing']
 export const sourceSnapshot = event => Object.fromEntries(externalFields.map(key => [key, event[key] ?? (['allDay', 'cancelled', 'transparent', 'information', 'groupMissing'].includes(key) ? false : '')]))
-export const eventBlocksTime = event => !event.cancelled && !event.deleted && !event.transparent && event.transparency !== 'TRANSPARENT' && !event.information
+export const eventBlocksTime = event => !event.cancelled && !event.deleted && !event.transparent && event.transparency !== 'TRANSPARENT' && !event.information && (event.activityKind !== 'personal' || instant(event.start) && instant(event.end) && Date.parse(event.end) > Date.parse(event.start))
+export const uncertainPersonalTiming = (event, now = new Date()) => {
+  if (event.activityKind !== 'personal' || event.cancelled || event.deleted || event.start && event.end) return false
+  try { return event.dateLocal >= osloLocal(now.toISOString()).slice(0, 10) } catch { return true }
+}
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const verifiedSource = course => !course.sourceBindingStale && ['sourceProvider', 'sourceRecordId', 'sourceVersion'].every(key => typeof course[key] === 'string' && course[key].trim())
 

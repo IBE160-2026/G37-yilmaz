@@ -45,6 +45,7 @@ function generatedUid(uid,event){
   const match=String(uid||'').match(/^(\d+)([a-f\d]{13})$/i),stamp=event.getFirstPropertyValue('dtstamp')
   return!!(match&&stamp&&!stamp.isDate&&Math.abs(parseInt(match[2].slice(0,8),16)-stamp.toUnixTime())<=5)
 }
+const actualExamTitle = title => /(?:^|[\s:–—-])(?:(?:skole|hjemme|muntlig|skriftlig)eksamen|eksamen|exam|examination)(?:$|[\s:–—-])/iu.test(` ${title || ''} `) && !/\b(?:prøve(?:\s*-\s*|\s*)eksamen|mock(?:\s*-\s*|\s+)(?:exam|examination)|practice(?:\s*-\s*|\s+)(?:exam|examination)|eksamensforbered\w*|forbered\w*(?:\s+til)?\s+eksamen|exam(?:\s*-\s*|\s+)prepar\w*|forelesning\w*\s+(?:om|i)\s+eksamen|lecture\w*\s+(?:about|on)\s+(?:the\s+)?exam)\b/iu.test(title || '')
 export function normalizeTpCalendar(text,{institution,semester,selectedIds}){
   let calendar;try{calendar=new ICAL.Component(ICAL.parse(text))}catch{fail('source-changed','TP svarte uten en lesbar iCalendar-fil. Ingen kalender er importert.')}
   if(calendar.name!=='vcalendar')fail('source-changed','TP svarte uten en kalender.')
@@ -53,7 +54,7 @@ export function normalizeTpCalendar(text,{institution,semester,selectedIds}){
   for(const event of events){const uid=event.getFirstPropertyValue('uid'),summary=clean(event.getFirstPropertyValue('summary')),start=event.getFirstPropertyValue('dtstart'),exam=/eksamen|examination|\bexam\b|mappevurdering|sluttvurdering|\bwiseflow\b|\binspera\b/i.test(summary)
     if(exam&&(semester.pubexdate!==true||semester.pubextime!==true)){calendar.removeSubcomponent(event);omittedExams++;continue}
     if(exam&&semester.pubexroom!==true){event.removeAllProperties('location');event.removeAllProperties('description');hiddenRooms++}
-    if(exam)event.updatePropertyWithValue('x-studieplan-activity-kind','assessment')
+    if(exam)event.updatePropertyWithValue('x-studieplan-activity-kind',actualExamTitle(summary)?'exam':'assessment')
     const end=event.getFirstPropertyValue('dtend')
     if(exam&&start&&end&&!start.isDate&&!end.isDate&&end.toUnixTime()-start.toUnixTime()===1){event.updatePropertyWithValue('transp','TRANSPARENT');pointAssessments++}
     if(!uid||!summary||!start)fail('source-changed','En TP-hendelse mangler identitet, navn eller tidspunkt. Kilden må avklares.')
@@ -92,7 +93,7 @@ export function normalizeTpJsonEvents(input,{institution,semester,selected}){
     if(end<=start)fail('invalid-response','En TP-hendelse mangler gyldig kildeidentitet, emne, tidspunkt, status eller hendelsesdetaljer. Tidligere undervisning er beholdt.')
     if(seen.has(identity))fail('invalid-response','TP gjentar samme hendelsesidentitet. Tidligere undervisning er beholdt.');seen.add(identity)
     const event=new ICAL.Component('vevent'),uid=`tp-json-${hash(`${institution}\0${semester.id}\0${identity}`)}@studieplan.local`
-    event.addPropertyWithValue('uid',uid);event.addPropertyWithValue('dtstamp',ICAL.Time.fromJSDate(new Date(0),true));event.addPropertyWithValue('dtstart',ICAL.Time.fromJSDate(new Date(start),true));event.addPropertyWithValue('dtend',ICAL.Time.fromJSDate(new Date(end),true));event.addPropertyWithValue('summary',title)
+    event.addPropertyWithValue('uid',uid);event.addPropertyWithValue('dtstamp',ICAL.Time.fromJSDate(new Date(0),true));event.addPropertyWithValue('dtstart',ICAL.Time.fromJSDate(new Date(start),true));event.addPropertyWithValue('dtend',ICAL.Time.fromJSDate(new Date(end),true));event.addPropertyWithValue('summary',title);if(assessment)event.addPropertyWithValue('x-studieplan-activity-kind',actualExamTitle(title)?'exam':'assessment')
     const rooms=roomsInput.map(room=>bounded(room?.roomname||room?.roomacronym||room?.id,300)).filter(Boolean)
     if(rooms.length)event.addPropertyWithValue('location',[...new Set(rooms)].join(', '))
     const notes=[...(row.alerts||[]).map(alert=>bounded(alert?.message,1000)),plain(row.curr),...(row.staffnames||[]).map(name=>bounded(name,300))].filter(Boolean).join(' · ').slice(0,2000)
@@ -116,7 +117,7 @@ async function fetchHimoldeJson(eventUrl,sourceUrl,{fetchText,semester,selected}
     for(const path of ['ws/db/inst.php','ws/user/session.php']){const url=`${origin}/himolde/${path}`;await fetchText(url,0,input=>same(input,new URL(url),'himolde'),{anonymousSession})}
     const body=await fetchText(eventUrl.href,0,input=>same(input,eventUrl,'himolde'),{anonymousSession})
     return normalizeTpJsonEvents(body,{institution:'himolde',semester,selected})
-  }catch(error){if(/HTTP (401|403)/.test(error.message))fail('access-required','HiMolde TP krevde tilgang for dette offentlige emnevalget. Tidligere undervisning er beholdt.');if(/for lang tid|timeout/i.test(error.message))fail('timeout','HiMolde TP brukte for lang tid. Tidligere undervisning er beholdt.');throw error}
+  }catch(error){if(/HTTP (401|403)/.test(error.message))fail('transport-error','HiMolde TP svarte med en HTTP-feil. Årsaken er ikke bekreftet. Tidligere undervisning er beholdt.');if(/for lang tid|timeout/i.test(error.message))fail('timeout','HiMolde TP brukte for lang tid. Tidligere undervisning er beholdt.');throw error}
   finally{anonymousSession.cookies.clear()}
 }
 export async function fetchPublicTpCalendar(input,{fetchText}){

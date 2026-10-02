@@ -7,7 +7,7 @@ const legacy = {
   schemaVersion: 1,
   tasks: [{ id: 'legacy-task', title: 'Migrated linked task', course: 'TEST101', courseId: 'legacy-course', deadlineLocal: '2026-09-28T12:00', estimatedMinutes: null, remainingMinutes: null, remainingEstimate: { minMinutes: 241, maxMinutes: null }, deadlinePromptDismissed: true, completed: false }],
   sessions: [{ id: 'legacy-session', taskId: 'legacy-task', dateLocal: '2026-09-24', startTime: '10:00', endTime: '10:30' }],
-  planner: { courses: [{ id: 'legacy-course', code: 'TEST101', name: 'Migration course', university: 'Test', semester: 'autumn', year: 2026, notes: '', sourceExtra: 'retained' }], events: [], sources: [] },
+  planner: { courses: [{ id: 'legacy-course', code: 'TEST101', name: 'Migration course', university: 'Test', semester: 'autumn', year: 2026, notes: '', sourceExtra: 'retained' }], events: [{ id: 'legacy-personal', title: 'Syntetisk avtale', activityKind: 'personal', courseId: '', dateLocal: '2026-10-04', start: '2026-10-04T10:00:00Z', end: '2026-10-04T11:00:00Z', location: '', notes: '', cancelled: false }], sources: [] },
   studyTimePreference: { kind: 'evening', label: 'På kvelden i ukedagene', days: [1, 2, 3, 4, 5], startTime: '18:00', endTime: '20:00' },
 }
 
@@ -36,6 +36,7 @@ test('production API explicitly migrates once, persists exact relations and reje
   expect(updated.envelope.tasks[0]).toMatchObject({ id: 'legacy-task', title: 'Database-confirmed edit', courseId: 'legacy-course', remainingEstimate: { minMinutes: 241, maxMinutes: null }, deadlinePromptDismissed: true })
   expect(updated.envelope.tasks[0].remainingMinutes).toBeUndefined()
   expect(updated.envelope.sessions[0]).toMatchObject({ id: 'legacy-session', taskId: 'legacy-task' })
+  expect(updated.envelope.planner.events[0]).toMatchObject({ id: 'legacy-personal', activityKind: 'personal', courseId: '', dateLocal: '2026-10-04', start: '2026-10-04T10:00:00Z', end: '2026-10-04T11:00:00Z' })
   expect(updated.envelope.studyTimePreference).toEqual(legacy.studyTimePreference)
 
   await page.locator('#new-task').click()

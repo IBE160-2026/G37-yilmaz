@@ -3,13 +3,27 @@ import {emptyPlanner,nextTeachingCheck,validPlanner} from '../../src/planner.js'
 import {recordChange,undoLast} from '../../src/history.js'
 import {exportBackup,previewBackup} from '../../src/backup.js'
 import {validEnvelope} from '../../src/storage.js'
-import {teachingCheckText,teachingOutcome} from '../../src/teaching-check.js'
+import {teachingCheckText,teachingOutcome,failedCalendarRefresh} from '../../src/teaching-check.js'
 import {createCalendarSync} from '../../src/calendar-sync.js'
 
 const course=(teachingCheck)=>({id:'course',code:'IBE160',name:'Programmering med KI',university:'HiMolde',semester:'autumn',year:2026,notes:'',...(teachingCheck?{teachingCheck}:{})})
 const state=teachingCheck=>({schemaVersion:1,tasks:[],planner:{...emptyPlanner(),courses:[course(teachingCheck)]}})
 
 describe('persisted teaching checks',()=>{
+  it('manual source failure preserves all event choices and last success while updating only failed-check bookkeeping',()=>{
+    const previous=state(nextTeachingCheck('success',undefined,{now:new Date('2026-09-24T08:00:00Z'),eventCount:12})).planner
+    previous.sources=[{id:'source',courseId:'course',kind:'url',url:'https://example.test/public.ics',name:'Syntetisk offentlig kilde',groups:['g'],excludedKeys:['hidden'],lastUpdated:'2026-09-24T08:00:00.000Z',lastSuccess:'2026-09-24T08:00:00.000Z'}]
+    previous.events=[{id:'event',courseId:'course',sourceId:'source',sourceKey:'stable',title:'Syntetisk undervisning',start:'2026-10-01T08:00:00Z',end:'2026-10-01T09:00:00Z',notes:'',group:'g',excluded:true}]
+    const raw=JSON.stringify(previous),now=new Date('2026-09-25T08:00:00Z')
+    const next=failedCalendarRefresh(previous,'source',Object.assign(new Error('Syntetisk timeout'),{status:'timeout'}),{now})
+    expect(JSON.stringify(previous)).toBe(raw)
+    expect(next.events).toEqual(previous.events)
+    expect(next.sources[0]).toMatchObject({groups:['g'],excludedKeys:['hidden'],lastSuccess:'2026-09-24T08:00:00.000Z',lastAttempt:now.toISOString(),failures:1})
+    expect(next.courses[0].teachingCheck).toMatchObject({status:'timeout',lastSuccess:'2026-09-24T08:00:00.000Z',lastAttempt:now.toISOString(),eventCount:12})
+    expect(recordChange({schemaVersion:1,tasks:[],planner:previous},{schemaVersion:1,tasks:[],planner:next}).undo).toEqual([])
+    expect(validPlanner(next)).toBe(true)
+    expect(failedCalendarRefresh(previous,'missing',new Error('synthetic'))).toBeNull()
+  })
   it('validates bounded outcomes and keeps last success across a later failure',()=>{
     const success=nextTeachingCheck('success',undefined,{now:new Date('2026-09-24T08:00:00Z'),eventCount:12,source:'himolde-tp-json'}),failure=nextTeachingCheck('timeout',success,{now:new Date('2026-09-25T08:00:00Z'),source:'himolde-tp-json'})
     expect(failure).toMatchObject({status:'timeout',lastAttempt:'2026-09-25T08:00:00.000Z',lastSuccess:'2026-09-24T08:00:00.000Z',eventCount:12,source:'himolde-tp-json'})

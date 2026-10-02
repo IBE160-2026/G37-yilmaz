@@ -1,5 +1,5 @@
-import { getRemainingRange, formatEstimateRange } from './tasks.js';
-import { toInstant, eventBlocksTime } from './planner.js';
+import { getRemainingRange, formatEstimateRange, deadlineInstant } from './tasks.js';
+import { eventBlocksTime } from './planner.js';
 import { extendedSessionInterval } from './work-capacity.js';
 
 // A missing allocation is not evidence that the student's whole day is full.
@@ -16,7 +16,7 @@ export function capacityNotice(task, sessions = [], events = [], now = new Date(
   if (remaining <= 0 || task.completed || task.submittedAt) return null;
   const start = now.getTime();
   let deadline = NaN;
-  try { if (task.deadlineLocal) deadline = Date.parse(toInstant(task.deadlineLocal)); } catch { /* Ambiguous deadlines do not prove a shortage. */ }
+  try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal); } catch { /* Ambiguous deadlines do not prove a shortage. */ }
   if (Number.isFinite(deadline) && deadline <= start) {
     return { tone: 'warning', text: 'Fristen er passert. Vurder hva som må følges opp.' };
   }

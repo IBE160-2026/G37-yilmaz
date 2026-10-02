@@ -23,12 +23,30 @@ describe('rolling agenda from registered data', () => {
     data.planner.events = [event('summer', '2026-10-19T08:00:00Z', '2026-10-19T09:00:00Z'), event('winter', '2026-10-26T09:00:00Z', '2026-10-26T10:00:00Z')]
     expect(upcomingAgenda(data).map(row => [row.time, row.endTime])).toEqual([['10:00', '11:00'], ['10:00', '11:00']])
   })
+  it('keeps a date-only deadline through its Oslo due date and sorts by the actual boundary', () => {
+    const data = structuredClone(model); data.now = new Date('2026-09-30T12:00:00Z')
+    data.tasks = [
+      { id: 'date', title: 'Hele dagen', course: 'TEST101', deadlineLocal: '2026-09-30', completed: false },
+      { id: 'timed', title: 'Sen kveld', course: 'TEST101', deadlineLocal: '2026-09-30T23:30', completed: false },
+    ]
+    expect(upcomingAgenda(data).map(row => row.id)).toEqual(['timed', 'date'])
+    expect(upcomingAgenda({ ...data, now: new Date('2026-09-30T22:00:00Z') }).map(row => row.id)).toEqual([])
+  })
   it('excludes finished, cancelled, deleted and past entries while retaining delivery reminders', () => {
     const data = structuredClone(model)
     data.planner.events = [event('ended', '2026-09-30T06:00:00Z', '2026-09-30T08:00:00Z'), event('cancelled', '2026-10-01T08:00:00Z', '2026-10-01T09:00:00Z', { cancelled: true }), event('deleted', '2026-10-01T08:00:00Z', '2026-10-01T09:00:00Z', { deleted: true })]
     const task = { title: 'Test', course: 'TEST101', deadlineLocal: '2026-10-01T12:00', completed: true }
     data.tasks = [{ ...task, id: 'done' }, { ...task, id: 'ready', requiresSubmission: true }, { ...task, id: 'delivered', requiresSubmission: true, submitted: true }]
     expect(upcomingAgenda(data).map(row => row.id)).toEqual(['ready'])
+  })
+  it('omits only ambiguous repeated-hour deadlines and expires date-only personal entries by Oslo date', () => {
+    const data = structuredClone(model); data.now = new Date('2026-10-05T12:00:00Z')
+    data.tasks = [
+      { id: 'ambiguous', title: 'Tvetydig', course: '', deadlineLocal: '2026-10-25T02:30', completed: false },
+      { id: 'valid', title: 'Gyldig', course: '', deadlineLocal: '2026-10-26T12:00', completed: false },
+    ]
+    data.planner.events = [{ id: 'old-personal', title: 'I går', activityKind: 'personal', courseId: '', dateLocal: '2026-10-04' }]
+    expect(upcomingAgenda(data).map(row => row.id)).toEqual(['valid'])
   })
   it('filters course events and legacy task text, without misattributing general study sessions', () => {
     const data = structuredClone(model)

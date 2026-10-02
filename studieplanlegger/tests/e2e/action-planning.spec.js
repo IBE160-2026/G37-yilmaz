@@ -55,8 +55,9 @@ test('new submission task and one validated next step persist through edit, relo
   const expected = await saved(page)
   expect(expected.tasks[0]).toMatchObject({
     title, course: 'IBE160 – rapport', estimatedMinutes: null, remainingMinutes: 240, completed: false, requiresSubmission: true,
-    nextStep: { description: 'Les oppgaveteksten og lag en disposisjon', estimatedMinutes: 20 },
+    steps: [{ id: expect.any(String), title: 'Les oppgaveteksten og lag en disposisjon', estimatedMinutes: 20, completed: false, provenance: { kind: 'manual' } }],
   })
+  expect(expected.tasks[0]).not.toHaveProperty('nextStep')
   expect(expected.tasks[0].submitted).not.toBe(true)
   await page.reload()
   await navigate(page, 'week')
@@ -80,21 +81,23 @@ test('edit, remove and complete a next step leave parent estimate, completion an
   await expect(page.locator('#step-description')).toHaveValue('Les oppgaveteksten')
   await fillStep(page, 'Lag en disposisjon', '15')
   await saveStep(page).click()
-  expect((await saved(page)).tasks[0].nextStep).toEqual({ description: 'Lag en disposisjon', estimatedMinutes: 15 })
+  expect((await saved(page)).tasks[0]).toMatchObject({ steps: [{ title: 'Lag en disposisjon', estimatedMinutes: 15, completed: false }] })
+  expect((await saved(page)).tasks[0]).not.toHaveProperty('nextStep')
   await expect(step(page, parent.title, 'Rediger neste steg')).toHaveCount(1)
   await expect(step(page, parent.title)).toHaveCount(0)
   await openMenu(page, parent.title)
   await step(page, parent.title, 'Fjern neste steg').click()
   const { nextStep: removedStep, ...withoutStep } = parent
   expect(removedStep.estimatedMinutes).toBe(20)
-  expect((await saved(page)).tasks[0]).toEqual(withoutStep)
+  expect((await saved(page)).tasks[0]).toEqual({ ...withoutStep, steps: [] })
   await openMenu(page, parent.title)
   await step(page, parent.title).click()
   await fillStep(page, 'Finn to kilder', '10')
   await saveStep(page).click()
   await openMenu(page, parent.title)
   await step(page, parent.title, 'Neste steg gjort').click()
-  expect((await saved(page)).tasks[0]).toEqual(withoutStep)
+  const completedStep = { ...withoutStep, steps: [{ id: `${parent.id}:legacy-next-step`, title: 'Finn to kilder', estimatedMinutes: 10, completed: true, provenance: { kind: 'manual' } }] }
+  expect((await saved(page)).tasks[0]).toEqual(completedStep)
   await expect(work(page, parent.title)).not.toBeChecked()
   await expect(row(page, parent.title)).toContainText('Hele oppgaven: 240 min')
   await openMenu(page, parent.title)
@@ -103,7 +106,7 @@ test('edit, remove and complete a next step leave parent estimate, completion an
   await saveStep(page).click()
   await page.reload()
   await navigate(page, 'week')
-  expect((await saved(page)).tasks[0]).toEqual({ ...withoutStep, nextStep: { description: 'Skriv innledningen', estimatedMinutes: 25 } })
+  expect((await saved(page)).tasks[0]).toEqual({ ...withoutStep, steps: [...completedStep.steps, { id: `${parent.id}:legacy-next-step:2`, title: 'Skriv innledningen', estimatedMinutes: 25, completed: false, provenance: { kind: 'manual' } }] })
   await expect(work(page, parent.title)).not.toBeChecked()
 })
 
@@ -177,7 +180,7 @@ test('empty time results keep all deadlines and next-step editing reachable with
   await expect(row(page, large.title)).toContainText('Hele oppgaven er ikke ferdig etter steget')
   await navigate(page, 'all')
   await expect(row(page, large.title)).toContainText('Åpne oppgaveteksten og les kravene')
-  expect((await saved(page)).tasks).toEqual([later, { ...large, nextStep: { description: 'Åpne oppgaveteksten og les kravene', estimatedMinutes: 20 } }])
+  expect((await saved(page)).tasks).toEqual([later, { ...large, steps: [{ id: `${large.id}:legacy-next-step`, title: 'Åpne oppgaveteksten og les kravene', estimatedMinutes: 20, completed: false, provenance: { kind: 'manual' } }] }])
   expect(await writes(page)).toHaveLength(1)
 })
 
@@ -285,7 +288,7 @@ test('failed step save, completion and removal preserve both stored data and the
   }
   await openMenu(page, parent.title)
   await step(page, parent.title, 'Neste steg gjort').click()
-  expect((await saved(page)).tasks).toEqual([parent])
+  expect((await saved(page)).tasks).toEqual([{ ...parent, steps: [{ id: `${parent.id}:legacy-next-step`, title: 'Lag en disposisjon', estimatedMinutes: 20, completed: true, provenance: { kind: 'manual' } }] }])
   expect(await writes(page)).toHaveLength(5)
 })
 

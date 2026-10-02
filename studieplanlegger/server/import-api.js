@@ -154,9 +154,9 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
       if (/^https:\/\/img1\.wsimg\.com\/blobby\/go\/[^?#]+\.pdf$/.test(calendarUrl)) return send(200, await fetchGestaltCalendar(calendarUrl, { sourceObjectId, fetchText, fetchBytes }))
       if (/^https:\/\/www\.politihogskolen\.no\/for-studenter\/eksamen\/eksamensoversikt-(ba|ma)\/?$/.test(calendarUrl)) return send(200, await fetchPhsExamCalendar(calendarUrl, { fetchText }))
       const calendar = await fetchText(calendarUrl)
-      if (!/^\s*BEGIN:VCALENDAR/im.test(calendar)) throw new Error('Lenken returnerte ikke en kalender. Den kan kreve innlogging. Last ned en .ics-fil og last den opp her.')
+      if (!/^\s*BEGIN:VCALENDAR/im.test(calendar)) throw Object.assign(new Error('Lenken returnerte ikke en kalender. Last ned en .ics-fil og last den opp her.'), { status: 'invalid-response' })
       return send(200, { calendar })
     }
     send(404, { error: 'Denne importkilden støttes ikke.' })
-  })().catch(error => send(400, { error: error.message || 'Kunne ikke hente informasjon. Prøv filimport eller manuell registrering.' }))
+  })().catch(error => send(400, { error: error.message || 'Kunne ikke hente informasjon. Prøv filimport eller manuell registrering.', ...(typeof error.status === 'string' ? { status: error.status } : {}) }))
 }

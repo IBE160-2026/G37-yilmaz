@@ -1,8 +1,8 @@
-import { getRemainingMinutes, getRemainingRange } from './tasks.js'
+import { getRemainingMinutes, getRemainingRange, deadlineInstant } from './tasks.js'
 import { taskBlockers, validateDependencyGraph } from './task-dependencies.js'
 import { DEFAULT_PLANNING_RULES, validPlanningRules } from './planning-rules.js'
 import { extendedSessionInterval, unionIntervals, subtractIntervals, wholeMinuteIntervals, windowInterval, intervalMinutes, intersectIntervals, contiguousWorkInterval, validWindows } from './work-capacity.js'
-import { eventBlocksTime, osloLocal, toInstant } from './planner.js'
+import { eventBlocksTime, osloLocal, toInstant, uncertainPersonalTiming } from './planner.js'
 import { validStudyTimePreference } from './study-time.js'
 
 const minute = 60000
@@ -17,15 +17,17 @@ function sessionFrom(id, taskId, start, end, rules) {
     return represented.start === start && represented.end === end ? session : null
   } catch { return null }
 }
-function deadline(task) { return task.deadlineLocal ? Date.parse(toInstant(task.deadlineLocal)) : Infinity }
+function deadline(task) { return task.deadlineLocal ? deadlineInstant(task.deadlineLocal) : Infinity }
+function deadlineOrder(task) { try { return deadline(task) } catch { return Infinity } }
 function fixedBusy(state) {
   return [...(state.busyWindows || []), ...(state.planner?.events || []).filter(eventBlocksTime)].map(item => ({ start: Date.parse(item.start), end: Date.parse(item.end) }))
 }
 const occupies = (session, state) => !session.taskId || !state.tasks.some(task => task.id === session.taskId && (task.completed || task.submitted))
 
-function orderedActiveTasks(tasks) {
+function orderedActiveTasks(tasks, priorityTaskIds = []) {
   const active = tasks.filter(task => !task.completed && !task.submitted), ordered = [], seen = new Set(), byId = new Map(active.map(task => [task.id, task]))
-  for (const first of active.sort((a, b) => (a.deadlineLocal || '9999').localeCompare(b.deadlineLocal || '9999') || (b.priority || 2) - (a.priority || 2))) {
+  const selected = new Set(priorityTaskIds)
+  for (const first of active.sort((a, b) => Number(selected.has(b.id)) - Number(selected.has(a.id)) || deadlineOrder(a) - deadlineOrder(b) || (b.priority || 2) - (a.priority || 2))) {
     const stack = [{ task: first, after: false }]
     while (stack.length) {
       const { task, after } = stack.pop()
@@ -60,8 +62,10 @@ function retainedWork(task, kept, state, { floor, after, limit, windows, busy, b
   return { intervals: unionIntervals(intervals), problems }
 }
 
-export function createReplan(state, { now = new Date(), rules = state.planningPreferences || DEFAULT_PLANNING_RULES, exploratory = {}, availability, taskIds } = {}) {
+export function createReplan(state, { now = new Date(), rules = state.planningPreferences || DEFAULT_PLANNING_RULES, exploratory = {}, availability, taskIds, priorityTaskIds = [] } = {}) {
   const problems = [], proposed = [], changes = [], deficits = {}, deficitRanges = {}
+  const uncertainPersonal = (state.planner?.events || []).filter(event => uncertainPersonalTiming(event, now)).length
+  if (uncertainPersonal) problems.push(`${uncertainPersonal} ${uncertainPersonal === 1 ? 'egen aktivitet har' : 'egne aktiviteter har'} ukjent tidspunkt eller varighet. Forslaget kan ikke garantere at denne tiden er ledig.`)
   if (!validPlanningRules(rules)) return { ok: false, error: 'Kontroller lengde og pauser for øktene.' }
   const graph = validateDependencyGraph(state.tasks, { relations: true })
   if (!graph.ok) return graph
@@ -78,7 +82,7 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
   let free = wholeMinuteIntervals(subtractIntervals(sourceWindows.map(windowInterval).map(item => ({ start: Math.max(floor, item.start), end: item.end })), [...fixedBusy(state), ...occupied]))
   if (!sourceWindows.length) problems.push('Tilgjengelig studietid er ukjent. Velg vanlig studietid eller registrer detaljerte arbeidstidsvinduer.')
   const doneAt = new Map(state.tasks.filter(task => task.completed || task.submitted).map(task => [task.id, floor]))
-  for (const task of orderedActiveTasks(active)) {
+  for (const task of orderedActiveTasks(active, priorityTaskIds)) {
     let limit
     try { limit = deadline(task) } catch { problems.push(`«${task.title}»: fristen er tvetydig ved tidsskifte. Presiser den.`); continue }
     const blockers = taskBlockers(task, state.tasks)

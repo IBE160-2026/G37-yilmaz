@@ -7,7 +7,7 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-09-26
+updated: 2026-09-29
 binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
   - ../../../../brief.md
@@ -16,6 +16,12 @@ sources:
 ---
 
 # Technical plan: Studieplanlegger
+
+## Acceptance hardening — 2026-10-01
+
+Calendar occupancy uses the shared blocking predicate. Taskless reservations consume capacity without being credited as task work; comparison credits each interval only once and carries uncertainty about personal activities with unknown timing. Review approval validates known work windows, busy intervals and the exam cutoff. Independent assessment history survives ordinary task/course removal by detaching only vanished relations. A completed review may retain its original decision when a matching work-log session snapshot proves the relation; deletion of an unlogged reservation detaches it atomically with undo. Private review-session before/after images are included in history purge.
+
+Failed manual or background source refresh preserves imported events, identity and choices while recording the latest attempt separately from the last success. A single HTTP 401/403 is an unconfirmed source failure, not proof of student authentication. Structured source outcomes distinguish timeout, invalid response, transport failure and documented access requirements. Normalized ordinary teaching permits an empty activity kind; unknown kinds remain invalid. Same-source work-step imports retain existing user edits and completion records.
 
 ## AD-11 — Unified study setup and teaching refresh, 2026-09-26
 
@@ -211,3 +217,10 @@ Open `http://studieplan.localhost/`; keep the terminal running and stop with Ctr
 - Hosting, deployment automation and production monitoring: revisit only if public distribution is requested; first version runs locally.
 - Cross-timezone travel remains limited. Production detects stale multi-client writes with expected revisions and HTTP 409; Vite/localStorage remains a development path without server revisions. Backup/export, validated restore and same-origin legacy import are implemented, but they do not protect against every disk or operator failure.
 - The original build and planning handoffs are historical. Use the shipped implementation specifications and verification evidence for the authorized additions and actual verification; do not recreate the app or restart completed planning.
+## AD-12 — Integrerte vedlikeholdsutvidelser, 2026-09-29
+
+De fire utvidelsene følger den eksisterende énveisflyten `UI → domenevalidering → komplett envelope → lagringsadapter`. Arbeidssteg ligger inne i oppgaven med stabile ID-er. Tema, egenvurderinger og repetisjonsbeslutninger er egne valgfrie samlinger. Godkjente repetisjoner er ordinære `sessions`, ikke en parallell kalender. Plansammenligning er en frosset forhåndsvisning med `planningFingerprint`; bare eksplisitt bruk av ett alternativ skriver en atomisk og angrebar ny tilstand.
+
+SQLite speiler nye relasjoner i `topics`, `assessments` og `review_decisions`, mens valgfrie og leverandøreide felter fortsatt bevares i `payload_json`. `assessment.sessionId` er en validert historisk kobling, ikke en fremmednøkkel til en aktiv økt, fordi avslutning kan fjerne den opprinnelige økten mens arbeidsloggen beholdes. Migrering og personvernsletting kjøres transaksjonelt og inkluderer recovery og lokale legacy-arkiver.
+
+ICS er en ren avlesning av godkjent state. Eksportmodulen produserer RFC 5545-komponenter og validerer resultatet med `ical.js`; den har ingen konto, kalenderkobling eller bakgrunnsjobb. Vite-modus bruker fortsatt nettleserlagring, mens Node/Docker bruker API-revisjon og SQLite som autoritet.
