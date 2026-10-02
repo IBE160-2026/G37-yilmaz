@@ -67,4 +67,12 @@ describe('bounded calendar export regressions', () => {
       expect(createUrl).not.toHaveBeenCalled()
     } finally { createUrl.mockRestore() }
   })
+
+  it('keeps excluded recovered events out of explicit teaching and personal exports', () => {
+    const planner = { courses: [], sources: [], events: [
+      { id: 'teaching', title: 'Skjult undervisning', courseId: '', start: '2026-10-25T09:00:00Z', end: '2026-10-25T10:00:00Z', excluded: true },
+      { id: 'personal', title: 'Skjult aktivitet', activityKind: 'personal', courseId: '', dateLocal: '2026-10-25', excluded: true },
+    ] }
+    expect(calendarExportItems({ tasks: [], sessions: [], planner }, { includeTeaching: true, includePersonal: true })).toEqual([])
+  })
 })

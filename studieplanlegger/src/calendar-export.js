@@ -60,12 +60,12 @@ export function calendarExportItems(state, { from, to, includeSessions = true, i
       items.push({ kind: 'session', id: session.id, title, start: interval.start, end: interval.end, course: task?.course })
     } catch { /* rejected by the persisted-envelope validator in normal use */ }
   }
-  if (includeTeaching) for (const event of state.planner?.events || []) if (event.activityKind !== 'personal' && !event.deleted && !event.cancelled && !event.transparent && !event.information && event.transparency !== 'TRANSPARENT' && event.start && event.end) {
+  if (includeTeaching) for (const event of state.planner?.events || []) if (event.activityKind !== 'personal' && !event.deleted && !event.cancelled && !event.excluded && !event.transparent && !event.information && event.transparency !== 'TRANSPARENT' && event.start && event.end) {
     const start = Date.parse(event.start), end = Date.parse(event.end)
     const course = state.planner?.courses?.find(item => item.id === event.courseId)
     if (Number.isFinite(start) && Number.isFinite(end) && end > start && overlapsRange(start, end, from, to)) items.push({ kind: 'teaching', id: event.id, title: event.title, start, end, location: event.location, course: course?.code || course?.name })
   }
-  if (includePersonal) for (const event of state.planner?.events || []) if (event.activityKind === 'personal' && !event.deleted && !event.cancelled) {
+  if (includePersonal) for (const event of state.planner?.events || []) if (event.activityKind === 'personal' && !event.deleted && !event.cancelled && !event.excluded) {
     try {
       const day = Temporal.PlainDate.from(event.dateLocal).toString()
       if ((from && day < from) || (to && day > to)) continue

@@ -30,7 +30,7 @@ export function createTeachingLayer(host, actions) {
         let marker = day.querySelector('.calendar-day-teaching-count')
         if (!marker) { marker = document.createElement('span'); marker.className = 'calendar-day-teaching-count'; day.append(marker) }
         marker.hidden = !count; marker.textContent = [teachingCount ? `U ${teachingCount}` : '', personalCount ? `E ${personalCount}` : ''].filter(Boolean).join(' · ')
-        const label = day.getAttribute('aria-label').replace(/, \d+ kalenderaktiviteter$/, '')
+        const label = day.getAttribute('aria-label').replace(/, (?:\d+ kalenderaktiviteter|\d+ undervisningsøkter, \d+ egne aktiviteter)$/, '')
         day.setAttribute('aria-label', count ? `${label}, ${teachingCount} undervisningsøkter, ${personalCount} egne aktiviteter` : label)
       }
       const selected = host.querySelector('[data-calendar-date][aria-pressed="true"]')?.dataset.calendarDate

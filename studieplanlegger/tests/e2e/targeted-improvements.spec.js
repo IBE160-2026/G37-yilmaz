@@ -129,6 +129,17 @@ test('recovery remains available with corrupt storage and backup retains workwee
   await navigate(page, 'calendar'); await expect(page.locator('.calendar-time-day')).toHaveCount(5)
 })
 
+test('legacy calendar filters add personal activities in the real calendar view', async ({ page }) => {
+  const original = state()
+  original.calendarPreferences = { version: 1, view: 'week', weekMode: 'full', date: '2026-09-08', courseId: '', kinds: ['teaching'], completed: false, cancelled: false, scroll: {} }
+  original.planner.events.push({ id: 'personal', title: 'Syntetisk egen aktivitet', activityKind: 'personal', courseId: '', dateLocal: '2026-09-08', notes: '' })
+  const errors = await boot(page, original)
+  await navigate(page, 'calendar')
+  await expect(page.locator('[data-calendar-key="event:personal"]')).toBeVisible()
+  await expect(page.getByLabel('Egen aktivitet', { exact: true })).toBeChecked()
+  expect(errors).toEqual([])
+})
+
 for (const [institution, code, record] of [['uib', 'INF100', 'inf100'], ['uit', 'FYS-3000', '923370']]) {
   for (const live of [false, true]) test(`${live ? 'live public' : 'fixture'} ${institution}: search, preview, save, reload and repeat without losing notes or task IDs`, async ({ page }, testInfo) => {
     test.skip(live && process.env.RUN_LIVE_PUBLIC !== '1', 'Explicit bounded public-source acceptance run')

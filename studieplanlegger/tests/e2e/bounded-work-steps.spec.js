@@ -98,6 +98,23 @@ test('keyboard removal focuses the next or previous remaining step and finally t
   expect((await saved(page)).tasks[0].steps).toEqual([])
 })
 
+test('an open work-step dialog closes safely if another tab removes the task', async ({ page }) => {
+  const errors = []; page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/')
+  await page.evaluate(async task => {
+    const { createWorkStepsView } = await import('/src/work-steps-view.js')
+    const model = { tasks: [task] }
+    const view = createWorkStepsView({ state: () => model, onClose: () => {} })
+    view.open(task.id)
+    model.tasks = []
+  }, task)
+  const dialog = page.locator('.work-steps-dialog[open]')
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'Legg til manuelt steg', exact: true }).click()
+  await expect(dialog).not.toBeVisible()
+  expect(errors).toEqual([])
+})
+
 test('rejected mixed-step save retains raw state and draft, then retries one atomic normalization without duplicates', async ({ page }) => {
   await seed(page, [task], { view: 'all' })
   const original = await raw(page), dialog = await editor(page)
