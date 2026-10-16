@@ -1,5 +1,11 @@
 # Repository agent instructions
 
+- For every assignment, read the tracked `tilbakemelding-product-brief.md` dated 2026-10-06 and the relevant sensor guide when available; state which feedback points the assignment addresses. The local seven-page guide is identified by title and checksum in `.docs/planning-artifacts/README.md`; obtain it when needed without publishing the attachment automatically. Report an unavailable guide rather than inventing its requirements. No feature or adapter may expand v1 without explicit agreement.
+
+- Use the authoritative root [brief](brief.md) and [current planning index](.docs/planning-artifacts/README.md) for delivery scope and traceability. Address the [teacher feedback](tilbakemelding-product-brief.md), but do not treat its summary as a separately verified sensor guide. Keep reconstructed plans dated and distinct from earlier development history.
+- Keep v1 imports bounded to the named HiMolde/NTNU samples in the brief. National coverage is future vision; preserve existing integrations without expanding the delivery promise. Separate step completion, task completion and confirmed submission, and actual time from remaining work or mastery.
+- Cite exact code/tests and dated results. Distinguish local fixtures, live transport, technical browser/Docker checks and actual student testing. Do not invent student experience, reflection, source requirements or attribution of AI corrections. Keep deliverable plans eligible for Git while private drafts and `.memlog.md*` remain ignored.
+
 - Read the active specification and every file named in its `context` frontmatter before implementation. Treat approved intent and boundaries as authoritative.
 - Start required BMAD generators only through the active skill's entry point and ordinary narrow execution approval. Set `$env:WORKSPACE_ROOT` to the workspace containing `_bmad` and `.agents`, keep the skill-required working directory unchanged, and run:
 
@@ -9,7 +15,7 @@
 
   A restricted WinGet-link launch error is an execution-permission symptom, not proof of a broken installation or file association. Never record a personal home-directory path or change Windows security settings to work around it.
 - Never capture, print, test, or commit credentials, meeting access values, private subscription links, tokens, cookies, or unrelated personal data. Report findings by category and filename without reproducing sensitive values.
-- Keep internal agent logs, conversation excerpts, temporary working notes, and private drafts local and out of Git. Before committing, review each staged file for relevance to the published delivery.
+- Keep raw agent logs, chat archives, temporary working notes and private drafts local and out of Git. Short, relevant, anonymized excerpts of actual prompts may be curated in the development-process document with their real date, source basis and connection to a decision or check; never invent historical prompts. Before committing, review each staged file for relevance to the published delivery.
 - The user has standing approval for BMAD subagents to perform scoped implementation, testing, and independent review within an approved task. The primary agent coordinates ownership and verifies the result; this approval does not expand scope or authorize publishing, version-control writes, private-data use, or bypassing required system permissions and BMAD checkpoints.
 - Preserve public-source structure, attribution, URLs, IDs, licenses, group identity, and named project contributors. Use unmistakably synthetic values for security fixtures and document derivation next to the fixture.
 - Minimize captured HTML/PDF metadata and page chrome only when parser-focused tests prove the required source contract is unchanged. Do not broadly delete fixtures or generated evidence.

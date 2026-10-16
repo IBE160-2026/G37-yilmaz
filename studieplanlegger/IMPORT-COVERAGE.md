@@ -1,5 +1,11 @@
 # Import coverage and access requirements
 
+## Gjeldende v1 og historisk dekning — 2026-10-16
+
+V1 er avgrenset i [briefen](../brief.md) og [PRD](../.docs/planning-artifacts/PRD.md): HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, og NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Nasjonal dekning og tidligere «T3/restkrav» er framtidsvisjon, ikke åpne v1-leveransekrav. Andre adaptere beholdes med sine begrensninger.
+
+Tabellene og observasjonene nedenfor er bevart datert historikk. Formuleringer om «dagens», «gjeldende», «nye» eller fortsatt nasjonalt leveransekrav gjelder den oppgitte undersøkelsesdatoen og er erstattet av denne avgrensningen for dagens produktløfte. Transportprøvene 2026-10-01 er ikke gjentatt her. Eldre direkte emne-UI-prøver omfatter omlasting/gjentakelse; hele HiMolde-programgjentakelsen ble ikke verifisert og må ikke utledes av emneprøvene. Ny lokal kontraktkontroll 2026-10-16 står i [sporbarheten](../.docs/planning-artifacts/TRACEABILITY.md).
+
 ## Ny nasjonal kontroll — 2026-10-01
 
 [NOKUTs gjeldende liste](https://www.nokut.no/hogare-utdanning/akkrediterte-institusjonar/) har **48 navn: 11 universiteter, 9 vitenskapelige høyskoler, 15 akkrediterte høyskoler og 13 med akkrediterte studietilbud**. Appens **49 lokale identiteter** beholdes, inkludert historiske Ekko, slik at eksisterende relasjoner og data bevares. De 48 gjeldende identitetene har registrert programadapter og minst én tidligere avgrenset ekte programprøve. Dette er fortsatt ikke full nasjonal dekning; dagens kontroll gjentar ikke alle programprøvene.

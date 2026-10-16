@@ -1,5 +1,22 @@
 # Slik virker Studieplan
 
+## Hovedflyt og gjeldende løfte — 2026-10-16
+
+[Brief, PRD og stories](../planning-artifacts/README.md) er rekonstruert denne datoen for å gjøre dagens kode etterprøvbar. Importløftet er avgrenset til de navngitte HiMolde-/NTNU-prøvene i briefen; nasjonal dekning er framtidsvisjon. Historiske kontroller nedenfor er ikke nye kjøringer eller studentresultater.
+
+Et enkelt **syntetisk** eksempel: Opprett emnet «Eksempelfag» og oppgaven «Les eksempelkapittel». Legg til et ledig arbeidsvindu og en opptatt periode. Kontroller en foreslått halvtimesøkt før godkjenning. Etter økten registreres 30 faktiske minutter og for eksempel 45 minutter gjenstående hver for seg. Hvis planen må endres, kontrolleres og godkjennes et forslag som kan angres. Et ferdig steg fullfører ikke hele oppgaven, og ferdig arbeid bekrefter ikke innlevering. Eksemplet beskriver hovedflyten, ikke en ny utført prøve eller en students erfaring.
+
+```mermaid
+flowchart LR
+  A[Registrer eller bekreft import] --> B[Kontroller steg og økt]
+  B --> C[Godkjenn planen]
+  C --> D[Registrer faktisk utfall]
+  D --> E[Kontroller justering]
+  E --> C
+```
+
+Tekniske beslutninger og sammenhengen med krav står i [arkitekturen](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). [Studentprøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) er framtidig. Denne dokumentasjonsrunden bruker Codex/BMAD. Sensorveiledningen for del 1 er kontrollert i sin helhet 2026-10-16; lærerens Claude Code-formulering er fortsatt et avklaringspunkt, se utviklingsprosessen.
+
 Studieplan er en lokal studieplanlegger skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet, som er dokumentert i [utviklingsprosessen](development-process.md). Dokumentet er ikke studentens personlige refleksjonsrapport.
 
 ## To lokale kjøremåter

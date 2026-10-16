@@ -119,6 +119,7 @@ traces/
 # Internal BMAD working memory (local only, at any directory depth)
 .memlog.md
 .memlog.md.tmp
+.memlog.md*
 
 # BMAD: keep shared framework, skills, plans and documentation
 _bmad/config.user.toml
