@@ -1,5 +1,23 @@
 # Verifisering av Studieplan
 
+## Publiseringskontroll — 2026-10-16
+
+Lærerens tilbakemelding fra 2026-10-06 og alle sju sider av sensorveiledningen er lest. Planindeksen identifiserer kildene; sporbarhetsmatrisen kobler veiledningens sju vurderingsområder til bevis og konkrete mangler. Denne oppfølgingen er autorisert for ordinær commit og push; den første dokumentkontrollen nedenfor var avgrenset til lokale endringer.
+
+Personvernkontrollen fant ni eksisterende Outlook Safe Links med kodet mottakermetadata i PHS-fixturen. Bare omslagslenkene ble erstattet med opprinnelige HTTPS-mål. Alle 21 lenketekster, målene og HTML-strukturen er bevart. Proveniens og en regresjon er lagt til. `npm.cmd run test:unit -- tests/unit/fixture-privacy.test.js tests/unit/phs-programs.test.js` bestod **13/13 tester i 2/2 filer**, exit 0, 2026-10-16 kl. 13:39. Ingen live kilder, appserver, brukerlagring eller Docker ble startet. Tidligere fullsuite-resultater nedenfor er historiske; studentutprøving er fortsatt ikke gjennomført.
+
+De 16 dokumentasjonskandidatene og 286 sporede fixturene ble mønsterkontrollert, inkludert utfoldede ICS-linjer og URL-dekoding. Dette er en avgrenset publiseringskontroll, ikke en garanti om hemmelighetsfri historikk. Eldre tilgangsparametre og uavklart gyldighet er omtalt i utviklingsprosessen uten å gjengi verdiene. Private vedlegg og rå agentnotater inngår ikke i leveransen.
+
+Sluttkontrollen omfatter 19 filer: 16 dokumentasjons-/instruksjonsfiler og tre filer for fixturminimering, proveniens og regresjon. **201 lokale lenkemål/ankre i 28 Markdown-filer**, syv suksesskriterier, elleve R-/Q-krav, åtte stories og 16 navngitte testtitler i matrisen ble kontrollert uten funn. De tre supplerende SC-03/SC-04-testtitlene og deres assertions ble lest separat. Hele dokumentdiffen og nye filer er gjennomgått; `git diff --check` bestod. En uavhengig sluttgjennomgang fant ingen konkret publiseringsblokkering og bekreftet fixturens struktur og mål ved sammenligning i minnet. Tidligere BMAD-review er videreført; ingen produktkode eller adapter er endret.
+
+## Første dokumentkontroll — 2026-10-16
+
+Etter BMADs tre uavhengige reviewlag ble konkrete dokumentfunn rettet: isolert framtidig prøveoppskrift, NTNU-/fristkriterier, daterte evidenslenker, innleveringstester og arkitekturmetadata. Kontroll av 186 lokale lenkemål/ankre i 28 leveringsaktuelle Markdown-filer fant ingen mangler. Syv suksesskriterier, åtte funksjonskrav, tre kvalitetskrav, åtte stories og 16 navngitte testtitler i sporbarhetsmatrisen ble kontrollert mot dokumentene/testkoden. Hele diffen og de fem nye dokumentene er lest, og `git diff --check` bestod. Ignorekontroll skiller leveringsdokumentene fra historiske/private filer og runtimeartefakter. Ingen staging, commit, push, historikkomskriving eller app-/brukerdataskriving inngår.
+
+[Gjeldende planindeks](../.docs/planning-artifacts/README.md) dokumenterer brief → PRD → stories → kode/test som rekonstruksjon 2026-10-16. Det gamle nasjonale T3-/leveransekravet er erstattet av navngitte HiMolde-/NTNU-prøver i briefen; full nasjonal dekning er visjon. Daterte resultater, feil og begrensninger nedenfor beholdes som historikk, også der den daværende teksten omtalte nasjonale restkrav.
+
+Fra `studieplanlegger/` bestod `npm.cmd run test:unit -- tests/unit/fixture-privacy.test.js tests/unit/vortex-programs.test.js tests/unit/public-tp.test.js tests/unit/teaching-check.test.js` **56/56 tester i 4/4 filer**, exit 0, 6,33 sekunder. Dette er en lokal kontrakt-/personvernkontroll uten live kildeoppslag, nettleser eller Docker. Det er ikke gjennomført studentutprøving eller ny full app-/Docker-aksept i denne dokumentasjonsrunden. [Sporbarhet](../.docs/planning-artifacts/TRACEABILITY.md) skiller testkode, kjørte kontroller og åpne spørsmål.
+
 ## Personvernminimerte kildefixturer — 2026-10-02
 
 FIH-delingsparameteren, personkontakt-/profilblokker og undervisernavn ble kontrollert og minimert uten live-oppslag. Kalenderlinjer ble foldet ut i minnet før feltkontroll, og de nye strukturelle regresjonene verifiserer fortsatt 14 HTML-valg, 15 PDF-avledede valg, hendelsesantallene 54/68/40/34/52/294/16, 75 NIH-rader med 32 syntetiske underviserfelt, HiMolde-arrayformen 1/0/0 og uendrede Ansgar-koordinater. En repository-dekkende skann skilte kalender-UID-er, generelle institusjonspostkasser og uttrykkelig syntetiske sikkerhetstester fra person-/tilgangsfunn. Fjernede verdier er ikke kopiert til tester eller dokumentasjon.

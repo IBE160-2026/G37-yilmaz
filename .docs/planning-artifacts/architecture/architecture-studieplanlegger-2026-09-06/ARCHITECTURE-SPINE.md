@@ -7,15 +7,36 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-09-29
-binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
+updated: 2026-10-16
+binds: [R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, Q-01, Q-02, Q-03]
+historical_binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
+  - ../../PRD.md
+  - ../../EPICS-CURRENT.md
+  - ../../TRACEABILITY.md
   - ../../../../brief.md
   - ../../../implementation-artifacts/spec-fullstack-database-docker-delivery.md
   - ../../../implementation-artifacts/solution-guide.md
 ---
 
 # Technical plan: Studieplanlegger
+
+## Current scope and requirement map — 2026-10-16
+
+This section is a retrospective alignment, not an original implementation plan. The [current PRD](../../PRD.md), [stories](../../EPICS-CURRENT.md) and [traceability](../../TRACEABILITY.md) replace the original FR/NFR delivery baseline where they conflict. The [root brief](../../../../brief.md) owns the product promise: bounded HiMolde IT 2026–27 programme choices, teaching only IBE110/IBE430/IBE160 autumn 2026, and NTNU ARK1001/EXPH0100 course metadata/linked teaching autumn 2026. National coverage is vision. No complete NTNU programme, exams or personal group membership is promised. Existing integrations remain available with dated limitations.
+
+Production is a local Node API plus authoritative SQLite, with revision-checked, validated transactional state writes. Docker binds to loopback and persists the database in a named volume. Vite/localStorage is an isolated development/test path and an explicitly confirmed migration source, not production authority. This separation supports reproducible local use without hosted infrastructure or accounts. Rules derive suggestions from registered data; no generative-AI service is required at runtime.
+
+| Current requirements | Decisions and implementation boundaries |
+| --- | --- |
+| R-01, Q-01 | AD-9/AD-11: title-only capture, optional details, shared controller and readable task/session UI. |
+| R-02, Q-02 | AD-11: source-owned required/alternative choices, per-course teaching status, explicit review, failure-safe refresh. |
+| R-03, R-05 | AD-9/AD-11 and acceptance hardening: shared capacity/dependency rules, fingerprinted proposals, atomic commit and history/undo. |
+| R-04, R-08 | AD-9/AD-12: actual work and remaining estimates independent; stable ordered steps, optional assessment/review, read-only calendar copy, controlled plan comparison. |
+| R-06, Q-02 | AD-10: SQLite authority, automatic transactional migrations, optimistic revisions, backup/recovery and same-volume persistence. |
+| R-07, Q-03 | [Student trial](../../USER-TRIAL-PLAN.md) is planned. Technical verification and human understanding remain separate. |
+
+**Reading the history:** AD-1–AD-8, the older screen description, stack snapshot and scaffold/setup instructions below are historical. Conflicting required task fields, browser-only storage, one-step/no-history exclusions and port-80 setup are superseded by AD-9–AD-12 and this map. Do not rerun scaffold/install instructions or use actual port-80 storage for verification. Use the current [README](../../../../README.md) for startup. Old decisions remain to show evolution, not as active contradictory instructions.
 
 ## Acceptance hardening — 2026-10-01
 

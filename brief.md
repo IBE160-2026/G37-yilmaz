@@ -1,86 +1,46 @@
 ---
 title: "Product Brief: Studieplan"
-status: implemented
+status: bounded-delivery-documented
 created: 2026-09-06
-updated: 2026-09-29
+updated: 2026-10-16
 ---
 
-# Product Brief: Studieplan
+# Product brief: Studieplan
 
-## Executive Summary
+Studieplan hjelper studenten å gjøre oppgaver og tilgjengelig tid om til en gjennomførbar plan, registrere hva som faktisk skjedde og godkjenne nødvendige endringer. Appen kjører lokalt uten konto eller betalte tjenester. Studenten beholder kontroll over import, arbeidsanslag og planvalg.
 
-Studieplan is a study planner for students at Norwegian universities and university colleges. Study information is often spread across course descriptions, teaching schedules, assignment texts, semester plans, calendars, and personal notes. Students must repeatedly turn these sources into a realistic plan and update it when activities are missed or tasks take longer than expected.
+Briefen er avgrenset **2026-10-16** etter [faglærerens tilbakemelding](tilbakemelding-product-brief.md) på commit `5e23204`. [PRD, stories og sporbarhet](.docs/planning-artifacts/README.md) er en datert rekonstruksjon av levert funksjonalitet, ikke en påstand om at disse dokumentene styrte tidligere utvikling.
 
-Studieplan connects confirmed imports and manually entered tasks with teaching, deadlines, and study sessions in one calendar. Guided onboarding and quick capture let the student begin before every detail is known, while explained suggestions support useful and feasible next actions.
+## Problem og primærbruker
 
-The student records work outcomes, and Studieplan can propose adjustments when time is lost or the student's needs change. The delivered implementation includes a local browser interface, a loopback-only Node API, durable SQLite storage and a documented Docker Compose setup. The database schema is created automatically and a named volume preserves data across container recreation. Suggestions use registered information, rules, dependencies, and local work history; they do not require generative AI or change the plan without the student's confirmation.
+En **hypotetisk** HiMolde-student tar IBE110, IBE430 og IBE160 og har deltidsjobb to ettermiddager. Emneinformasjon, undervisning, Canvas-oppgaver og egne notater gir mange bruddstykker, men svarer ikke samlet på hva studenten kan gjøre den neste halvtimen. En tapt økt eller et for lavt anslag gjør planen urealistisk. Dette er et designscenario, ikke et gjennomført studentintervju.
 
-The `implemented` status describes the delivered core functionality; it does not mean that all import coverage requirements have been fulfilled. Full national support remains an unmet delivery requirement.
+Kalenderapper viser avtaler og frister, Canvas samler fagets informasjon og innleveringer, og oppgavelister hjelper med å huske arbeid. Studieplan forsøker å knytte disse behovene sammen gjennom én kontrollert planleggingssløyfe. Det er ingen påstand om markedsunikhet eller dokumentert lavere arbeidsbelastning.
 
-The current implementation reduces repeated setup by reusing a confirmed study-time pattern and combining programme, course and available teaching preparation into one reviewed commit. Source-owned course alternatives remain explicit student choices. Teaching status is recorded per course, and saved activity, group and exclusion choices survive reload and refresh. Unchanged refreshes finish without an extra confirmation, while changed source data or choices remain reviewable. Course codes and deterministic colors keep related teaching, deadlines and study sessions recognizable without relying on color alone.
+## Hovedflyt og låst v1
 
-The maintenance loop now continues from an assignment into optional, ordered work steps, a study session, an optional dated self-assessment and a student-approved review session. Local rules distinguish source-backed requirements from suggested working methods and unresolved information. Calendar export creates a point-in-time `.ics` copy of approved sessions and deadlines, while plan comparison lets the student inspect a current, reduced-capacity and task-priority alternative from one revision before applying one atomic, undoable change. None of these additions introduces a mandatory field in ordinary task capture or session closeout.
+Registrer oppgave manuelt eller bekreft importforslag → velg gjennomførbart steg/økt → registrer utfall → kontroller og godkjenn justeringer. Bare oppgavetittel er obligatorisk. Ukjent tid og manglende frist skal fortsatt være ukjent. Fullført steg, fullført oppgave og manuelt bekreftet innlevering er tre forskjellige tilstander. Logget tid er verken automatisk gjenstående arbeid eller dokumentasjon på mestring.
 
-## The Problem
+Kjernen omfatter emner og oppgaver, undervisning og tilgjengelig tid, forklarte handlingsforslag, arbeidsutfall, godkjent omplanlegging med angre, samt varig lokal lagring og dokumentert Docker-oppstart. Manuell registrering gjør kjernen brukbar uten eksterne kilder.
 
-Students often assemble the same semester picture from several places: course information, timetables, assignment texts, semester plans, and personal calendars. Even when every source is available, the student must translate it into one dependable plan and keep it current.
+**Avgrensede importprøver i v1 — «HiMolde IT 2026–27 og NTNU emneutvalg høst 2026»:** HiMolde IT 2026–27 med IBE110 og IBE430 samt kildevalget **IBE160 eller IBE102 + IBE152**. Undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026. NTNU omfatter emnemetadata og emnelenket undervisning for ARK1001 og EXPH0100 høsten 2026; dette lover ikke komplett NTNU-program. Det loves ikke full eksamensdekning eller personlig gruppetilhørighet. [Importdekning](studieplanlegger/IMPORT-COVERAGE.md) skiller lokale kontrakttester, historisk kildetransport og UI-prøver. Gjentakelse av hele HiMolde-programflyten er ikke verifisert; direkte emnegjentakelser er dokumentert historisk.
 
-The difficulty becomes sharper when several courses compete for the same available time. A task with an imminent deadline may be too large for the next hour, while a smaller task may depend on unfinished work. Estimates are uncertain, and one missed session can make the rest of the plan unrealistic. An expired calendar entry does not prove that the work happened.
+**Allerede implementerte tillegg:** ordnede arbeidssteg, frivillig egenvurdering og repetisjonsforslag, kalenderkopi og sammenligning av planalternativer. Disse bevares og beskrives i PRD, men utvider ikke kildekravet. Ingen nye adaptere eller funksjoner inngår i denne dokumentasjonsleveransen.
 
-The result is more administration, difficult prioritization, and work that starts later than intended. At the moment the student needs to act, the plan may still not answer the immediate question: Given the time and constraints I have, what should I do now?
+## Sjekkbare suksesskriterier
 
-## The Solution
+Hver rad har krav, story, kode, test/metode og evidensstatus i [sporbarhetsmatrisen](.docs/planning-artifacts/TRACEABILITY.md).
 
-Studieplan begins with a trustworthy study context. The student selects an institution, study programme, and semester, then reviews the course and teaching information that Studieplan can retrieve. Manual entry and document or calendar import keep the journey usable when direct data is unavailable.
+| ID | Forventet resultat |
+| --- | --- |
+| SC-01 | En tom planlegger kan lagre ett manuelt emne, en oppgave med bare tittel og én godkjent økt; koblingene beholdes ved omlasting. |
+| SC-02 | Den avgrensede importen beholder kildevalgene og krever kontroll av endringer; kildefeil sletter ikke tidligere undervisning. |
+| SC-03 | Nye øktforslag bruker registrerte arbeidsvinduer, unngår kjent opptatt tid og respekterer kjente avhengigheter; manglende tid og usikkert grunnlag forklares, ugyldige eller foreldede endringer avvises. |
+| SC-04 | Registrering av faktisk tid endrer ikke automatisk gjenstående anslag; steg, arbeid og innlevering fullføres separat. |
+| SC-05 | Et forslag skriver ingen økter før godkjenning; godkjente endringer kan angres samlet. |
+| SC-06 | Emner, oppgaver, økter og relasjoner overlever omstart/gjenskaping med samme lokale datavolum. |
+| SC-07 | En ny student kan fullføre hovedflyten og forklare skillet mellom ferdig og levert uten fasilitatorhjelp, etter prøveprotokollen. **Ikke testet med student.** |
 
-Onboarding turns that context into a first course, task, and study session. Later tasks need only a title until more is known. Documents and calendars can propose tasks, deadlines, and activities. The student reviews each proposal with its source and stated uncertainties, makes corrections, and confirms what enters the plan.
+## Utenfor v1 og videre visjon
 
-The calendar combines fixed teaching, deadlines, and study sessions without treating them as equivalent. Studieplan suggests work that fits the student's available time and respects known deadlines and dependencies. Each suggestion explains what to do, why it matters, and what remains uncertain. Local work history may improve estimates without replacing the student's judgment.
-
-After a study session, the student records the outcome of the work: completed, needing more time, or not performed. Completing a work step does not necessarily complete the whole task, and completing a task does not mark it as submitted. The student confirms submission manually. Actual time worked and estimated remaining work are recorded separately; logged time is not automatically deducted from the remaining estimate. If time is lost, an estimate increases, or completed work frees time, Studieplan proposes schedule changes that the student can inspect, adjust, accept, reject, or undo.
-
-## What Makes This Different
-
-Studieplan connects information that is often maintained separately: academic context, tasks, fixed activities, available time, progress, and dependencies. Each part informs the next action. Imported course information can lead to a confirmed task, the task can be planned around teaching, and its outcome can update the remaining workload or prompt a recovery proposal.
-
-Instead of reconciling separate notes, task lists, and calendar entries, the student maintains one coherent model of the semester. Studieplan's distinction is this connected planning loop and the student's control over it, not a claim of market uniqueness.
-
-## Who This Serves
-
-The primary users are students at Norwegian universities and university colleges who manage several courses, deadlines, and fixed activities within limited study time. They need a reliable overview without turning planning into a second workload, and recommendations that acknowledge uncertain estimates, dependencies, and changing needs.
-
-## Success Criteria
-
-Success means that a student can establish and maintain a useful plan, understand what to do next, and recover when reality diverges from the schedule while retaining control of information and decisions. It is assessed through user outcomes and delivery checks. These are goals and methods, not documented results; numeric thresholds remain proposals until agreed.
-
-- **Usable start:** Observe whether a student can move from an empty planner to a confirmed course, task, and study session, then assess whether the plan is understandable and actionable.
-- **Low-friction maintenance:** Observe task capture, later detail entry, and progress registration; record difficulties and qualitative feedback.
-- **Trustworthy import:** Compare imported information with its sources, recording corrections, omissions, uncertainties, and source limitations.
-- **Feasible replanning:** Check proposals against fixed activities, available time, deadlines, dependencies, and remaining work; assess whether the student can act on them.
-- **Reduced planning burden:** Compare the student's perceived maintenance effort and overview with their previous approach. Technical test results alone do not demonstrate user value.
-- **Delivery acceptance:** Verify that the student can create, retrieve, and change central information; that data and relationships among courses, tasks, and study sessions survive application restarts; and that the documented source code and Docker setup reproduce the local full-stack application with persistent storage.
-
-## Scope
-
-The agreed first complete delivery covers the product areas required for one connected study-planning journey:
-
-- institution, programme, and semester selection, with manual entry and controlled imports from documents, calendars, and available teaching sources;
-- onboarding, task capture, teaching, deadlines, study sessions, progress registration, and student-approved replanning;
-- explained next actions based on time, deadlines, dependencies, and applicable local history;
-- optional work steps, self-assessment and review suggestions, calendar-file export, and comparison of whole plan alternatives before acceptance;
-- local and private operation through the delivered browser interface and Node API, with SQLite as authoritative production storage; and
-- source code, support for data recovery, and a documented Docker setup for running the required components locally with persistent storage.
-
-The delivered production path uses SQLite as authoritative storage behind the local Node API. Complete state changes are validated, revision-checked and written transactionally. Docker Compose binds only to `127.0.0.1`, creates the schema automatically and keeps the database in a named volume. Browser storage remains available in the separate Vite development mode and as an explicitly confirmed migration source. Startup, health, test and recovery instructions are documented in the README and verification record.
-
-Support for universities and university colleges across Norway remains a delivery requirement, dependent on available and permitted data sources. Full national support is not yet fulfilled; the 1 October 2026 combined acceptance and import audit resumes investigation of the remaining coverage. The [current import coverage](studieplanlegger/IMPORT-COVERAGE.md) records verified support and remaining limitations. Manual and file import provide continuity but do not establish direct institutional integration.
-
-**Delivery evidence.** The [development-process record](.docs/implementation-artifacts/development-process.md) documents AI-assisted development, the BMAD process, and quality assurance. These delivery-evidence requirements are distinct from Studieplan's runtime behavior, which uses registered data, rules, and local statistics rather than generative AI.
-
-**Out of scope.** The scope excludes public hosting, accounts, payments, cloud synchronization, automatic contact, attendance monitoring, automatic submission, and automatic confirmation from an institution's systems. The student can still confirm manually that an assignment has been submitted. An expired study session does not prove work was performed, and finished work does not prove submission.
-
-## Vision
-
-Over time, Studieplan can become a more useful and less labor-intensive companion throughout a student's education. Broader, better-maintained source coverage can reduce repeated registration, while clearer handling of uncertainty can keep imports trustworthy across different institutions. More relevant local history can improve estimates and recommendations without removing student control.
-
-The long-term direction is a plan that stays realistic as courses, workload, and available time change: easy to establish, light to maintain, and practical when the student falls behind. This is future direction, not an expansion of the agreed delivery.
+Offentlig hosting, kontoer, betaling, skysynk, generativ KI i appen, automatisk kontakt, oppmøtekontroll og automatisk innlevering/bekreftelse er utenfor. Full nasjonal dekning er **framtidsvisjon**, ikke et uoppfylt v1-krav. Eksisterende adaptere beholdes med sine dokumenterte begrensninger. Før mer funksjonalitet prioriteres kvalitet, sporbarhet og faktisk studentutprøving. Teknisk arkitektur og daterte kjøreresultater finnes via [planindeksen](.docs/planning-artifacts/README.md); de beviser ikke studentnytte.

@@ -1,5 +1,7 @@
 # Emner, undervisning og oppgaveforslag
 
+**Scope 2026-10-16:** Gjeldende v1 er de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md). Full nasjonal dekning er visjon. Omtalen av nasjonal kontroll og restkrav nedenfor er datert historikk; se [nåværende avgrensning og bevarte kilderesultater](IMPORT-COVERAGE.md).
+
 **Kontrollert 1. oktober 2026:** NOKUT har 48 gjeldende navn; appen bevarer 49 lokale identiteter inkludert historiske Ekko. 48 programadaptere og programemneinformasjon er adskilt fra de sju selvstendige emnesøkene og ni emnedetaljrutene. Undervisning, eksamen/innlevering, campus, grupper og personlig timeplan har egne svakere bevis. Se [gjeldende nasjonal kontroll og åpne restkrav](IMPORT-COVERAGE.md). HLT publiserer nå en høst-2026-plan i XLSX; dette formatet og direkte HLT-undervisning er fortsatt ikke implementert.
 
 Slutt-Docker kontrollerte ekte NTNU EXPH0100 høst 2026 og etterfølgende **simulerte** kildefeil gjennom «Oppdater nå». Nytt forsøk/feilstatus lagres separat fra siste vellykkede kontroll, mens undervisning og aktivitetsvalg bevares. En enkelt HTTP 401/403 med ukjent årsak betyr transportfeil, ikke et dokumentert tilgangskrav; ugyldig kalenderinnhold, timeout og uttrykkelig dokumentert tilgang har egne kategorier. [Verifikasjonen](VERIFICATION.md) oppgir nøyaktig dato, kildeprøver, sluttkode og testomfang. Modellkontrakt og vellykket tomt oppslag føres separat i dekningstabellen; fil/lenke er et alternativ og ikke direkte personlig institusjonsintegrasjon.

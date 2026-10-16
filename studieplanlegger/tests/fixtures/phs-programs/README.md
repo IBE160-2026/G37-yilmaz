@@ -9,3 +9,7 @@ Programsidene er personvernminimerte derivater. Personkontaktseksjonen er fjerne
 - Emnebeskrivelse: /studier/emner/2026/host/forebygg01-2.html.
 
 Masterens heltid/deltid-valg, manglende høstsemester i deltidsmodellen, valgemnekrav, emner over to semestre og lenker til eldre emneutgaver er beholdt.
+
+## Privacy follow-up — 2026-10-16
+
+The nine bibliography links in `bachelor-cohorts.html` retain their original HTTPS Alma targets and source query parameters. Outlook Safe Links wrappers were unwrapped to remove encoded recipient and tracking metadata. Link labels, cohort links and the surrounding HTML remain unchanged. The `auth=SAML` parameter is a source authentication-mode label, not an access credential; no target was opened during this minimization. PHS parser tests and the fixture privacy regression verify the retained structure.

@@ -4,6 +4,8 @@ Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten
 
 Repoet inneholder Studieplan, en lokal studieplanlegger, samt dokumentasjon av utvikling, testing og kvalitetssikring med KI.
 
+**Avgrensning 2026-10-16:** [Brief → PRD → stories → kode/test](.docs/planning-artifacts/README.md) er nå dokumentert som en datert rekonstruksjon etter faglærertilbakemeldingen. V1-import gjelder HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152; undervisning bare IBE110/IBE430/IBE160 høst 2026. NTNU omfatter ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026, uten komplett programløfte. Full nasjonal dekning er visjon. Ingen full eksamensdekning eller personlig gruppetilhørighet loves. Daterte tekniske kontroller nedenfor er historiske, ikke studentutprøving eller nye kjøringer 16. oktober.
+
 ## Medlemmer
 
 - Elias Hemsett Yilmaz
@@ -14,11 +16,11 @@ Studieplan samler studieprogram, emner og tilgjengelig offentlig undervisning i 
 
 Planleggingen støtter gjenbrukbare studietidsmønstre, usikre arbeidsanslag, daglig veiledning og studentgodkjent omplanlegging. Import- og kalendergrensesnittet bevarer relevante åpne seksjoner, rulleposisjon og fokus, viser læresteder, programmer og emner alfabetisk etter norsk navn, og viser stabile emnefarger sammen med tydelige emnekoder. Kalenderens topp har en eksporthandling som lager en lokal `.ics`-kopi; frister blir kompatible, transparente kalenderhendelser uten oppdiktet varighet. Implementert kildekode og avgrensede kontroller er ikke det samme som full nasjonal kilde- eller programdekning; se [importdekningen](studieplanlegger/IMPORT-COVERAGE.md).
 
-Sluttkontrollen **2. oktober 2026** verifiserte den samlede lokale koden i et isolert Docker-prosjekt. Arbeidssteg, vurderingskoblinger, kalenderkopi, programrekkefølge, registrering, planlegging, gjenskaping, backup/restore og SQLite-integritet bestod. **1382 enhetstester, 43 berørte nettleserforløp, 3 ordinære Node/SQLite-forløp og 2 nye syntetiske livssyklusforløp** avsluttet normalt; undervisningskontraktene inngår i enhetssuiten og har dessuten daterte, separate kontroller. Konkrete reviewrettelser og åpne begrensninger står i [VERIFICATION.md](studieplanlegger/VERIFICATION.md); nasjonal full dekning er fortsatt uoppfylt.
+Sluttkontrollen **2. oktober 2026** verifiserte den samlede lokale koden i et isolert Docker-prosjekt. Arbeidssteg, vurderingskoblinger, kalenderkopi, programrekkefølge, registrering, planlegging, gjenskaping, backup/restore og SQLite-integritet bestod. **1382 enhetstester, 43 berørte nettleserforløp, 3 ordinære Node/SQLite-forløp og 2 nye syntetiske livssyklusforløp** avsluttet normalt; undervisningskontraktene inngår i enhetssuiten og har dessuten daterte, separate kontroller. Konkrete reviewrettelser og åpne begrensninger står i [VERIFICATION.md](studieplanlegger/VERIFICATION.md). Disse resultatene gir ikke full nasjonal dekning; slik dekning er framtidsvisjon fra 16. oktober.
 
 ## Kjør den komplette leveransen
 
-Du trenger Docker med Compose. Fra repository-roten:
+Du trenger Docker med **Compose v2** (`docker compose version`). Ingen konto, nøkler eller `.env` er nødvendig med standardoppsettet. Fra repository-roten:
 
 ```powershell
 cd studieplanlegger
@@ -52,6 +54,8 @@ npm run test:e2e:database
 På en ren Linux-maskin kan Playwrights systembiblioteker også mangle. Bruk da `npx playwright install --with-deps chromium` med nødvendige lokale administratorrettigheter i stedet for den vanlige installasjonskommandoen.
 
 ## Arkitektur og dokumentasjon
+
+`studieplanlegger/src/` inneholder klient og domeneregler, `studieplanlegger/server/` API/database og kildeadaptere, og `studieplanlegger/tests/` enhets-, nettleser- og produksjonstester. `.docs/planning-artifacts/` samler gjeldende krav og sporbarhet; `.docs/implementation-artifacts/` inneholder kuratert prosess og løsningsbeskrivelse. Sensorveiledningen er kontrollert i [sporbarhetsmatrisen](.docs/planning-artifacts/TRACEABILITY.md#sensorveiledningens-sju-områder), med konkrete begrensninger fremfor karakterløfter.
 
 Løsningen består av en Vite-klient i vanlig JavaScript, et lokalt Node-API og SQLite. Produksjons-/Docker-modusen bruker SQLite som autoritativ lagring. Klienten sender komplette, validerte tilstandsendringer med forventet revisjon; serveren skriver dem transaksjonelt. Compose binder vertsporten til `127.0.0.1` og beholder databasen i volumet `studieplan-data`.
 

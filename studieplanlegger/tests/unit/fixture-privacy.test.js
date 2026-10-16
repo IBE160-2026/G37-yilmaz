@@ -37,6 +37,26 @@ function icsEvents(source) {
 }
 
 describe('fixture privacy minimization', () => {
+  it('keeps PHS bibliography targets without encoded Safe Links recipient metadata', () => {
+    const source = fixture('phs-programs/bachelor-cohorts.html')
+    const decoded = decodeURIComponent(source)
+    expect(decoded).not.toMatch(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i)
+    expect(decoded).not.toContain('safelinks.protection.outlook.com')
+    const $ = cheerio.load(source)
+    const targets = $('a[href]').toArray().map(node => $(node).attr('href'))
+      .filter(href => href.startsWith('https://bibsys-xq.alma.exlibrisgroup.com/'))
+      .map(href => new URL(href))
+    // Nine unwrapped links and two already-direct links in the source page.
+    expect(targets).toHaveLength(11)
+    for (const target of targets) {
+      expect(target.searchParams.get('auth')).toBe('SAML')
+      expect(target.searchParams.has('subject')).toBe(true)
+      expect(target.searchParams.has('faculty')).toBe(true)
+      expect(target.searchParams.has('publication')).toBe(true)
+      expect(['data', 'sdata', 'reserved'].some(key => target.searchParams.has(key))).toBe(false)
+    }
+  })
+
   it('uses only explicit synthetic values for copied calendar access parameters', () => {
     const html = fixture('public-programs/fih-calendar-html.html')
     const links = fixture('public-programs/fih-calendar-links.json')

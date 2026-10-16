@@ -1,6 +1,12 @@
 # Studieplan
 
+**Gjeldende avgrensning 2026-10-16:** [Planindeksen](../.docs/planning-artifacts/README.md) knytter brief, PRD og stories til kode/test som en datert rekonstruksjon. V1-import er HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, samt NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Full nasjonal dekning er visjon. Historiske tekniske kontroller nedenfor er ikke nye kjøringer eller dokumentert studentnytte.
+
+En syntetisk hovedflyt er å opprette et manuelt emne og «Les eksempelkapittel», velge en ledig økt, registrere faktisk arbeid og nytt gjenstående anslag, og godkjenne eller forkaste en justering. Fullført steg, ferdig arbeid og bekreftet innlevering er separate handlinger. Se [løsningsguiden](../.docs/implementation-artifacts/solution-guide.md) og [planen for studentutprøving](../.docs/planning-artifacts/USER-TRIAL-PLAN.md).
+
 ## Full-stack drift med Docker
+
+Forutsetning: Docker med Compose v2; kontroller med `docker compose version`. Standardoppstart krever ingen miljøfil eller nøkler. Valgfri konfigurasjon står i [.env.example](.env.example): `STUDIEPLAN_PORT` velger den lokale vertsporten (standard 8088), `STUDIEPLAN_SEED` er normalt `false`, og `STUDIEPLAN_SEED_JSON` brukes bare ved uttrykkelig valgt seed til tom database. Kopier eventuelt filen til `.env`; ekte studentdata skal ikke legges i Git. Porten bindes fortsatt til loopback. Ingen bestemt Docker Engine-patchversjon er dokumentert som testkrav.
 
 Den komplette leveransen bygger nettleserklient, Node-server og SQLite-database fra de låste npm-avhengighetene. Node-basisbildet bruker den valgte, mutable taggen `node:24-bookworm-slim`. Skjemaet opprettes automatisk, og databasen ligger i et navngitt Docker-volum.
 
