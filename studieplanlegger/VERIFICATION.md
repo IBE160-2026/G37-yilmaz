@@ -1,5 +1,22 @@
 # Verifisering av Studieplan
 
+## ZIP-oppfølging: PHS-video og SC-01 — 2026-10-16
+
+Kontrollert utgangspunkt: `aefb179569f56a7213b97b74d3797a157ac92f3a`. Den uvedkommende rekrutteringsvideoblokken i `tests/fixtures/phs-programs/bachelor.html` er fjernet med tilhørende spillerkontroller. Den inneholdt en kodet strøm-URL med tilgangslignende parameter; ingen verdi eller tilgang er testet, og dette klassifiseres ikke som en bekreftet privat eller aktiv hemmelighet. Studieinnhold, overskrifter, studieplanlenker og kildehenvisninger beholdes. Historikken er ikke sanert.
+
+A02 i `tests/e2e/connected-root-acceptance.spec.js` beholder de eksisterende assertions og kontrollerer nå samme emne-, oppgave- og økt-ID etter reload, med oppgavens `courseId`, øktens `taskId` og dato/start/slutt. Den venter på den synlige gjenopprettede oppgaven og krever nøyaktig ett emne, én oppgave og én økt. Sammenligningen gjelder domeneverdier, ikke onboarding-/historikkfelt eller hele lagringskonvolutten.
+
+- `npm.cmd run test:unit -- tests/unit/fixture-privacy.test.js tests/unit/phs-programs.test.js`: **14/14**, 2 filer, exit **0**. Ny regresjon kontrollerer fravær av videostruktur og strømparametre uten å gjengi verdier; eksisterende PHS-tester er uendret.
+- `node node_modules/@playwright/test/cli.js test tests/e2e/connected-root-acceptance.spec.js --grep "independent A02:" --workers=1 --reporter=line` med separat resultatmappe: sluttkjøringen bestod **1/1**, 5,8 sekunder, normal exit **0**. Egen Vite-server på ledig `127.0.0.1:58051`, `PLAYWRIGHT_PORT=58051`, `PLAYWRIGHT_REUSE_SERVER=1`; serveren ble stoppet og porten bekreftet fri. Syntetiske data og midlertidig Playwright-kontekst.
+- `npm.cmd run build`: **83 moduler**, exit **0**, med eksisterende advarsel om store bundles.
+- `npm.cmd run test:unit -- --maxWorkers=1`: **1390/1390**, 110 filer, 70,25 sekunder, exit **0**. Kjørt før siste presisering av studieplanlenkens mål; de 14 berørte enhetstestene bestod igjen etter den presiseringen. Ingen testforventninger ble svekket.
+
+Uavhengig struktursammenligning mot utgangspunktet bekrefter at bare videokomponenten ble fjernet: alle ni overskrifter og 15 lenker med tekst er uendret. Personvernmønsterkontrollen omfattet 286 sporede fixturer (inkludert 11 ICS-filer med utfoldede linjer) og 28 Markdown-filer med gjentatt URL-dekoding. Ingen gjenværende strøm-/tokenparametre, ikke-syntetiske passord-/tilgangstokenparametre, private brukerstier eller privatnøkkelmarkører ble funnet. Dette er en avgrenset mønsterkontroll, ikke en garanti om personvern i alle filer eller historikken.
+
+Dette er teknisk Vite/localStorage-kontroll, ikke studentutprøving eller nytt SQLite-/Docker-bevis. V1, brief, produktkode og adaptere er uendret. Et innledende enhetstestforsøk fra repositoryroten ga ENOENT/exit 1 før noen tester startet; kommandoen ble deretter kjørt fra appmappen som angitt ovenfor.
+
+Etter første beståtte A02-kjøring ble synlig oppgave og antallskontroll lagt til etter avgrenset BMAD-review. To mellomkjøringer feilet med exit 1 fordi den nye testkoden brukte navigasjonsnøkkelen `tasks` i stedet for eksisterende `all`. Testens nøkkel ble rettet, assertions beholdt, og sluttkjøringen ovenfor bestod. Egne servere ble stoppet også etter feil. Reviewens lenkefunn ble rettet med eksakt studieplanmål. Hele diffen er gjennomgått uten å gjengi fjernet URL; 201 lokale lenker/ankre og krav-/storyreferanser bestod, samt `git diff --check`. Genererte bilder/testspor og interne notater holdes utenfor Git.
+
 ## Publiseringskontroll — 2026-10-16
 
 Lærerens tilbakemelding fra 2026-10-06 og alle sju sider av sensorveiledningen er lest. Planindeksen identifiserer kildene; sporbarhetsmatrisen kobler veiledningens sju vurderingsområder til bevis og konkrete mangler. Denne oppfølgingen er autorisert for ordinær commit og push; den første dokumentkontrollen nedenfor var avgrenset til lokale endringer.
