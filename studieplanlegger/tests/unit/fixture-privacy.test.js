@@ -37,6 +37,19 @@ function icsEvents(source) {
 }
 
 describe('fixture privacy minimization', () => {
+  it('keeps PHS bachelor study content without unrelated video embedding or stream parameters', () => {
+    const source = fixture('phs-programs/bachelor.html')
+    const $ = cheerio.load(source)
+    expect($('iframe, video, source, .vrtx-media-player, vrtx-component-block, .vrtx-media-button-holder').length).toBe(0)
+    const decoded = decodeURIComponent(source)
+    // Assert booleans so a regression cannot print a copied access-like value.
+    expect(/streamUrl\s*=/i.test(decoded)).toBe(false)
+    expect(/[?&]token\s*=/i.test(decoded)).toBe(false)
+    expect($('main h1').text().trim()).toBe('Bachelor - Politiutdanning')
+    expect($('main a[href]').toArray().some(node => $(node).text().trim() === 'Se alle studieplaner'
+      && $(node).attr('href') === '/studier/politiutdanning/studieplaner/')).toBe(true)
+  })
+
   it('keeps PHS bibliography targets without encoded Safe Links recipient metadata', () => {
     const source = fixture('phs-programs/bachelor-cohorts.html')
     const decoded = decodeURIComponent(source)

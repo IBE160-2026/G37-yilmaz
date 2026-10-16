@@ -12,4 +12,6 @@ Masterens heltid/deltid-valg, manglende høstsemester i deltidsmodellen, valgemn
 
 ## Privacy follow-up — 2026-10-16
 
+The unrelated recruitment-video component in `bachelor.html` was removed, including its player wrapper and video-only controls. Its embedded stream URL carried an access-like parameter; validity and access were not tested, and it is not classified as a confirmed private or active secret. Study content, headings, study-plan links and source attribution are retained. The scoped privacy regression and existing PHS parser tests cover the retained fixture. This changes the current tree only, not older Git history.
+
 The nine bibliography links in `bachelor-cohorts.html` retain their original HTTPS Alma targets and source query parameters. Outlook Safe Links wrappers were unwrapped to remove encoded recipient and tracking metadata. Link labels, cohort links and the surrounding HTML remain unchanged. The `auth=SAML` parameter is a source authentication-mode label, not an access credential; no target was opened during this minimization. PHS parser tests and the fixture privacy regression verify the retained structure.
