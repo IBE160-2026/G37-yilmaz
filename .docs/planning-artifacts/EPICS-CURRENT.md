@@ -2,6 +2,17 @@
 
 **Samordnet 2026-10-25.** S-01/S-03/S-04/S-05 følger **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering** med lokale regler; S-02 støtter flyten med import, S-06 bevarer data, og S-08 bevarer valgfrie tillegg. Et eget steg er valgfritt. Krav-ID-er og HiMolde-/NTNU-avgrensning er uendret. Daterte tekniske resultater nedenfor tilhører sine kontrollerte versjoner; [publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) skiller dem fra kandidatkontrollene. S-07/studentprøven er fortsatt planlagt.
 
+## Personvern og kalenderintegritet — 2026-10-25
+
+Presisering av S-02/S-05/S-06 og Q-02/Q-03 innen samme V1:
+
+- **Given** standarddefinerte kalenderverdier med små bokstaver, **when** de importeres, **then** avlysning, transparens og støttede gjentakelser får samme betydning som store bokstaver, mens UID og fritekst beholdes.
+- **Given** flere UID-felt eller motstridende komponenter, **when** identiteten vurderes, **then** ingen vilkårlig førsteverdi får avlyse eller erstatte data. Gyldige duplikater, entydige revisjoner og serieunntak beholdes.
+- **Given** samtidig DTEND/DURATION, uforenlige UNTIL/DTSTART eller ugyldig TP-JSON-dato, **when** kilden leses, **then** feilen forklares uten datoflytting; opptellingen og tidligere data forblir riktige ved delvis import.
+- **Given** testdata med personfelt i senere eller alternative segmenter, **when** personvernguardene kjøres, **then** en syntetisk verdi ett sted fritar ikke resten av feltet fra kontroll. Negative prøver er selvstendig oppdiktet, og feilmeldinger gjengir ikke de opprinnelige verdiene.
+
+Kjøreresultater og begrensninger føres i [VERIFICATION](../../studieplanlegger/VERIFICATION.md), adskilt fra historikken nedenfor.
+
 ## Consolidated import closure — 2026-10-24
 
 Approved additions to S-02/S-03/S-05/S-06/S-08 and Q-01–Q-03:

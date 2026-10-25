@@ -26,6 +26,10 @@ Importkravet er HiMolde IT 2026–27 (IBE110 + IBE430 og enten IBE160 eller IBE1
 
 ## Aksept og status
 
+### Personvern og kalenderintegritet — 2026-10-25
+
+R-02/R-05/R-06 og Q-02/Q-03 omfatter den bestilte rettingen av personvernrester og de fire dokumenterte kalenderfeilene. Standarddefinerte symbolverdier skal tolkes uavhengig av bokstavstørrelse, uten å endre UID eller fritekst. Motstridende identiteter og ugyldige tidskombinasjoner skal gi en tydelig forklaring; delvis import skal ikke slette tidligere data. Testmaterialet skal bevare nødvendig parserstruktur, faginnhold og attribusjon, mens unødvendige personfelt fjernes eller nødvendige felt syntetiseres. [Gjeldende verifikasjon](../../studieplanlegger/VERIFICATION.md) oppgir faktisk kontrollert kandidat og resultat; dette utvider ikke V1 eller dokumenterer studentutprøving.
+
 **Samordning 2026-10-25:** Krav-ID-ene og v1-avgrensningen er beholdt. Oppfølgingene nedenfor er daterte presiseringer av samme flyt, ikke nye institusjonsløfter. [Sporbarheten](TRACEABILITY.md) peker til kode/test; [publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) oppgir kontrollert grunnlag og dato. Historiske resultater er ikke nye kandidatresultater. Studentprøven R-07/SC-07 er fortsatt ikke gjennomført. Sensorveiledning og godkjent proposal var utilgjengelige i de avtalte dokumentmappene i denne runden.
 
 ### Consolidated import and calendar closure approved — 2026-10-24

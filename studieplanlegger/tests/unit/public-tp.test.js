@@ -2,8 +2,107 @@ import { readFile } from 'node:fs/promises'
 import { describe, it, expect, vi } from 'vitest'
 import ICAL from 'ical.js'
 import { parseCalendar } from '../../src/calendar-import.js'
+import { parseDocumentIcs } from '../../src/document-parsers.js'
 import { emptyPlanner, mergeImport } from '../../src/planner.js'
 import { parseTpSemester, parseTpCourses, normalizeTpCalendar, normalizeTpJsonEvents, publicTp, fetchPublicTpCalendar, isPublicTpCalendarUrl, isPublicTpJsonUrl } from '../../server/providers/public-tp.js'
+
+describe('synthetic TP raw time and identity boundary', () => {
+  const semester = { id: '44h', year: 2044, season: 'AUTUMN', pubexdate: true, pubextime: true, pubexroom: true }
+  const selected = { id: 'SYN974¤1', code: 'SYN974', name: 'Oppdiktet kalenderemne', term: 1 }
+  const options = { institution: 'himolde', semester, selected }
+  const row = { id: 'synthetic-time-valid', eventid: 'synthetic-time-valid', courseid: selected.code, semesterid: semester.id, terminnr: 1, summary: 'Oppdiktet tidskontroll', status: 'active', dtstart: '2044-11-18T09:00:07+01', dtend: '2044-11-18T10:00:17+01' }
+  it.each(['2045-02-29T09:00:07+01', '2044-04-31T09:00:07+01', '2044-13-18T09:00:07+01', '2044-11-18T24:00:00+01', '2044-11-18T09:60:07+01', '2044-11-18T09:00:60+01', '2044-11-18T09:00:07+24', '2044-11-18T09:00:07+0160', '2044-11-18T09:00:07+01:99'])('rejects raw JSON fields before Date.parse can normalize %s', invalid => {
+    for (const field of ['dtstart', 'dtend']) {
+      const result = normalizeTpJsonEvents({ events: [row, { ...row, id: 'synthetic-invalid', eventid: 'synthetic-invalid', status: 'cancelled', [field]: invalid }] }, options)
+      expect(result).toMatchObject({ eventCount: 1, cancelledCount: 0, rejectedCount: 1, authoritative: false })
+      const parsed = parseCalendar(result.calendar, { fileImport: true })
+      expect(parsed.events).toHaveLength(1)
+      expect(parsed.events[0]).toMatchObject({ start: '2044-11-18T08:00:07.000Z', end: '2044-11-18T09:00:17.000Z' })
+      expect(parsed.cancellations).toEqual([])
+      expect(parsed.accounting).toMatchObject({ total: 2, rejected: 1, retained: 1 })
+      const document = parseDocumentIcs(result.calendar)
+      expect(document.complete).toBe(false)
+      expect(document.rows.filter(item => item.kind === 'event')).toHaveLength(1)
+      expect(document.cancellations).toEqual([])
+      expect(document.accounting).toMatchObject({ total: 2, retained: 1, rejected: 1 })
+    }
+  })
+  it.each(['+01', '+0100', '+01:00'])('retains valid JSON leap dates and published offset %s', offset => {
+    const result = normalizeTpJsonEvents({ events: [{ ...row, dtstart: `2044-02-29T09:00:07${offset}`, dtend: `2044-02-29T10:00:17${offset}` }] }, options)
+    expect(result).toMatchObject({ eventCount: 1, rejectedCount: 0 })
+    expect(parseCalendar(result.calendar, { fileImport: true }).events[0].start).toBe('2044-02-29T08:00:07.000Z')
+  })
+  const event = (uid, fields) => `BEGIN:VEVENT\r\nUID:${uid}\r\nSUMMARY:Oppdiktet tidskontroll\r\n${fields}\r\nEND:VEVENT`
+  const calendar = (...parts) => ['BEGIN:VCALENDAR', 'VERSION:2.0', ...parts, 'END:VCALENDAR'].join('\r\n')
+  const icsOptions = { institution: 'himolde', semester, selectedIds: [selected.id], selectedCourse: selected }
+  it.each(['DTSTART:20441118T090007Ztail', 'DTSTART:20441131T090007Z', 'DTSTART:20441118T090007Z\r\nDTEND:20441118T100007Z\r\nDURATION:PT1H', 'DTSTART:20441118T090007Z\r\nRRULE:FREQ=DAILY;UNTIL=20441120', 'DTSTART:20441118T090007Z\r\nUID:synthetic-another'])('keeps component rejection across TP ICS serialization: %s', fields => {
+    const result = normalizeTpCalendar(calendar(event('synthetic-invalid', fields), event('synthetic-valid', 'DTSTART:20441118T090007Z')), icsOptions)
+    const parsed = parseCalendar(result.calendar, { fileImport: true })
+    expect(result.eventCount).toBe(1)
+    expect(parsed.events.map(item => item.sourceUid)).toEqual(['synthetic-valid'])
+    expect(parsed.accounting).toMatchObject({ total: 2, rejected: 1, retained: 1 })
+  })
+  it('retains lower-case TP cancellation semantics and a cancellation with only UID', () => {
+    for (const text of [calendar('METHOD:cancel', event('synthetic-cancelled', '')), calendar(event('synthetic-cancelled', 'STATUS:cancelled'))]) {
+      const result = normalizeTpCalendar(text, icsOptions)
+      expect(result.eventCount).toBe(0)
+      expect(parseCalendar(result.calendar, { fileImport: true })).toMatchObject({ events: [], cancellations: [{ uid: 'synthetic-cancelled', recurrence: null }] })
+    }
+  })
+
+  it('rejects repeated METHOD in either order before returning a normalized calendar', () => {
+    for (const methods of [['METHOD:PUBLISH', 'METHOD:cancel'], ['METHOD:cancel', 'METHOD:PUBLISH']]) {
+      expect(() => normalizeTpCalendar(calendar(...methods, event('synthetic-valid', 'DTSTART:20441118T090007Z')), icsOptions)).toThrow(/flertydig METHOD/)
+    }
+  })
+
+  it.each([['STATUS', 'CONFIRMED', 'cancelled'], ['TRANSP', 'OPAQUE', 'transparent']])('rejects repeated TP %s in either order without cancellation effects', (name, first, second) => {
+    for (const values of [[first, second], [second, first]]) {
+      const invalid = event('synthetic-repeated-symbol', `DTSTART:20441118T090007Z\r\n${values.map(value => `${name}:${value}`).join('\r\n')}`)
+      const normalized = normalizeTpCalendar(calendar(invalid, event('synthetic-valid', 'DTSTART:20441118T090007Z')), icsOptions)
+      const document = parseDocumentIcs(normalized.calendar)
+      expect(normalized.eventCount).toBe(1)
+      expect(document.rows.filter(item => item.kind === 'event')).toHaveLength(1)
+      expect(document).toMatchObject({ complete: false, cancellations: [], accounting: { total: 2, retained: 1, rejected: 1, cancelled: 0 } })
+    }
+  })
+
+  it.each(['date', 'identity'])('applies exam publication restrictions before returning an invalid %s component', invalidKind => {
+    const invalid = event('synthetic-unpublished-exam', `${invalidKind === 'date' ? 'DTSTART:20441131T090007Z' : 'DTSTART:20441118T090007Z\r\nUID:synthetic-second-exam-id'}\r\nLOCATION:Synthetic unpublished room marker\r\nDESCRIPTION:Synthetic unpublished description marker`).replace('SUMMARY:Oppdiktet tidskontroll', 'SUMMARY:Oppdiktet eksamen')
+    const valid = event('synthetic-valid', 'DTSTART:20441118T090007Z')
+    for (const field of ['pubexdate', 'pubextime']) {
+      const result = normalizeTpCalendar(calendar(invalid, valid), { ...icsOptions, semester: { ...semester, [field]: false } })
+      const output = new ICAL.Component(ICAL.parse(result.calendar)).getAllSubcomponents('vevent')
+      // Boolean diagnostics avoid printing even these invented rejected values.
+      expect(output.length === 1).toBe(true)
+      expect(output.some(item => item.getFirstPropertyValue('summary')?.includes('eksamen'))).toBe(false)
+      expect(result.eventCount).toBe(1)
+    }
+    const hidden = normalizeTpCalendar(calendar(invalid, valid), { ...icsOptions, semester: { ...semester, pubexroom: false } })
+    const output = new ICAL.Component(ICAL.parse(hidden.calendar)).getAllSubcomponents('vevent')
+    expect(output.some(item => item.hasProperty('location') || item.hasProperty('description'))).toBe(false)
+    expect(parseDocumentIcs(hidden.calendar)).toMatchObject({ complete: false, cancellations: [], accounting: { total: 2, retained: 1, rejected: 1 } })
+  })
+
+  it('requires clarification for proven generated UID-only cancellations and retains stable UID-only cancellations', () => {
+    const generated = `7${Math.floor(Date.UTC(2044, 10, 18) / 1000).toString(16)}abcde`
+    const stamp = 'DTSTAMP:20441118T000000Z'
+    const active = normalizeTpCalendar(calendar(event(generated, `${stamp}\r\nDTSTART:20441118T090007Z`)), icsOptions)
+    expect(new ICAL.Component(ICAL.parse(active.calendar)).getFirstSubcomponent('vevent').getFirstPropertyValue('uid')).toMatch(/^tp-occurrence-/)
+    for (const method of ['', 'METHOD:cancel']) {
+      const cancellation = ['BEGIN:VEVENT', `UID:${generated}`, stamp, ...(method ? [] : ['STATUS:cancelled']), 'END:VEVENT'].join('\r\n')
+      expect(() => normalizeTpCalendar(calendar(method, cancellation), icsOptions)).toThrow(/ustabil eksport-ID.*Kilden må avklares/)
+    }
+    for (const uid of ['synthetic-stable-cancel', generated]) {
+      // A UID with a similar shape but an unrelated stamp is not proven generated.
+      const cancellation = ['BEGIN:VEVENT', `UID:${uid}`, 'DTSTAMP:20441119T000000Z', 'STATUS:cancelled', 'END:VEVENT'].join('\r\n')
+      const stable = parseCalendar(normalizeTpCalendar(calendar(cancellation), icsOptions).calendar, { fileImport: true })
+      expect(stable.events).toEqual([])
+      expect(stable.cancellations).toEqual([{ uid, recurrence: null }])
+      expect(stable.accounting).toMatchObject({ total: 1, rejected: 0, cancelled: 1 })
+    }
+  })
+})
 const fixture=name=>readFile(new URL(`../fixtures/public-tp/${name}`,import.meta.url),'utf8')
 const json=name=>fixture(name).then(JSON.parse)
 const query={q:'INF-0101',year:'2026',semester:'autumn'}

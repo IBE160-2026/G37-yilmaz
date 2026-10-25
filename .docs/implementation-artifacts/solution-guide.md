@@ -19,7 +19,7 @@ Tekniske beslutninger og sammenhengen med krav står i [arkitekturen](../plannin
 
 Studieplan er en lokal studieplanlegger skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet, som er dokumentert i [utviklingsprosessen](development-process.md). Dokumentet er ikke studentens personlige refleksjonsrapport.
 
-**Samordning 2026-10-25:** Import- og kalenderrettingene fra 18.–24. oktober støtter den samme hovedflyten. [Importavtalen](../../studieplanlegger/IMPORT.md) beskriver felles forhåndsvisning, avklaring av emner/tid, gjentatt import og kildegrenser. [Publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) skiller nye kandidatkontroller fra historiske resultater. Manifestene fra 24. oktober omfatter kilde-/byggfiler, ikke testfiler, fixturer eller konfigurasjon. Sensorveiledning og godkjent proposal var ikke tilgjengelige i de avtalte dokumentmappene denne runden; eldre lesepåstander gjelder sine oppgitte datoer.
+**Samordning 2026-10-25:** [Importavtalen](../../studieplanlegger/IMPORT.md) beskriver felles forhåndsvisning, avklaring av emner/tid, gjentatt import og kildegrenser. [Nyeste verifikasjon](../../studieplanlegger/VERIFICATION.md) skiller kandidatkontrollene fra historiske resultater. Sensorveiledning og godkjent proposal ble ikke funnet i de avtalte dokumentmappene og er ikke lest i denne runden; eldre lesepåstander gjelder sine oppgitte datoer.
 
 ## To lokale kjøremåter
 

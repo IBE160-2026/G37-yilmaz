@@ -5,9 +5,32 @@ import { normalizeActivityKind } from './event-kind.js'
 
 // Read jCal strings before ICAL.Time hydrates them: ICAL normalizes overflowing
 // calendar fields, which would otherwise change dates and cancellation identities.
-const calendarDateProperties = ['dtstart', 'dtend', 'due', 'recurrence-id', 'exdate', 'rdate']
+const calendarDateProperties = ['dtstart', 'dtend', 'due', 'recurrence-id', 'exdate', 'rdate', 'dtstamp', 'last-modified']
 const calendarSingletonProperties = ['dtstart', 'dtend', 'due', 'recurrence-id', 'duration']
 const calendarDuration = /^[+-]?P(?:\d+W|(?=\d+D|T\d)(?:\d+D)?(?:T(?=\d)(?:\d+H)?(?:\d+M)?(?:\d+S)?)?)$/
+// RFC symbols are case-insensitive; UIDs, TZIDs and free text are not.
+// Normalize before ICAL parses recurrence rules (its FREQ parser is case-sensitive).
+export function normalizeCalendarSymbols(input) {
+  return input.replace(/\r\n?|\n/g, '\n').replace(/\n[ \t]/g, '').split('\n').map(line => {
+    const match = /^((?:[^:"]|"[^"]*")+):(.*)$/.exec(line)
+    if (!match) return line
+    const name = match[1].split(';')[0].toLowerCase()
+    const header = (match[1].match(/(?:[^;"]|"[^"]*")+/g) || []).map(part => /^(?:VALUE|RANGE)=/i.test(part) ? part.toUpperCase() : part).join(';')
+    const value = ['rrule', 'exrule'].includes(name) ? match[2].split(';').map(part => {
+      const separator = part.indexOf('=')
+      if (separator < 0) return part
+      const key = part.slice(0, separator).toUpperCase(), value = part.slice(separator + 1)
+      return `${key}=${['FREQ', 'BYDAY', 'WKST', 'UNTIL'].includes(key) ? value.toUpperCase() : value}`
+    }).join(';') : ['method', 'status', 'transp'].includes(name) ? match[2].toUpperCase() : match[2]
+    return `${header}:${value}`
+  }).join('\r\n')
+}
+
+export function validCalendarUid(component) {
+  const properties = component.jCal[1].filter(([name]) => name === 'uid')
+  return properties.length === 1 && properties[0][2] === 'text' && properties[0].length === 4 && typeof properties[0][3] === 'string' && Boolean(properties[0][3].trim())
+}
+
 export function calendarDateSyntaxIssues(input) {
   const result = { vevent: [], vtodo: [] }, stack = []
   const date = /^\d{8}(?:T\d{6}Z?)?$/
@@ -44,6 +67,8 @@ export function calendarDateSyntaxIssues(input) {
       if (!valid || types.length > 1) issues.push(name)
     } else if (name === 'duration') {
       if (!calendarDuration.test(value)) issues.push(name)
+    } else if (name === 'sequence') {
+      if (!/^\d+$/.test(value) || !Number.isSafeInteger(Number(value))) issues.push(name)
     } else if (name === 'rrule' || name === 'exrule') {
       for (const part of value.split(';')) if (/^UNTIL=/i.test(part) && !date.test(part.slice(6))) issues.push(`${name} UNTIL`)
     }
@@ -62,11 +87,12 @@ function checkedCalendarDate(value, type) {
 }
 
 export function validateCalendarDates(component, syntaxIssues = []) {
-  const invalid = [...syntaxIssues]
+  const invalid = [...syntaxIssues, ...component.getAllProperties('x-studieplan-invalid-fields').flatMap(property => String(property.getFirstValue()).split(','))]
   for (const name of calendarSingletonProperties) if (component.jCal[1].filter(property => property[0] === name).length > 1) invalid.push(name)
+  const start = component.jCal[1].find(([name]) => name === 'dtstart')
+  const end = component.jCal[1].find(([name]) => name === (component.name === 'vtodo' ? 'due' : 'dtend'))
+  if (end && component.hasProperty('duration')) invalid.push(end[0], 'duration')
   if (component.name === 'vevent') {
-    const start = component.jCal[1].find(([name]) => name === 'dtstart')
-    const end = component.jCal[1].find(([name]) => name === 'dtend')
     // An explicit end must use the same DATE or DATE-TIME value type as its start.
     if (start && end && start[2] !== end[2]) invalid.push('dtstart', 'dtend')
   }
@@ -90,7 +116,11 @@ export function validateCalendarDates(component, syntaxIssues = []) {
       if (type !== 'duration' || property.length !== 4 || !calendarDuration.test(property[3])) invalid.push(name)
     } else if (name === 'rrule' || name === 'exrule') {
       for (const rule of property.slice(3)) if (rule?.until != null) {
-        try { rule.until = checkedCalendarDate(rule.until, String(rule.until).includes('T') ? 'date-time' : 'date') }
+        try {
+          const type = String(rule.until).includes('T') ? 'date-time' : 'date'
+          rule.until = checkedCalendarDate(rule.until, type)
+          if (start && (start[2] !== type || type === 'date-time' && /Z$/.test(rule.until) !== Boolean(start[1].tzid || /Z$/.test(start[3])))) throw new Error('UNTIL stemmer ikke med DTSTART')
+        }
         catch { invalid.push(`${name} UNTIL`) }
       }
     }
@@ -98,9 +128,89 @@ export function validateCalendarDates(component, syntaxIssues = []) {
   return [...new Set(invalid)]
 }
 
+// Compare the complete component, including blocking time, groups, classification
+// and course context. Sorting properties does not change their source values.
+function componentSignature(component) {
+  const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value
+  const dateKey = value => value instanceof ICAL.Period ? [dateKey(value.start), dateKey(value.getEnd())] : value.isDate ? value.toString() : value.toUnixTime()
+  const recurring = ['rrule', 'exrule', 'rdate'].some(name => component.hasProperty(name))
+  const event = component.name === 'vevent' && component.hasProperty('dtstart') && (component.hasProperty('dtend') || component.hasProperty('duration')) ? new ICAL.Event(component) : null
+  // Canonicalize explicit, equivalent ends. For recurring DATE-TIME events,
+  // retain nominal day/week durations, whose DST semantics need more evidence.
+  const interval = event && (!recurring || event.startDate.isDate || !event.duration.days && !event.duration.weeks && event.duration.toSeconds() < 86400)
+  const endProperty = interval && (component.getFirstProperty('dtend') || component.getFirstProperty('duration'))
+  const endParameters = endProperty ? { ...endProperty.jCal[1] } : {}; delete endParameters.tzid
+  const sortProperties = values => values.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
+  const tree = node => {
+    const properties = node[1].filter(([name, , , value]) => !['sequence', 'dtstamp', 'last-modified'].includes(name) && !(name === 'transp' && value === 'OPAQUE') && !(node === component.jCal && interval && ['dtend', 'duration'].includes(name))).map(property => {
+      if (calendarDateProperties.includes(property[0])) {
+        // A rule expands the DTSTART wall clock in its source timezone. Equal
+        // first instants alone do not imply equal occurrences after a DST change.
+        if (node === component.jCal && recurring && property[0] === 'dtstart') return canonical(property)
+        const parameters = { ...property[1] }; delete parameters.tzid
+        return [property[0], canonical(parameters), property[2], ...new ICAL.Property(property).getValues().map(dateKey).sort()]
+      }
+      return canonical(property)
+    })
+    if (node === component.jCal && interval) properties.push(['dtend', canonical(endParameters), event.endDate.isDate ? 'date' : 'date-time', dateKey(event.endDate)])
+    if (node === component.jCal && interval && recurring) properties.push(['recurrence-duration', event.duration.toSeconds()])
+    return [node[0], sortProperties(properties), sortProperties(node[2].map(tree))]
+  }
+  return JSON.stringify(tree(component.jCal))
+}
+
+function componentRevision(component) {
+  const sequences = component.jCal[1].filter(([name]) => name === 'sequence'), stamps = component.jCal[1].filter(([name]) => name === 'dtstamp')
+  const sequence = sequences.length ? sequences[0][3] : 0
+  if (sequences.length > 1 || !Number.isSafeInteger(sequence) || sequence < 0 || stamps.length > 1) return null
+  let stamp = null
+  if (stamps.length) {
+    try {
+      if (stamps[0][2] !== 'date-time' || !/Z$/.test(stamps[0][3])) return null
+      stamp = checkedCalendarDate(stamps[0][3], 'date-time')
+    } catch { return null }
+  }
+  return { sequence, stamp }
+}
+
+function resolveCalendarComponents(components, warnings) {
+  const groups = new Map(), superseded = new Set()
+  for (const component of components) {
+    const recurrence = component.getFirstPropertyValue('recurrence-id')
+    const key = JSON.stringify([component.getFirstPropertyValue('uid'), recurrence ? recurrence.isDate ? recurrence.toString() : recurrence.toUnixTime() : null])
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(component)
+  }
+  for (const group of groups.values()) {
+    if (group.length < 2) continue
+    const entries = group.map(component => ({ component, signature: componentSignature(component), revision: componentRevision(component) }))
+    let winners = entries
+    if (new Set(entries.map(entry => entry.signature)).size > 1) {
+      if (entries.some(entry => !entry.revision)) throw new Error('Aktiviteter med samme identitet har ugyldig revisjonsgrunnlag og kan ikke skilles sikkert.')
+      const sequence = Math.max(...entries.map(entry => entry.revision.sequence))
+      winners = entries.filter(entry => entry.revision.sequence === sequence)
+      if (new Set(winners.map(entry => entry.signature)).size > 1 && winners.every(entry => entry.revision.stamp)) {
+        const stamp = winners.map(entry => entry.revision.stamp).sort().at(-1)
+        winners = winners.filter(entry => entry.revision.stamp === stamp)
+      }
+      if (new Set(winners.map(entry => entry.signature)).size > 1) throw new Error('Aktiviteter med samme identitet kan ikke skilles sikkert. Motstridende kalenderoppføringer mangler en entydig nyere revisjon. Ingen aktiviteter er endret.')
+    }
+    for (const entry of entries) if (entry !== winners[0]) superseded.add(entry.component)
+  }
+  if (superseded.size) warnings.push(`${superseded.size} like eller eldre kalenderkomponenter er utelatt etter kontroll av identitet og revisjon.`)
+  return superseded
+}
+
 export function calendarDateWarning(component, index, fields) {
   const title = String(component.getFirstPropertyValue('summary') || '').trim().slice(0, 120)
   return `${component.name.toUpperCase()} ${index + 1}${title ? ` (${title})` : ''} har ugyldig dato eller klokkeslett i ${fields.map(field => field.toUpperCase()).join(', ')} og er utelatt.`
+}
+
+function calendarInterval(component, start, end, fallback, explicitPeriod = false) {
+  const instant = value => value.isDate ? Temporal.PlainDate.from(value.toString()).toZonedDateTime(fallback).epochMilliseconds : value.toUnixTime() * 1000
+  const startTime = instant(start), endTime = instant(end)
+  const point = !explicitPeriod && !start.isDate && endTime === startTime && !component.hasProperty('dtend') && !component.hasProperty('duration')
+  return { startTime, endTime, point, valid: endTime > startTime || point }
 }
 
 function registerZone(tzid) {
@@ -161,21 +271,29 @@ const osloDate = value => Temporal.Instant.fromEpochMilliseconds(value).toZonedD
 
 export function parseCalendar(input, { courseId, semester, year, fileImport = false }) {
   if (typeof input !== 'string' || input.length > 2_000_000 || !/^\s*BEGIN:VCALENDAR/im.test(input) || !/END:VCALENDAR\s*$/i.test(input)) throw new Error('Filen er ikke en fullstendig .ics-kalender (maks 2 MB). Last ned kalenderfilen på nytt.')
+  input = normalizeCalendarSymbols(input)
   let range = !fileImport || semester || year ? semesterWindow(semester, year) : null
   const warnings = [], events = [], seenKeys = new Map()
   ICAL.TimezoneService.reset()
   try {
     const root = new ICAL.Component(ICAL.parse(input))
     if (root.name !== 'vcalendar') throw new Error('Kalenderformatet er ugyldig.')
+    if (root.getAllProperties('method').length > 1) throw new Error('Kalenderen har flere METHOD-felt og kan ikke tolkes entydig.')
     for (const component of root.getAllSubcomponents('vtimezone')) ICAL.TimezoneService.register(component.getFirstPropertyValue('tzid'), new ICAL.Timezone(component))
     const fallback = root.getFirstPropertyValue('x-wr-timezone') || OSLO
     registerZone(fallback)
     let floating = false, skipped = false, boundedSeries = false, iterations = 0
-    const components = root.getAllSubcomponents('vevent'), rejectedComponents = new Set(), invalidDates = new Map(), syntaxIssues = calendarDateSyntaxIssues(input).vevent
+    const components = root.getAllSubcomponents('vevent'), rejectedComponents = new Set(), invalidIdentities = new Set(), invalidDates = new Map(), syntaxIssues = calendarDateSyntaxIssues(input).vevent
     const delta = root.getFirstPropertyValue('method') === 'CANCEL'
-    if (delta) for (const component of components) component.updatePropertyWithValue('status', 'CANCELLED')
     for (const [index, component] of components.entries()) {
+      if (!validCalendarUid(component) || ['status', 'transp'].some(name => component.getAllProperties(name).length > 1)) {
+        invalidIdentities.add(component); rejectedComponents.add(component); skipped = true
+        warnings.push(`VEVENT ${index + 1} har manglende eller flertydig UID, STATUS eller TRANSP og er utelatt.`)
+        continue
+      }
+      if (delta) component.updatePropertyWithValue('status', 'CANCELLED')
       const invalid = validateCalendarDates(component, syntaxIssues[index]), zoneFailures = []
+      if (component.getFirstPropertyValue('status') !== 'CANCELLED' && !component.hasProperty('dtstart')) invalid.push('dtstart')
       for (const property of component.getAllProperties()) {
         if (!['dtstart', 'dtend', 'recurrence-id', 'exdate', 'rdate'].includes(property.name)) continue
         if (invalid.length && (property.name !== 'recurrence-id' || invalid.includes('recurrence-id'))) continue
@@ -197,29 +315,42 @@ export function parseCalendar(input, { courseId, semester, year, fileImport = fa
       try { if (component.hasProperty('duration')) component.getFirstPropertyValue('duration') }
       catch { rejectedComponents.add(component); skipped = true; warnings.push('En økt har ugyldig DURATION og er utelatt.'); continue }
       if (component.getFirstPropertyValue('status') !== 'CANCELLED' && root.getFirstPropertyValue('method') !== 'CANCEL' && (!component.getFirstPropertyValue('summary')?.trim() || !component.getFirstPropertyValue('uid')?.trim())) {
-        rejectedComponents.add(component); skipped = true; warnings.push('En økt mangler navn eller kilde-ID og er utelatt.')
+        rejectedComponents.add(component); skipped = true; warnings.push('En økt mangler navn eller kilde-ID og er utelatt.'); continue
+      }
+      // Only a usable interval may supersede another revision. Per-occurrence
+      // validation still runs below for expanded recurrence and RDATE periods.
+      if (component.getFirstPropertyValue('status') !== 'CANCELLED') {
+        const item = new ICAL.Event(component)
+        if (!calendarInterval(component, item.startDate, item.endDate, fallback).valid) {
+          rejectedComponents.add(component); skipped = true; warnings.push('En økt har manglende eller ugyldig varighet og er utelatt.'); continue
+        }
       }
     }
-    range ||= fileWindow(components.filter(component => !rejectedComponents.has(component)), fallback, warnings)
+    const superseded = resolveCalendarComponents(components.filter(component => !rejectedComponents.has(component)), warnings)
+    const selectedComponents = components.filter(component => !rejectedComponents.has(component) && !superseded.has(component))
+    // A cancelled master and an active detached exception cannot both apply.
+    // Revisions with different recurrence identities do not prove an ordering.
+    for (const component of selectedComponents.filter(c => !c.hasProperty('recurrence-id') && c.getFirstPropertyValue('status') === 'CANCELLED')) {
+      if (selectedComponents.some(c => c.hasProperty('recurrence-id') && c.getFirstPropertyValue('uid') === component.getFirstPropertyValue('uid') && c.getFirstPropertyValue('status') !== 'CANCELLED')) throw new Error('Avlyst serie og aktivt unntak har samme identitet uten entydig avklaring. Ingen aktiviteter er endret.')
+    }
+    range ||= fileWindow(selectedComponents, fallback, warnings)
     const from = Date.parse(range.start), until = Date.parse(range.end)
     const normalizedTp = root.getFirstPropertyValue('x-studieplan-tp-normalized') === '1'
     const identityMode = !fileImport && !normalizedTp && String(root.getFirstPropertyValue('prodid') || '').includes('//UiO//TP') ? 'content' : 'uid'
     const sourceAuthoritative = String(root.getFirstPropertyValue('x-studieplan-authoritative') || '').toLowerCase() !== 'false'
     warnings.push(...root.getAllProperties('x-studieplan-warning').map(property=>String(property.getFirstValue())))
     const timeEdit = /timeedit/i.test(String(root.getFirstPropertyValue('prodid') || ''))
-    const cancellations = components.filter(c => !rejectedComponents.has(c) && c.getFirstPropertyValue('status') === 'CANCELLED').map(c => ({ uid: c.getFirstPropertyValue('uid'), recurrence: c.getFirstPropertyValue('recurrence-id')?.toString() || null, ...occurrenceMetadata(c.getFirstPropertyValue('uid'), c.getFirstPropertyValue('recurrence-id'), fallback) }))
+    const cancellations = selectedComponents.filter(c => c.getFirstPropertyValue('status') === 'CANCELLED').map(c => ({ uid: c.getFirstPropertyValue('uid'), recurrence: c.getFirstPropertyValue('recurrence-id')?.toString() || null, ...occurrenceMetadata(c.getFirstPropertyValue('uid'), c.getFirstPropertyValue('recurrence-id'), fallback) }))
     if (identityMode === 'content') warnings.push('TP lager nye ID-er ved hver henting. Økter gjenkjennes på navn og tidspunkt. Flytting til en annen dato kan vises som avlysning og ny økt; egne notater beholdes.')
     const retainedComponents = new Set()
     let filteredOccurrences = 0, rejectedOccurrences = 0
-    const exceptions = components.filter(c => !rejectedComponents.has(c) && c.hasProperty('recurrence-id'))
+    const exceptions = selectedComponents.filter(c => c.hasProperty('recurrence-id'))
     const consumed = new Set()
     function append(item, start, end, recurrence, explicitPeriod = false) {
       if (item.component.getFirstPropertyValue('status') === 'CANCELLED') return
       if (!start || !end) { rejectedOccurrences++; rejectedComponents.add(item.component); skipped = true; warnings.push('En økt mangler start eller slutt og er utelatt.'); return }
-      const startTime = start.isDate ? Temporal.PlainDate.from(start.toString()).toZonedDateTime(fallback).epochMilliseconds : start.toUnixTime() * 1000
-      const endTime = end.isDate ? Temporal.PlainDate.from(end.toString()).toZonedDateTime(fallback).epochMilliseconds : end.toUnixTime() * 1000
-      const point = !explicitPeriod && !start.isDate && endTime === startTime && !item.component.hasProperty('dtend') && !item.component.hasProperty('duration')
-      if (endTime < startTime || endTime === startTime && !point) { rejectedOccurrences++; rejectedComponents.add(item.component); skipped = true; warnings.push('En økt har manglende eller ugyldig varighet og er utelatt.'); return }
+      const { startTime, endTime, point, valid } = calendarInterval(item.component, start, end, fallback, explicitPeriod)
+      if (!valid) { rejectedOccurrences++; rejectedComponents.add(item.component); skipped = true; warnings.push('En økt har manglende eller ugyldig varighet og er utelatt.'); return }
       if ((point ? startTime < from : endTime <= from) || startTime >= until) { filteredOccurrences++; return }
       const sourceTitle = item.summary?.trim(), rawKind = item.component.getFirstPropertyValue('x-studieplan-activity-kind'), activityKind = fileImport && rawKind === 'personal' ? 'personal' : normalizeActivityKind(rawKind)
       const assessment = activityKind === 'exam' || activityKind === 'assessment', title = sourceTitle
@@ -233,7 +364,7 @@ export function parseCalendar(input, { courseId, semester, year, fileImport = fa
       const sourceKey = identityMode === 'content' ? JSON.stringify([identityTitle, recurrence?.toString() || startISO, explicitGroup || identityTitle, item.location || '']) : JSON.stringify([item.uid, recurrence?.toString() || 'single'])
       const occurrence = occurrenceMetadata(item.uid, recurrence, fallback)
       const duplicateKey = identityMode === 'uid' && occurrence.occurrenceInstant ? JSON.stringify([item.uid, occurrence.occurrenceInstant]) : sourceKey
-      const identity = JSON.stringify([item.uid, title, startISO, endISO, explicitGroup, item.location, item.description])
+      const identity = JSON.stringify([componentSignature(item.component), startISO, endISO])
       retainedComponents.add(item.component)
       if (seenKeys.has(duplicateKey)) {
         if (seenKeys.get(duplicateKey) !== identity) throw new Error('Aktiviteter med samme identitet kan ikke skilles sikkert. Velg en tydeligere gruppe- eller kalenderavgrensning.')
@@ -250,12 +381,12 @@ export function parseCalendar(input, { courseId, semester, year, fileImport = fa
       events.push({ sourceKey, sourceUid: item.uid, ...occurrence, title, courseId, start: startISO, end: endISO, location: item.location || '', description: item.description || '', group: explicitGroup || identityTitle, publishedGroups, activityType: item.component.getFirstPropertyValue('x-studieplan-activity-type') || '', ...(activityKind ? { activityKind } : {}), ...(groupMissing ? { groupMissing: true } : {}), ...(fileImport ? { explicitGroup: explicitGroup || '', fileCourse: { code: item.component.getFirstPropertyValue('x-course-code') || '', name: item.component.getFirstPropertyValue('x-course-name') || '', university: item.component.getFirstPropertyValue('x-university') || '', sourceObjectId: item.component.getFirstPropertyValue('x-course-source-id') || '', campus: item.component.getFirstPropertyValue('x-course-campus') || '', campusCode: item.component.getFirstPropertyValue('x-course-campus-code') || '', ...publishedTerm } } : {}), transparent, information, ...(point ? { point: true } : {}), allDay: start.isDate, cancelled: false })
       if (events.length > 5000) throw new Error('Kalenderen har over 5000 økter i semesteret. Eksporter færre emner eller grupper.')
     }
-    for (const component of components.filter(c => !rejectedComponents.has(c) && !c.hasProperty('recurrence-id'))) {
+    for (const component of selectedComponents.filter(c => !c.hasProperty('recurrence-id'))) {
       if (component.getFirstPropertyValue('status') === 'CANCELLED') continue
       if (!component.hasProperty('dtstart')) { rejectedComponents.add(component); skipped = true; warnings.push('En økt mangler starttid og er utelatt.'); continue }
       const related = exceptions.filter(c => c.getFirstPropertyValue('uid') === component.getFirstPropertyValue('uid'))
-      const rejectedOverrides = [...rejectedComponents].filter(c => c.hasProperty('recurrence-id') && !invalidDates.get(c)?.includes('recurrence-id') && c.getFirstPropertyValue('uid') === component.getFirstPropertyValue('uid'))
-      const overriddenByRejected = occurrence => rejectedOverrides.some(c => c.getFirstPropertyValue('recurrence-id').compare(occurrence) === 0)
+      const rejectedOverrides = [...rejectedComponents].filter(c => !invalidIdentities.has(c) && c.hasProperty('recurrence-id') && !invalidDates.get(c)?.includes('recurrence-id') && c.getFirstPropertyValue('uid') === component.getFirstPropertyValue('uid'))
+      const overriddenByRejected = occurrence => rejectedOverrides.some(c => c.getFirstPropertyValue('recurrence-id').compare(occurrence) === 0) && !related.some(c => c.getFirstPropertyValue('recurrence-id').compare(occurrence) === 0)
       const event = new ICAL.Event(component, { exceptions: related })
       // ICAL indexes an exception by its textual recurrence ID. Add its UTC
       // alias so a UTC master also finds an exception published with TZID.
@@ -317,7 +448,7 @@ export function parseCalendar(input, { courseId, semester, year, fileImport = fa
     if (floating) warnings.push(`Klokkeslett uten tidssone tolkes som ${fallback}.`)
     if (root.getAllSubcomponents('vtodo').length) warnings.push('Kalenderen inneholder gjøremål. Disse importeres ikke som undervisning; registrer eventuelle innleveringsoppgaver manuelt.')
     const accounting = { total: components.length, retained: 0, partial: 0, filtered: 0, rejected: 0, cancelled: 0, occurrences: events.length, filteredOccurrences, rejectedOccurrences }
-    for (const component of components) accounting[retainedComponents.has(component) ? rejectedComponents.has(component) ? 'partial' : 'retained' : rejectedComponents.has(component) ? 'rejected' : component.getFirstPropertyValue('status') === 'CANCELLED' ? 'cancelled' : 'filtered']++
+    for (const component of components) accounting[superseded.has(component) ? 'filtered' : retainedComponents.has(component) ? rejectedComponents.has(component) ? 'partial' : 'retained' : rejectedComponents.has(component) ? 'rejected' : component.getFirstPropertyValue('status') === 'CANCELLED' ? 'cancelled' : 'filtered']++
     return { accounting, period: { mode: fileImport && !semester && !year ? 'automatic' : 'filter', ...range }, events: events.sort((a, b) => a.start.localeCompare(b.start) || a.sourceKey.localeCompare(b.sourceKey)), warnings: [...new Set(warnings)], authoritative: sourceAuthoritative && !skipped && !delta && !boundedSeries, cancellations, identityMode, name: root.getFirstPropertyValue('x-wr-calname') || '', range }
   } catch (error) {
     throw new Error(`Kalenderen kunne ikke leses. ${error.message}`)

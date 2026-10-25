@@ -25,7 +25,7 @@ Kjernen omfatter emner og oppgaver, undervisning og tilgjengelig tid, forklarte 
 
 **Avgrensede importprøver i v1 — «HiMolde IT 2026–27 og NTNU emneutvalg høst 2026»:** HiMolde IT 2026–27 med IBE110 og IBE430 samt kildevalget **IBE160 eller IBE102 + IBE152**. Undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026. NTNU omfatter emnemetadata og emnelenket undervisning for ARK1001 og EXPH0100 høsten 2026; dette lover ikke komplett NTNU-program. Det loves ikke full eksamensdekning eller personlig gruppetilhørighet. [Importdekning](studieplanlegger/IMPORT-COVERAGE.md) skiller lokale kontrakttester, historisk kildetransport og UI-prøver. Gjentakelse av hele HiMolde-programflyten er ikke verifisert; direkte emnegjentakelser er dokumentert historisk.
 
-**Allerede implementerte tillegg:** ordnede arbeidssteg, frivillig egenvurdering og repetisjonsforslag, kalenderkopi og sammenligning av planalternativer. Disse bevares og beskrives i PRD, men utvider ikke kildekravet. Samordningen 2026-10-25 dokumenterer de integrerte import- og kalenderrettingene fra 18.–24. oktober innen samme v1. Daterte kjøreresultater står i [verifikasjonen](studieplanlegger/VERIFICATION.md); eldre resultater blir ikke nye tester ved publisering.
+**Allerede implementerte tillegg:** ordnede arbeidssteg, frivillig egenvurdering og repetisjonsforslag, kalenderkopi og sammenligning av planalternativer. Disse bevares og beskrives i PRD, men utvider ikke kildekravet. Samordningen 2026-10-25 dokumenterer import- og kalenderrettingene fra 18.–25. oktober og minimering av testdata innen samme v1. Daterte kjøreresultater står i [verifikasjonen](studieplanlegger/VERIFICATION.md); eldre resultater blir ikke nye tester ved publisering.
 
 ## Sjekkbare suksesskriterier
 

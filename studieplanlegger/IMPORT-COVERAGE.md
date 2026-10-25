@@ -1,6 +1,6 @@
 # Import coverage and access requirements
 
-**Samordnet 2026-10-25:** Import er støtte for den lokale oppgave-/planleggingsflyten. Fil-, emnekoblings-, gjentakelses- og kalenderrettingene fra 18.–24. oktober utvider ikke kildeutvalget nedenfor. [Importavtalen](IMPORT.md) beskriver gjeldende atferd; [publiseringskontrollen](VERIFICATION.md#publiseringskontroll--2026-10-25) skiller nye syntetiske kandidatkontroller fra historisk transport og nettleseraksept. Historiske kildeobservasjoner er ikke nye oppslag eller en studentprøve. Kilde-/bygghashene fra 24. oktober omfatter ikke testfiler, fixturer eller konfigurasjon og fastslår ikke identisk testgrunnlag.
+**Samordnet 2026-10-25:** Import støtter den lokale oppgave-/planleggingsflyten. Kalender- og personvernrettingene utvider ikke kildeutvalget. [Importavtalen](IMPORT.md) beskriver atferden, mens [nyeste verifikasjon](VERIFICATION.md) oppgir den kontrollerte kandidaten og skiller syntetiske prøver fra historisk kildetransport. Personvernminimerte kildefixturer bevarer parserkontraktene; de dokumenterer ikke ny live-tilgang, personlig gruppedekning eller studentnytte.
 
 ## Gjeldende v1 og historisk dekning — 2026-10-16
 
