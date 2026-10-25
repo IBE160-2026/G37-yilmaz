@@ -1,14 +1,55 @@
 # Verifisering av Studieplan
 
-**Publiseringskontroll, 2026-10-25:** den kuraterte leveransen samler den eksisterende oppgave- og planleggingsflyten med import-/kalenderrettingene. Nye kandidatkontroller føres i den daterte seksjonen nedenfor. Eldre resultater beholder sine opprinnelige datoer og er ikke nye testkjøringer. Studentutprøving (SC-07), private originaler og oppdatert driftsinstallasjon er ikke verifisert av denne publiseringen.
+**Gjeldende kontroll, 2026-10-25:** personvernrestene og de fire dokumenterte kalenderfeilene fra `f1a5863` er rettet og kontrollert fra en ren kandidat: **1941 enhetstester**, **32 beståtte nettlesertester** og **2 Node + 2 Docker-scenarioer**. De tre tilsiktede nettleserhoppene og separate kjøringene forklares nedenfor. Eldre resultater beholder sine datoer. Studentutprøving (SC-07), personlig refleksjon, faktisk Outlook-import og oppdatert driftsinstallasjon er ikke dokumentert ferdig.
 
 ## Publiseringskontroll — 2026-10-25
+
+Den gjeldende rettingen følger opp `f1a5863`. Resultatene under «Tidligere publisering» gjelder den tidligere leveransen samme dag. De er beholdt som daterte bevis, inkludert tidligere feil og omkjøringer; senere kalender- og personvernrettinger krever nye kontroller.
+
+Den tidligere personvernkontrollen hadde hull: utvalgte personfelt og regulære uttrykk fanget ikke alle senere kalendersegmenter eller ansvarlig-/biografiavsnitt. At den tidligere testsuiten bestod var derfor ikke bevis for fravær av slike rester. Den nye kontrollen utvider både feltgjennomgangen og de syntetiske negative prøvene. Vanlige rettingscommits endrer nåværende filer, men fjerner ikke eldre innhold fra Git-historikken.
+
+### Rettet innhold og kontrollgrunnlag
+
+Seks kalenderfixturer har fått **207 personsegmenter** erstattet med entydig syntetiske etiketter; tallet teller feltsegmenter, ikke personer. To unødvendige HGUt-ansvarlig-/biografiavsnitt og ni ubrukte Sámi-forfattermetadatafelt er fjernet. Beskyttede kalenderfelt ble sammenlignet før og etter: hendelsesidentiteter, tider, rom og grupper er uendret. Øvrige JSON-sider og akademisk parserstruktur er bevart. Kildeattribusjon, lisenser, faglige referanser, prosjektmedlem og lærerens originaldokument er beholdt.
+
+Alle **298 fixturer** er kontrollert: 171 HTML, 98 JSON, 11 ICS, fire CSV, én PDF, én DOCX, én JS og elleve README-er. Kontrollen omfatter utfoldede ICS-felt, gjentatte tekstfelt, personmetadata også utenfor VEVENT, nestet og innkapslet JSON/HTML samt dokumentmetadata. Faste, gjennomgåtte tekstkontrakter og selvstendige syntetiske negative prøver fanger nye rester i senere eller alternative felt. De er ikke en universell navnedetektor. Institusjonell kontaktinformasjon og faginnhold er vurdert separat. PDF-en har ingen uventede Info-/XMP-felt eller vedlegg; DOCX-en har bare de tre nødvendige XML-delene.
+
+Kalenderrettingen normaliserer støttede standardverdier uten å endre UID eller fritekst. Flere UID-felt og uavklarte motstridende komponenter avvises; gyldige revisjoner, duplikater og serieunntak beholdes. Ugyldig nyere start/intervall kan ikke fortrenge en gyldig eldre komponent. Samtidig DTEND/DURATION og uforenlig UNTIL/DTSTART avvises. TP-JSON-datoer kontrolleres før normalisering. Avviste komponenter telles, og delvis input kan ikke begrunne sletting av tidligere data. TP-eksameners publiseringsgrenser gjelder også ugyldige komponenter. Se krav/stories og de konkrete kode-/testreferansene i sporbarheten.
+
+### Nye kandidatresultater
+
+Det eksplisitte utvalget inneholder **726 filer**, inkludert den nye personvernhjelperen. Kandidaten er eksportert gjennom en separat Git-indeks, uten hovedkopiens ignorerte filer eller avhengigheter. Følgende kontroller ble kjørt 25. oktober med Node **24.19.0**, npm **11.17.0**, Vitest **5.0.3**, Vite **8.2.4** og Playwright **1.63.0**:
+
+| Kontroll | Faktisk sluttresultat |
+|---|---|
+| `npm ci` | Bestått med egen låst installasjon; 0 rapporterte npm-sårbarheter på kontrolldatoen. |
+| `npm run test:unit -- --maxWorkers=2` | **1941/1941 i 129 filer**, exit 0, ingen hopp. Personvern-, parser-, import- og bevaringsregresjonene inngår. |
+| `npm run build` | Bestått, 85 moduler, exit 0. Eksisterende varsel om stor JavaScript-bundle gjenstår. |
+| Playwright, sju filer med én worker | **32 bestått, 3 tilsiktede hopp, 0 feil, 0 flaky**, exit 0. Hoppene gjelder produksjonsavhengige persistensfaser; to av dem kjøres eksplisitt i Node/Docker-utvalget nedenfor. Den tredje, separat terminpersistens, inngår ikke i denne omkjøringen. |
+| `node tests/run-tp-csv-persistence.mjs both corrections-ics,closure-ics` | **2 Node + 2 Docker-scenarioer**, **14 nettleserkjøringer**, **14 eksakte SQLite-kontroller**, **4 gjenskapinger** og **2 synlige backup/gjenopprettinger**, exit 0. Hver UI-kjøring hadde nøyaktig én bestått test og ingen hopp/flaky/feil. SQLite-integritet var `ok`, uten fremmednøkkelbrudd. ID-er, kilder, notater og relasjoner samsvarte etter gjenskaping og gjenimport. Begge Docker-scenarioene samsvarte på alle 172 kilde-/byggfiler i runtime-manifestet. |
+| Filutvalg og dokumentasjon | Alle 726 filer formålsvurdert; hele utvalget kontrollert for private stier, tilgangsmateriale, metadata og uønskede artefakter. Lokale dokumentlenker/ankre, testreferanser og gjeldende SC-/R-/Q-/S-ID-er er kontrollert uten brutte referanser. De 15 navngitte testene i sporbarhetsmatrisen finnes. |
+
+Playwright-utvalget var `calendar-file-flow.spec.js`, `import-calendar-closure-raw-validation.spec.js`, `import-calendar-closure-ics.spec.js`, `calendar-corrections-ics.spec.js`, `connected-institutional-calendar.spec.js`, `calendar-import-ui.spec.js` og `connected-root-acceptance.spec.js`. Vite-kjøringen og produksjonskjøringen er separate kontroller, ikke én totalsuite. Alle nye data er syntetiske. Egne loopback-porter, prosesser, containere, testvolumer og testimage er kontrollert ryddet; brukerlagring og driftscontainer er ikke brukt.
+
+Kandidatens **695 filer uten Markdown**, inkludert kode, tester, fixturer, avhengighetsfiler og konfigurasjon, har samlet SHA-256 `0162732bb1c2807cc17240278797de5fd4105c96f9249db82ff190ee361c1fdd` (sortert JSON-objekt fra repo-relativt filnavn til SHA-256 av utsjekkede bytes). Den kjørte kandidatens Git-tre er `fc502f99942463451c6d4076b8205f6e4ed8c7ae`. Etter kjøringen er bare Markdown oppdatert med resultatene; samsvar for alle 695 øvrige filer er kontrollert. Lokal audit-, test- og reviewevidens inngår ikke i publiseringen.
+
+### Review, omkjøringer og begrensninger
+
+Tre uavhengige BMAD-reviewlag gjennomgikk kode, randtilfeller og verifikasjon. Funn førte blant annet til korrigert sammenligning av gjentakelser over tidsskiftet, validering før revisjonsvalg og bevarte publiseringsgrenser. Oppfølgende uavhengige kontroller bestod **39 kalenderprøver** og **25 personvernprøver**. En separat dokument-/formålsgjennomgang fant ingen vesentlig feil eller dokumentfil uten tydelig leveranseformål. Dette er avgrensede gjennomganger, ikke bevis for at hele appen er feilfri.
+
+Mellomkjøringene er ikke sluttresultater: kandidat 1 bestod 1904 enhetstester, men nettleserutvalget hadde 30 beståtte, to feil i nye varsel-lokatorer og tre hopp. Kandidat 2 bestod 1931 enhetstester, men nettleserutvalget hadde 31 beståtte, én feil og tre hopp: testens forventede kildeposisjon måtte følge den faktiske raden etter delvis import. Alle øvrige identitets- og bevaringsassertions er beholdt. De to første runtime-forsøkene stoppet på disse feilene og regnes ikke som bestått. Etter en review-retting feilet kandidat 3 én av 1941 enhetstester fordi varighetskontrollen kom før den eksisterende meldingen om manglende navn/ID. Valideringsrekkefølgen ble rettet uten å svekke testen. Hele sluttutvalget i tabellen ble deretter kjørt på nytt fra kandidat 4.
+
+Eldre database-, Compose-, hovedreise- og andre importresultater nedenfor beholdes som historisk støtte. De er ikke lagt til de nye tallene eller brukt som bevis for uendret kalenderkode. Den nye Node/Docker-kjøringen dekker den berørte kalenderlagringen; ingen full tung matrise eller nye live-kildeprøver påstås. Full iCalendar/iTIP-støtte, vilkårlig framtidig fixtureinnhold og nasjonal institusjonsdekning loves ikke. En TP-avlysning med bare en kjent ustabil eksport-ID krever fortsatt kildeavklaring.
+
+Faglærertilbakemeldingen er lest. **Sensorveiledning og godkjent proposal ble ikke funnet** i de avtalte dokumentmappene og er ikke lest eller rekonstruert. V1 og hovedreisen er uendret; studentprøve, personlig refleksjon, faktisk Outlook-kontroll og formell innlevering krever fortsatt menneskelig arbeid. Private originaler, interne BMAD-notater, `.memlog`, databaser, lokale arkiver og genererte artefakter er holdt utenfor. Ingen fil måtte avspores i denne rettingen; eksisterende presise ignore-regler er beholdt.
+
+### Tidligere publisering — f1a5863, 2026-10-25
 
 Kontrollen gjelder Git-utvalget og kjørbarheten fra en isolert kandidat, uten ignorerte avhengigheter. Faglærerens tilbakemelding av 6. oktober er lest: avgrenset V1, sporbarhet fra brief til kode/test og kontrollerbare suksesskriterier er styrende. Sensorveiledning og godkjent proposal ble ikke funnet i de avtalte dokumentmappene og er ikke lest i denne runden; eldre omtaler av lesing er historikk.
 
 Interne arbeidsspesifikasjoner beholdes lokalt. Offentlig omfang og evidens følger [briefen](../brief.md), [kravene](../.docs/planning-artifacts/PRD.md), [sporbarheten](../.docs/planning-artifacts/TRACEABILITY.md) og de daterte resultatene her. Oppgaver, arbeidssteg, godkjente økter, utfall og justeringer er hovedflyten; import er støtte for den eksisterende avgrensede HiMolde/NTNU-leveransen.
 
-### Nye kandidatresultater
+#### Kandidatresultater for den tidligere publiseringen
 
 Kandidaten er eksportert fra et eksplisitt Git-utvalg på **725 filer**, inkludert tidligere usporede produktfiler. Den bruker egen låst installasjon, ikke hovedkopiens ignorerte filer eller `node_modules`. Kontrollene nedenfor er separate kjøringer 25. oktober, med Node **24.19.0**, npm **11.17.0**, Vite **8.2.4** og Vitest **5.0.3**. Alle nye data er syntetiske; serverne bruker egne lagringsressurser og ledige loopback-porter.
 
@@ -28,28 +69,28 @@ Playwright-utvalget var `connected-root-acceptance.spec.js`, `connected-planner.
 
 To observerte leveransefeil ble behandlet eksplisitt. Git-konvertering til CRLF brøt råhashen i en historisk syntetisk CSV/backup-fixtur; en presis `.gitattributes`-regel bevarer bare denne filens opprinnelige LF-bytes, og browsertesten kontrollerer hashkontrakten før reisen. Den første runtime-kjøringen er derfor ikke bestått; hele det valgte Node/Docker-utvalget ble kjørt på nytt. Den andre feilen oppstod da to av kontrollkjøringene delte Playwrights standardmappe: opprydding fjernet en aktiv trace under teardown. Ingen produktassertion feilet der. Gjentakelsen fikk egen resultatmappe, uten endrede testforventninger.
 
-Kandidatens **692 app-, test-, fixture- og konfigurasjonsfiler uten Markdown** har samlet SHA-256 `e6d439e58b3131586828ab993e08bedc0f88121c0221cd8bda481e29ed12ca52` (sortert JSON-objekt av repo-relative filnavn til SHA-256 av utsjekkede bytes). Dokumentasjon sluttføres separat; de testede filene sammenlignes igjen før commit. Genererte rapporter, nettleserdata og databaser er lokal kontrollevidens og publiseres ikke. Egne testprosesser er avsluttet, og egne Docker-containere, testvolumer og testimage er fjernet. Driftscontaineren er uendret.
+Kandidatens **692 app-, test-, fixture- og konfigurasjonsfiler uten Markdown** har samlet SHA-256 `e6d439e58b3131586828ab993e08bedc0f88121c0221cd8bda481e29ed12ca52` (sortert JSON-objekt av repo-relative filnavn til SHA-256 av utsjekkede bytes). Sammenligningen før commit ble gjennomført: det publiserte treet `88d19ca128c65d94282bf5a2dbf74d2e543fedc4` omfattet 725 filer og samsvarte med de kontrollerte filene. GitHubs main ble deretter bekreftet som `f1a58631b10a5e35cfd43ed50236d7cd97a5aa22`. Genererte rapporter, nettleserdata og databaser er lokal kontrollevidens og publiseres ikke. Egne testprosesser ble avsluttet, og egne Docker-containere, testvolumer og testimage ble fjernet. Driftscontaineren ble ikke endret.
 
 Det unødvendige personprofilavsnittet i UiS-fixturen er fjernet, med øvrig parserstruktur bevart og en ny personvernguard i eksisterende test. Private originaler, interne BMAD-arbeidsnotater, `.memlog`, lagringsdata og genererte artefakter inngår ikke i Git-utvalget. Tidligere publiserte historiske funn er ikke slettet fra Git-historikken av denne ordinære rettingen; historikken omskrives ikke.
 
-### Review og gjenstående tekniske begrensninger
+#### Review og daværende tekniske begrensninger
 
 Tre uavhengige BMAD-gjennomganger er utført; kapasitetsgrensen krevde sekvensielle agentkjøringer. Dette var målrettet gjennomgang av endringsflatene, ikke en påstand om uttømmende linje-for-linje-bevis for hele kodebasen. Opplysningen om eksisterende tegngrense er presisert i importskjemaet og dokumentasjonen. Testkjørerens helsesjekk håndhever nå tidsavbruddet også når serveren godtar forbindelsen uten å svare. En separat syntetisk negativ prøve ga forventet feil etter **30,176 sekunder**, med avsluttet prosess og lukket port.
 
 Etter disse to review-rettingene bestod full enhetssuite **1818/1818**, nytt produksjonsbygg, **20/20** berørte nettlesertester og en ny hel kjøring av de valgte **4 Node + 4 Docker-scenarioene** med de samme 30 UI-/30 SQL-/8 gjenskapings-/6 backup-kontrollene i tabellen. Den nye kjøringen avsluttet med exit 0. De 20 nettlesertestene er del av utvalget på 88 ovenfor, ikke nye unike tester som skal legges til dette antallet. Tidligere database-, avgrenset arbeidsflyt- og Compose-kontroller fra samme kandidatgrunnlag gjenbrukes: review endret bare importhjelpetekst og testkjørerens tidsavbrudd, mens parser-, planleggings-, API-/SQLite-kode og Docker-/Compose-konfigurasjon er identiske.
 
-Følgende eldre parserutfall er gjenskapt med syntetiske data på både publisert baseline `69b489d` og kandidaten, og gjenstår:
+Følgende eldre parserutfall ble gjenskapt med syntetiske data på både publisert baseline `69b489d` og kandidaten til `f1a5863`. De var åpne ved den publiseringen og er grunnlaget for den gjeldende rettingen øverst:
 
 - Små bokstaver i iCalendar-symbolverdier som `METHOD:cancel` blir ikke normalisert. En slik avlysning kan bli beholdt som aktiv hendelse.
 - To komponenter med samme identitet og tidspunkt kan bli slått sammen selv om transparens eller emnemetadata er motstridende. Flere UID-felt avvises heller ikke; første identitet kan bli brukt.
 - Samtidig `DTEND` og `DURATION`, samt uforenlige dato-/tidstyper i `UNTIL` og `DTSTART`, avvises ikke fullstendig. Dette kan gi feil varighet eller seriegrense.
 - TP JSON-ruten bruker fortsatt dato-normalisering som kan flytte en ugyldig kalenderdato før ICS-valideringen. De nye rådatokontrollene er derfor ikke en garanti for alle adapterveier.
 
-Dette er avgrensede kjente begrensninger, ikke full iCalendar-validering eller universell kildeaksept. Forhåndsvisning og manuell kontroll av tidspunkt, emnekobling og avlysninger er fortsatt nødvendig. Det navngitte V1-utvalget utvides ikke.
+Dette var avgrensede kjente begrensninger. Den senere rettingen innebærer heller ikke full iCalendar-validering eller universell kildeaksept. Forhåndsvisning og manuell kontroll av tidspunkt, emnekobling og avlysninger er fortsatt nødvendig. Det navngitte V1-utvalget utvides ikke.
 
 Runtime-kjøreren krever et ferskt `npm run build` før start; dette ble utført her. Dens innebygde manifest omfatter fortsatt kilde-/byggfiler, mens publiseringskontrollen supplerer med test-/fixture-/konfigurasjonsmanifestet ovenfor. Normal avslutning og håndterte feil rydder egne ressurser; hardt signalavbrudd kan omgå `finally` og kreve kontroll/opprydding av kjøringens egne navngitte ressurser. Denne leveransens kjøringer avsluttet normalt etter omkjøring, og egne ressurser er kontrollert ryddet.
 
-### Gjenbrukt historisk evidens
+#### Gjenbrukt historisk evidens ved den tidligere publiseringen
 
 Resultatene fra 24. oktober nedenfor rapporterer **1818 enhetstester, 175 beståtte Vite-nettlesertester og 17 Node/SQLite + 17 Docker-scenarioer**, fordelt på de navngitte kjøringene. De historiske kilde-/byggmanifestene omfatter ikke tester, fixturer eller testkonfigurasjon. Samsvar mellom kilde-/bygghasher dokumenterer derfor ikke at dagens tester eller testdata er identiske med dem som ble kjørt da. De historiske resultatene er støttebevis; nye resultater for det valgte Git-treet oppgis separat. Ingen av disse tekniske prøvene dokumenterer studentnytte.
 

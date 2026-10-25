@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import ICAL from 'ical.js'
+import { normalizeCalendarSymbols, calendarDateSyntaxIssues, validateCalendarDates, validCalendarUid } from '../../src/calendar-import.js'
 import { load, clean, fail, cachedText } from './program-source.js'
 
 // Institution guidance links to these public TP installations. Their published
@@ -78,11 +79,30 @@ function attachPublishedTerm(event, semester) {
   event.updatePropertyWithValue('x-course-semester', season === 'AUTUMN' ? 'autumn' : 'spring')
 }
 export function normalizeTpCalendar(text,{institution,semester,selectedIds,selectedCourse}){
+  text = normalizeCalendarSymbols(text)
   let calendar;try{calendar=new ICAL.Component(ICAL.parse(text))}catch{fail('source-changed','TP svarte uten en lesbar iCalendar-fil. Ingen kalender er importert.')}
   if(calendar.name!=='vcalendar')fail('source-changed','TP svarte uten en kalender.')
+  if (calendar.getAllProperties('method').length > 1) fail('source-changed', 'TP-kalenderen har flertydig METHOD.')
   const warnings=[],events=calendar.getAllSubcomponents('vevent'),seen=new Map(),scope=`${institution}:${semester.id}:${[...selectedIds].sort().join('|')}`;let fingerprints=0,omittedExams=0,hiddenRooms=0,pointAssessments=0
   if(events.length>10000)fail('source-changed','TP-kalenderen inneholder over 10 000 hendelser. Avgrens emneutvalget.')
-  for(const event of events){const uid=event.getFirstPropertyValue('uid'),summary=clean(event.getFirstPropertyValue('summary')),start=event.getFirstPropertyValue('dtstart'),exam=/eksamen|examination|\bexam\b|mappevurdering|sluttvurdering|\bwiseflow\b|\binspera\b/i.test(summary)
+  const syntaxIssues = calendarDateSyntaxIssues(text).vevent, rejected = new Set()
+  for(const [index,event] of events.entries()){
+    const summary=clean(event.getFirstPropertyValue('summary')),exam=/eksamen|examination|\bexam\b|mappevurdering|sluttvurdering|\bwiseflow\b|\binspera\b/i.test(summary)
+    // Publication restrictions also cover malformed components retained only
+    // for rejection accounting. Never return unpublished exam details.
+    if(exam&&(semester.pubexdate!==true||semester.pubextime!==true)){calendar.removeSubcomponent(event);omittedExams++;continue}
+    if(exam&&semester.pubexroom!==true){event.removeAllProperties('location');event.removeAllProperties('description');hiddenRooms++}
+    const invalid = validateCalendarDates(event, syntaxIssues[index])
+    if (!validCalendarUid(event) || ['status', 'transp'].some(name => event.getAllProperties(name).length > 1)) invalid.push('uid')
+    if (invalid.length) {
+      // Retain a component-level rejection marker across serialization: ICAL may
+      // already have truncated an invalid raw token while converting to jCal.
+      event.updatePropertyWithValue('x-studieplan-invalid-fields', [...new Set(invalid)].join(','))
+      rejected.add(event)
+      continue
+    }
+    if (calendar.getFirstPropertyValue('method') === 'CANCEL') event.updatePropertyWithValue('status', 'CANCELLED')
+    const uid=event.getFirstPropertyValue('uid'),start=event.getFirstPropertyValue('dtstart')
     attachPublishedTerm(event, semester)
     if (selectedCourse) {
       event.updatePropertyWithValue('x-course-code', selectedCourse.code)
@@ -92,11 +112,13 @@ export function normalizeTpCalendar(text,{institution,semester,selectedIds,selec
       if (selectedCourse.campus) event.updatePropertyWithValue('x-course-campus', selectedCourse.campus)
       if (selectedCourse.campusCode) event.updatePropertyWithValue('x-course-campus-code', selectedCourse.campusCode)
     }
-    if(exam&&(semester.pubexdate!==true||semester.pubextime!==true)){calendar.removeSubcomponent(event);omittedExams++;continue}
-    if(exam&&semester.pubexroom!==true){event.removeAllProperties('location');event.removeAllProperties('description');hiddenRooms++}
     if(exam)event.updatePropertyWithValue('x-studieplan-activity-kind',actualExamTitle(summary)?'exam':'assessment')
     const end=event.getFirstPropertyValue('dtend')
     if(exam&&start&&end&&!start.isDate&&!end.isDate&&end.toUnixTime()-start.toUnixTime()===1){event.updatePropertyWithValue('transp','TRANSPARENT');pointAssessments++}
+    if (event.getFirstPropertyValue('status') === 'CANCELLED' && (!summary || !start)) {
+      if (generatedUid(uid,event)) fail('ambiguous-source', 'TP-avlysningen har en ustabil eksport-ID uten navn og starttid for sikker gjenkjenning. Kilden må avklares; tidligere kalender er beholdt.')
+      continue
+    }
     if(!uid||!summary||!start)fail('source-changed','En TP-hendelse mangler identitet, navn eller tidspunkt. Kilden må avklares.')
     if(!generatedUid(uid,event))continue
     if(event.hasProperty('rrule')||event.hasProperty('recurrence-id'))fail('source-changed','TP kombinerer ustabil eksport-ID med gjentakende hendelser. Bruk et avklart kildeutvalg før import.')
@@ -108,33 +130,42 @@ export function normalizeTpCalendar(text,{institution,semester,selectedIds,selec
   if(omittedExams)warnings.push(`${omittedExams} eksamensoppføringer er utelatt fordi kilden ikke har publisert både dato og klokkeslett.`)
   if(hiddenRooms)warnings.push(`${hiddenRooms} eksamensoppføringer vises uten rom og beskrivelse fordi eksamensrom ikke er offentlig publisert.`)
   if(pointAssessments)warnings.push(`${pointAssessments} vurderingsoppføringer har bare ett sekunds varighet i kilden. De vises som informasjon uten å reservere studietid. Tidspunktet er ikke tolket som en bekreftet innleveringsfrist eller en undervisningsøkt.`)
+  if(rejected.size)warnings.push(`${rejected.size} TP-kildeoppføringer har ugyldig identitet eller tidspunkt og avvises i forhåndsvisningen. Gyldige søskenoppføringer beholdes.`)
   warnings.push(...publicationWarnings(semester),'TP-kildens fullstendighet er ukjent. Manglende aktiviteter fjerner ikke eksisterende undervisning. Kontroller tidsrom, campus og aktiviteter før bekreftelse.')
   calendar.updatePropertyWithValue('x-studieplan-tp-normalized','1')
   calendar.updatePropertyWithValue('x-studieplan-authoritative','false')
   calendar.removeAllProperties('x-studieplan-warning')
   for(const warning of warnings)calendar.addPropertyWithValue('x-studieplan-warning',warning)
-  return{calendar:calendar.toString(),warnings,coverage:'unknown',authoritative:false,identityMode:fingerprints?'source-occurrence-fingerprint':'source-uid',unresolved:[],eventCount:calendar.getAllSubcomponents('vevent').filter(event=>event.getFirstPropertyValue('status')!=='CANCELLED').length,sourceKind:'tp-ical'}
+  return{calendar:calendar.toString(),warnings,coverage:'unknown',authoritative:false,identityMode:fingerprints?'source-occurrence-fingerprint':'source-uid',unresolved:[],eventCount:calendar.getAllSubcomponents('vevent').filter(event=>!rejected.has(event)&&event.getFirstPropertyValue('status')!=='CANCELLED').length,sourceKind:'tp-ical'}
 }
-const tpJsonInstant=value=>{if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}(?::?\d{2})?$/.test(value))return NaN;return Date.parse(value.replace(/([+-]\d{2})$/, '$1:00'))}
+const tpJsonInstant=value=>{
+  const match = typeof value === 'string' && /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})([+-])(\d{2})(?::?(\d{2}))?$/.exec(value)
+  if (!match || !validDate(match[1]) || +match[2] > 23 || +match[3] > 59 || +match[4] > 59 || +match[6] > 23 || +(match[7] || 0) > 59) return NaN
+  return Date.parse(`${match[1]}T${match[2]}:${match[3]}:${match[4]}${match[5]}${match[6]}:${match[7] || '00'}`)
+}
 const bounded=(value,max=2000)=>clean(value).slice(0,max)
 export function normalizeTpJsonEvents(input,{institution,semester,selected}){
   let data
   try{data=typeof input==='string'?JSON.parse(input):input}catch{fail('invalid-response','TP returnerte ikke lesbar JSON. Tidligere undervisning er beholdt.')}
   if(!data||!Array.isArray(data.events)||data.events.length>10000)fail('invalid-response','TP-hendelsene har endret format eller overskrider 10 000 oppføringer. Tidligere undervisning er beholdt.')
-  const calendar=new ICAL.Component(['vcalendar',[],[]]),seen=new Set(),warnings=[];let cancelled=0,skippedMarkers=0
+  const calendar=new ICAL.Component(['vcalendar',[],[]]),seen=new Set(),warnings=[];let cancelled=0,skippedMarkers=0,rejectedCount=0
   calendar.updatePropertyWithValue('version','2.0');calendar.updatePropertyWithValue('prodid','-//Studieplan//HiMolde TP JSON//NO');calendar.updatePropertyWithValue('x-wr-timezone','Europe/Oslo');calendar.updatePropertyWithValue('x-studieplan-tp-normalized','1');calendar.updatePropertyWithValue('x-studieplan-authoritative','false')
   for(const row of data.events){
     const assessment=row?.status==null&&row?.eventid==null&&row?.active===true&&row?.publish===true&&codePattern.test(row?.assessmentCode||'')
     const title=bounded(row?.summaryNb||row?.summary||row?.teachingMethodName||(assessment&&(row?.teachingTitle||row?.examformNb)),2000),term=Number(row?.terminnr)
     const start=tpJsonInstant(row?.dtstart),end=tpJsonInstant(row?.dtend)
     const rawIdentity=assessment?`${row.id}:${row.dtstart}:${row.action||''}`:row?.eventid||row?.id,identity=bounded(rawIdentity,500),roomsInput=Array.isArray(row?.room)?row.room:row?.room&&typeof row.room==='object'?[row.room]:[]
-    if(!row||typeof rawIdentity!=='string'||rawIdentity.length>500||assessment&&!row.id||row.semesterid!==semester.id||row.courseid!==selected.code||term!==selected.term||!identity||!title||!Number.isFinite(start)||!Number.isFinite(end)||!assessment&&!['active','cancelled'].includes(row.status)||!Array.isArray(row.alerts||[])||!Array.isArray(row.staffnames||[]))fail('invalid-response','En TP-hendelse mangler gyldig kildeidentitet, emne, tidspunkt, status eller hendelsesdetaljer. Tidligere undervisning er beholdt.')
+    if(!row||typeof rawIdentity!=='string'||rawIdentity.length>500||assessment&&!row.id||row.semesterid!==semester.id||row.courseid!==selected.code||term!==selected.term||!identity||!title||!assessment&&!['active','cancelled'].includes(row.status)||!Array.isArray(row.alerts||[])||!Array.isArray(row.staffnames||[]))fail('invalid-response','En TP-hendelse mangler gyldig kildeidentitet, emne, tidspunkt, status eller hendelsesdetaljer. Tidligere undervisning er beholdt.')
     const groups = row.studentgroups ?? []
     if (!Array.isArray(groups) || groups.length > 100 || !groups.every(group => typeof group === 'string' && group.trim() && group.length <= 300 && !/[\u0000-\u001f]/.test(group))) fail('invalid-response', 'TP-gruppenes identitet må avklares. Tidligere undervisning er beholdt.')
-    if(end<start||end===start&&!assessment)fail('invalid-response','En TP-hendelse mangler gyldig kildeidentitet, emne, tidspunkt, status eller hendelsesdetaljer. Tidligere undervisning er beholdt.')
     if(seen.has(identity))fail('invalid-response','TP gjentar samme hendelsesidentitet. Tidligere undervisning er beholdt.');seen.add(identity)
     const event=new ICAL.Component('vevent'),uid=`tp-json-${hash(`${institution}\0${semester.id}\0${identity}`)}@studieplan.local`
     attachPublishedTerm(event, semester)
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end < start || end === start && !assessment) {
+      event.addPropertyWithValue('uid', uid); event.addPropertyWithValue('summary', title)
+      event.addPropertyWithValue('x-studieplan-invalid-fields', 'dtstart,dtend')
+      calendar.addSubcomponent(event); rejectedCount++; continue
+    }
     event.addPropertyWithValue('uid',uid);event.addPropertyWithValue('dtstamp',ICAL.Time.fromJSDate(new Date(0),true));event.addPropertyWithValue('dtstart',ICAL.Time.fromJSDate(new Date(start),true));event.addPropertyWithValue('dtend',ICAL.Time.fromJSDate(new Date(end),true));event.addPropertyWithValue('summary',title);if(assessment)event.addPropertyWithValue('x-studieplan-activity-kind',actualExamTitle(title)?'exam':'assessment')
     if (assessment && end === start) { event.removeAllProperties('dtend'); skippedMarkers++ }
     if (assessment && end - start <= 1000) event.addPropertyWithValue('transp', 'TRANSPARENT')
@@ -152,8 +183,9 @@ export function normalizeTpJsonEvents(input,{institution,semester,selected}){
   warnings.push('TP-kildens fullstendighet er ukjent. Manglende aktiviteter fjerner ikke eksisterende undervisning; uttrykkelige avlysninger behandles separat.')
   if(cancelled)warnings.push(`${cancelled} uttrykkelig avlyste kildehendelser er beholdt som avlysningssignaler.`)
   if(skippedMarkers)warnings.push(`${skippedMarkers} null-lange vurderingsmarkører vises som punkter uten å reservere arbeidstid. Ingen sluttid er funnet på.`)
+  if(rejectedCount)warnings.push(`${rejectedCount} TP-kildeoppføringer har ugyldig dato, klokkeslett eller offset og avvises i forhåndsvisningen. Gyldige søskenoppføringer beholdes.`)
   for(const warning of warnings)calendar.addPropertyWithValue('x-studieplan-warning',warning)
-  return{calendar:calendar.toString(),warnings,coverage:'unknown',authoritative:false,identityMode:'source-uid',unresolved:[],eventCount:calendar.getAllSubcomponents('vevent').filter(event=>event.getFirstPropertyValue('status')!=='CANCELLED').length,cancelledCount:cancelled,sourceKind:'himolde-tp-json'}
+  return{calendar:calendar.toString(),warnings,coverage:'unknown',authoritative:false,identityMode:'source-uid',unresolved:[],eventCount:calendar.getAllSubcomponents('vevent').filter(event=>!event.hasProperty('x-studieplan-invalid-fields')&&event.getFirstPropertyValue('status')!=='CANCELLED').length,cancelledCount:cancelled,rejectedCount,sourceKind:'himolde-tp-json'}
 }
 export function isPublicTpJsonUrl(input){try{const url=new URL(input),ids=url.searchParams.getAll('id[]');return url.origin===origin&&url.pathname==='/himolde/ws/timeplan/'&&url.searchParams.get('type')==='course'&&/^\d{2}[hv]$/.test(url.searchParams.get('sem')||'')&&ids.length===1&&[...url.searchParams.keys()].every(key=>['type','sem','id[]'].includes(key))&&ids.every(value=>{const parts=value.split('¤');return parts.length===2&&codePattern.test(parts[0])&&/^\d{1,2}$/.test(parts[1])})}catch{return false}}
 export function isPublicTpCalendarUrl(input){try{const url=new URL(input);return isPublicTpJsonUrl(url.href)||url.origin===origin&&url.searchParams.get('type')==='course'&&url.searchParams.has('id[]')&&[...url.searchParams.keys()].every(key=>['type','sem','rkey','id[]'].includes(key))&&publicTpInstitutions.some(id=>url.pathname===`/${id}/timeplan/ical.php`)}catch{return false}}

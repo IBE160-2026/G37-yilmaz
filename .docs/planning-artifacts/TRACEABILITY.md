@@ -4,7 +4,17 @@
 
 [Brief](../../brief.md) → [PRD](PRD.md) → [stories](EPICS-CURRENT.md) følger **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering**. R-01/S-01 dekker registreringen, R-03/S-03 forslag, R-04/S-04 utfall og R-05/S-05 godkjenning/angre; R-02/S-02 gir støttende import, og R-06/S-06 bevarer sammenhengen i lokal lagring. R-08/S-08 bevarer valgfrie tillegg. Oppfølgingene nedenfor endrer ikke HiMolde-/NTNU-avgrensningen.
 
-Nye kontrollresultater føres med egen dato i [publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25). De historiske resultatene fra 24. oktober (1818 enhetstester, 175 nettleserforløp og 17 + 17 runtime-scenarioer) tilhører den kjøringen. Dens manifester dekker kilde-/byggfiler og utelater testfiler, fixturer og konfigurasjon; samsvar i disse hashene beviser ikke at hele testgrunnlaget er uendret. Tabellene lenker eksisterende testkode, mens kjøreresultater må leses i det daterte evidensavsnittet. SC-07/studentutprøving er fortsatt ikke utført. Faglærertilbakemeldingen er lest; sensorveiledning og godkjent proposal var ikke tilgjengelige i de avtalte dokumentmappene denne runden.
+Nyeste kandidatresultater står først i [VERIFICATION](../../studieplanlegger/VERIFICATION.md), med utvalg, dato og begrensninger. Tabellene nedenfor lenker testkode; eldre kjøreresultater tilhører sine daterte kontrollpunkter. SC-07/studentutprøving er fortsatt ikke utført. Faglærertilbakemeldingen er lest; sensorveiledning og godkjent proposal ble ikke funnet i de avtalte dokumentmappene og er ikke lest i denne runden.
+
+### Personvern og kalenderintegritet — 2026-10-25
+
+| Krav/story | Kode og direkte kontroll |
+|---|---|
+| Q-02/Q-03: personvernkontroll av hele fixtureutvalget | [Strukturelle personvernguarder](../../studieplanlegger/tests/helpers/fixture-privacy.js) og [personvernregresjoner](../../studieplanlegger/tests/unit/fixture-privacy.test.js): alle relevante ICS-segmenter, nestet JSON, HTML-profiler og metadata; selvstendige syntetiske negative tilfeller. Fixture-README-ene dokumenterer avledninger og bevart attribusjon. |
+| R-02/S-02: symbolverdier, identitet og tid | [Kalenderparser](../../studieplanlegger/src/calendar-import.js), [dokumentparser](../../studieplanlegger/src/document-parsers.js), [TP-adapter](../../studieplanlegger/server/providers/public-tp.js); [råvalidering](../../studieplanlegger/tests/unit/import-calendar-closure-raw-validation.test.js), [filflyt](../../studieplanlegger/tests/unit/calendar-file-flow.test.js), [TP-kontrakter](../../studieplanlegger/tests/unit/public-tp.test.js). |
+| R-05/R-06, S-05/S-06: kontrollert delimport og bevaring | [Synlig avvisning og opptelling](../../studieplanlegger/tests/e2e/import-calendar-closure-raw-validation.spec.js), [avlysning og gjenimport](../../studieplanlegger/tests/e2e/calendar-corrections-ics.spec.js), [serieunntak](../../studieplanlegger/tests/e2e/import-calendar-closure-ics.spec.js), [isolert Node/SQLite-/Docker-kjører](../../studieplanlegger/tests/run-tp-csv-persistence.mjs). |
+
+Dette er teknisk kontroll av den avgrensede leveransen, uten nye tilbydere, privat originalmateriale eller påstand om full iCalendar-/iTIP-støtte. Faktiske kandidattester, separate kjøringer og review står i [verifikasjonen](../../studieplanlegger/VERIFICATION.md).
 
 ## Consolidated import and calendar closure, 2026-10-24
 

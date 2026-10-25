@@ -2,7 +2,7 @@
 
 Studieplan knytter **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering** sammen med lokale regler. Bare oppgavetittel er obligatorisk; registrerte opplysninger og valgfrie importer gir grunnlaget for forslag som studenten kontrollerer før lagring. Appen bruker ingen generativ KI under kjøring.
 
-**Samordnet leveransedokumentasjon, 2026-10-25:** emnegjenkjenning, gruppert retting av eldre import, kalendergrenser og eksakt eksport er beskrevet nedenfor. [Verifikasjonen](VERIFICATION.md) skiller nye kandidatkontroller fra historiske resultater, formatgrenser og uverifiserte private originaler. Resultatene fra 24. oktober er datert historikk; kilde-/bygghashene omfatter ikke testfiler, fixturer eller konfigurasjon og fastslår ikke identisk testgrunnlag.
+**Samordnet leveransedokumentasjon, 2026-10-25:** Import, kalendergrenser og eksport er beskrevet nedenfor. [Verifikasjonen](VERIFICATION.md) viser nyeste kontrollerte kandidat, personvernrettinger og tekniske begrensninger først; eldre resultater beholder sine datoer. Private originaler og faktisk studentnytte er ikke verifisert.
 
 **Gjeldende avgrensning 2026-10-16:** [Planindeksen](../.docs/planning-artifacts/README.md) knytter brief, PRD og stories til kode/test som en datert rekonstruksjon. V1-import er HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, samt NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Full nasjonal dekning er visjon. Historiske tekniske kontroller nedenfor er ikke nye kjøringer eller dokumentert studentnytte.
 

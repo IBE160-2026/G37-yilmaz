@@ -17,6 +17,26 @@ const course = (id, code, university = 'Syntetisk institusjon', year = 2026) => 
 const metadata = (code, name) => `X-COURSE-CODE:${code}\r\nX-COURSE-NAME:${name}\r\nX-UNIVERSITY:Syntetisk institusjon`
 
 describe('one bounded calendar file with stable independent identity', () => {
+  it('partial reimport preserves IDs, local notes, course relations and unaffected events while applying case-insensitive cancellation', () => {
+    const initialText = calendar(event('retained', 'Oppdiktet beholdt'), event('cancelled', 'Oppdiktet avlyst'), event('unaffected', 'Oppdiktet uberørt'))
+    const state = save(empty(), draft(empty(), initialText)), sourceId = state.importSources[0].id
+    state.planner.courses.push(course('synthetic-course', 'SYN974'))
+    state.planner.events.forEach(item => { item.notes = 'Oppdiktet lokalt notat'; item.courseId = 'synthetic-course' })
+    const before = structuredClone(state)
+    const partial = calendar(event('retained', 'Oppdiktet beholdt'), event('unaffected', 'Oppdiktet ugyldig erstatning', 'DURATION:PT1H'), 'BEGIN:VEVENT\r\nUID:cancelled\r\nSTATUS:caNCellEd\r\nEND:VEVENT', 'BEGIN:VEVENT\r\nUID:unaffected\r\nUID:retained\r\nSTATUS:CANCELLED\r\nEND:VEVENT')
+    const preview = draft(state, partial, 'b', sourceId)
+    expect(preview.accounting).toMatchObject({ total: 4, retained: 1, rejected: 2, cancelled: 1 })
+    const saved = save(state, preview)
+    expect(saved.planner.events.map(item => item.id)).toEqual(before.planner.events.map(item => item.id))
+    expect(saved.planner.events.map(item => [item.notes, item.courseId, item.importEntryKey])).toEqual(before.planner.events.map(item => [item.notes, item.courseId, item.importEntryKey]))
+    expect(saved.planner.events.find(item => item.title === 'Oppdiktet avlyst').cancelled).toBe(true)
+    expect(saved.planner.events.find(item => item.title === 'Oppdiktet uberørt')).toEqual(before.planner.events.find(item => item.title === 'Oppdiktet uberørt'))
+    expect(saved.importSources[0].complete).toBe(false)
+    const recreated = JSON.parse(JSON.stringify(saved))
+    expect(save(recreated, draft(recreated, partial, 'b', sourceId)).planner).toEqual(saved.planner)
+    expect(validImportSources(recreated.importSources, recreated)).toBe(true)
+    expect(state).toEqual(before)
+  })
   it('keeps personal activities unassigned when a grouped course is proposed or resolved', () => {
     const state = empty(), preview = draft(state, calendar(event('personal'), event('teaching')))
     const personal = preview.rows[0]; personal.activityKind = 'personal'

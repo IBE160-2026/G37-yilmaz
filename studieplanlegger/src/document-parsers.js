@@ -1,7 +1,7 @@
 import Papa from 'papaparse'
 import ICAL from 'ical.js'
 import { Temporal } from '@js-temporal/polyfill'
-import { parseCalendar, validateCalendarDates, calendarDateWarning, calendarDateSyntaxIssues } from './calendar-import.js'
+import { parseCalendar, validateCalendarDates, calendarDateWarning, calendarDateSyntaxIssues, normalizeCalendarSymbols, validCalendarUid } from './calendar-import.js'
 import { OSLO, osloLocal as osloMinute, osloLocalExact as osloLocal, toInstant } from './planner.js'
 import { validDeadline } from './tasks.js'
 import { DOCUMENT_DESCRIPTION_LIMIT } from './import-source-contract.js'
@@ -383,7 +383,9 @@ function calendarCourse(event) {
 export function parseDocumentIcs(text, { semester, year } = {}) {
   if (new TextEncoder().encode(text).length > DOCUMENT_LIMITS.textBytes) throw new Error('Kalenderfilen er større enn 2 MB.')
   if (!/^\s*BEGIN:VCALENDAR/im.test(text) || !/END:VCALENDAR\s*$/i.test(text)) throw new Error('Kalenderfilen er ufullstendig.')
+  text = normalizeCalendarSymbols(text)
   const root = new ICAL.Component(ICAL.parse(text)), rows = [], warnings = [], cancellations = []
+  if (root.getAllProperties('method').length > 1) throw new Error('Kalenderen har flere METHOD-felt og kan ikke tolkes entydig.')
   const calendarCancelled = clean(root.getFirstPropertyValue('method')).toUpperCase() === 'CANCEL'
   let complete = !calendarCancelled, range, accounting, period
   if (root.getAllSubcomponents('vevent').length) {
@@ -429,6 +431,11 @@ export function parseDocumentIcs(text, { semester, year } = {}) {
   for (const [index, component] of root.getAllSubcomponents('vtodo').entries()) {
     accounting ||= { total: 0, retained: 0, partial: 0, filtered: 0, rejected: 0, cancelled: 0, occurrences: 0, filteredOccurrences: 0, rejectedOccurrences: 0 }
     accounting.total++
+    if (component.getAllProperties('uid').length > 1 || component.hasProperty('uid') && !validCalendarUid(component) || component.getAllProperties('status').length > 1) {
+      complete = false; accounting.rejected++
+      warnings.push(`VTODO ${index + 1} har flertydig UID eller STATUS og er utelatt.`)
+      continue
+    }
     const invalid = validateCalendarDates(component, todoSyntaxIssues[index])
     if (invalid.length) {
       complete = false; accounting.rejected++
