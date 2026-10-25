@@ -2,6 +2,8 @@
 
 `b-inf.html` er et personvernminimert derivat. Kontaktkort, innebygde portrettbilder og markedsføringsintervjuer er fjernet fordi parseren ikke bruker dem. Programtittel, campus, oppbyggingslenke, dokumentidentitet og offentlige planlenker er bevart.
 
+Gjennomgangen 25.10.2026 skilte felles ansattmeny og institusjonelle navigasjonslenker i `b-inf.html`, `b-inf-structure.html` og `catalogue.html` fra individuelle personprofiler; navigasjonen er beholdt. Faglige navn og kildeattribusjon er ikke personvernrestfelt. Den rekursive HTML/JSON-guarden og PDF-metadata-/parserkontraktene gjelder disse daterte opptakene og dokumenterer ikke fremtidige live-sider.
+
 HTML-opptak hentet 12.09.2026. Testene simulerer HTTP-transport, og er separate fra ekte eksterne adapter-/nettleserforløp.
 
 - `catalogue.html`: https://uit.no/utdanning . Alle 276 kort finnes i HTML; den publiserte Isotope-klienten filtrerer lokalt. Katalogens numeriske dokument-ID er ikke en offisiell studiekode.

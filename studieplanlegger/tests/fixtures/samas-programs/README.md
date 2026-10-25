@@ -2,6 +2,8 @@
 
 HTML-filene er personvernminimerte derivater. Personkontaktavsnitt, profilreferanser og felles kontaktkrom er fjernet. Katalogkort, programtitler, emnekoder, studiepoeng, oppstart, valgstruktur, PDF-lenker og kildeidentitet er bevart; testene evaluerer ikke skript eller eksterne profiler.
 
+Metadataretting 25.10.2026: det ubrukte `twitter:creator:id`-feltet er fjernet fra alle ni HTML-opptak. Øvrige kildebytes og parserstruktur er bevart. Personvernguarden undersøker også innkapslet JSON/HTML og forfatter-/profilmetadata; institusjonsnavn, faglige navn og kildeattribusjon er beholdt. Kontrollene gjelder disse opptakene, ikke fremtidige live-sider.
+
 Hentet 12.09.2026 fra samas.no. HTML er kildeopptak; JSON inneholder tekst og koordinater fra de publiserte PDF-ene, lest lokalt uten OCR. Fixturetester simulerer transport og dokumenterer ikke alene en ekstern import.
 
 - `catalogue-nb.html`: https://samas.no/nb/studier (7 kort).

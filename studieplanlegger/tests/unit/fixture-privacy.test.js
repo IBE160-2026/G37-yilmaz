@@ -1,6 +1,12 @@
 import { readFileSync, readdirSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
 import * as cheerio from 'cheerio'
+import { calendarPersonFindings, calendarTextContract, calendarTextContractFindings, fixtureMetadataFindings, xmlPersonMetadataFindings } from '../helpers/fixture-privacy.js'
+
+// Read ZIP parts with the same dependency that the installed DOCX extractor uses.
+const require = createRequire(import.meta.url)
+const JSZip = createRequire(require.resolve('mammoth'))('jszip')
 
 const fixtureUrl = new URL('../fixtures/', import.meta.url)
 const fixture = relative => readFileSync(new URL(relative, fixtureUrl), 'utf8')
@@ -53,14 +59,14 @@ describe('fixture privacy minimization', () => {
   it('keeps PHS bibliography targets without encoded Safe Links recipient metadata', () => {
     const source = fixture('phs-programs/bachelor-cohorts.html')
     const decoded = decodeURIComponent(source)
-    expect(decoded).not.toMatch(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i)
-    expect(decoded).not.toContain('safelinks.protection.outlook.com')
+    expect(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(decoded)).toBe(false)
+    expect(decoded.includes('safelinks.protection.outlook.com')).toBe(false)
     const $ = cheerio.load(source)
     const targets = $('a[href]').toArray().map(node => $(node).attr('href'))
       .filter(href => href.startsWith('https://bibsys-xq.alma.exlibrisgroup.com/'))
       .map(href => new URL(href))
     // Nine unwrapped links and two already-direct links in the source page.
-    expect(targets).toHaveLength(11)
+    expect(targets.length).toBe(11)
     for (const target of targets) {
       expect(target.searchParams.get('auth')).toBe('SAML')
       expect(target.searchParams.has('subject')).toBe(true)
@@ -143,8 +149,8 @@ describe('fixture privacy minimization', () => {
     for (const [name, markerIndex] of files) {
       const data = JSON.parse(fixture(name))
       const sourceUrl = new URL(data.source.sourceUrl)
-      expect(sourceUrl.pathname).toMatch(/\/SYNTHETIC_PUBLIC_SHARE_\d{4}$/)
-      expect([...sourceUrl.searchParams]).toEqual([['e', 'SYNTHETIC']])
+      expect(/\/SYNTHETIC_PUBLIC_SHARE_\d{4}$/.test(sourceUrl.pathname)).toBe(true)
+      expect(sourceUrl.searchParams.size === 1 && sourceUrl.searchParams.get('e') === 'SYNTHETIC').toBe(true)
       const items = data.pages[0].items
       const marker = items[markerIndex]
       const lecturerItems = items.filter(item => Math.abs(item.transform[5] - marker.transform[5]) <= 2 && item.transform[4] > marker.transform[4] && /\p{L}/u.test(item.str))
@@ -169,27 +175,27 @@ describe('fixture privacy minimization', () => {
       const parts = value.split('\\n')
       return parts.length === 3 ? [parts[1]] : []
     }))
-    expect(hvl).toHaveLength(54)
-    expect(hvlTeachers).toHaveLength(32)
+    expect(hvl.length).toBe(54)
+    expect(hvlTeachers.length).toBe(32)
     expect(hvlTeachers.every(value => syntheticTeacher.test(value))).toBe(true)
 
     const nmbu = icsEvents(fixture('public-programs/timeedit-nmbu-math100-2026.ics'))
     const nmbuTeachers = nmbu.flatMap(event => event.SUMMARY?.[0] ? [event.SUMMARY[0].split('\\,')[1]] : [])
-    expect(nmbu).toHaveLength(68)
-    expect(nmbuTeachers).toHaveLength(63)
+    expect(nmbu.length).toBe(68)
+    expect(nmbuTeachers.length).toBe(63)
     expect(nmbu.filter(event => event.SUMMARY?.[0]).every(event => event.SUMMARY[0].split('\\,').length === 2)).toBe(true)
     expect(nmbuTeachers.every(value => syntheticTeacher.test(value))).toBe(true)
 
     const mf = icsEvents(fixture('public-timeedit/mf-calendar.ics'))
     const mfTeachers = mf.map(event => event.DESCRIPTION[0].split('\\n')[0])
-    expect(mf).toHaveLength(40)
+    expect(mf.length).toBe(40)
     expect(new Set(mfTeachers).size).toBe(8)
     expect(mfTeachers.every(value => syntheticTeacher.test(value))).toBe(true)
 
     const steiner = icsEvents(fixture('public-timeedit/steiner-calendar.ics'))
     const steinerTeachers = steiner.flatMap(event => event.SUMMARY[0].split('\\,').filter(segment => syntheticTeacher.test(segment.trim())))
-    expect(steiner).toHaveLength(34)
-    expect(steinerTeachers).toHaveLength(43)
+    expect(steiner.length).toBe(34)
+    expect(steinerTeachers.length).toBe(43)
     expect(new Set(steinerTeachers.map(value => value.trim())).size).toBe(11)
     const strictPerson = /^[\p{Lu}][\p{Ll}'-]+(?:\s+[\p{Lu}][\p{Ll}'-]+){1,3}$/u
     const lowerTailPerson = /^[\p{Lu}][\p{Ll}'-]+(?:\s+[\p{Ll}][\p{Ll}'-]+){1,2}$/u
@@ -202,13 +208,13 @@ describe('fixture privacy minimization', () => {
 
     const volda = icsEvents(fixture('public-timeedit/volda-calendar.ics'))
     const voldaTeachers = volda.map(event => event.SUMMARY[0].split('\\,')[0])
-    expect(volda).toHaveLength(52)
+    expect(volda.length).toBe(52)
     expect(voldaTeachers.every(value => syntheticTeacher.test(value))).toBe(true)
 
     const uib = icsEvents(fixture('public-tp/uib.ics'))
     const uibMatches = uib.flatMap(event => [...(event.SUMMARY || []), ...(event.DESCRIPTION || [])].flatMap(value => [...value.matchAll(/foreles\p{L}*\s+(Testunderviser [A-Z]+)(?=\\n)/giu)]))
-    expect(uib).toHaveLength(294)
-    expect(uibMatches).toHaveLength(26)
+    expect(uib.length).toBe(294)
+    expect(uibMatches.length).toBe(26)
     expect(new Set(uibMatches.map(match => match[1])).size).toBe(1)
 
     const uit = icsEvents(fixture('public-tp/uit.ics'))
@@ -216,8 +222,8 @@ describe('fixture privacy minimization', () => {
       const parts = value.split('\\n')
       return parts.length === 10 && /\bforeles\p{L}*\b/iu.test(parts[1]) ? [parts[4].trim()] : []
     }))
-    expect(uit).toHaveLength(16)
-    expect(uitTeachers).toHaveLength(6)
+    expect(uit.length).toBe(16)
+    expect(uitTeachers.length).toBe(6)
     expect(uitTeachers.every(value => syntheticTeacher.test(value))).toBe(true)
   })
 
@@ -225,13 +231,180 @@ describe('fixture privacy minimization', () => {
     const $ = cheerio.load(fixture('public-timeedit/nih-schedule.html'))
     const rows = $('tbody tr')
     const teachers = rows.toArray().map(row => $(row).find('td').eq(5).text().trim()).filter(Boolean)
-    expect(rows).toHaveLength(75)
-    expect(teachers).toHaveLength(32)
+    expect(rows.length).toBe(75)
+    expect(teachers.length).toBe(32)
     expect(new Set(teachers).size).toBe(11)
     expect(teachers.every(value => syntheticTeacher.test(value))).toBe(true)
 
     const himolde = JSON.parse(fixture('public-tp/himolde-events.json'))
     expect(himolde.events.map(event => event.staffnames.length)).toEqual([1, 0, 0])
-    expect(himolde.events[0].staffnames).toEqual(['Testunderviser A'])
+    expect(himolde.events[0].staffnames.every(value => syntheticTeacher.test(value))).toBe(true)
+  })
+
+  it('checks every JSON/HTML fixture recursively, including encoded HTML and metadata', () => {
+    const findings = []
+    for (const url of walk(fixtureUrl)) {
+      if (!/\.(?:json|html)$/.test(url.pathname)) continue
+      const format = url.pathname.endsWith('.html') ? 'html' : 'json'
+      const source = fixture(url)
+      for (const finding of fixtureMetadataFindings(format === 'json' ? JSON.parse(source) : source, format)) {
+        findings.push({ file: url.pathname.slice(fixtureUrl.pathname.length), ...finding })
+      }
+    }
+    expect(findings).toEqual([])
+  })
+
+  it.each([
+    ['public-programs/timeedit-hvl-dat100-2026.ics', 'hvl'],
+    ['public-programs/timeedit-nmbu-math100-2026.ics', 'nmbu'],
+    ['public-timeedit/mf-calendar.ics', 'mf'],
+    ['public-timeedit/nih-calendar.ics', 'nih'],
+    ['public-tp/uib.ics', 'uib'],
+    ['public-tp/uit.ics', 'uit'],
+  ])('checks all person-bearing segments in %s', (name, kind) => {
+    expect(calendarPersonFindings(fixture(name), kind)).toEqual([])
+  })
+
+  it('requires reviewed text contracts for all eleven captured ICS files', () => {
+    // Approved academic/location/group text after the 2026-10-25 minimization.
+    // Static digests are not regenerated from the fixture under test. A changed
+    // capture requires content review, not automatically accepting a new digest.
+    const contracts = {
+      'public-programs/fih-calendar-btfl1.ics': '3421b227c4bf8264a6303802a220a235999f3aa5270699f33f2dcd6089416ddb',
+      'public-programs/timeedit-hvl-dat100-2026.ics': 'a46a7e7db6e85aba50e55e1f19435076cc9be8c0c649ab39942f35b3e4bab876',
+      'public-programs/timeedit-nmbu-math100-2026.ics': '27674509694ccf0240560bf843975bec83966fb094d72349d0c7b28eca62fb4f',
+      'public-timeedit/kristiania-calendar.ics': '308f3b49e427efc183d9d96614359e4fcb9c39fa1e3b0da0db2dfeeb468e0400',
+      'public-timeedit/ldh-calendar.ics': 'e8c07e527cfb67e4fc5952539df027eca7ab8923705b7307a49687ffa4246435',
+      'public-timeedit/mf-calendar.ics': 'd145f839f32193e28209d499fc9f09e2841a3a2221e7c48ed6dfd0c9d09d6b27',
+      'public-timeedit/nih-calendar.ics': 'c5df701d902192453fa0fea9b4404e36b688209a03bd3ff2a27bae221304e21d',
+      'public-timeedit/steiner-calendar.ics': '59e678d81e6295a12392e073df363c195e8d1cb976aaec2dfe3e606b59b0e097',
+      'public-timeedit/volda-calendar.ics': '0a4dc07c258746789af109ef843a1f0a792b82e8d35cc395c126f30a67c1e2b3',
+      'public-tp/uib.ics': 'a795db034fb6bf2cea095e17f5cfcab0b06283aa5240a707ea76bb8acc389b3d',
+      'public-tp/uit.ics': 'fa8b8b0fc2e58d71bc60520bfff78b6619ac1f857004006da46e738a363d571c',
+    }
+    const files = walk(fixtureUrl).filter(url => url.pathname.endsWith('.ics'))
+    expect(files.length).toBe(Object.keys(contracts).length)
+    for (const url of files) {
+      const name = url.pathname.slice(fixtureUrl.pathname.length)
+      const source = fixture(url)
+      expect(Object.hasOwn(contracts, name)).toBe(true)
+      expect(calendarTextContractFindings(source, contracts[name]).map(finding => ({ file: name, ...finding }))).toEqual([])
+      expect(calendarPersonFindings(source).filter(finding => finding.category === 'calendar-person-property' || finding.category === 'calendar-person-parameter').map(finding => ({ file: name, ...finding }))).toEqual([])
+    }
+  })
+
+  it('keeps the synthetic DOCX free of author, comment, revision and embedded metadata', async () => {
+    const zip = await JSZip.loadAsync(readFileSync(new URL('connected-semester.docx', fixtureUrl)))
+    const names = Object.keys(zip.files).filter(name => !zip.files[name].dir)
+    expect(names.length).toBe(3)
+    expect(names.every(name => ['[Content_Types].xml', '_rels/.rels', 'word/document.xml'].includes(name))).toBe(true)
+    for (const name of names) {
+      const xml = await zip.files[name].async('string')
+      expect(xmlPersonMetadataFindings(xml)).toEqual([])
+    }
+  })
+
+  it('omits unnecessary HGUt biographies without dropping academic module structure', () => {
+    for (const name of ['hgut-hest-i-naering-pdf.json', 'hgut-nyskaping-og-utvikling-pdf.json']) {
+      const pages = JSON.parse(fixture(`public-programs/${name}`))
+      const text = pages.flatMap(page => page.lines).join('\n')
+      expect(/\b(?:Educators|Course Leader|Studieansvarleg)\b/i.test(text)).toBe(false)
+      expect(pages.every(page => Array.isArray(page.lines))).toBe(true)
+      expect(pages.length).toBe(name.includes('hest') ? 10 : 6)
+    }
+  })
+})
+
+describe('privacy guards with wholly invented negative examples', () => {
+  const calendar = (field, value) => `BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nUID:synthetic-1@example.invalid\r\n${field}:${value}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`
+  // Intentionally fictional invalid labels. No regression depends on a real name.
+  it.each([
+    ['hvl', 'DESCRIPTION', 'Fiktiv Personrest\\nTestunderviser A\\nID 1'],
+    ['nmbu', 'DESCRIPTION', 'Fiktiv Personrest\\nID 1'],
+    ['mf', 'DESCRIPTION', 'Testunderviser A\\nFiktiv Personrest\\nID 1'],
+    ['nih', 'SUMMARY', 'IDR107_1_2026 HØST\\, Testunderviser A\\, Fiktiv Personrest'],
+    ['uib', 'DESCRIPTION', 'INF100\\nForelesning Testunderviser A\\nF. Personrest\\n'],
+    ['uit', 'DESCRIPTION', 'INF-0101\\nLab\\nTestunderviser A, F. Personrest\\n\\nTestunderviser B'],
+    ['mf', 'DESCRIPTION', 'Testunderviser A Fiktiv Personrest\\nID 1'],
+    ['hvl', 'DESCRIPTION', 'Testunderviser A\\nFiktiv\r\n Personrest\\nID 1'],
+  ])('rejects later, alternate, mixed or folded %s person segments', (kind, field, value) => {
+    const findings = calendarPersonFindings(calendar(field, value), kind)
+    expect(findings.length).toBeGreaterThan(0)
+    expect(JSON.stringify(findings).includes('Personrest')).toBe(false)
+  })
+
+  it('keeps UID identity, room names, groups and complete synthetic teacher lists', () => {
+    expect(calendarPersonFindings(calendar('DESCRIPTION', 'INF-0101\\nLab\\nTestunderviser A, Testunderviser B\\n'), 'uit')).toEqual([])
+    expect(calendarPersonFindings(calendar('SUMMARY', 'IDR107_1_2026 HØST\\, Gruppe 2\\, Testunderviser A').replace('END:VEVENT', 'LOCATION:Store Sal\r\nEND:VEVENT'), 'nih')).toEqual([])
+  })
+
+  it.each([
+    'BEGIN:VCALENDAR\r\nCONTACT:Fiktiv Personrest\r\nEND:VCALENDAR',
+    'BEGIN:VCALENDAR\r\nBEGIN:VTODO\r\nATTENDEE:mailto:synthetic@example.invalid\r\nEND:VTODO\r\nEND:VCALENDAR',
+    'BEGIN:VCALENDAR\r\nBEGIN:VTODO\r\nCONTACT:Fiktiv Personrest\r\nEND:VTODO\r\nEND:VCALENDAR',
+    calendar('X-TEACHER', 'Fiktiv Personrest'),
+  ])('checks person metadata outside the event text projection %#', source => {
+    const findings = calendarPersonFindings(source)
+    expect(findings.length).toBeGreaterThan(0)
+    expect(JSON.stringify(findings).includes('Personrest')).toBe(false)
+  })
+
+  it.each(['SUMMARY', 'DESCRIPTION', 'LOCATION', 'X-ALT-DESC'])('rejects arbitrary residue in every %s value, regardless of name form', field => {
+    const safe = calendar(field, 'TEST101\\nGruppe 2\\nTestunderviser A')
+    const digest = calendarTextContract(safe)
+    expect(calendarTextContractFindings(safe.replace('Testunderviser A', 'Testunderviser ZZ'), digest)).toEqual([])
+    for (const residue of ['rest', 'fiktiv personrest', 'FIKTIV', 'Testunderviser A rest', 'rest Testunderviser A']) {
+      for (const changed of [
+        safe.replace('Testunderviser A', residue),
+        safe.replace('END:VEVENT', `${field}:${residue}\r\nEND:VEVENT`),
+        safe.replace('Testunderviser A', `Testunderviser A\\n${residue}`),
+      ]) {
+        const findings = calendarTextContractFindings(changed, digest)
+        expect(findings.length).toBe(1)
+        expect(JSON.stringify(findings).includes(residue)).toBe(false)
+      }
+    }
+  })
+
+  it.each([
+    { nested: [{ author: 'Fiktiv Personrest' }] },
+    { nested: { serialized: JSON.stringify({ creator: 'Fiktiv Personrest' }) } },
+    { pages: [{ html: '<meta name="author" content="Fiktiv Personrest">' }] },
+    { html: '<script type="application/ld+json">{"@graph":[{"@type":"Person","name":"Fiktiv Personrest"}]}</script>' },
+    { html: '<div data-settings="{&quot;author&quot;:&quot;Fiktiv Personrest&quot;}"></div>' },
+    { html: '<span itemprop="author">Fiktiv Personrest</span>' },
+    { html: '<div data-author="Fiktiv Personrest"></div>' },
+    { html: '<div class="persons"><a href="https://example.invalid/profile/synthetic">Fiktiv Personrest</a></div>' },
+    { nested: { profile: { name: 'Fiktiv Personrest' } } },
+    { staffnames: ['Testunderviser A', 'Fiktiv Personrest'] },
+    { nested: { '@type': ['Person', 'Thing'], name: 'Fiktiv Personrest' } },
+    { nested: { '@type': 'https://schema.org/Person', name: 'Fiktiv Personrest' } },
+    { author: { '@type': ['Organization', 'Person'], name: 'Fiktiv Personrest' } },
+    { html: '<meta name="DC.creator" content="Fiktiv Personrest">' },
+    { html: '<meta name="dcterms.creator" content="Fiktiv Personrest">' },
+    { html: '<span itemprop="author name">Fiktiv Personrest</span>' },
+  ])('rejects nested person metadata with category-only diagnostics %#', value => {
+    const findings = fixtureMetadataFindings(value)
+    expect(findings.length).toBeGreaterThan(0)
+    expect(JSON.stringify(findings).includes('Personrest')).toBe(false)
+  })
+
+  it('retains academic titles, organizational metadata and explicit synthetic staff', () => {
+    expect(fixtureMetadataFindings({ name: 'Fiktiv Forfatters teori', provider: { '@type': 'Organization', name: 'Testinstitusjon' }, author: null, staffnames: ['Testunderviser A'] })).toEqual([])
+    for (const type of ['Organization', 'https://schema.org/Organization', ['Organization', 'Thing']]) {
+      expect(fixtureMetadataFindings({ author: { '@type': type, name: 'Testinstitusjon' } })).toEqual([])
+    }
+    expect(calendarPersonFindings(calendar('X-TEACHER', 'Testunderviser A'))).toEqual([])
+  })
+
+  it.each([
+    '<cp:coreProperties><dc:creator>Fiktiv Personrest</dc:creator></cp:coreProperties>',
+    '<cp:lastModifiedBy>Fiktiv Personrest</cp:lastModifiedBy>',
+    '<w:comment w:author="Fiktiv Personrest">synthetic</w:comment>',
+    '<w:ins w:author="Fiktiv Personrest"><w:t>synthetic</w:t></w:ins>',
+  ])('rejects synthetic hidden document metadata without reporting its value %#', xml => {
+    const findings = xmlPersonMetadataFindings(xml)
+    expect(findings.length).toBeGreaterThan(0)
+    expect(JSON.stringify(findings).includes('Personrest')).toBe(false)
   })
 })
