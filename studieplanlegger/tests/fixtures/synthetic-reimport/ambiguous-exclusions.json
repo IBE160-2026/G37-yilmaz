@@ -1,0 +1,112 @@
+{
+  "derivation": "Invented CSV processed with the same pre-fix module hashes recorded in README; two rows omitted, one exclusion retained to model valid partial history. Alias interpretations disagree on which dated row was excluded. Never derived from user data.",
+  "csv": "title;name;courseid;coursename;university;dtstart;dtend\nRetained;Retained;SYN733;Invented ambiguity;uio;2041-03-01T10:00:00Z;2041-03-01T11:00:00Z\nOmitted A;Omitted B;SYN733;Invented ambiguity;uio;2041-03-02T10:00:00Z;2041-03-02T11:00:00Z\nOmitted B;Omitted A;SYN733;Invented ambiguity;uio;2041-03-03T10:00:00Z;2041-03-03T11:00:00Z",
+  "state": {
+    "schemaVersion": 1,
+    "tasks": [],
+    "planner": {
+      "courses": [
+        {
+          "name": "Invented ambiguity",
+          "code": "SYN733",
+          "university": "uio",
+          "semester": "spring",
+          "year": 2041,
+          "credits": null,
+          "description": "",
+          "id": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:course:c720151fd13339df#1",
+          "notes": "",
+          "importSourceId": "document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "importEntryKey": "course:c720151fd13339df#1"
+        }
+      ],
+      "events": [
+        {
+          "id": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:event:4d23d93749c3b432#1",
+          "title": "Retained",
+          "courseId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:course:c720151fd13339df#1",
+          "start": "2041-03-01T10:00:00Z",
+          "end": "2041-03-01T11:00:00Z",
+          "point": false,
+          "location": "",
+          "description": "",
+          "activityKind": "",
+          "allDay": false,
+          "cancelled": false,
+          "transparent": false,
+          "information": false,
+          "notes": "",
+          "importSourceId": "document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "importEntryKey": "event:4d23d93749c3b432#1"
+        }
+      ],
+      "sources": []
+    },
+    "importSources": [
+      {
+        "id": "document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "kind": "document",
+        "format": "csv",
+        "name": "Innlimt studieplan",
+        "contentHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revision": 1,
+        "createdAt": "2041-03-01T00:00:00.000Z",
+        "lastUpdated": "2041-03-01T00:00:00.000Z",
+        "entries": [
+          {
+            "key": "course:c720151fd13339df#1",
+            "kind": "course",
+            "targetId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:course:c720151fd13339df#1",
+            "sourceBase": {
+              "name": "Invented ambiguity",
+              "code": "SYN733",
+              "university": "uio",
+              "semester": "spring",
+              "year": 2041,
+              "credits": null,
+              "description": ""
+            },
+            "snippet": "Emnekode: SYN733\nInvented ambiguity",
+            "position": "Emne fra CSV",
+            "matchKey": "course|invented ambiguity|",
+            "titleOrigin": "source"
+          },
+          {
+            "key": "event:4d23d93749c3b432#1",
+            "kind": "event",
+            "targetId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:event:4d23d93749c3b432#1",
+            "sourceBase": {
+              "title": "Retained",
+              "courseId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:course:c720151fd13339df#1",
+              "start": "2041-03-01T10:00:00Z",
+              "end": "2041-03-01T11:00:00Z",
+              "point": false,
+              "location": "",
+              "description": "",
+              "activityKind": "",
+              "allDay": false,
+              "cancelled": false,
+              "transparent": false,
+              "information": false
+            },
+            "snippet": "title: Retained; name: Retained; courseid: SYN733; coursename: Invented ambiguity; university: uio; dtstart: 2041-03-01T10:00:00Z; dtend: 2041-03-01T11:00:00Z",
+            "position": "CSV-rad 2",
+            "matchKey": "event|retained|syn733",
+            "titleOrigin": "source"
+          }
+        ],
+        "origin": {
+          "kind": "file"
+        },
+        "excludedKeys": [
+          "event:d381cd2b8a50f653#1"
+        ],
+        "complete": true,
+        "warnings": [
+          "Disse CSV-kolonnene er bare synlige i kildeutdraget og blir ikke egne felt: name.",
+          "Kilden mangler en entydig hendelsesidentitet. Ved endringer må du kontrollere tidligere oppføringer; like titler blir ikke automatisk slått sammen."
+        ]
+      }
+    ]
+  }
+}

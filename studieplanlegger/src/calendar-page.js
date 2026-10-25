@@ -5,7 +5,7 @@ import { calendarAxis, axisSegments } from './calendar-axis.js'
 import { courseColor, formatDay, formatDeadline } from './calendar.js'
 import './calendar-page.css'
 import { createCalendarViewport } from './calendar-viewport.js'
-import { calendarExportItems, calendarExportOmissions, downloadCalendarIcs } from './calendar-export.js'
+import { calendarExportItems, calendarExportOmissions, calendarExportTime, downloadCalendarIcs } from './calendar-export.js'
 import { nameFirstLabel, sortByVisibleName } from './name-sort.js'
 import { normalizeCalendarPreferences } from './calendar-preferences.js'
 
@@ -32,28 +32,39 @@ export function createCalendarPage(actions) {
   const exportFeedback = el('span', null, 'calendar-export-feedback'); exportFeedback.setAttribute('role', 'status'); exportFeedback.setAttribute('aria-live', 'polite')
   const exportButton = button('Eksporter kalender', () => {
     const dates = calendarRange(state.date, state.view, state.weekMode)
+    exportFeedback.textContent = ''
     exportDialog.innerHTML = `<h2 id="calendar-export-heading">Eksporter kalenderkopi</h2><p>Valgt periode: <strong>${dates[0]}–${dates.at(-1)}</strong>.</p><label><input name="sessions" type="checkbox" checked>Studieøkter</label><label><input name="deadlines" type="checkbox" checked>Frister</label><label><input name="teaching" type="checkbox">Undervisning</label><label><input name="personal" type="checkbox">Egne aktiviteter</label><p class="muted">Dette er en kopi, ikke synkronisering. Import i en ekstern kalender kan lage duplikater ved gjentatt import.</p><p role="alert"></p><div class="actions"><button type="button" data-download>Last ned .ics</button><button type="button" class="secondary" data-cancel>Avbryt</button></div>`
     exportDialog.querySelector('h2').textContent = 'Eksporter kalender'
     const alert = exportDialog.querySelector('[role=alert]')
     const exportStatus = el('p'); exportStatus.dataset.exportStatus = ''; exportStatus.setAttribute('role', 'status'); alert.before(exportStatus)
-    const omissions = el('ul'); omissions.dataset.exportOmissions = ''; omissions.setAttribute('aria-label', 'Utelatte frister'); alert.before(omissions)
+    const includedHeading = el('h3', 'Blir med i kopien'), included = el('ul'); included.dataset.exportIncluded = ''; included.setAttribute('aria-label', 'Oppføringer som eksporteres'); alert.before(includedHeading, included)
+    const omissionsHeading = el('h3', 'Utelates fra kopien'), omissions = el('ul'); omissions.dataset.exportOmissions = ''; alert.before(omissionsHeading, omissions)
     exportDialog.setAttribute('aria-labelledby', 'calendar-export-heading')
     exportDialog.querySelector('[data-cancel]').onclick = () => { exportDialog.close(); exportButton.focus() }
     const exportOptions = () => ({ from: dates[0], to: dates.at(-1), includeSessions: exportDialog.querySelector('[name=sessions]').checked, includeDeadlines: exportDialog.querySelector('[name=deadlines]').checked, includeTeaching: exportDialog.querySelector('[name=teaching]').checked, includePersonal: exportDialog.querySelector('[name=personal]').checked })
+    let reviewed
+    const exportReview = () => { const options = exportOptions(); return { items: calendarExportItems(model, options), omitted: calendarExportOmissions(model, options) } }
     const updateExportStatus = () => {
-      const options = exportOptions(), count = calendarExportItems(model, options).length, omitted = calendarExportOmissions(model, options)
+      reviewed = exportReview()
+      const { items, omitted } = reviewed, count = items.length, deadlinesOnly = omitted.every(item => item.kind === 'deadline')
       const countText = count ? `${count} ${count === 1 ? 'aktivitet' : 'aktiviteter'} blir eksportert.` : 'Ingen aktiviteter finnes i valgt periode med valgte typer.'
-      const omittedText = omitted.length ? ` ${omitted.length} ${omitted.length === 1 ? 'frist er' : 'frister er'} utelatt. Se årsaken for hver frist nedenfor.` : ''
+      const noun = deadlinesOnly ? 'frist' : 'oppføring'
+      const omittedText = omitted.length ? ` ${omitted.length} ${noun}${omitted.length === 1 ? '' : 'er'} er utelatt. Se årsaken for hver ${noun} nedenfor.` : ''
       exportStatus.textContent = countText + omittedText
-      omissions.replaceChildren(...omitted.map(item => el('li', `${item.title || 'Oppgave uten tittel'} (${item.deadlineLocal}): ${item.reason}`)))
-      omissions.hidden = !omitted.length
+      const line = text => { const item = el('li', text); item.style.overflowWrap = 'anywhere'; return item }
+      included.replaceChildren(...items.map(item => line(`${item.title} (${calendarExportTime(item)})`)))
+      includedHeading.hidden = included.hidden = !items.length
+      omissions.setAttribute('aria-label', deadlinesOnly ? 'Utelatte frister' : 'Utelatte oppføringer')
+      omissions.replaceChildren(...omitted.map(item => line(`${item.title || 'Oppføring uten tittel'} (${calendarExportTime(item)}): ${item.reason}`)))
+      omissionsHeading.hidden = omissions.hidden = !omitted.length
       exportDialog.querySelector('[data-download]').disabled = count === 0
     }
     exportDialog.querySelectorAll('input[type=checkbox]').forEach(control => control.addEventListener('change', updateExportStatus))
     exportDialog.querySelector('[data-download]').onclick = () => {
       try {
+        if (JSON.stringify(exportReview()) !== JSON.stringify(reviewed)) { updateExportStatus(); alert.textContent = 'Planen er endret. Kontroller det oppdaterte utvalget før du laster ned.'; return }
         downloadCalendarIcs(model, exportOptions())
-        exportDialog.close(); exportFeedback.textContent = 'Kalenderfil lastet ned. Dette er en kopi, ikke synkronisering.'; exportButton.focus()
+        exportDialog.close(); exportFeedback.textContent = `Kalenderfil lastet ned. Dette er en kopi, ikke synkronisering. ${reviewed.items.length} eksportert, ${reviewed.omitted.length} utelatt.`; exportButton.focus()
       } catch { exportDialog.querySelector('[role=alert]').textContent = 'Kalenderfilen kunne ikke lages. Ingen data er endret.' }
     }
     updateExportStatus(); exportDialog.showModal(); exportDialog.querySelector('[name=sessions]').focus()
@@ -123,7 +134,7 @@ export function createCalendarPage(actions) {
     dialog.replaceChildren(el('p', entry.isExam ? '📝 Eksamen' : kinds[entry.kind], 'eyebrow'), el('h2', entry.title)); dialog.classList.toggle('is-exam', Boolean(entry.isExam)); dialog.classList.toggle('is-personal', entry.kind === 'personal'); dialog.querySelector('h2').id = 'calendar-details-title'; dialog.setAttribute('aria-labelledby', 'calendar-details-title')
     const course = model.planner?.courses.find(c => c.id === entry.courseId)
     const dateFormat = new Intl.DateTimeFormat('nb-NO', { dateStyle: 'full', timeStyle: 'short', timeZone: OSLO }), dateOnlyFormat = new Intl.DateTimeFormat('nb-NO', { dateStyle: 'full', timeZone: OSLO })
-    dialog.append(el('p', course ? `${course.code} ${course.name}` : entry.kind === 'personal' ? 'Uten emne' : entry.course || 'Emne ikke oppgitt'))
+    dialog.append(el('p', course ? nameFirstLabel(course) : entry.kind === 'personal' ? 'Uten emne' : entry.course || 'Emne ikke oppgitt'))
     dialog.append(el('p', entry.warning ? formatDeadline(entry.local, { year: true }) : entry.point && entry.allDay ? dateOnlyFormat.format(new Date(entry.start)) : entry.point ? dateFormat.format(new Date(entry.start)) : `${dateFormat.format(new Date(entry.start))} - ${dateFormat.format(new Date(entry.end))}`), el('p', `${timeLabel(entry)} · Europe/Oslo`), el('p', entry.location || 'Sted ikke oppgitt'))
     if (!entry.point && !entry.warning) dialog.append(el('p', `Faktisk varighet: ${(entry.end - entry.start) / 60000} minutter.`))
     for (const text of [entry.warning, entry.cancelled ? 'Avlyst i kilden' : '', entry.description, entry.notes, entry.conflict?.message]) if (text) dialog.append(el('p', text))
@@ -136,7 +147,7 @@ export function createCalendarPage(actions) {
     const control = button('', () => showDetails(entry, control), `calendar-entry entry-${entry.kind}${entry.cancelled ? ' is-cancelled' : ''}${entry.point ? ' is-point' : ''}${entry.isExam ? ' is-exam' : ''}${unassigned ? ' is-unassigned' : ''}`)
     control.dataset.calendarKey = entry.key
     control.dataset.calendarFocusKey = entry.key
-    const course = model.planner?.courses.find(c => c.id === entry.courseId), code = course?.code || entry.courseCode || '', context = [code || course?.name || entry.course, entry.location].filter(Boolean).join(' · ')
+    const course = model.planner?.courses.find(c => c.id === entry.courseId), code = course?.code || entry.courseCode || '', context = [course ? nameFirstLabel(course) : code || entry.course, entry.location].filter(Boolean).join(' · ')
     if (code) control.style.setProperty('--course-color', courseColor(code))
     const when = date ? `${formatDay(date, { year: true })} · ${timeLabel(entry)}` : timeLabel(entry)
     const kindLabel = `${entry.isExam ? '📝 Eksamen' : kinds[entry.kind]}${context ? ` · ${context}` : ''}`

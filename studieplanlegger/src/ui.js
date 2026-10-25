@@ -198,10 +198,12 @@ export function createUI(actions) {
     for (const button of document.querySelectorAll('[data-minutes]')) button.setAttribute('aria-pressed',
       String(Number(button.dataset.minutes) === Number(minuteInput.value) && Number(minuteInput.value) === latestModel?.minutes))
   })
+  let originalPriority, priorityChanged = false
+  form.elements.priority.addEventListener('change', () => { priorityChanged = true })
   form.addEventListener('submit', event => {
     event.preventDefault()
     syncDeadline()
-    actions.save({ ...Object.fromEntries(fields.map(name => [name, form.elements[name].value])), ...taskForm.draft(), requiresSubmission: form.elements.requiresSubmission.checked })
+    actions.save({ ...Object.fromEntries(fields.map(name => [name, form.elements[name].value])), ...taskForm.draft(), priority: !priorityChanged && originalPriority === 2 ? '2' : form.elements.priority.value, requiresSubmission: form.elements.requiresSubmission.checked })
   })
   stepForm.addEventListener('submit', event => {
     event.preventDefault()
@@ -266,6 +268,8 @@ export function createUI(actions) {
       errors()
       $('#form-heading').textContent = task?.id ? 'Rediger oppgave' : 'Ny oppgave'
       for (const name of fields) form.elements[name].value = task?.[name] == null ? '' : String(task[name])
+      originalPriority = task?.priority; priorityChanged = false
+      if (originalPriority === 2) form.elements.priority.value = ''
       taskForm.open(task)
       $('#deadlineDate').value = task?.deadlineLocal?.slice(0, 10) || ''
       $('#deadlineTime').value = task?.deadlineLocal?.slice(11) || ''

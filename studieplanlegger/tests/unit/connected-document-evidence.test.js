@@ -99,7 +99,7 @@ describe('R8 correctable document fields and retained source evidence', () => {
   })
 
   it('keeps calendar omissions visibly incomplete after commit', () => {
-    const text = calendar('Valid').replace('END:VCALENDAR', 'BEGIN:VEVENT\r\nUID:bad\r\nSUMMARY:Missing end\r\nDTSTART:20260920T100000Z\r\nEND:VEVENT\r\nEND:VCALENDAR')
+    const text = calendar('Valid').replace('END:VCALENDAR', 'BEGIN:VEVENT\r\nUID:bad\r\nSUMMARY:Explicit invalid end\r\nDTSTART:20260920T100000Z\r\nDTEND:20260920T100000Z\r\nEND:VEVENT\r\nEND:VCALENDAR')
     const parsed = { ...parseDocumentIcs(text, { semester: 'autumn', year: 2026 }), contentHash: 'd'.repeat(64) }
     expect(parsed.complete).toBe(false)
     const result = commit(empty(), preview(empty(), parsed))

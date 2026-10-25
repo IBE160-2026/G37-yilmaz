@@ -99,7 +99,7 @@ test('start, øktutfall, arbeidskrav og realistisk forslag er eksplisitte', asyn
   expect(saved.tasks.find(task => task.id === 'presentation').completed).toBe(false)
 
   await page.getByRole('button', { name: 'Legg inn arbeidskrav' }).click()
-  await expect(page.getByRole('heading', { name: 'Legg inn arbeidskrav' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Importer fil eller tekst' })).toBeVisible()
   await expect(page.getByText(/lokalt i nettleseren/)).toBeVisible()
   await expect(page.getByLabel('Velg fil')).toHaveAttribute('accept', /pdf/)
   await expect(page.getByLabel('Eller lim inn tekst')).toBeVisible()

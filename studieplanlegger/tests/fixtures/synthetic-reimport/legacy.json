@@ -1,0 +1,135 @@
+{
+  "derivation": "Invented three-event CSV processed by preserved pre-repair modules on 2026-10-21; third excluded and second deleted. Never derived from user data.",
+  "csv": "title;summary;name;courseid;coursename;university;dtstart;dtend\nSeminar;Seminar;Alternative;SYN731;Invented course;uio;2041-03-01T10:00:00+01:00;2041-03-01T11:00:00+01:00\nSeminar;Seminar;Alternative;SYN731;Invented course;uio;2041-03-02T10:00:00+01:00;2041-03-02T11:00:00+01:00\nSeminar;Seminar;Alternative;SYN731;Invented course;uio;2041-03-03T10:00:00+01:00;2041-03-03T11:00:00+01:00",
+  "state": {
+    "schemaVersion": 1,
+    "tasks": [],
+    "planner": {
+      "courses": [
+        {
+          "name": "Invented course",
+          "code": "SYN731",
+          "university": "uio",
+          "semester": "spring",
+          "year": 2041,
+          "credits": null,
+          "description": "",
+          "id": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:course:95028ec8263bda55#1",
+          "notes": "",
+          "importSourceId": "document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "importEntryKey": "course:95028ec8263bda55#1"
+        }
+      ],
+      "events": [
+        {
+          "id": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:event:9d0475e4a7b4b5df#1",
+          "title": "Seminar",
+          "courseId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:course:95028ec8263bda55#1",
+          "start": "2041-03-01T09:00:00Z",
+          "end": "2041-03-01T10:00:00Z",
+          "point": false,
+          "location": "",
+          "description": "",
+          "activityKind": "",
+          "allDay": false,
+          "cancelled": false,
+          "transparent": false,
+          "information": false,
+          "notes": "",
+          "importSourceId": "document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "importEntryKey": "event:9d0475e4a7b4b5df#1"
+        }
+      ],
+      "sources": []
+    },
+    "importSources": [
+      {
+        "id": "document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "kind": "document",
+        "format": "csv",
+        "name": "Innlimt studieplan",
+        "contentHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revision": 1,
+        "createdAt": "2041-03-01T00:00:00.000Z",
+        "lastUpdated": "2041-03-01T00:00:00.000Z",
+        "entries": [
+          {
+            "key": "course:95028ec8263bda55#1",
+            "kind": "course",
+            "targetId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:course:95028ec8263bda55#1",
+            "sourceBase": {
+              "name": "Invented course",
+              "code": "SYN731",
+              "university": "uio",
+              "semester": "spring",
+              "year": 2041,
+              "credits": null,
+              "description": ""
+            },
+            "snippet": "Emnekode: SYN731\nInvented course",
+            "position": "Emne fra CSV",
+            "matchKey": "course|invented course|",
+            "titleOrigin": "source"
+          },
+          {
+            "key": "event:9d0475e4a7b4b5df#1",
+            "kind": "event",
+            "targetId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:event:9d0475e4a7b4b5df#1",
+            "sourceBase": {
+              "title": "Seminar",
+              "courseId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:course:95028ec8263bda55#1",
+              "start": "2041-03-01T09:00:00Z",
+              "end": "2041-03-01T10:00:00Z",
+              "point": false,
+              "location": "",
+              "description": "",
+              "activityKind": "",
+              "allDay": false,
+              "cancelled": false,
+              "transparent": false,
+              "information": false
+            },
+            "snippet": "title: Seminar; summary: Seminar; name: Alternative; courseid: SYN731; coursename: Invented course; university: uio; dtstart: 2041-03-01T10:00:00+01:00; dtend: 2041-03-01T11:00:00+01:00",
+            "position": "CSV-rad 2",
+            "matchKey": "event|seminar|syn731",
+            "titleOrigin": "source"
+          },
+          {
+            "key": "event:9d0475e4a7b4b5df#2",
+            "kind": "event",
+            "targetId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:event:9d0475e4a7b4b5df#2",
+            "sourceBase": {
+              "title": "Seminar",
+              "courseId": "document:document:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:course:95028ec8263bda55#1",
+              "start": "2041-03-02T09:00:00Z",
+              "end": "2041-03-02T10:00:00Z",
+              "point": false,
+              "location": "",
+              "description": "",
+              "activityKind": "",
+              "allDay": false,
+              "cancelled": false,
+              "transparent": false,
+              "information": false
+            },
+            "snippet": "title: Seminar; summary: Seminar; name: Alternative; courseid: SYN731; coursename: Invented course; university: uio; dtstart: 2041-03-02T10:00:00+01:00; dtend: 2041-03-02T11:00:00+01:00",
+            "position": "CSV-rad 3",
+            "matchKey": "event|seminar|syn731",
+            "titleOrigin": "source"
+          }
+        ],
+        "origin": {
+          "kind": "file"
+        },
+        "excludedKeys": [
+          "event:9d0475e4a7b4b5df#3"
+        ],
+        "complete": true,
+        "warnings": [
+          "Disse CSV-kolonnene er bare synlige i kildeutdraget og blir ikke egne felt: summary, name.",
+          "Kilden mangler en entydig hendelsesidentitet. Ved endringer må du kontrollere tidligere oppføringer; like titler blir ikke automatisk slått sammen."
+        ]
+      }
+    ]
+  }
+}

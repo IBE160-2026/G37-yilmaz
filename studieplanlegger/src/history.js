@@ -8,7 +8,10 @@ import { validConnectedPreferences } from './planning-rules.js'
 import { validateDependencyGraph } from './task-dependencies.js'
 import { validTopics, validAssessments, validReviewDecisions } from './review-planning.js'
 const clone = value => value === undefined ? undefined : structuredClone(value)
-const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+// SQLite reconstructs nested source records with a different object-key order.
+// Compare JSON values, preserving array order and every actual field value.
+const orderedJson = value => JSON.stringify(value, (_key, item) => item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b))) : item)
+const equal = (a, b) => orderedJson(a) === orderedJson(b)
 const sourceBookkeeping = new Set(['lastAttempt', 'lastSuccess', 'lastUpdated', 'lastError', 'failures'])
 const semantic = (value, path) => path === 'planner.sources' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => !sourceBookkeeping.has(key))) : path === 'planner.courses' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'teachingCheck')) : value
 const scalarPaths = ['planningPreferences', 'studyTimePreference', 'personalization', 'onboarding']

@@ -26,6 +26,8 @@ Only public programme information is included. These excerpts test source contra
 
 ## Privacy-minimized derivatives
 
+Publication follow-up, 2026-10-25: one remaining employee-profile paragraph was removed from `uis-data-program.html`. The remaining content and parser structure are retained, including published programme/edition links and the lazy study-plan endpoint. The existing `uis-programs.test.js` parser contract and the profile-link guard in `fixture-privacy.test.js` cover this bounded derivative; actual execution is recorded in [VERIFICATION](../../../VERIFICATION.md).
+
 The HTML and calendar fixtures are parser-focused derivatives, not unchanged raw captures. Personal contact cards, employee profile links, portraits, responsibility fields and analytics author values that are irrelevant to programme parsing have been removed. The FIH calendar URLs retain their public query structure, option counts and source identifiers, but use one unmistakably synthetic 16-hex sharing value. Instructor fields in the two saved TimeEdit calendars use stable synthetic labels. Programme and course codes, credits, periods, choices, event identities, dates, times, rooms, groups and source references remain intact.
 
 The root-level `ansgar-timetable-*.json` PDF-text fixtures retain every item coordinate and table cell while synthesizing instructor-responsibility rows, lecturer legends and matching timetable labels. `../nhfh-programs.json` retains the five captured programme documents and their academic content while omitting parser-irrelevant contact paragraphs.

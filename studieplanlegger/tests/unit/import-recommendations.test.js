@@ -103,7 +103,11 @@ describe('calendar parsing and updates', () => {
   })
   it('rejects invalid and unknown-zone data and bounds infinite recurrences', () => {
     expect(() => parseCalendar('<html>Login</html>', selection)).toThrow('fullstendig')
-    expect(() => parseCalendar(calendar(event().replaceAll('Europe/Oslo', 'Unknown/Nowhere')), selection)).toThrow('Ukjent tidssone')
+    const unknownZone = parseCalendar(calendar(event().replaceAll('Europe/Oslo', 'Unknown/Nowhere')), selection)
+    expect(unknownZone.events).toEqual([])
+    expect(unknownZone.accounting).toMatchObject({ total: 1, retained: 0, rejected: 1, cancelled: 0 })
+    expect(unknownZone.authoritative).toBe(false)
+    expect(unknownZone.warnings.join(' ')).toContain('Ukjent tidssone «Unknown/Nowhere»')
     expect(() => parseCalendar(calendar(event('RRULE:FREQ=SECONDLY')), selection)).toThrow(/omfattende|5000/)
   })
   it('retains short bounded second-level recurrences and sparse intervals', () => {

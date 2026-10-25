@@ -131,7 +131,7 @@ test('programme import persists across reload, remains repeat-safe and is undoab
   })
   const importProgramme = async () => {
     await navigate(page, 'subjects')
-    const importButton=page.getByRole('button', { name: 'Importer emner og plan', exact: true })
+    const importButton=page.getByRole('button', { name: 'Finn studieprogram', exact: true })
     if(await importButton.getAttribute('aria-expanded')!=='true')await importButton.click()
     await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
     const host = page.locator('.program-import')

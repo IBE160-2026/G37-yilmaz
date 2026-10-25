@@ -125,9 +125,31 @@ describe('public TP semester, course and source-offered calendar export',()=>{
     expect(parsed.events).toHaveLength(2)
     expect(parsed.cancellations).toHaveLength(1)
     expect(parsed.events.map(event=>event.start)).toEqual(['2026-08-20T10:15:00.000Z','2026-10-29T13:15:00.000Z'])
-    expect(parsed.events[0]).toMatchObject({title:'Forelesning',location:'Auditorium B-138',groupMissing:true})
+    expect(parsed.events[0]).toMatchObject({title:'Forelesning',location:'Auditorium B-138',publishedGroups:['LOG-ÅR-IT [1.sem] CAMPUS','LOG-ÅR-IT [1.sem] NETT']})
+    expect(parsed.events[0].groupMissing).toBeUndefined()
     expect(parsed.events[0].description).not.toContain('LOG-ÅR-IT')
     expect(uids(result.calendar).every(uid=>uid.startsWith('tp-json-'))).toBe(true)
+  })
+  describe.each(['teaching', 'assessment'])('published group contract for %s JSON rows', kind => {
+    const semester = { id: '39h' }, selected = { id: 'SYN843¤1', code: 'SYN843', name: 'Oppdiktet gruppefag', term: 1 }
+    const base = { semesterid: '39h', courseid: 'SYN843', terminnr: 1, id: 'synthetic-row', summaryNb: 'Oppdiktet aktivitet', dtstart: '2039-10-20T10:00:00+02', dtend: '2039-10-20T11:00:00+02', ...(kind === 'assessment' ? { status: null, eventid: null, active: true, publish: true, assessmentCode: 'SYN843' } : { status: 'active', eventid: 'synthetic-occurrence' }) }
+    const normalize = studentgroups => normalizeTpJsonEvents({ events: [{ ...base, studentgroups }] }, { institution: 'himolde', semester, selected })
+    it.each([
+      ['string', 'Publisert gruppe'], ['object', { group: 'Publisert gruppe' }], ['number', 0], ['boolean', false], ['empty scalar', ''],
+      ['non-string member', [42]], ['null member', [null]], ['empty identity', ['  ']], ['overlong identity', ['g'.repeat(301)]],
+      ['control character', ['Gruppe\nA']], ['too many identities', Array.from({ length: 101 }, (_, index) => `Gruppe ${index}`)],
+    ])('rejects %s without inventing or truncating group identities', (_label, groups) => {
+      expect(() => normalize(groups)).toThrow(expect.objectContaining({ status: 'invalid-response' }))
+    })
+    it('keeps full bounded identities and accepts absent or empty group metadata', () => {
+      for (const groups of [undefined, null, []]) expect(components(normalize(groups).calendar)[0].getAllProperties('x-group')).toEqual([])
+      const full = 'Oppdiktet blå gruppe '.padEnd(300, 'x')
+      const groups = [full, ...Array.from({ length: 99 }, (_, index) => `Oppdiktet gruppe ${index}`)]
+      expect(full).toHaveLength(300)
+      const values = text => components(text)[0].getAllProperties('x-group').map(property => property.getFirstValue())
+      expect(values(normalize(groups).calendar)).toEqual(groups)
+      expect(values(normalize([' Oppdiktet gruppe ', 'Oppdiktet gruppe']).calendar)).toEqual(['Oppdiktet gruppe'])
+    })
   })
   it('follows the official HiMolde page and anonymous session bootstrap before the bounded event request',async()=>{
     const requests=[],jars=[]
@@ -171,16 +193,17 @@ describe('public TP semester, course and source-offered calendar export',()=>{
     expect(empty).toMatchObject({eventCount:0,cancelledCount:0})
     expect(parseCalendar(empty.calendar,{courseId:'c',semester:'autumn',year:2026}).events).toEqual([])
   })
-  it('keeps timed public assessments and skips zero-length assessment markers without fabricating duration',async()=>{
+  it('keeps timed public assessments and zero-length points without fabricating duration',async()=>{
     const semester=await sample('himolde'),selected=parseTpCourses(await json('himolde-courses.json'),semester,'himolde').find(row=>row.id==='IBE160¤1'),base={semesterid:'26h',courseid:'IBE160',terminnr:1,status:null,eventid:null,active:true,publish:true,assessmentCode:'S',id:'IBE160-1-S-2026-HØST-O',teachingTitle:'Skoleeksamen',examformNb:'Skoleeksamen',room:{},studentgroups:null,action:''}
     const result=normalizeTpJsonEvents({events:[{...base,dtstart:'2026-11-16T09:00:00+01',dtend:'2026-11-16T12:00:00+01'},{...base,id:'IBE160-MARKER',dtstart:'2026-11-17T09:00:00+01',dtend:'2026-11-17T09:00:00+01'}]},{institution:'himolde',semester,selected}),parsed=parseCalendar(result.calendar,{courseId:'c',semester:'autumn',year:2026})
-    expect(result.eventCount).toBe(1)
-    expect(parsed.events).toHaveLength(1)
+    expect(result.eventCount).toBe(2)
+    expect(parsed.events).toHaveLength(2)
+    expect(parsed.events[1]).toMatchObject({point:true,transparent:true,start:'2026-11-17T08:00:00.000Z',end:'2026-11-17T08:00:00.000Z'})
     expect(parsed.events[0]).toMatchObject({title:'Skoleeksamen',start:'2026-11-16T08:00:00.000Z',end:'2026-11-16T11:00:00.000Z',activityKind:'exam'})
     const source={id:'tp-source',courseId:'c',name:'TP',groups:[]},course={id:'c',code:'IBE160',name:'IBE160',semester:'autumn',year:2026}
     const first=mergeImport(emptyPlanner(),parsed.events,source,{course}).planner,stored=first.events[0]
     const refreshed=mergeImport(first,[{...parsed.events[0],location:'Oppdatert rom'}],source).planner
-    expect(refreshed.events).toHaveLength(1)
+    expect(refreshed.events).toHaveLength(2)
     expect(refreshed.events[0]).toMatchObject({id:stored.id,sourceKey:stored.sourceKey,activityKind:'exam',location:'Oppdatert rom'})
     expect(result.warnings.join(' ')).toContain('null-lange vurderingsmarkører')
     const marker={...base,id:'WRONG-MARKER',courseid:'OTHER',dtstart:'2026-11-17T09:00:00+01',dtend:'2026-11-17T09:00:00+01'}

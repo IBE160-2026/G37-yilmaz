@@ -2,7 +2,7 @@
 title: "Product Brief: Studieplan"
 status: bounded-delivery-documented
 created: 2026-09-06
-updated: 2026-10-16
+updated: 2026-10-25
 ---
 
 # Product brief: Studieplan
@@ -19,13 +19,13 @@ Kalenderapper viser avtaler og frister, Canvas samler fagets informasjon og innl
 
 ## Hovedflyt og låst v1
 
-Registrer oppgave manuelt eller bekreft importforslag → velg gjennomførbart steg/økt → registrer utfall → kontroller og godkjenn justeringer. Bare oppgavetittel er obligatorisk. Ukjent tid og manglende frist skal fortsatt være ukjent. Fullført steg, fullført oppgave og manuelt bekreftet innlevering er tre forskjellige tilstander. Logget tid er verken automatisk gjenstående arbeid eller dokumentasjon på mestring.
+**Oppgave → arbeidssteg → godkjent studieøkt → utfall → justering.** Registrer oppgaven manuelt eller bekreft et importforslag, velg et gjennomførbart neste steg, og kontroller økten før den lagres. Etter arbeid registrerer studenten utfallet og godkjenner eventuelle planendringer. Bare oppgavetittel er obligatorisk; et eget arbeidssteg er valgfritt. Ukjent tid og manglende frist skal fortsatt være ukjent. Fullført steg, fullført oppgave og manuelt bekreftet innlevering er tre forskjellige tilstander. Logget tid er verken automatisk gjenstående arbeid eller dokumentasjon på mestring.
 
-Kjernen omfatter emner og oppgaver, undervisning og tilgjengelig tid, forklarte handlingsforslag, arbeidsutfall, godkjent omplanlegging med angre, samt varig lokal lagring og dokumentert Docker-oppstart. Manuell registrering gjør kjernen brukbar uten eksterne kilder.
+Kjernen omfatter emner og oppgaver, undervisning og tilgjengelig tid, forklarte handlingsforslag, arbeidsutfall, godkjent omplanlegging med angre, samt varig lokal lagring og dokumentert Docker-oppstart. Forslagene bygger på lokale regler og registrerte opplysninger. Import gir støttedata til denne flyten; manuell registrering gjør kjernen brukbar uten eksterne kilder.
 
 **Avgrensede importprøver i v1 — «HiMolde IT 2026–27 og NTNU emneutvalg høst 2026»:** HiMolde IT 2026–27 med IBE110 og IBE430 samt kildevalget **IBE160 eller IBE102 + IBE152**. Undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026. NTNU omfatter emnemetadata og emnelenket undervisning for ARK1001 og EXPH0100 høsten 2026; dette lover ikke komplett NTNU-program. Det loves ikke full eksamensdekning eller personlig gruppetilhørighet. [Importdekning](studieplanlegger/IMPORT-COVERAGE.md) skiller lokale kontrakttester, historisk kildetransport og UI-prøver. Gjentakelse av hele HiMolde-programflyten er ikke verifisert; direkte emnegjentakelser er dokumentert historisk.
 
-**Allerede implementerte tillegg:** ordnede arbeidssteg, frivillig egenvurdering og repetisjonsforslag, kalenderkopi og sammenligning av planalternativer. Disse bevares og beskrives i PRD, men utvider ikke kildekravet. Ingen nye adaptere eller funksjoner inngår i denne dokumentasjonsleveransen.
+**Allerede implementerte tillegg:** ordnede arbeidssteg, frivillig egenvurdering og repetisjonsforslag, kalenderkopi og sammenligning av planalternativer. Disse bevares og beskrives i PRD, men utvider ikke kildekravet. Samordningen 2026-10-25 dokumenterer de integrerte import- og kalenderrettingene fra 18.–24. oktober innen samme v1. Daterte kjøreresultater står i [verifikasjonen](studieplanlegger/VERIFICATION.md); eldre resultater blir ikke nye tester ved publisering.
 
 ## Sjekkbare suksesskriterier
 

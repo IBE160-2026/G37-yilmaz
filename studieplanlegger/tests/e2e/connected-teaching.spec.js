@@ -25,7 +25,7 @@ test('public teaching requires an explicit source object and groups, then saves 
   })
   async function previewProgram() {
     await navigate(page, 'subjects')
-    await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
+    await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
     await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
     const host = page.locator('.program-import')
     await host.locator('[name=institution]').selectOption('usn')
@@ -97,7 +97,7 @@ test('one programme preparation fetches an exact teaching object and commits onc
   await instrumentWrites(page)
   await page.reload()
   await navigate(page, 'subjects')
-  await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
   await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption('himolde')
@@ -110,7 +110,7 @@ test('one programme preparation fetches an exact teaching object and commits onc
   await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
   await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
 
-  await expect(host.getByText('Undervisning: Undervisning klar for import', { exact: true })).toBeVisible()
+  await expect(host.getByText('Undervisning klar for import', { exact: true })).toBeVisible()
   await expect(host.getByLabel('Timeplanobjekt for IBE160', { exact: true })).toHaveValue('0')
   expect(calendarCalls).toBe(1)
   expect(await page.evaluate(() => window.writeAttempts)).toEqual([])

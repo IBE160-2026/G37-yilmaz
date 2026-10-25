@@ -15,7 +15,7 @@ const plan = {
 
 async function importSemester(page, studySemester, year, semester) {
   await navigate(page, 'subjects')
-  await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
   await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption('skrivekunst')
@@ -64,7 +64,7 @@ test('Skrivekunst rejects a calendar period outside the published study-year map
   })
   await page.goto('/')
   await navigate(page, 'subjects')
-  await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
   await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption('skrivekunst')

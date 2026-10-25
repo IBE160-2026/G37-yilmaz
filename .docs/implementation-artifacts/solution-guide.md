@@ -4,12 +4,12 @@
 
 [Brief, PRD og stories](../planning-artifacts/README.md) er rekonstruert denne datoen for å gjøre dagens kode etterprøvbar. Importløftet er avgrenset til de navngitte HiMolde-/NTNU-prøvene i briefen; nasjonal dekning er framtidsvisjon. Historiske kontroller nedenfor er ikke nye kjøringer eller studentresultater.
 
-Et enkelt **syntetisk** eksempel: Opprett emnet «Eksempelfag» og oppgaven «Les eksempelkapittel». Legg til et ledig arbeidsvindu og en opptatt periode. Kontroller en foreslått halvtimesøkt før godkjenning. Etter økten registreres 30 faktiske minutter og for eksempel 45 minutter gjenstående hver for seg. Hvis planen må endres, kontrolleres og godkjennes et forslag som kan angres. Et ferdig steg fullfører ikke hele oppgaven, og ferdig arbeid bekrefter ikke innlevering. Eksemplet beskriver hovedflyten, ikke en ny utført prøve eller en students erfaring.
+Et enkelt **syntetisk** eksempel: Opprett emnet «Eksempelfag» og oppgaven «Les eksempelkapittel». Bare tittelen er nødvendig; legg eventuelt til steget «Les første avsnitt». Legg til et ledig arbeidsvindu og en opptatt periode. Kontroller en foreslått halvtimesøkt før godkjenning. Etter økten registreres 30 faktiske minutter og for eksempel 45 minutter gjenstående hver for seg. Hvis planen må endres, kontrolleres og godkjennes et forslag som kan angres. Et ferdig steg fullfører ikke hele oppgaven, og ferdig arbeid bekrefter ikke innlevering. Eksemplet beskriver **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering**, ikke en ny utført prøve eller en students erfaring.
 
 ```mermaid
 flowchart LR
-  A[Registrer eller bekreft import] --> B[Kontroller steg og økt]
-  B --> C[Godkjenn planen]
+  A[Registrer oppgave] --> B[Velg neste arbeidssteg]
+  B --> C[Godkjenn studieøkt]
   C --> D[Registrer faktisk utfall]
   D --> E[Kontroller justering]
   E --> C
@@ -18,6 +18,8 @@ flowchart LR
 Tekniske beslutninger og sammenhengen med krav står i [arkitekturen](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). [Studentprøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) er framtidig. Denne dokumentasjonsrunden bruker Codex/BMAD. Sensorveiledningen for del 1 er kontrollert i sin helhet 2026-10-16; lærerens Claude Code-formulering er fortsatt et avklaringspunkt, se utviklingsprosessen.
 
 Studieplan er en lokal studieplanlegger skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet, som er dokumentert i [utviklingsprosessen](development-process.md). Dokumentet er ikke studentens personlige refleksjonsrapport.
+
+**Samordning 2026-10-25:** Import- og kalenderrettingene fra 18.–24. oktober støtter den samme hovedflyten. [Importavtalen](../../studieplanlegger/IMPORT.md) beskriver felles forhåndsvisning, avklaring av emner/tid, gjentatt import og kildegrenser. [Publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) skiller nye kandidatkontroller fra historiske resultater. Manifestene fra 24. oktober omfatter kilde-/byggfiler, ikke testfiler, fixturer eller konfigurasjon. Sensorveiledning og godkjent proposal var ikke tilgjengelige i de avtalte dokumentmappene denne runden; eldre lesepåstander gjelder sine oppgitte datoer.
 
 ## To lokale kjøremåter
 

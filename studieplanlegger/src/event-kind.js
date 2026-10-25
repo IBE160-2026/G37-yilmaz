@@ -12,6 +12,8 @@ export function isExamEvent(event = {}) {
   if (event.activityKind === 'personal') return false
   const structured = normalizeActivityKind(event.activityKind)
   if (structured) return structured === 'exam'
+  // Document imports retain their structured source type through timing edits.
+  if (event.importSourceId || event.sourceRow?.kind === 'event' || event.point && event.pointProvenance === 'user') return false
   const title = String(event.title || '').trim()
   return Boolean(title && examTitle.test(` ${title} `) && !negativeExamTitle.test(title))
 }

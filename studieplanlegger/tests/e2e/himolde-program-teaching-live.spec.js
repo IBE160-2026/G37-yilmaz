@@ -31,7 +31,7 @@ test('live HiMolde IT 2026 programme hands IBE110, IBE430 and IBE160 to teaching
   await page.evaluate(storageKey => localStorage.setItem(storageKey, JSON.stringify({ schemaVersion: 1, tasks: [], planner: { courses: [], events: [], sources: [] } })), key)
   await page.reload()
   await navigate(page, 'subjects')
-  await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
   await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption('himolde')
@@ -70,7 +70,7 @@ test('live HiMolde IT 2026 programme hands IBE110, IBE430 and IBE160 to teaching
     await card.locator('summary').filter({ hasText: new RegExp(`(Undervisningsgrupper|Aktivitetsutvalg) for ${code}`) }).click()
     const groups = card.getByRole('group', { name: new RegExp(`(Undervisningsgrupper|Aktivitetsutvalg) for ${code}`) })
     await expect(groups.getByRole('checkbox').first()).toBeVisible({ timeout: 60_000 })
-    await card.getByRole('button', { name: 'Velg ingen aktiviteter', exact: true }).click()
+    await card.getByRole('button', { name: 'Velg ingen aktiviteter', exact: true, includeHidden: true }).click()
     await groups.getByRole('checkbox').first().check()
   }
 

@@ -17,7 +17,7 @@ async function seedState(page, state, view) {
 }
 async function openProgram(page) {
   await navigate(page, 'subjects')
-  await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
   await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
   return page.locator('.program-import')
 }

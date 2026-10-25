@@ -1,0 +1,3 @@
+# This historical CSV backup identifies its source by the original LF bytes.
+# Keep that exact fixture portable when core.autocrlf is enabled.
+/studieplanlegger/tests/fixtures/synthetic-calendar-closure/legacy-csv-term.csv text eol=lf

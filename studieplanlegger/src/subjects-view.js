@@ -1,4 +1,4 @@
-import { emptyPlanner, validateCourse, validateEvent, validatePersonalActivity, mergeImport, mergeCourseOnly, resolveImportedCourse, osloLocal, osloYear, semesterLabel, teachingOverlap, matchesCourse, sourceHref } from './planner.js'
+import { emptyPlanner, validateCourse, validateEvent, validatePersonalActivity, mergeImport, mergeCourseOnly, resolveImportedCourse, osloLocal, osloLocalExact, osloYear, semesterLabel, teachingOverlap, matchesCourse, sourceHref } from './planner.js'
 import { courseColor, formatDeadline } from './calendar.js'
 import { parseCalendar } from './calendar-import.js'
 import { createImportWizard } from './import-wizard.js'
@@ -13,11 +13,15 @@ import { mountPublicTeaching } from './public-teaching-view.js'
 import { checkedTeaching, teachingCheckText, failedCalendarRefresh } from './teaching-check.js'
 import { eventPresentation } from './event-kind.js'
 import { deadlineInstant } from './tasks.js'
+import { IMPORT_FIELDS } from './import-source-contract.js'
+import { calendarInstantLabel } from './calendar-model.js'
 
 const el = (tag, text, className) => { const node = document.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node }
 const sourceLink = (url, label) => { const href = sourceHref(url); if (!href) return el('span', `${label}: ${url}`); const node = el('a', label); node.href = href; node.target = '_blank'; node.rel = 'noreferrer'; return node }
 const button = (text, action) => { const node = el('button', text); node.type = 'button'; node.addEventListener('click', action); return node }
 const option = (value, label) => { const node = el('option', label); node.value = value; return node }
+const exactStamp = value => calendarInstantLabel(value, { includeDate: true })
+const eventStamp = event => event.point ? `${exactStamp(event.start)} · Tidspunkt, reserverer ikke tid` : `${exactStamp(event.start)}–${exactStamp(event.end)}`
 const stamp = value => formatDeadline(osloLocal(value), { year: true })
 export function subjectEventAgendaEntries(planner, now = new Date(), course) {
   const today = osloLocal(now.toISOString()).slice(0, 10)
@@ -26,7 +30,7 @@ export function subjectEventAgendaEntries(planner, now = new Date(), course) {
     return event.activityKind === 'personal' ? event.end ? Date.parse(event.end) >= +now : event.dateLocal >= today : Date.parse(event.end) >= +now
   }).map(event => {
     const subject = planner.courses.find(item => item.id === event.courseId), code = subject?.code || subject?.name || '', personal = event.activityKind === 'personal', presentation = eventPresentation(event)
-    const time = event.start || `${event.dateLocal}T00:00`, detail = personal ? `${event.dateLocal}${event.start ? ` · ${osloLocal(event.start).slice(11)}${event.end ? `–${osloLocal(event.end).slice(11)}` : ' · Varighet ikke oppgitt'}` : ' · Tid ikke oppgitt'} · ${event.location || 'Sted mangler'}` : `${stamp(event.start)}–${stamp(event.end)} · ${event.location || 'Sted mangler'}`
+    const time = event.start || `${event.dateLocal}T00:00`, detail = event.point ? `${eventStamp(event)} · ${event.location || 'Sted mangler'}` : personal ? `${event.dateLocal}${event.start ? ` · ${osloLocal(event.start).slice(11)}${event.end ? `–${osloLocal(event.end).slice(11)}` : ' · Varighet ikke oppgitt'}` : ' · Tid ikke oppgitt'} · ${event.location || 'Sted mangler'}` : `${eventStamp(event)} · ${event.location || 'Sted mangler'}`
     return { time, title: `${personal ? 'E · Egen aktivitet' : `${presentation.symbol} · ${presentation.label}`} · ${code ? `${code} · ` : ''}${event.title}`, detail, event, kind: personal ? 'personal' : 'teaching', course: code, isExam: presentation.isExam }
   }).sort((a, b) => a.time.localeCompare(b.time) || a.title.localeCompare(b.title, 'nb'))
 }
@@ -70,7 +74,7 @@ export async function api(path, options) {
     clearTimeout(timeoutId)
   }
 }
-const calendarRequest = url => api('/api/import/calendar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) })
+const calendarRequest = (url, signal) => api('/api/import/calendar', { signal, method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) })
 const calendarFetch = url => calendarRequest(url).then(data => data.calendar)
 
 export function createSubjectsView(actions) {
@@ -102,9 +106,8 @@ export function createSubjectsView(actions) {
       </form>
       <p class="muted">NTNU: offentlig emneside og tilgjengelig TP-kalender. Personlige timeplaner kan kreve Feide. Velg riktige aktiviteter i TP før eksport. <a href="https://i.ntnu.no/timeplan" target="_blank" rel="noreferrer">NTNUs veiledning</a></p>
       <form id="calendar-import-form" class="subject-fields">
-        <label>Emne for kalenderen<select name="courseId" required></select></label>
-        <label>Kalenderfil (.ics, engangsimport)<input name="file" type="file" accept=".ics,text/calendar"></label>
-        <button type="button" id="ics-preview">Forhåndsvis fil</button>
+        <div><label for="calendar-link-import-mode">Bruk kalenderlenken som</label><select id="calendar-link-import-mode" name="importMode"><option value="snapshot">Øyeblikksbilde – avklar emner i forhåndsvisningen</option><option value="subscription">Synkronisering for ett lagret emne</option></select></div>
+        <label hidden>Emne for kalenderen<select name="courseId" disabled></select></label>
         <label class="wide-field">Kalenderlenke (HTTPS eller webcal)<input name="url" type="text" placeholder="https://…" autocomplete="off"></label>
         <button type="submit">Hent kalenderlenke</button>
       </form>
@@ -151,20 +154,32 @@ export function createSubjectsView(actions) {
     if (choices) for (const [key, text] of choices) input.append(option(key, text))
     input.value = value ?? ''; wrapper.append(input); editor.append(wrapper); return input
   }
+  let editorReturnFocus, editorReturnSelector
+  function restoreEditorFocus() {
+    queueMicrotask(() => {
+      const target = editorReturnFocus?.isConnected && editorReturnFocus.getClientRects().length ? editorReturnFocus : (editorReturnSelector && query(editorReturnSelector)) || document.querySelector('#calendar-host h2') || query('#course-new')
+      if (target && !target.matches('button,input,select,a')) target.tabIndex = -1
+      target?.focus(); target?.scrollIntoView({ block: 'nearest' })
+    })
+  }
   function openEditor(kind, previous) {
     if (busy || !model?.readable) return
     const personal = kind === 'event' && previous?.activityKind === 'personal'
-    if (kind === 'event' && !personal && !state().courses.length) { feedback('Opprett et emne før du legger til undervisning.', true); return }
+    const imported = Boolean(previous?.importSourceId && previous?.importEntryKey)
+    if (kind === 'event' && !personal && !imported && !state().courses.length) { feedback('Opprett et emne før du legger til undervisning.', true); return }
+    editorReturnFocus = document.activeElement
+    editorReturnSelector = previous?.id ? `[data-${kind}-id="${CSS.escape(previous.id)}"] button` : null
     editing = { kind, previous }; editor.replaceChildren(el('h3', `${previous ? 'Rediger' : 'Nytt'} ${kind === 'course' ? 'emne' : personal ? 'egen aktivitet' : 'undervisning'}`)); editor.hidden = false
     if (kind === 'course') {
-      field('name', 'Emnenavn', previous?.name).required = true
+      field('name', 'Emnenavn', previous?.name).required = previous?.nameStatus !== 'provisional'
+      if (previous?.nameStatus === 'provisional') editor.append(el('p', 'Emnenavnet er ukjent. Emnekoden vises som foreløpig navn til du oppgir et navn. Eksisterende koblinger beholdes.'))
       field('code', 'Emnekode', previous?.code)
       field('university', 'Universitet', previous?.university)
       field('semester', 'Semester', previous?.semester || 'autumn', '', [['autumn', 'Høst'], ['spring', 'Vår']])
       field('year', 'År', previous?.year || osloYear(), 'number').required = true
       field('credits', 'Studiepoeng (valgfritt)', previous?.credits, 'number').step = 'any'
       field('description', 'Beskrivelse (valgfritt)', previous?.description, 'textarea')
-    } else if (personal) {
+    } else if (personal && !imported) {
       field('title', 'Navn på egen aktivitet', previous?.title).required = true
       field('dateLocal', 'Dato', previous?.dateLocal, 'date').required = true
       field('startLocal', 'Start (valgfri)', previous?.start ? osloLocal(previous.start).slice(11) : '', 'time')
@@ -172,9 +187,10 @@ export function createSubjectsView(actions) {
       field('location', 'Sted (valgfritt)', previous?.location)
     } else {
       field('title', 'Navn på undervisning', previous?.title).required = true
-      field('courseId', 'Emne', previous?.courseId || sortByVisibleName(state().courses)[0]?.id, '', sortByVisibleName(state().courses).map(c => [c.id, nameFirstLabel(c)])).required = true
-      field('startLocal', 'Start (norsk tid)', previous ? osloLocal(previous.start) : '', 'datetime-local').required = true
-      field('endLocal', 'Slutt (norsk tid)', previous ? osloLocal(previous.end) : '', 'datetime-local').required = true
+      if (personal) { const courseId = el('input'); courseId.type = 'hidden'; courseId.name = 'courseId'; courseId.value = ''; editor.append(el('p', 'Uten emne'), courseId) }
+      else field('courseId', 'Emne', imported ? previous.courseId || '' : previous?.courseId || sortByVisibleName(state().courses)[0]?.id, '', [...(imported ? [['', 'Uten emne']] : []), ...sortByVisibleName(state().courses).map(c => [c.id, nameFirstLabel(c)])]).required = !imported
+      const start = field('startLocal', 'Start (norsk tid)', previous ? osloLocalExact(previous.start) : '', 'datetime-local'); start.required = true; start.step = 'any'
+      const end = field('endLocal', previous?.point ? 'Slutt (valgfri; legg til varighet)' : 'Slutt (norsk tid)', previous && !previous.point ? osloLocalExact(previous.end) : '', 'datetime-local'); end.required = !previous?.point; end.step = 'any'
       field('location', 'Sted (valgfritt)', previous?.location)
     }
     field('notes', 'Egne notater', previous?.notes, 'textarea')
@@ -182,7 +198,7 @@ export function createSubjectsView(actions) {
     if (kind === 'course' && previous?.sourceUrl) editor.append(el('p', 'Endring av emnekode, universitet eller periode gjør kildebindingen utdatert. Hent og bekreft emneinformasjonen på nytt; eksisterende oppgaver og undervisningsdatoer flyttes ikke.'))
     const submit = el('button', kind === 'course' ? 'Lagre emne' : personal ? 'Lagre egen aktivitet' : 'Lagre undervisning'); submit.type = 'submit'
     const editorActions = el('div', null, 'actions')
-    editorActions.append(submit, button('Avbryt', () => { editor.hidden = true; editing = null; if (returnEventView) { const target = returnEventView; returnEventView = null; actions.view(target) } }))
+    editorActions.append(submit, button('Avbryt', () => { editor.hidden = true; editing = null; if (returnEventView) { const target = returnEventView; returnEventView = null; actions.view(target) } restoreEditorFocus() }))
     editor.append(editorActions)
     editor.querySelector('input')?.focus(); editor.scrollIntoView({ block: 'nearest' })
   }
@@ -193,10 +209,10 @@ export function createSubjectsView(actions) {
     if (!editing || busy) return
     try {
       const next = structuredClone(state()), draft = Object.fromEntries(new FormData(editor)), { kind, previous } = editing
-      const item = kind === 'course' ? validateCourse(draft, previous) : previous?.activityKind === 'personal' ? validatePersonalActivity(draft, previous) : validateEvent(draft, previous)
+      const item = kind === 'course' ? validateCourse(draft, previous) : previous?.activityKind === 'personal' && !previous.importSourceId ? validatePersonalActivity(draft, previous) : validateEvent(draft, previous)
       const items = kind === 'course' ? next.courses : next.events, index = items.findIndex(c => c.id === item.id)
       if (index < 0) items.push(item); else items[index] = item
-      if (persist(next)) { editing = null; editor.hidden = true; feedback(kind === 'course' ? 'Emnet er lagret.' : previous?.activityKind === 'personal' ? 'Egen aktivitet er lagret.' : 'Undervisningen er lagret.'); if (returnEventView) { const target = returnEventView; returnEventView = null; actions.view(target) } else actions.refresh() }
+      if (persist(next)) { editing = null; editor.hidden = true; feedback(kind === 'course' ? 'Emnet er lagret.' : previous?.activityKind === 'personal' ? 'Egen aktivitet er lagret.' : 'Undervisningen er lagret.'); if (returnEventView) { const target = returnEventView; returnEventView = null; actions.view(target) } else actions.refresh(); restoreEditorFocus() }
     } catch (error) { feedback(error.message, true) }
   })
   const wizard = createImportWizard({
@@ -208,31 +224,42 @@ export function createSubjectsView(actions) {
     },
   })
   const importBox = query('.import-box'), methodShell = el('section', null, 'connected-import'), methods = el('div', null, 'import-methods')
-  const launch = button('Importer emner og plan', () => { choose('institution'); programView.open() }); launch.id = 'connected-import-open'; launch.setAttribute('aria-expanded', 'false'); methods.hidden = true
-  query('.subject-actions').append(launch); importBox.before(methodShell)
+  const launch = button('Finn studieprogram', () => { choose('institution'); programView.open() }); launch.id = 'connected-import-open'; launch.setAttribute('aria-expanded', 'false'); methods.hidden = true
+  query('.subject-actions').append(button('Importer', () => { choose('document'); disposeDocument.open({ newSource: true }) }), launch); importBox.before(methodShell)
   const institutionPanel = el('div', null, 'import-method-panel'), documentPanel = el('div', null, 'import-method-panel'), calendarPanel = el('div', null, 'import-method-panel')
   const calendarHelp = calendarForm.nextElementSibling
   const calendarFilePanel = el('details'); calendarFilePanel.name = 'calendar-import-method'; calendarFilePanel.open = true
-  calendarFilePanel.append(el('summary', 'Kalenderfil eller kalenderlenke'), calendarForm); calendarPanel.append(calendarFilePanel)
+  calendarFilePanel.append(el('summary', 'Kalenderlenke'), calendarForm); calendarPanel.append(calendarFilePanel)
+  const updateCalendarMode = () => { const subscription = calendarForm.elements.importMode.value === 'subscription'; calendarForm.elements.courseId.disabled = !subscription; calendarForm.elements.courseId.required = subscription; calendarForm.elements.courseId.parentElement.hidden = !subscription; calendarForm.querySelector('button[type=submit]').textContent = subscription ? 'Hent kalenderlenke' : 'Vis forhåndsvisning'; if (calendarHelp) calendarHelp.hidden = !subscription }
+  calendarForm.elements.importMode.addEventListener('change', updateCalendarMode); updateCalendarMode()
+  calendarForm.append(el('p', 'Øyeblikksbilder kan inneholde flere nye emner eller aktiviteter uten emne. Bruk en direkte ICS-lenke eller en støttet TP-lenke; vanlige visningssider må eksporteres til ICS først.', 'form-hint'))
   if (calendarHelp?.classList.contains('muted')) calendarFilePanel.append(calendarHelp)
   const institutionalCalendar=mountInstitutionalCalendar(calendarPanel,{getState:actions.getState,onCommit:candidate=>actions.commit(candidate,'Institusjonskalender importert'),api})
   const publicTeaching=mountPublicTeaching(calendarPanel,{getPlanner:state,api,onCheck:async course=>{const next=structuredClone(state()),index=next.courses.findIndex(item=>item.id===course.id);if(index<0)return false;next.courses[index]=course;const result=actions.commit({...actions.getState(),planner:next},'Undervisningskontroll');return result?.ok!==false},onPreview:async(data,course,selected)=>{await prepareCalendar(data.calendar,course,{kind:'url',name:`${course.university} · ${selected.label}`,url:data.calendarUrl,groups:[]});preview.explicitSelection=true;preview.warnings.push(...(data.warnings||[]));showPreview()}})
   institutionPanel.append(importBox)
   methodShell.append(methods, institutionPanel, documentPanel, calendarPanel)
   for (const panel of [institutionPanel, documentPanel, calendarPanel]) panel.hidden = true
-  let disposeDocument
+  let disposeDocument, calendarPending, sourceGeneration = 0
+  const invalidateCalendar = () => { sourceGeneration++; calendarPending?.abort(); calendarPending = null; feedback('') }
+  calendarForm.addEventListener('input', event => { invalidateCalendar(); if (!event.target.closest('.tp-source-choice')) calendarForm.querySelector('.tp-source-choice')?.remove() })
   const choose = kind => {
+    invalidateCalendar()
+    calendarForm.querySelector('.tp-source-choice')?.remove()
+    if (kind !== 'document') disposeDocument?.cancelPending?.()
     methods.hidden = false; launch.setAttribute('aria-expanded', 'true')
+    for (const control of methods.querySelectorAll('[data-method]')) { control.classList.toggle('secondary', control.dataset.method !== kind); control.setAttribute('aria-pressed', String(control.dataset.method === kind)) }
     institutionPanel.hidden = kind !== 'institution'; documentPanel.hidden = kind !== 'document'; calendarPanel.hidden = kind !== 'calendar'
-    if (kind === 'document' && !disposeDocument) disposeDocument = mountDocumentImport(documentPanel, { getState: actions.getState, onCommit: candidate => actions.commit(candidate, 'Dokumentplan importert'), onCancel: () => { documentPanel.hidden = true; methods.querySelector('[data-method=document]')?.focus() } })
+    if (kind === 'document' && !disposeDocument) disposeDocument = mountDocumentImport(documentPanel, { getState: actions.getState, onCommit: candidate => actions.commit(candidate, 'Dokumentplan importert'), onCalendar: () => actions.view('calendar'), onUndo: actions.undoImport, onCancel: () => { documentPanel.hidden = true; methods.querySelector('[data-method=document]')?.focus() } })
     else if (kind === 'document') disposeDocument.open?.()
   }
-  for (const [kind, name] of [['institution', 'Fra lærested'], ['document', 'Fra dokument eller tekst'], ['calendar', 'Fra kalenderfil eller lenke']]) { const control = button(kind === 'institution' ? 'Studieprogram' : name, () => choose(kind)); control.dataset.method = kind; control.setAttribute('aria-label', name); if(kind !== 'institution')control.className='secondary'; methods.append(control) }
+  for (const [kind, name] of [['institution', 'Fra lærested'], ['document', 'Fra fil eller tekst'], ['calendar', 'Fra kalenderlenke']]) { const control = button(kind === 'institution' ? 'Studieprogram' : name, () => choose(kind)); control.dataset.method = kind; control.setAttribute('aria-label', name); if(kind !== 'institution')control.className='secondary'; methods.append(control) }
   const programHost = el('div'); importBox.before(programHost)
-  const programView = createProgramImportView({ host: programHost, getState: actions.getState, commitPlanner: next => actions.commit({ ...actions.getState(), planner: next }, 'Ny samlet studieplan'), feedback, manual: () => openEditor('course'), onSettled: actions.refresh, api })
+  const programView = createProgramImportView({ host: programHost, getState: actions.getState, commitPlanner: next => actions.commit({ ...actions.getState(), planner: next }, 'Ny samlet studieplan'), feedback, manual: () => openEditor('course'), onSettled: actions.refresh, onCourseSearch: context => { choose('institution'); courseDetails.open = true; wizard.open(context) }, api })
   const courseDetails = el('details'); courseDetails.append(el('summary', 'Søk etter ett enkelt emne')); importBox.before(courseDetails); courseDetails.append(importBox)
+  query('.subject-actions').append(button('Finn ett emne', () => { choose('institution'); courseDetails.open = true; wizard.open({}) }))
   async function prepareCalendar(input, course, source, options={}) {
     const parsed = parseCalendar(input, { ...course, courseId: course.id })
+    if (options.fileReplacement) parsed.authoritative = false
     if(course.teachingCheck&&['success','empty'].includes(course.teachingCheck.status)&&!Number.isSafeInteger(course.teachingCheck.eventCount))course={...course,teachingCheck:{...course.teachingCheck,status:parsed.events.length?'success':'empty',eventCount:parsed.events.length}}
     const sameCalendar = state().sources.find(s => s.courseId === course.id && parsed.events.length && state().events.filter(e => e.sourceId === s.id).length === parsed.events.length && parsed.events.every(event => state().events.some(e => e.sourceId === s.id && e.sourceKey === event.sourceKey)))
     const matched = state().sources.find(s => s.courseId === course.id && s.kind === source.kind && (source.kind === 'url' ? s.url === source.url : s.name === source.name))
@@ -259,17 +286,33 @@ export function createSubjectsView(actions) {
     if (!course) throw new Error('Opprett eller importer et emne først, og velg det for kalenderen.')
     return course
   }
-  query('#ics-preview').onclick = () => run(async () => {
-    const file = calendarForm.elements.file.files[0], course = selectedCourse()
-    if (!file || !/\.ics$/i.test(file.name)) throw new Error('Velg en .ics-kalenderfil.')
-    if (file.size > 2_000_000) throw new Error('Kalenderfilen må være mindre enn 2 MB.')
-    await prepareCalendar(await file.text(), course, { kind: 'file', name: file.name })
+  calendarForm.addEventListener('submit', async event => {
+    event.preventDefault(); invalidateCalendar()
+    const generation = sourceGeneration, request = new AbortController(); calendarPending = request
+    feedback('Henter kalenderlenken …')
+    try {
+      const snapshot = calendarForm.elements.importMode.value === 'snapshot'
+      const course = snapshot ? null : selectedCourse(), url = calendarForm.elements.url.value.trim().replace(/^webcal:/i, 'https:')
+      const data = await calendarRequest(url, request.signal)
+      if (generation !== sourceGeneration || request.signal.aborted) return
+      calendarForm.querySelector('.tp-source-choice')?.remove()
+      if (data.status === 'selection-required') {
+        const wrapper = el('label', 'Publisert TP-undervisningstermin'); wrapper.className = 'tp-source-choice'
+        const select = el('select'), empty = el('option', 'Velg kildevalg'); empty.value = ''; select.append(empty)
+        for (const item of data.choices) { const option = el('option', item.label); option.value = item.sourceUrl; select.append(option) }
+        select.addEventListener('change', () => { if (select.value) { calendarForm.elements.url.value = select.value; calendarForm.requestSubmit() } })
+        wrapper.append(select); calendarForm.append(wrapper); feedback(data.message); select.focus(); return
+      }
+      if (snapshot) { choose('document'); try { disposeDocument.loadSnapshot(data.calendar, data.warnings || [], data) } catch (error) { feedback(error.message, true) } }
+      else { await prepareCalendar(data.calendar, course, { kind: 'url', name: 'Kalenderlenke', url: data.calendarUrl || url }); feedback('Kalenderen er klar til kontroll.') }
+    } catch (error) { if (!request.signal.aborted && generation === sourceGeneration) feedback(error.message, true) }
+    finally { if (calendarPending === request) calendarPending = null }
   })
-  calendarForm.addEventListener('submit', event => { event.preventDefault(); run(async () => { const course = selectedCourse(), url = calendarForm.elements.url.value.trim().replace(/^webcal:/i, 'https:'); await prepareCalendar(await calendarFetch(url), course, { kind: 'url', name: 'Kalenderlenke', url }) }) })
   function showPreview() {
     const local=previewHost.hidden?null:previewSnapshot(previewHost)
     previewHost.hidden = false; previewHost.replaceChildren(el('h3', 'Forhåndsvis import'))
     const { course, parsed, source } = preview
+    if (source) source.excludedKeys ||= []
     const priorBinding = state().courses.find(item => item.id === course.id)?.sourceBindingStale
     if (priorBinding && !course.sourceBindingStale) previewHost.append(el('p', `Bekreft ny kildebinding for ${semesterLabel(course.semester, course.year)}. Tidligere kilde fra ${semesterLabel(priorBinding.semester, priorBinding.year)} beholdes i historikken. Oppgaver, undervisningsdatoer og kalenderkilder flyttes ikke.`, 'import-warning'))
     previewHost.append(el('h4', `${course.code} ${course.name}`), el('p', `${course.university} · ${semesterLabel(course.semester, course.year)} · ${course.credits == null ? 'Studiepoeng mangler' : `${course.credits} studiepoeng`}`))
@@ -333,21 +376,28 @@ export function createSubjectsView(actions) {
           const row = el('li'), label = el('label'), check = el('input'); check.type = 'checkbox'; check.checked = !source.excludedKeys.includes(event.sourceKey)
           check.setAttribute('aria-label', `Ta med ${event.title} ${stamp(event.start)} ${event.location || ''}`)
           check.dataset.previewKey=`event:${event.sourceKey}`;check.onchange = () => { source.excludedKeys = check.checked ? source.excludedKeys.filter(key => key !== event.sourceKey) : [...source.excludedKeys, event.sourceKey]; renderEvents() }
-          label.append(check, document.createTextNode(`${presentation.isExam ? '📝 Eksamen · ' : ''}${stamp(event.start)}–${stamp(event.end)} · ${event.title} · ${event.location || 'Sted mangler'}${event.information || event.transparent ? ' · Informasjon, reserverer ikke tid' : ''}`)); row.classList.toggle('is-exam', presentation.isExam); row.append(label); list.append(row)
+          label.append(check, document.createTextNode(`${presentation.isExam ? '📝 Eksamen · ' : ''}${eventStamp(event)} · ${event.title} · ${event.location || 'Sted mangler'}${event.information || event.transparent ? ' · Informasjon, reserverer ikke tid' : ''}`)); row.classList.toggle('is-exam', presentation.isExam); row.append(label); list.append(row)
         }
         detail.append(list)
       }
       renderEvents()
       previewHost.append(button('Bekreft import', () => commitPreview()))
     }
-    const cancel = button('Avbryt import', () => { preview = null; wizard.committed(); publicTeaching.committed(); previewHost.hidden = true; feedback('') }); cancel.className = 'secondary'; previewHost.append(cancel)
+    if (source) previewHost.append(button('Oppdater forhåndsvisningen', () => { showPreview(); feedback('Forhåndsvisningen er oppdatert. Kontroller konflikter og bekreft på nytt.') }))
+    const cancel = button('Avbryt import', () => { restoreSourceFocus(); preview = null; wizard.committed(); publicTeaching.committed(); previewHost.hidden = true; feedback('') }); cancel.className = 'secondary'; previewHost.append(cancel)
     restorePreviewSnapshot(previewHost,local)
+    if (!local?.focus) { const heading = previewHost.querySelector("h3"); heading.tabIndex = -1; heading.focus(); heading.scrollIntoView({ block: "nearest" }) }
+  }
+  function restoreSourceFocus() {
+    const sourceId = preview?.source?.id
+    if (!sourceId) return
+    queueMicrotask(() => { const target = host.querySelector(`[data-source-action="${CSS.escape(sourceId)}"]`); target?.focus(); target?.scrollIntoView({ block: 'nearest' }) })
   }
   function commitPreview() {
     if (!preview || busy) return
-    if (preview.baseline !== JSON.stringify(state())) { feedback('Dataene er endret etter forhåndsvisningen. Hent en ny forhåndsvisning før du lagrer.', true); return }
+    if (preview.baseline !== JSON.stringify(state())) { feedback('Dataene er endret etter forhåndsvisningen. Velg Oppdater forhåndsvisningen og bekreft på nytt.', true); previewHost.querySelectorAll('button').forEach(control => { if (control.textContent === 'Oppdater forhåndsvisningen') control.focus() }); return }
     const { planner: next, counts } = preview.merged
-    if (persist(next)) { const noChange=counts&&semanticRefreshNoop(preview.previousSource,preview.source,counts);preview = null; wizard.committed(); publicTeaching.committed(); previewHost.hidden = true; feedback(noChange?'Timeplanen er kontrollert – ingen endringer.':counts ? `Importert: ${counts.added} nye, ${counts.updated} endrede, ${counts.cancelled} avlyste, ${counts.excluded} skjult lokalt, ${counts.reselected} valgt igjen. ${counts.conflicts} konflikter. Egne notater er beholdt.` : 'Emnet er lagret. Du kan legge til undervisning senere.'); actions.refresh() }
+    if (persist(next)) { const noChange=counts&&semanticRefreshNoop(preview.previousSource,preview.source,counts);restoreSourceFocus();preview = null; wizard.committed(); publicTeaching.committed(); previewHost.hidden = true; feedback(noChange?'Timeplanen er kontrollert – ingen endringer.':counts ? `Importert: ${counts.added} nye, ${counts.updated} endrede, ${counts.cancelled} avlyste, ${counts.excluded} skjult lokalt, ${counts.reselected} valgt igjen. ${counts.conflicts} konflikter. Egne notater er beholdt.` : 'Emnet er lagret. Du kan legge til undervisning senere.'); actions.refresh() }
   }
   const filterLabel = el('label', 'Filtrer kalender på emne', 'calendar-course-filter'), courseFilter = el('select'); courseFilter.id = 'calendar-course-filter'; filterLabel.append(courseFilter)
   document.querySelector('#calendar-host').before(filterLabel)
@@ -387,7 +437,18 @@ export function createSubjectsView(actions) {
       for (const course of sortedCourses) {
         const card = el('article', null, 'course-card'); card.dataset.courseId = course.id
         card.style.setProperty('--course-color', courseColor(course.code || course.name))
-        card.append(el('h3', nameFirstLabel(course)), el('p', `${course.university || 'Universitet ikke oppgitt'} · ${semesterLabel(course.semester, course.year)} · ${course.credits == null ? 'Studiepoeng ukjent' : `${course.credits} studiepoeng`}`), el('p', course.sourceUrl ? 'Importert emne' : 'Manuelt emne', 'source-badge'))
+        const documentSource = documentSources.find(source => source.id === course.importSourceId) || documentSources.find(source => source.entries.some(entry => entry.kind === 'course' && entry.targetId === course.id))
+        const sourceEntry = documentSource?.entries.find(entry => entry.kind === 'course' && entry.targetId === course.id)
+        const sourceLabel = documentSource?.origin?.kind === 'link' ? 'kalenderlenke (øyeblikksbilde)' : documentSource?.format === 'text' ? 'tekstdokument' : `${documentSource?.format.toUpperCase()}-fil`
+        const sourceName = documentSource?.origin?.kind === 'link' && documentSource?.name === 'Kalenderlenke – øyeblikksbilde' ? '' : documentSource?.name
+        card.append(el('h3', nameFirstLabel(course)), el('p', `${course.university || 'Universitet ikke oppgitt'} · ${semesterLabel(course.semester, course.year)} · ${course.credits == null ? 'Studiepoeng ukjent' : `${course.credits} studiepoeng`}`), el('p', documentSource ? `${sourceEntry?.reference ? 'Koblet til' : 'Importert fra'} ${sourceLabel}${sourceName ? ` · ${sourceName}` : ''}` : course.sourceUrl ? 'Importert emne' : 'Manuelt emne', 'source-badge'))
+        if (documentSource) card.append(el('p', `${planner.events.filter(event => event.courseId === course.id && event.importSourceId && !event.cancelled && !event.deleted).length} importerte kalenderaktiviteter er lagret for emnet.`))
+        if (documentSource?.origin?.publicUrl) card.append(sourceLink(documentSource.origin.publicUrl, 'Offentlig kalenderkilde'))
+        if (sourceEntry?.reference || sourceEntry?.titleOrigin === 'saved') card.append(el('p', 'Emnenavnet er beholdt fra det lagrede emnet.'))
+        else if (sourceEntry?.titleOrigin === 'user') card.append(el('p', 'Emnenavnet er oppgitt av deg.'))
+        else if (course.nameStatus === 'provisional' || sourceEntry?.titleOrigin === 'provisional' && !course.nameStatus) card.append(el('p', 'Foreløpig emnenavn godkjent av deg.'))
+        else if (course.nameStatus === 'confirmed') card.append(el('p', 'Emnenavnet er avklart.'))
+        if (course.campusCode) { const details = el('details'); details.append(el('summary', 'Detaljer om kilden'), el('p', `Campuskode i kilden: ${course.campusCode}. Fysisk campus er ikke bekreftet.`)); card.append(details) }
         if (course.sourceRecordId || course.campus) card.append(el('p', `Campus: ${course.campus || 'Ikke oppgitt'}${course.sourceRecordId ? ` · Emnepost: ${course.sourceRecordId}` : ''}${course.sourceVersion ? ` · ${course.sourceVersion}` : ''}`))
         if (course.programBinding) {
           const binding = course.programBinding
@@ -400,7 +461,7 @@ export function createSubjectsView(actions) {
         if (course.description) { const details = el('details'); details.append(el('summary', 'Emnebeskrivelse'), el('p', course.description)); card.append(details) }
         if (course.notes) card.append(el('p', course.notes))
         if (course.conflict) card.append(el('p', course.conflict, 'import-warning'))
-        const teachingStatus=el('p',teachingCheckText(course.teachingCheck),course.teachingCheck&&!['success','empty'].includes(course.teachingCheck.status)?'import-warning':'muted');teachingStatus.dataset.teachingCheck=course.teachingCheck?.status||'not-checked';card.append(teachingStatus)
+        const teachingStatus=el('p',documentSource && !course.teachingCheck ? 'Separat oppslag av offentlig undervisning er ikke gjort. Dette endrer ikke de importerte kalenderaktivitetene.' : `${documentSource ? 'Separat oppslag av offentlig undervisning: ' : ''}${teachingCheckText(course.teachingCheck)}`,course.teachingCheck&&!['success','empty'].includes(course.teachingCheck.status)?'import-warning':'muted');teachingStatus.dataset.teachingCheck=course.teachingCheck?.status||'not-checked';card.append(teachingStatus)
         if(!course.teachingCheck||!['success','empty'].includes(course.teachingCheck.status))card.append(button(`Kontroller undervisning for ${course.code||course.name}`,()=>{choose('calendar');publicTeaching.render()}))
         card.append(button(`Ny oppgave i ${course.code || course.name}`, () => actions.openTask(course.id)))
         card.append(button(`Rediger emne ${course.code || course.name}`, () => openEditor('course', course)), button(`Slett emne ${course.code || course.name}`, () => {
@@ -410,26 +471,45 @@ export function createSubjectsView(actions) {
           if (persist(next, tasks)) { feedback('Emnet er slettet. Oppgavene er beholdt.'); actions.refresh() }
         })); courses.append(card)
       }
-      const sources = query('#source-list'); sources.replaceChildren()
+      const sources = query('#source-list'), openSourceDetails = new Set([...sources.querySelectorAll('details[data-document-source][open]')].map(node => node.dataset.documentSource)); sources.replaceChildren()
       if (!planner.sources.length && !documentSources.length) sources.append(el('p', 'Ingen kalenderkilder er lagret.'))
       for (const source of documentSources) {
         const card = el('article', null, 'source-card document-source-card'); card.dataset.sourceId = source.id
-        card.append(el('h4', source.name), el('p', `Dokumentkilde · revisjon ${source.revision} · Sist oppdatert: ${stamp(source.lastUpdated)}`))
+        const currentItems = { course: planner.courses, event: planner.events.filter(event => !event.deleted), task: actions.getState().tasks || [] }
+        const count = kind => source.entries.filter(entry => entry.kind === kind && currentItems[kind].some(item => item.id === entry.targetId)).length
+        card.append(el('h4', source.name), el('p', `${source.origin?.kind === 'link' ? 'Øyeblikksbilde fra kalenderlenke' : 'Kopi av fil / dokument'} · oppdateres ikke automatisk.`), el('p', `${count('course')} lagrede emner · ${count('event')} kalenderaktiviteter · ${count('task')} oppgaver. Sist oppdatert: ${stamp(source.lastUpdated)}`))
+        if (source.origin?.publicUrl) card.append(sourceLink(source.origin.publicUrl, 'Offentlig kalenderkilde'))
         if (source.complete === false) card.append(el('p', 'Kilden er ikke bekreftet fullstendig. Bare oppføringene du bekreftet, er lagret.', 'import-warning'))
-        for (const warning of source.warnings || []) card.append(el('p', warning, 'import-warning'))
+        const warnings = [...new Set(source.warnings || [])]
+        const details = el('details'); details.dataset.documentSource = source.id; details.open = openSourceDetails.has(source.id)
+        details.append(el('summary', `Kildehistorikk og varsler${warnings.length ? ` (${warnings.length})` : ''}`), el('p', `Dokumentkilde · revisjon ${source.revision}. ${source.excludedKeys?.length || 0} kildeoppføringer er markert utelatt.`))
+        for (const warning of warnings) details.append(el('p', warning, 'import-warning'))
+        card.append(details)
         card.append(button('Oppdater dokumentkilde', () => { choose('document'); disposeDocument?.selectSource?.(source.id) }))
         sources.append(card)
       }
       for (const source of planner.sources) {
         const card = el('article', null, 'source-card'), course = planner.courses.find(c => c.id === source.courseId)
         card.append(el('h4', `${course?.code || course?.name || ''} · ${source.name}`), el('p', `${source.kind === 'file' ? 'Engangsimport fra fil' : 'Lagret kalenderlenke'} · Sist oppdatert: ${stamp(source.lastUpdated)}`))
+        if (source.kind === 'file') card.append(button('Endre aktivitetsvalg', () => {
+          const events = state().events.filter(event => event.sourceId === source.id).map(event => ({ ...event, ...event.sourceBase }))
+          preview = { course, parsed: { events, warnings: [], authoritative: false, cancellations: [] }, warnings: ['Aktivitetsvalg for tidligere filimport. Ingen ny kilde er hentet.'], previousSource: structuredClone(source), source: structuredClone(source), explicitSelection: true }
+          showPreview(); previewHost.scrollIntoView({ block: 'nearest' })
+        }))
+        if (source.kind === 'file') {
+          const label = el('label', 'Oppdater denne filkilden'), replacement = el('input'); replacement.type = 'file'; replacement.accept = '.ics,text/calendar'
+          replacement.onchange = () => { const file = replacement.files[0]; if (!file) return; run(async () => { if (file.size > 2_000_000) throw new Error('Kalenderfilen er større enn 2 MB.'); await prepareCalendar(await file.text(), course, { ...source, name: file.name }, { explicitSelection: true, fileReplacement: true }) }) }
+          label.append(replacement); card.append(label)
+        }
         if (source.kind === 'url') {
-          card.append(el('p', source.reconnectRequired ? 'Kilden må kobles til igjen med kalenderlenken.' : `Siste vellykkede henting: ${stamp(source.lastSuccess || source.lastUpdated)}. Tidligst neste forsøk: ${stamp(new Date(nextRefresh(source)).toISOString())}.`))
+          const details = el('details'); details.append(el('summary', 'Detaljer'))
+          if (source.reconnectRequired) card.append(el('p', 'Kilden må kobles til igjen med kalenderlenken.'))
+          else details.append(el('p', `Siste vellykkede henting: ${stamp(source.lastSuccess || source.lastUpdated)}. Tidligst neste forsøk: ${stamp(new Date(nextRefresh(source)).toISOString())}.`))
           if (source.lastError) card.append(el('p', `Siste feil: ${source.lastError}. Tidligere undervisning er beholdt.`, 'import-warning'))
-          for (const warning of source.syncWarnings || []) card.append(el('p', warning, 'import-warning'))
+          for (const warning of source.syncWarnings || []) (/ufullstendig|mangler|avklar|feil/i.test(warning) ? card : details).append(el('p', warning, 'import-warning'))
           if (source.url && !source.reconnectRequired) card.append(button('Oppdater nå', () => run(() => refreshSavedSource(source, course, { autoCommitNoop: true }))),button('Endre aktivitetsvalg', () => run(() => refreshSavedSource(source, course, { explicitSelection: true }))))
           const label = el('label', 'Automatisk oppdatering mens appen er åpen'), toggle = el('input'); toggle.type = 'checkbox'; toggle.checked = source.autoRefresh !== false && !source.reconnectRequired; toggle.disabled = Boolean(source.reconnectRequired)
-          toggle.onchange = () => { const next = structuredClone(state()); next.sources.find(s => s.id === source.id).autoRefresh = toggle.checked; if (persist(next)) actions.refresh() }; label.prepend(toggle); card.append(label)
+          toggle.onchange = () => { const next = structuredClone(state()); next.sources.find(s => s.id === source.id).autoRefresh = toggle.checked; if (persist(next)) actions.refresh() }; label.prepend(toggle); details.append(label)
           const reconnect = el('details'); reconnect.append(el('summary', 'Koble til igjen / endre kalenderlenke'))
           const urlLabel = el('label', 'Ny HTTPS-kalenderlenke'), input = el('input'); input.type = 'url'; urlLabel.append(input); reconnect.append(urlLabel)
           reconnect.append(button('Lagre tilkobling', () => {
@@ -437,8 +517,10 @@ export function createSubjectsView(actions) {
               const next = structuredClone(state()), item = next.sources.find(s => s.id === source.id); Object.assign(item, { url: url.href, reconnectRequired: false, autoRefresh: true, lastError: '', failures: 0 })
               if (persist(next)) actions.refresh()
             } catch (error) { feedback(error.message, true) }
-          })); card.append(reconnect)
+          })); details.append(reconnect); card.append(details)
         }
+        const selectionAction = [...card.querySelectorAll('button')].find(control => control.textContent === 'Endre aktivitetsvalg')
+        if (selectionAction) selectionAction.dataset.sourceAction = source.id
         sources.append(card)
       }
       const eventList = query('#event-list'); eventList.replaceChildren()
@@ -448,8 +530,12 @@ export function createSubjectsView(actions) {
         const eventCourse = planner.courses.find(course => course.id === event.courseId)
         if (eventCourse) card.style.setProperty('--course-color', courseColor(eventCourse.code || eventCourse.name))
         const eventCode=eventCourse?.code||eventCourse?.name||''
-        const personal = event.activityKind === 'personal', timing = personal ? `${event.dateLocal}${event.start ? ` · ${osloLocal(event.start).slice(11)}${event.end ? `–${osloLocal(event.end).slice(11)}` : ' · Varighet ikke oppgitt'}` : ' · Tid ikke oppgitt'}` : `${stamp(event.start)}–${stamp(event.end)}`
-        card.append(el('h4', `${personal ? 'Egen aktivitet · ' : presentation.isExam ? '📝 Eksamen · ' : ''}${eventCode ? `${eventCode} · ` : ''}${event.title}`), el('p', `${timing} · ${event.location || 'Sted ikke oppgitt'}`), el('p', `${personal ? 'Uten emne' : event.sourceId ? 'Importert' : 'Manuell'}${event.excluded ? ' · Skjult etter aktivitetsvalg' : event.cancelled ? ' · Avlyst/fjernet i kilden' : ''}`, 'source-badge'))
+        const personal = event.activityKind === 'personal', timing = event.point ? eventStamp(event) : personal ? event.start ? `${exactStamp(event.start)}${event.end ? `–${exactStamp(event.end)}` : ' · Varighet ikke oppgitt'}` : `${event.dateLocal} · Tid ikke oppgitt` : eventStamp(event)
+        const documentSource = documentSources.find(source => source.id === event.importSourceId)
+        const sourceEntry = documentSource?.entries.find(entry => entry.key === event.importEntryKey && entry.kind === 'event')
+        const changedLocally = sourceEntry && (Boolean(event.notes) || IMPORT_FIELDS.event.some(field => Object.hasOwn(sourceEntry.sourceBase, field) && JSON.stringify(event[field]) !== JSON.stringify(sourceEntry.sourceBase[field])))
+        const origin = documentSource ? documentSource.origin?.kind === 'link' ? 'Importert fra kalenderlenke' : 'Importert fra fil' : event.sourceId ? 'Importert' : 'Manuell'
+        card.append(el('h4', `${personal ? 'Egen aktivitet · ' : presentation.isExam ? '📝 Eksamen · ' : ''}${eventCode ? `${eventCode} · ` : ''}${event.title}`), el('p', `${timing} · ${event.location || 'Sted ikke oppgitt'}`), el('p', `${origin}${changedLocally ? ' · Egne endringer' : ''}${personal ? ' · Uten emne' : ''}${event.excluded ? ' · Skjult etter aktivitetsvalg' : event.cancelled ? ' · Avlyst/fjernet i kilden' : ''}`, 'source-badge'))
         if (event.notes) card.append(el('p', event.notes))
         if (event.conflict) {
           card.append(el('p', event.conflict.message, 'import-warning'))
@@ -490,5 +576,5 @@ export function createSubjectsView(actions) {
       if (!overlap.hidden) { overlap.append(el('p', `Tiden overlapper registrert undervisning: ${conflict.events[0].title} (${stamp(conflict.events[0].start)}–${stamp(conflict.events[0].end)}).`)); if (conflict.availableMinutes > 0) overlap.append(button(`Tilpass til ${conflict.availableMinutes} minutter`, () => actions.minutes(conflict.availableMinutes))); else overlap.append(el('p', 'Undervisning pågår nå. Velg et annet tidspunkt for arbeidet.')) }
     }
   }
-  return { render, isEditing: () => Boolean(editing), hasDraft: () => busy || Boolean(editing) || Boolean(preview) || wizard.hasDraft() || institutionalCalendar.hasDraft() || publicTeaching.hasDraft() || programView.hasDraft() || Boolean(disposeDocument?.hasDraft?.()), openEvent(id) { const event = state().events.find(e => e.id === id); if (event) { returnEventView = model?.view === 'calendar' ? 'calendar' : null; actions.view('subjects'); openEditor('event', event) } } }
+  return { render, isEditing: () => Boolean(editing), hasDraft: () => busy || Boolean(calendarPending) || Boolean(editing) || Boolean(preview) || wizard.hasDraft() || institutionalCalendar.hasDraft() || publicTeaching.hasDraft() || programView.hasDraft() || Boolean(disposeDocument?.hasDraft?.()), openEvent(id) { const event = state().events.find(e => e.id === id); if (event) { returnEventView = model?.view === 'calendar' ? 'calendar' : null; actions.view('subjects'); openEditor('event', event) } } }
 }
