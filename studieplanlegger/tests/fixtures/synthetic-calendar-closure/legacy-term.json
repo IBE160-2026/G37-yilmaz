@@ -1,0 +1,161 @@
+{
+  "format": "studieplan-local-backup",
+  "backupVersion": 1,
+  "createdAt": "2045-09-01T09:01:00.000Z",
+  "rekeyedIds": 0,
+  "data": {
+    "schemaVersion": 1,
+    "tasks": [
+      {
+        "id": "invented-term-retained-task",
+        "title": "Oppdiktet koblet oppgave",
+        "course": "HST682",
+        "courseId": "document:document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b:course:498e01c8ece64e04#1",
+        "deadlineLocal": "",
+        "estimatedMinutes": null,
+        "remainingMinutes": null,
+        "completed": false
+      }
+    ],
+    "sessions": [],
+    "planner": {
+      "courses": [
+        {
+          "name": "Oppdiktet verksted over årsskiftet",
+          "code": "HST682",
+          "university": "himolde",
+          "semester": "spring",
+          "year": 2046,
+          "credits": null,
+          "description": "",
+          "sourceObjectId": "HST682¤1",
+          "campusCode": "INVENTED-CAMPUS",
+          "id": "document:document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b:course:498e01c8ece64e04#1",
+          "notes": "Oppdiktet emnenotat beholdes ved semesterretting",
+          "importSourceId": "document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b",
+          "importEntryKey": "course:498e01c8ece64e04#1"
+        }
+      ],
+      "events": [
+        {
+          "id": "document:document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b:event:796f753a2345e376#1",
+          "title": "Oppdiktet januarsamling",
+          "courseId": "document:document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b:course:498e01c8ece64e04#1",
+          "start": "2046-01-09T09:00:07.000Z",
+          "end": "2046-01-09T10:00:17.000Z",
+          "point": false,
+          "location": "",
+          "description": "",
+          "activityKind": "",
+          "publishedGroups": [
+            "Oppdiktet publisert utvalg"
+          ],
+          "allDay": false,
+          "cancelled": false,
+          "transparent": false,
+          "information": false,
+          "notes": "Oppdiktet kalendernotat beholdes ved semesterretting",
+          "importSourceId": "document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b",
+          "importEntryKey": "event:796f753a2345e376#1"
+        }
+      ],
+      "sources": []
+    },
+    "importSources": [
+      {
+        "id": "document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b",
+        "kind": "document",
+        "format": "ics",
+        "name": "Kalenderlenke – øyeblikksbilde",
+        "contentHash": "d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b",
+        "revision": 1,
+        "createdAt": "2045-09-01T09:00:00.000Z",
+        "lastUpdated": "2045-09-01T09:00:00.000Z",
+        "entries": [
+          {
+            "key": "course:498e01c8ece64e04#1",
+            "kind": "course",
+            "targetId": "document:document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b:course:498e01c8ece64e04#1",
+            "sourceBase": {
+              "name": "Oppdiktet verksted over årsskiftet",
+              "code": "HST682",
+              "university": "himolde",
+              "semester": "spring",
+              "year": 2046,
+              "credits": null,
+              "description": "",
+              "sourceObjectId": "HST682¤1",
+              "campusCode": "INVENTED-CAMPUS"
+            },
+            "snippet": "Emnekode: HST682\nOppdiktet verksted over årsskiftet\nhimolde",
+            "position": "Emne fra kalenderen",
+            "matchKey": "course|oppdiktet verksted over årsskiftet|hst682",
+            "titleOrigin": "source"
+          },
+          {
+            "key": "event:796f753a2345e376#1",
+            "kind": "event",
+            "targetId": "document:document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b:event:796f753a2345e376#1",
+            "sourceBase": {
+              "title": "Oppdiktet januarsamling",
+              "courseId": "document:document:d866c6a7b5528fb0ebd70018dfb8d909f0956633e585fe138c8202189ca6514b:course:498e01c8ece64e04#1",
+              "start": "2046-01-09T09:00:07.000Z",
+              "end": "2046-01-09T10:00:17.000Z",
+              "point": false,
+              "location": "",
+              "description": "",
+              "activityKind": "",
+              "publishedGroups": [
+                "Oppdiktet publisert utvalg"
+              ],
+              "allDay": false,
+              "cancelled": false,
+              "transparent": false,
+              "information": false
+            },
+            "sourceTiming": {
+              "start": "2046-01-09T09:00:07.000Z",
+              "end": "2046-01-09T10:00:17.000Z",
+              "point": false,
+              "allDay": false
+            },
+            "snippet": "Oppdiktet januarsamling\n\n2046-01-09T09:00:07.000Z – 2046-01-09T10:00:17.000Z",
+            "position": "VEVENT 1",
+            "matchKey": "event|oppdiktet januarsamling|hst682",
+            "titleOrigin": "source",
+            "identityScope": "[\"himolde\",\"hst682\",2046,\"spring\",\"HST682¤1\",\"\",\"invented-campus\"]",
+            "calendarUid": "f79999d8b0c5e44d",
+            "calendarOccurrence": "d6dec343281af83b"
+          }
+        ],
+        "origin": {
+          "kind": "link",
+          "publicUrl": "https://tp.educloud.no/himolde/app/schedule?semester=45h&scheduleType=course&course=HST682%C2%A41"
+        },
+        "excludedKeys": [],
+        "complete": false,
+        "warnings": [
+          "HiMolde-hendelser er hentet fra TP-klientens anonyme, offentlige emnevisning. Aktivitetsnavn og studentgrupper bekrefter ikke personlig gruppetilhørighet.",
+          "TP-kildens fullstendighet er ukjent. Manglende aktiviteter fjerner ikke eksisterende undervisning; uttrykkelige avlysninger behandles separat.",
+          "Kalenderkilden er ikke bekreftet fullstendig. Eksisterende aktiviteter slettes ikke ved dokumentimport."
+        ],
+        "accounting": {
+          "total": 1,
+          "retained": 1,
+          "partial": 0,
+          "filtered": 0,
+          "rejected": 0,
+          "cancelled": 0,
+          "occurrences": 1,
+          "filteredOccurrences": 0,
+          "rejectedOccurrences": 0
+        },
+        "period": {
+          "mode": "automatic",
+          "start": "2046-01-08T09:00:07.000Z",
+          "end": "2046-01-10T10:00:17.000Z"
+        }
+      }
+    ]
+  }
+}

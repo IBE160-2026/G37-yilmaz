@@ -30,7 +30,7 @@ export function createImportWizard({ form, previewHost, api, onCourse, feedback,
     context.hidden = step === 1
     context.textContent = `${university.selectedOptions[0].textContent} · ${form.elements.semester.selectedOptions[0].textContent} ${form.elements.year.value}${form.elements.campus.value ? ` · Campus: ${form.elements.campus.value}` : ''}${selected ? ` · ${selected.code}` : ''}`
     controls.replaceChildren()
-    if (step > 1) controls.append(button('Tilbake', () => { step--; previewHost.hidden = true; resultsHost.hidden = step < 3; render() }))
+    if (step > 1) controls.append(button('Tilbake', () => { step--; previewHost.hidden = true; resultsHost.hidden = step < 3; render(); (step === 1 ? university : step === 2 ? form.elements.code : resultsHost.querySelector('button'))?.focus() }))
     if (step === 1) controls.append(button('Neste: søk og semester', () => { step = 2; render(); form.elements.code.focus() }))
     if (step === 3 && selected) controls.append(button('Vis valgt forhåndsvisning', () => choose(selected)))
     controls.append(button('Registrer manuelt', manual))
@@ -55,6 +55,7 @@ export function createImportWizard({ form, previewHost, api, onCourse, feedback,
         data.course = { ...data.course, campus: item.campus, campusVerified: true }
       }
       onCourse(data); selected = item; step = 4; resultsHost.hidden = true; render()
+      const target = previewHost.querySelector('h3,h4,button'); if (target) { target.tabIndex = -1; target.focus() }
     } catch (error) { feedback(error.message, true) } finally { busy = false }
   }
   form.onsubmit = async event => {
@@ -67,9 +68,14 @@ export function createImportWizard({ form, previewHost, api, onCourse, feedback,
       results = sortByVisibleName(data.results); step = 3; resultsHost.replaceChildren(); resultsHost.hidden = false
       for (const item of results) resultsHost.append(button(nameFirstLabel(item, [item.campus || 'Campus mangler']), () => choose(item)))
       for (const warning of data.warnings || []) resultsHost.append(el('p', warning))
-      feedback(`${results.length} treff. Velg riktig semester-/campusvariant.`); render()
+      if (!results.length) resultsHost.append(el('p', 'Ingen treff i valgt periode. Gå tilbake og endre søket, eller registrer emnet manuelt.'))
+      feedback(`${results.length} treff. Velg riktig semester-/campusvariant.`); render(); (resultsHost.querySelector('button') || controls.querySelector('button'))?.focus()
     } catch (error) { feedback(error.message, true) } finally { busy = false }
   }
   render()
-  return { isBusy: () => busy, hasDraft: () => busy || step > 1 || Boolean(selected), committed() { selected = null; results = []; resultsHost.replaceChildren(); step = 1; render() } }
+  return { open(context = {}) {
+    selectionVersion++; selected = null; results = []; resultsHost.replaceChildren(); previewHost.hidden = true
+    for (const name of ['university', 'code', 'year', 'semester']) if (context[name] != null) form.elements[name].value = String(context[name])
+    step = context.university ? 2 : 1; render(); (step === 2 ? form.elements.code : university).focus()
+  }, isBusy: () => busy, hasDraft: () => busy || step > 1 || Boolean(selected), committed() { selected = null; results = []; resultsHost.replaceChildren(); step = 1; render() } }
 }

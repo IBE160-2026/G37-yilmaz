@@ -93,6 +93,17 @@ traces/
 /.docs/implementation-artifacts/spec-capacity-planning.md
 /.docs/implementation-artifacts/spec-docker-runtime-verification.md
 /.docs/implementation-artifacts/spec-docker-runtime-verification-2.md
+/.docs/implementation-artifacts/spec-fullstack-database-docker-delivery.md
+/.docs/implementation-artifacts/spec-calendar-file-flow-2026-10-18.md
+/.docs/implementation-artifacts/spec-calendar-import-ui-2026-10-19.md
+/.docs/implementation-artifacts/spec-ics-points-period-2026-10-19.md
+/.docs/implementation-artifacts/spec-import-clarity-2026-10-23.md
+/.docs/implementation-artifacts/spec-import-reimport-repair-2026-10-21.md
+/.docs/implementation-artifacts/spec-import-resolution-followup-2026-10-19.md
+/.docs/implementation-artifacts/spec-import-resolution-followup-2026-10-19-2.md
+/.docs/implementation-artifacts/spec-import-source-continuation-2026-10-21.md
+/.docs/implementation-artifacts/spec-import-usability-2026-10-21.md
+/.docs/implementation-artifacts/spec-tp-csv-main-flow-2026-10-23.md
 /.docs/implementation-artifacts/spec-project-submission-github-delivery.md
 /.docs/implementation-artifacts/spec-studieplan-connected-planner.md
 /.docs/implementation-artifacts/spec-study-actions.md

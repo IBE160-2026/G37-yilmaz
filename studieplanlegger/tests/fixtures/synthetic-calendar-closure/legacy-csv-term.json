@@ -1,0 +1,134 @@
+{
+  "format": "studieplan-local-backup",
+  "backupVersion": 1,
+  "createdAt": "2045-09-01T09:01:00.000Z",
+  "rekeyedIds": 0,
+  "data": {
+    "schemaVersion": 1,
+    "tasks": [
+      {
+        "id": "synthetic-csv-term-task",
+        "title": "Oppdiktet koblet CSV-oppgave",
+        "course": "SYN974",
+        "courseId": "document:document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e:course:f64cebeb2a49c370#1",
+        "deadlineLocal": "",
+        "estimatedMinutes": null,
+        "remainingMinutes": null,
+        "completed": false
+      }
+    ],
+    "sessions": [],
+    "planner": {
+      "courses": [
+        {
+          "name": "Oppdiktet CSV-termfag",
+          "code": "SYN974",
+          "university": "HiMolde",
+          "semester": "spring",
+          "year": 2046,
+          "credits": null,
+          "description": "",
+          "id": "document:document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e:course:f64cebeb2a49c370#1",
+          "notes": "Oppdiktet bevart CSV-emnenotat",
+          "importSourceId": "document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e",
+          "importEntryKey": "course:f64cebeb2a49c370#1"
+        }
+      ],
+      "events": [
+        {
+          "id": "document:document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e:event:20933771bd6871a5#1",
+          "title": "Oppdiktet beholdt januarverksted",
+          "courseId": "document:document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e:course:f64cebeb2a49c370#1",
+          "start": "2046-01-12T09:00:07Z",
+          "end": "2046-01-12T10:00:17Z",
+          "point": false,
+          "location": "",
+          "description": "",
+          "activityKind": "",
+          "activityType": "Seminar",
+          "allDay": false,
+          "cancelled": false,
+          "transparent": false,
+          "information": false,
+          "notes": "Oppdiktet bevart CSV-aktivitetsnotat",
+          "importSourceId": "document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e",
+          "importEntryKey": "event:20933771bd6871a5#1"
+        }
+      ],
+      "sources": []
+    },
+    "importSources": [
+      {
+        "id": "document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e",
+        "kind": "document",
+        "format": "csv",
+        "name": "legacy-csv-term.csv",
+        "contentHash": "e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e",
+        "revision": 1,
+        "createdAt": "2045-09-01T09:00:00.000Z",
+        "lastUpdated": "2045-09-01T09:00:00.000Z",
+        "entries": [
+          {
+            "key": "course:f64cebeb2a49c370#1",
+            "kind": "course",
+            "targetId": "document:document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e:course:f64cebeb2a49c370#1",
+            "sourceBase": {
+              "name": "Oppdiktet CSV-termfag",
+              "code": "SYN974",
+              "university": "HiMolde",
+              "semester": "spring",
+              "year": 2046,
+              "credits": null,
+              "description": ""
+            },
+            "snippet": "Emnekode: SYN974\nOppdiktet CSV-termfag",
+            "position": "Emne fra CSV",
+            "matchKey": "course|oppdiktet csv-termfag|",
+            "titleOrigin": "source"
+          },
+          {
+            "key": "event:20933771bd6871a5#1",
+            "kind": "event",
+            "targetId": "document:document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e:event:20933771bd6871a5#1",
+            "sourceBase": {
+              "title": "Oppdiktet beholdt januarverksted",
+              "courseId": "document:document:e794a2a4ff7dd53b2726229d18926b3f9db2d11537c0ca57a480d7d5eef9847e:course:f64cebeb2a49c370#1",
+              "start": "2046-01-12T09:00:07Z",
+              "end": "2046-01-12T10:00:17Z",
+              "point": false,
+              "location": "",
+              "description": "",
+              "activityKind": "",
+              "activityType": "Seminar",
+              "allDay": false,
+              "cancelled": false,
+              "transparent": false,
+              "information": false
+            },
+            "sourceTiming": {
+              "start": "2046-01-12T09:00:07.000Z",
+              "end": "2046-01-12T10:00:17.000Z",
+              "point": false,
+              "allDay": false
+            },
+            "snippet": "semesterid: 45h; courseid: SYN974; dtstart: 2046-01-12T10:00:07+01:00; dtend: 2046-01-12T11:00:17+01:00; title-intro: SYN974; teaching-title: Oppdiktet beholdt januarverksted; summary: Oppdiktet beholdt januarverksted; teaching-method-name: Seminar; coursename: Oppdiktet CSV-termfag; university: HiMolde",
+            "position": "CSV-rad 2",
+            "matchKey": "event|oppdiktet beholdt januarverksted|syn974",
+            "titleOrigin": "source"
+          }
+        ],
+        "origin": {
+          "kind": "file"
+        },
+        "excludedKeys": [
+          "event:4f53e60196a014ab#1"
+        ],
+        "complete": true,
+        "warnings": [
+          "Disse CSV-kolonnene er bare synlige i kildeutdraget og blir ikke egne felt: semesterid, title-intro.",
+          "Kilden mangler en entydig hendelsesidentitet. Ved endringer må du kontrollere tidligere oppføringer; like titler blir ikke automatisk slått sammen."
+        ]
+      }
+    ]
+  }
+}

@@ -1,3 +1,4 @@
+import { reveal } from './helpers.js'
 import { test, expect } from '@playwright/test'
 import { freeze, navigate, key } from './helpers.js'
 
@@ -16,19 +17,19 @@ async function boot(page, { width = 1440, size = 16 } = {}) {
 
 async function open(page, text, filename, sourceId) {
   await navigate(page, 'subjects')
-  await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra dokument eller tekst', exact: true }).click()
+  await (await reveal(page.getByRole('button', { name: 'Finn studieprogram', exact: true }))).click()
+  await (await reveal(page.getByRole('button', { name: 'Fra fil eller tekst', exact: true }))).click()
   if (sourceId) {
-    await page.getByLabel('Ny kilde eller oppdatering', { exact: true }).selectOption(sourceId)
+    await (await reveal(page.getByLabel('Ny kilde eller oppdatering', { exact: true }))).selectOption(sourceId)
     await expect(page.locator('.document-source-evidence')).toContainText('Kilden var ufullstendig')
   }
   await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: filename, mimeType: filename.endsWith('.ics') ? 'text/calendar' : 'text/plain', buffer: Buffer.from(text) })
-  await page.getByRole('button', { name: 'Les arbeidskravet', exact: true }).click()
+  await (await reveal(page.getByRole('button', { name: 'Vis forhåndsvisning', exact: true }))).click()
   await expect(page.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible()
 }
 
 async function confirm(page) {
-  await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
+  await (await reveal(page.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
   await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
 }
 
@@ -66,14 +67,14 @@ test('R13 RDATE remains unselected and visibly incomplete; explicit concrete tas
   await boot(page, { width: 390, size: 24 })
   const text = calendar(['RDATE:20260928T120000Z,20261005T120000Z'])
   await open(page, text, 'gjentakelse.ics')
-  await expect(page.locator('.document-preview')).toContainText('Kilden er ufullstendig')
+  await expect(page.locator('.document-preview')).toContainText('Kilden er ikke bekreftet fullstendig. Kontroller varslene før lagring.')
   await expect(page.locator('.document-preview')).toContainText('Avklar én konkret oppgave')
   await expect(page.locator('.document-preview-row blockquote')).toContainText('Gjentakelse: RDATE')
   await expect(page.getByLabel('Ta med i planen', { exact: true })).not.toBeChecked()
   expect((await stored(page)).tasks).toHaveLength(0)
   await capture(page, info, 'r13-rdate-mobile-24px.png')
-  await page.getByLabel('Ta med i planen', { exact: true }).check()
-  await page.getByLabel('Navn', { exact: true }).fill('Skriv rapport – bare 21. september')
+  await (await reveal(page.getByLabel('Ta med i planen', { exact: true }))).check()
+  await (await reveal(page.getByLabel('Navn', { exact: true }))).fill('Skriv rapport – bare 21. september')
   await confirm(page)
   const saved = await stored(page), sourceId = saved.importSources[0].id
   expect(saved.tasks).toHaveLength(1)
@@ -89,7 +90,7 @@ test('R13 RDATE remains unselected and visibly incomplete; explicit concrete tas
   expect(backup.data.importSources[0]).toMatchObject({ complete: false, warnings: saved.importSources[0].warnings })
   await open(page, text, 'gjentakelse.ics', sourceId)
   await expect(page.getByLabel('Ta med i planen', { exact: true })).not.toBeChecked()
-  await page.getByLabel('Ta med i planen', { exact: true }).check()
+  await (await reveal(page.getByLabel('Ta med i planen', { exact: true }))).check()
   await confirm(page)
   expect((await stored(page)).tasks).toEqual(saved.tasks)
 })
@@ -105,13 +106,13 @@ for (const [status, width, size] of [['', 1440, 16], ['NEEDS-ACTION', 390, 24]])
     await expect(page.getByLabel('Ta med i planen', { exact: true })).not.toBeChecked()
     await expect(page.getByLabel('Avklar oppgavestatus', { exact: true })).toHaveValue('?')
     const before = await stored(page)
-    await page.getByLabel('Ta med i planen', { exact: true }).check()
-    await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
+    await (await reveal(page.getByLabel('Ta med i planen', { exact: true }))).check()
+    await (await reveal(page.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
     await expect(page.getByLabel('Avklar oppgavestatus', { exact: true })).toBeFocused()
     await expect(page.locator('.document-preview [role=alert]').first()).toContainText('Velg uttrykkelig')
     expect(await stored(page)).toEqual(before)
     await capture(page, info, `r13-cancel-${width}px.png`)
-    await page.getByLabel('Avklar oppgavestatus', { exact: true }).selectOption('open')
+    await (await reveal(page.getByLabel('Avklar oppgavestatus', { exact: true }))).selectOption('open')
     await confirm(page)
     const saved = await stored(page)
     expect(saved.tasks).toHaveLength(1)

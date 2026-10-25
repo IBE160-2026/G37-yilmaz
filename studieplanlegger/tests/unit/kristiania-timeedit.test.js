@@ -43,7 +43,9 @@ describe('Kristiania published guest course timetable', () => {
     const parsed = parseCalendar(result.calendar, { courseId: '', year: 2026, semester: 'autumn' })
     expect(parsed.events).toHaveLength(49)
     expect(parsed.events[0]).toMatchObject({ title: 'Emnenavn: Introduksjon til programmering', start: '2026-08-21T08:15:00.000Z', end: '2026-08-21T10:00:00.000Z', groupMissing: true })
-    expect(parsed.warnings.join(' ')).toMatch(/ugyldig varighet/)
+    // Identity is validated before timing/filtering: these nine source entries lack SUMMARY.
+    expect(parsed.warnings.join(' ')).toMatch(/mangler navn eller kilde-ID/)
+    expect(parsed.accounting).toMatchObject({ total: 58, rejected: 9, retained: 49 })
     expect(parsed.warnings.join(' ')).toMatch(/mangler gruppenummer/)
     expect(parsed.authoritative).toBe(false)
     expect(result.coverage).toBe('unknown')

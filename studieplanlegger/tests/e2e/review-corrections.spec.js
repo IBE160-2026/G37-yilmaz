@@ -15,6 +15,50 @@ async function seed(page, data = initial(), now = '2026-09-08T06:00:00Z') {
 }
 const backup = data => ({ format: 'studieplan-local-backup', backupVersion: 1, createdAt: '2026-09-08T06:00:00Z', data })
 
+test('legacy file replacement preserves identity and selection, distinguishes absence from cancellation and returns mobile focus', async ({ page }, info) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const source = { id: 'legacy-file', kind: 'file', name: 'before.ics', courseId: 'c', groups: ['Group A', 'Group B'], excludedKeys: [], lastUpdated: '2026-09-08T06:00:00Z' }
+  const data = initial(); data.planner = mergeImport(data.planner, parseCalendar(calendar, { ...course, courseId: 'c' }).events, source).planner
+  data.planner.events[0].notes = 'Keep note'
+  const originalIds = data.planner.events.map(event => event.id)
+  await seed(page, data); await navigate(page, 'subjects')
+  const action = page.getByRole('button', { name: 'Endre aktivitetsvalg', exact: true })
+  await action.click(); await page.getByRole('button', { name: 'Avbryt import', exact: true }).click(); await expect(action).toBeFocused()
+  await action.click()
+  await page.locator('#import-preview summary').filter({ hasText: /Aktivitetsutvalg/ }).click()
+  await page.locator('.activity-choices input[value="Group B"]').uncheck()
+  await page.getByRole('button', { name: 'Rediger undervisning Teaching A', exact: true }).click()
+  await page.locator('#subject-editor [name=location]').fill('Mitt rom')
+  await page.getByRole('button', { name: 'Lagre undervisning', exact: true }).click()
+  await page.getByRole('button', { name: 'Bekreft import', exact: true }).click()
+  await expect(page.locator('#subject-message')).toContainText('Dataene er endret')
+  const refresh = page.locator('#import-preview').getByRole('button', { name: 'Oppdater forhåndsvisningen', exact: true, includeHidden: true })
+  await expect(refresh).toBeFocused(); await refresh.click()
+  await expect(page.locator('.activity-choices input[value="Group B"]')).not.toBeChecked()
+  expect((await saved(page)).planner.events[0].location).toBe('Mitt rom')
+  await page.getByRole('button', { name: 'Avbryt import', exact: true }).click(); await expect(action).toBeFocused()
+  const replace = async text => {
+    await page.getByLabel('Oppdater denne filkilden', { exact: true }).setInputFiles({ name: 'after.ics', mimeType: 'text/calendar', buffer: Buffer.from(text) })
+    await expect(page.locator('#import-preview')).toBeVisible()
+    await page.getByRole('button', { name: 'Bekreft import', exact: true }).click()
+    await expect(action).toBeFocused()
+    expect(await action.evaluate(node => { const rect = node.getBoundingClientRect(); return rect.top >= 0 && rect.bottom <= innerHeight && document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)?.closest('button') === node })).toBe(true)
+  }
+  await replace(calendar)
+  expect((await saved(page)).planner.events.map(event => event.id)).toEqual(originalIds)
+  const changed = calendar.replace('Teaching A', 'Teaching moved').replace('20260908T080000Z', '20260908T070000Z')
+  await replace(changed)
+  let stored = await saved(page)
+  expect(stored.planner.sources).toHaveLength(1); expect(stored.importSources || []).toHaveLength(0)
+  expect(stored.planner.events[0]).toMatchObject({ id: originalIds[0], notes: 'Keep note', title: 'Teaching moved', start: '2026-09-08T07:00:00.000Z' })
+  expect(stored.planner.sources[0].groups).toEqual(source.groups)
+  await replace(changed.replace(/BEGIN:VEVENT\r\nUID:B[\s\S]*?END:VEVENT\r\n/, ''))
+  expect((await saved(page)).planner.events.find(event => event.sourceUid === 'B').cancelled).toBe(false)
+  await replace(changed.replace('UID:B', 'UID:B\r\nSTATUS:CANCELLED'))
+  expect((await saved(page)).planner.events.find(event => event.sourceUid === 'B').cancelled).toBe(true)
+  await page.screenshot({ path: info.outputPath('legacy-file-return-390.png') })
+})
+
 test('repairs malformed JSON through a valid selected backup file without enabling normal edits', async ({ page }) => {
   const raw = '{ malformed local JSON'; await seed(page, raw)
   await expect(page.getByRole('button', { name: 'Ny oppgave', exact: true, includeHidden: true }).first()).toBeDisabled()
@@ -59,7 +103,7 @@ for (const conflict of [false, true]) test(`selected verified campus survives de
   await page.locator('#course-import-form [name=code]').fill('MAT100')
   await page.locator('#course-import-form [name=campus]').fill('Trondheim')
   await page.getByRole('button', { name: 'Søk emner', exact: true }).click()
-  await page.getByRole('button', { name: 'MAT100 · Matematikk · Trondheim', exact: true }).click()
+  await page.getByRole('button', { name: 'Matematikk · MAT100 · Trondheim', exact: true }).click()
   if (conflict) { await expect(page.locator('#subject-message')).toContainText('campus'); expect((await saved(page)).planner).toBeUndefined(); return }
   await expect(page.locator('#import-preview')).toContainText('Beskrivelse er ikke hentet')
   await expect(page.getByRole('button', { name: 'Avbryt import', exact: true })).toHaveClass(/secondary/)
@@ -75,11 +119,9 @@ for (const kind of ['file', 'url']) for (const selection of ['group', 'individua
   await page.route('**/api/import/calendar', route => route.fulfill({ json: { calendar } }))
   await seed(page, data); await navigate(page, 'subjects')
   const prepare = async () => {
-    if (kind === 'file') await openImportMethod(page, 'calendar')
-    if (kind === 'file') { await page.locator('#calendar-import-form [name=file]').setInputFiles({ name: 'review.ics', mimeType: 'text/calendar', buffer: Buffer.from(calendar) }); await page.locator('#ics-preview').click() }
-    else await page.getByRole('button', { name: 'Endre aktivitetsvalg', exact: true }).click()
+    await page.getByRole('button', { name: 'Endre aktivitetsvalg', exact: true }).click()
     await expect(page.locator('#import-preview')).toBeVisible()
-    if (kind === 'url') await page.locator('#import-preview summary').filter({ hasText: /Aktivitetsutvalg/ }).click()
+    await page.locator('#import-preview summary').filter({ hasText: /Aktivitetsutvalg/ }).click()
   }
   await prepare()
   for (let i = 0; i < count; i++) {

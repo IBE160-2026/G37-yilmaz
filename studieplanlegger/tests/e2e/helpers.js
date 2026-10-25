@@ -18,6 +18,21 @@ export const studyData = async page => { const { history, ...data } = await save
 export const writes = page => page.evaluate(() => window.writeAttempts)
 export const ids = page => rows(page).evaluateAll(items => items.map(item => item.dataset.taskId))
 
+// Open the actual disclosure controls before interacting with optional import
+// fields. Assertions remain explicit so tests can still verify the compact view.
+export async function reveal(control) {
+  await control.waitFor({ state: 'attached' })
+  const ancestors = control.locator('xpath=ancestor::details')
+  const detailsToOpen = await ancestors.all()
+  // A summary is the disclosure itself: opening its own details here would
+  // turn the caller's ensuing click into an unintended close.
+  if (await control.evaluate(element => element.tagName === 'SUMMARY')) detailsToOpen.pop()
+  for (const details of detailsToOpen) {
+    if (!await details.evaluate(element => element.open)) await details.locator(':scope > summary').click()
+  }
+  return control
+}
+
 export async function freeze(page, now = '2026-09-03T12:00:00+02:00') {
   // Pause before navigation. All later time changes are explicit test actions.
   await page.clock.install({ time: new Date(Date.parse(now) - 60_000) })

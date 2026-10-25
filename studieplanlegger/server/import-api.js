@@ -9,7 +9,7 @@ import { gestaltCalendarSources, fetchGestaltCalendar } from './providers/gestal
 import { phsExamSources, fetchPhsExamCalendar } from './providers/phs-calendar.js'
 import { ansgarCalendarSources, fetchAnsgarCalendar } from './providers/ansgar-calendar.js'
 import { fihCalendarSources, fetchFihCalendar } from './providers/fih-calendar.js'
-import { isPublicTpCalendarUrl, fetchPublicTpCalendar } from './providers/public-tp.js'
+import { publicTpViewSelection, fetchPublicTpView, isPublicTpCalendarUrl, fetchPublicTpCalendar } from './providers/public-tp.js'
 
 export async function decodePublicContent(bytes, encoding, maxBytes) {
   const type=String(encoding||'identity').trim().toLowerCase()
@@ -146,6 +146,8 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
       const body = Buffer.concat(chunks).toString('utf8')
       const { url: calendarUrl, sourceObjectId } = JSON.parse(body)
       if (typeof calendarUrl !== 'string') throw new Error('Oppgi en kalenderlenke.')
+      if (publicTpViewSelection(calendarUrl)) return send(200, await fetchPublicTpView(calendarUrl, { fetchText }))
+      if (new URL(calendarUrl).origin === 'https://tp.educloud.no' && /\/app\/schedule\/?$/.test(new URL(calendarUrl).pathname)) throw new Error('TP-visningen må velge ett offentlig emne med semester og undervisningstermin. Bruk TP-eksport til ICS for andre visninger.')
       if (isPublicTpCalendarUrl(calendarUrl) && new URL(calendarUrl).searchParams.get('type') === 'course') return send(200, await fetchPublicTpCalendar(calendarUrl, { fetchText }))
       if (isPublicPlandiscUrl(calendarUrl)) return send(200, await fetchPlandiscCalendar(calendarUrl, { fetchText }))
       if (new URL(calendarUrl).origin === 'https://ansgarskolenno-my.sharepoint.com') return send(200, await fetchAnsgarCalendar(calendarUrl, { fetchText, fetchBytes }))
@@ -154,6 +156,7 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
       if (/^https:\/\/img1\.wsimg\.com\/blobby\/go\/[^?#]+\.pdf$/.test(calendarUrl)) return send(200, await fetchGestaltCalendar(calendarUrl, { sourceObjectId, fetchText, fetchBytes }))
       if (/^https:\/\/www\.politihogskolen\.no\/for-studenter\/eksamen\/eksamensoversikt-(ba|ma)\/?$/.test(calendarUrl)) return send(200, await fetchPhsExamCalendar(calendarUrl, { fetchText }))
       const calendar = await fetchText(calendarUrl)
+      if (/^\s*(?:<!doctype\s+html|<html\b)/i.test(calendar)) throw Object.assign(new Error('Lenken åpner en nettside, ikke en ICS-kalender. Bruk sidens eksportvalg for iCalendar/ICS, kopier den direkte kalenderlenken eller last opp .ics-filen.'), { status: 'invalid-response' })
       if (!/^\s*BEGIN:VCALENDAR/im.test(calendar)) throw Object.assign(new Error('Lenken returnerte ikke en kalender. Last ned en .ics-fil og last den opp her.'), { status: 'invalid-response' })
       return send(200, { calendar })
     }

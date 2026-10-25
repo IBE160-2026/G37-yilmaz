@@ -30,6 +30,41 @@ async function route(method, path, body, options = {}) {
 }
 
 describe('R25 real import routing boundary', () => {
+  it('routes an exact TP view through verified metadata and rejects unsupported selections without fetching HTML', async () => {
+    const requests = []
+    const fetchTextImpl = async (input, _redirects, guard) => {
+      const url = new URL(input); guard?.(url); requests.push(url.href)
+      if (url.pathname.endsWith('semesters.php')) return JSON.stringify([{ id: '26h', year: 2026, season: 'AUTUMN', fromdate: '2026-08-01', todate: '2026-12-31', random_int: 913, publish_timetable: true }])
+      if (url.pathname.endsWith('info.php')) return JSON.stringify([{ id: 'SYN729', semesterid: '26h', nameNb: 'Invented routed course', term: [{ term: 1 }] }])
+      if (url.pathname.endsWith('ical.php')) return 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:invented-routing-id\r\nSUMMARY:Invented activity\r\nDTSTART:20261104T100000Z\r\nDTEND:20261104T110000Z\r\nEND:VEVENT\r\nEND:VCALENDAR'
+      throw new Error('Unexpected synthetic fetch')
+    }
+    const url = 'https://tp.educloud.no/uio/app/schedule?semester=26h&scheduleType=course&course=SYN729%C2%A41'
+    const result = await route('POST', '/api/import/calendar', { url }, { fetchTextImpl })
+    expect(result.httpStatus).toBe(200)
+    expect(result.body.calendar).toContain('X-COURSE-NAME:Invented routed course')
+    expect(result.body.eventCount).toBe(1)
+    expect(requests.some(value => value.includes('/app/schedule'))).toBe(false)
+    const unsupported = await route('POST', '/api/import/calendar', { url: url.replace('scheduleType=course', 'scheduleType=person') }, { fetchTextImpl: async () => { throw new Error('Must not fetch') } })
+    expect(unsupported.httpStatus).toBe(400)
+    expect(unsupported.body.error).toContain('TP-eksport til ICS')
+  })
+  it('keeps direct ICS, login HTML and transport errors distinct from empty success', async () => {
+    const url = 'https://synthetic.example.test/calendar'
+    const direct = await route('POST', '/api/import/calendar', { url }, { fetchTextImpl: async () => 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR' })
+    expect(direct.httpStatus).toBe(200)
+    const login = await route('POST', '/api/import/calendar', { url }, { fetchTextImpl: async () => '<html><body>Invented login page</body></html>' })
+    expect(login.httpStatus).toBe(400); expect(login.body.error).toContain('ikke en ICS-kalender')
+    const failure = await route('POST', '/api/import/calendar', { url }, { fetchTextImpl: async () => { throw new Error('Invented transport error') } })
+    expect(failure.httpStatus).toBe(400); expect(failure.body.error).toContain('transport error'); expect(failure.body.calendar).toBeUndefined()
+  })
+  it('explains a view page without scraping or guessing its calendar export URL', async () => {
+    const fetched = []
+    const response = await route('POST', '/api/import/calendar', { url: 'https://calendar.example.test/synthetic-view' }, { fetchTextImpl: async url => { fetched.push(String(url)); return '<!doctype html><html><body>Synthetic calendar view</body></html>' } })
+    expect(response.httpStatus).toBe(400)
+    expect(response.body).toMatchObject({ status: 'invalid-response', error: expect.stringContaining('sidens eksportvalg for iCalendar/ICS') })
+    expect(fetched).toEqual(['https://calendar.example.test/synthetic-view'])
+  })
   it('covers every registered programme provider identity through its actual adapter', async () => {
     expect(Object.keys(programmeHosts).sort()).toEqual([...programProviders].sort())
     for (const institution of programProviders) {

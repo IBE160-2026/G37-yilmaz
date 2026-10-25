@@ -105,6 +105,9 @@ describe('fixture privacy minimization', () => {
       const $ = cheerio.load(source)
       expect(selectors.every(selector => $(selector).length === 0)).toBe(true)
     }
+    const uis = cheerio.load(fixture('public-programs/uis-data-program.html'))
+    // Report a boolean so a newly copied personal profile is never printed by an assertion.
+    expect(uis('a[href]').toArray().some(node => /\/(?:ansatte|employees|staff|people|persons|profile)\//i.test(uis(node).attr('href')))).toBe(false)
     const uit = cheerio.load(fixture('uit-programs/b-inf.html'))
     expect(uit('[src^="data:image"], [srcset*="data:image"], [style*="data:image"]').length).toBe(0)
     expect(/"author"\s*:\s*null/.test(fixture('public-programs/kristiania-catalogue.html'))).toBe(true)

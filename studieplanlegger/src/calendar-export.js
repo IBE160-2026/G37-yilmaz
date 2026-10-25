@@ -1,7 +1,8 @@
 import { Temporal } from '@js-temporal/polyfill'
 import ICAL from 'ical.js'
 import { extendedSessionInterval } from './work-capacity.js'
-import { toInstant } from './planner.js'
+import { toInstant, eventBlocksTime } from './planner.js'
+import { calendarInstantLabel } from './calendar-model.js'
 
 const encoder = new TextEncoder()
 const utcStamp = value => new Date(value).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')
@@ -27,25 +28,27 @@ export function foldIcsLine(line) {
   return result.join('\r\n')
 }
 
-function inRange(ms, from, to) {
-  const date = Temporal.Instant.fromEpochMilliseconds(ms).toZonedDateTimeISO('Europe/Oslo').toPlainDate().toString()
+const instant = value => typeof value === 'number' ? Temporal.Instant.fromEpochMilliseconds(value) : Temporal.Instant.from(value)
+function inRange(value, from, to) {
+  const date = instant(value).toZonedDateTimeISO('Europe/Oslo').toPlainDate().toString()
   return (!from || date >= from) && (!to || date <= to)
 }
 function overlapsRange(start, end, from, to) {
   try {
-    const lower = from ? Temporal.PlainDate.from(from).toZonedDateTime('Europe/Oslo').toInstant().epochMilliseconds : -Infinity
-    const upper = to ? Temporal.PlainDate.from(to).add({ days: 1 }).toZonedDateTime('Europe/Oslo').toInstant().epochMilliseconds : Infinity
-    return start < upper && end > lower
+    const lower = from ? Temporal.PlainDate.from(from).toZonedDateTime('Europe/Oslo').epochNanoseconds : null
+    const upper = to ? Temporal.PlainDate.from(to).add({ days: 1 }).toZonedDateTime('Europe/Oslo').epochNanoseconds : null
+    return (upper === null || instant(start).epochNanoseconds < upper) && (lower === null || instant(end).epochNanoseconds > lower)
   } catch { return false }
 }
 
-export function calendarExportItems(state, { from, to, includeSessions = true, includeDeadlines = true, includeTeaching = false, includePersonal = false } = {}) {
+function calendarExportCandidates(state, { from, to, includeSessions = true, includeDeadlines = true, includeTeaching = false, includePersonal = false } = {}) {
   const items = []
   if (includeDeadlines) for (const task of state.tasks || []) if (task.deadlineLocal) {
     try {
       const allDay = task.deadlineLocal.length === 10
-      const due = allDay ? Temporal.PlainDate.from(task.deadlineLocal).toString() : Date.parse(toInstant(task.deadlineLocal))
-      if (allDay ? (!from || due >= from) && (!to || due <= to) : inRange(due, from, to)) items.push({ kind: 'deadline', id: task.id, title: task.title, due, allDay, course: task.course })
+      const dueInstant = allDay ? undefined : toInstant(task.deadlineLocal)
+      const due = allDay ? Temporal.PlainDate.from(task.deadlineLocal).toString() : instant(dueInstant).epochMilliseconds
+      if (allDay ? (!from || due >= from) && (!to || due <= to) : inRange(dueInstant, from, to)) items.push({ kind: 'deadline', id: task.id, title: task.title, due, ...(dueInstant ? { dueInstant } : {}), allDay, course: task.course })
     } catch { /* invalid legacy values are not exported */ }
   }
   if (includeSessions) for (const session of state.sessions || []) {
@@ -60,21 +63,49 @@ export function calendarExportItems(state, { from, to, includeSessions = true, i
       items.push({ kind: 'session', id: session.id, title, start: interval.start, end: interval.end, course: task?.course })
     } catch { /* rejected by the persisted-envelope validator in normal use */ }
   }
-  if (includeTeaching) for (const event of state.planner?.events || []) if (event.activityKind !== 'personal' && !event.deleted && !event.cancelled && !event.excluded && !event.transparent && !event.information && event.transparency !== 'TRANSPARENT' && event.start && event.end) {
-    const start = Date.parse(event.start), end = Date.parse(event.end)
-    const course = state.planner?.courses?.find(item => item.id === event.courseId)
-    if (Number.isFinite(start) && Number.isFinite(end) && end > start && overlapsRange(start, end, from, to)) items.push({ kind: 'teaching', id: event.id, title: event.title, start, end, location: event.location, course: course?.code || course?.name })
+  if (includeTeaching) for (const event of state.planner?.events || []) if (event.activityKind !== 'personal' && !event.deleted && !event.cancelled && !event.excluded && event.start && event.end) {
+    try {
+      const start = instant(event.start), end = instant(event.end), duration = Temporal.Instant.compare(end, start)
+      const course = state.planner?.courses?.find(item => item.id === event.courseId)
+      const omittedInformation = !event.point && (event.transparent || event.information || event.transparency === 'TRANSPARENT')
+      const dates = event.allDay ? { allDay: true, date: start.toZonedDateTimeISO('Europe/Oslo').toPlainDate().toString(), endDate: end.toZonedDateTimeISO('Europe/Oslo').toPlainDate().toString() } : {}
+      if ((duration > 0 || event.point && duration === 0) && (event.point ? inRange(start, from, to) : overlapsRange(start, end, from, to))) items.push({ kind: 'teaching', point: Boolean(event.point), transparent: !eventBlocksTime(event), id: event.id, title: event.title, start: start.epochMilliseconds, end: end.epochMilliseconds, startInstant: start.toString(), endInstant: end.toString(), ...dates, ...(omittedInformation ? { omissionReason: 'Oppføringen er informasjon eller reserverer ikke tid. Slike intervaller er ikke med i undervisningskopien; oppføringen beholdes i planen.' } : {}), location: event.location, course: course?.code || course?.name })
+    } catch { /* invalid legacy values are not exported */ }
   }
   if (includePersonal) for (const event of state.planner?.events || []) if (event.activityKind === 'personal' && !event.deleted && !event.cancelled && !event.excluded) {
     try {
       const day = Temporal.PlainDate.from(event.dateLocal).toString()
-      if ((from && day < from) || (to && day > to)) continue
-      items.push({ kind: 'personal', id: event.id, title: event.title, date: day, start: event.start ? Date.parse(event.start) : undefined, end: event.end ? Date.parse(event.end) : undefined, allDay: !event.start, location: event.location })
+      const start = event.start ? instant(event.start) : null, end = event.end && !event.point ? instant(event.end) : null
+      if (start && end ? !overlapsRange(start, end, from, to) : (from && day < from) || (to && day > to)) continue
+      const allDay = Boolean(event.allDay || !start)
+      const endDate = allDay && end ? end.toZonedDateTimeISO('Europe/Oslo').toPlainDate().toString() : undefined
+      items.push({ kind: 'personal', point: Boolean(event.point), transparent: !eventBlocksTime(event), id: event.id, title: event.title, date: day, start: start?.epochMilliseconds, end: end?.epochMilliseconds, ...(start ? { startInstant: start.toString() } : {}), ...(end ? { endInstant: end.toString() } : {}), ...(endDate ? { endDate } : {}), allDay, location: event.location })
     } catch { /* invalid legacy values are not exported */ }
   }
   const timestamp = item => item.start ?? (item.allDay ? Temporal.PlainDate.from(item.due || item.date).toZonedDateTime('Europe/Oslo').toInstant().epochMilliseconds : item.due)
   return items.sort((a, b) => timestamp(a) - timestamp(b) || `${a.kind}:${a.id}`.localeCompare(`${b.kind}:${b.id}`))
 }
+
+// RFC DATE-TIME has whole seconds. A selected record is either represented
+// exactly or listed as omitted; never round its endpoints or invent duration.
+const itemInstants = item => (item.kind === 'deadline' ? [item.dueInstant ?? item.due] : [item.startInstant ?? item.start, ...(item.point ? [] : [item.endInstant ?? item.end])]).filter(value => value !== undefined)
+function representableCalendarDates(item) {
+  if (!item.allDay || item.kind === 'deadline') return true
+  const startValue = item.startInstant ?? item.start, endValue = item.endInstant ?? item.end
+  if (startValue === undefined && endValue === undefined) return item.kind === 'personal'
+  if (startValue === undefined || endValue === undefined || item.point) return false
+  const start = instant(startValue).toZonedDateTimeISO('Europe/Oslo'), end = instant(endValue).toZonedDateTimeISO('Europe/Oslo')
+  return start.toPlainTime().equals('00:00') && end.toPlainTime().equals('00:00')
+    && start.toPlainDate().toString() === item.date && end.toPlainDate().toString() === item.endDate
+    && Temporal.PlainDate.compare(item.endDate, item.date) > 0
+}
+const fractionalTime = item => !item.allDay && itemInstants(item).some(value => instant(value).epochNanoseconds % 1_000_000_000n !== 0n)
+const exactExportTime = item => itemInstants(item).map(value => {
+  const time = instant(value)
+  return time.toString({ fractionalSecondDigits: time.epochNanoseconds % 1_000_000n === 0n ? 3 : 'auto' })
+}).join(' – ')
+export const calendarExportTime = item => item.allDay && representableCalendarDates(item) ? `${item.due || item.date}${item.endDate ? ` – ${item.endDate} (sluttdato ikke inkludert)` : ''}` : item.deadlineLocal && item.due === undefined ? item.deadlineLocal : itemInstants(item).map(value => calendarInstantLabel(value, { includeDate: true, forceOffset: true })).join(' – ')
+export const calendarExportItems = (state, options = {}) => calendarExportCandidates(state, options).filter(item => !item.omissionReason && representableCalendarDates(item) && !fractionalTime(item))
 
 function deadlineOmissionReason(value) {
   try {
@@ -87,16 +118,20 @@ function deadlineOmissionReason(value) {
   return 'Datoen eller klokkeslettet er ugyldig. Rett fristen i oppgaven.'
 }
 
-export function calendarExportOmissions(state, { from, to, includeDeadlines = true } = {}) {
-  if (!includeDeadlines) return []
+export function calendarExportOmissions(state, options = {}) {
+  const { from, to, includeDeadlines = true } = options
   const omitted = []
-  for (const task of state.tasks || []) if (task.deadlineLocal) {
+  for (const task of includeDeadlines ? state.tasks || [] : []) if (task.deadlineLocal) {
     const date = String(task.deadlineLocal).match(/^\d{4}-\d{2}-\d{2}/)?.[0]
     if (date && ((from && date < from) || (to && date > to))) continue
     try {
       if (task.deadlineLocal.length === 10) Temporal.PlainDate.from(task.deadlineLocal)
       else toInstant(task.deadlineLocal)
-    } catch { omitted.push({ ...task, reason: deadlineOmissionReason(task.deadlineLocal) }) }
+    } catch { omitted.push({ ...task, kind: 'deadline', time: task.deadlineLocal, reason: deadlineOmissionReason(task.deadlineLocal) }) }
+  }
+  for (const item of calendarExportCandidates(state, options)) {
+    const reason = [item.omissionReason, !representableCalendarDates(item) ? 'Hele kalenderdager krever midnatt i norsk tid og en senere sluttdato som ikke er inkludert. Heldagsmerkingen stemmer ikke med tidspunktene. Oppføringen utelates fra kopien; de nøyaktige tidspunktene beholdes i planen.' : '', fractionalTime(item) ? 'ICS støtter bare hele sekunder. Oppføringen utelates fra kopien; de nøyaktige tidspunktene beholdes i planen.' : ''].filter(Boolean).join(' ')
+    if (reason) omitted.push({ ...item, time: exactExportTime(item), reason })
   }
   return omitted
 }
@@ -106,8 +141,8 @@ export function generateCalendarIcs(state, options = {}) {
   for (const item of calendarExportItems(state, options)) {
     const summary = [item.course ? `[${item.course}]` : '', item.kind === 'deadline' ? 'Frist:' : '', item.title].filter(Boolean).join(' ')
     if (item.kind === 'deadline') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.due.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.due)}`, `SUMMARY:${escapeText(summary)}`, 'TRANSP:TRANSPARENT', 'END:VEVENT')
-    else if (item.kind === 'personal') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.end ? [`DTEND:${utcStamp(item.end)}`] : []), `SUMMARY:${escapeText(`Egen aktivitet: ${item.title}`)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), ...(!item.end ? ['TRANSP:TRANSPARENT'] : []), 'END:VEVENT')
-    else lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', `DTSTART:${utcStamp(item.start)}`, `DTEND:${utcStamp(item.end)}`, `SUMMARY:${escapeText(summary)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), 'END:VEVENT')
+    else if (item.kind === 'personal') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.endDate ? [`DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}`] : item.end !== undefined && !item.allDay ? [`DTEND:${utcStamp(item.end)}`] : []), `SUMMARY:${escapeText(`Egen aktivitet: ${item.title}`)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, 'END:VEVENT')
+    else lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.point ? [] : [item.allDay ? `DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}` : `DTEND:${utcStamp(item.end)}`]), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, `SUMMARY:${escapeText(summary)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), 'END:VEVENT')
   }
   lines.push('END:VCALENDAR')
   return lines.map(foldIcsLine).join('\r\n') + '\r\n'

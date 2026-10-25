@@ -494,6 +494,14 @@ window.setInterval(() => {
 subjects = createSubjectsView({
   getState: snapshot,
   commit: (candidate, label) => { const result = commitState(candidate, label); if (result.ok) refresh(); return result },
+  undoImport: expectedId => {
+    if (!expectedId || extras.history?.undo.at(-1)?.id !== expectedId) return { ok: false, error: 'En nyere endring er lagret. Bruk vanlig angre for den nyeste endringen.' }
+    const restored = undoLast(snapshot(), extras.history || emptyHistory())
+    if (!restored.ok) return restored
+    const saved = commitState({ ...restored.state, history: restored.history }, 'Angre import', { history: false })
+    if (saved.ok) refresh()
+    return saved
+  },
   refresh,
   view: next => { view = next; refresh() },
   courseFilter: id => { courseFilter = id },
@@ -514,8 +522,9 @@ subjects = createSubjectsView({
   },
   save: (next, nextTasks = tasks) => {
     if (!readable || draftId !== null || stepId !== null || sessionId !== null) return false
-    const removed = (planner?.courses || []).find(course => !next.courses.some(c => c.id === course.id)) || (planner?.events || []).find(event => !next.events.some(e => e.id === event.id && !e.deleted))
-    const result = commitState({ ...snapshot(), tasks: nextTasks, planner: next }, removed ? `Slettet: ${removed.name || removed.title}` : 'Emner og undervisning')
+    const removed = (planner?.courses || []).find(course => !next.courses.some(c => c.id === course.id)) || (planner?.events || []).find(event => !event.deleted && !next.events.some(e => e.id === event.id && !e.deleted))
+    const removedName = removed && [removed.name, removed.title, removed.code].find(value => typeof value === 'string' && value.trim())?.trim()
+    const result = commitState({ ...snapshot(), tasks: nextTasks, planner: next }, removed ? `Slettet: ${removedName || 'Oppføring'}` : 'Emner og undervisning')
     if (!result.ok) return false
     planner = next; tasks = nextTasks; refresh(); return true
   },

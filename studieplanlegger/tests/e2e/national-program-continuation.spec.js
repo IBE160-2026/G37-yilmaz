@@ -40,7 +40,7 @@ async function samples() {
 
 async function importFirstPeriod(page, sample, options = {}) {
   await navigate(page, 'subjects')
-  await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
+  await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
   await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption(sample.id)

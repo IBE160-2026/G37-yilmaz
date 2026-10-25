@@ -8,6 +8,7 @@ const identityCollator = new Intl.Collator('nb-NO', { sensitivity: 'variant', nu
 const text = value => String(value ?? '').trim()
 
 export function visibleName(item) {
+  if (item?.nameStatus === 'provisional' && !text(item.name)) return `${text(item.code)} (foreløpig navn)`
   return text(item?.name || item?.label || item?.title)
 }
 
@@ -31,5 +32,7 @@ export function sortByVisibleName(items, selectors = {}) {
 }
 
 export function nameFirstLabel(item, extra = []) {
-  return [visibleName(item), text(item?.code), ...extra.map(text)].filter(Boolean).join(' · ')
+  const name = visibleName(item), code = text(item?.code)
+  const sameCode = name.toLocaleLowerCase('nb-NO') === code.toLocaleLowerCase('nb-NO') || name.toLocaleLowerCase('nb-NO').startsWith(`${code.toLocaleLowerCase('nb-NO')} `) || name.toLocaleLowerCase('nb-NO').startsWith(`${code.toLocaleLowerCase('nb-NO')}–`)
+  return [name, sameCode || item?.nameStatus === 'provisional' && !text(item.name) ? '' : code, ...extra.map(text)].filter(Boolean).join(' · ')
 }

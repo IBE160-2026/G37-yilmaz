@@ -1,11 +1,16 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { validProgramBinding } from './program-provenance.js'
+import { validPointProvenance } from './import-source-contract.js'
 
 export const emptyPlanner = () => ({ courses: [], events: [], sources: [] })
 export const OSLO = 'Europe/Oslo'
 const matchesLocalDate = (instantValue, dateLocal) => !instantValue || osloLocal(instantValue).slice(0, 10) === dateLocal
 export const osloYear = (instant = Temporal.Now.instant()) => instant.toZonedDateTimeISO(OSLO).year
 export const osloLocal = instant => Temporal.Instant.from(instant).toZonedDateTimeISO(OSLO).toPlainDateTime().toString({ smallestUnit: 'minute' })
+export const osloLocalExact = instant => {
+  const local = Temporal.Instant.from(instant).toZonedDateTimeISO(OSLO).toPlainDateTime()
+  return local.toString(local.second || local.millisecond || local.microsecond || local.nanosecond ? {} : { smallestUnit: 'minute' })
+}
 export const toInstant = local => Temporal.PlainDateTime.from(local).toZonedDateTime(OSLO, { disambiguation: 'reject' }).toInstant().toString()
 export const semesterLabel = (semester, year) => `${semester === 'spring' ? 'Vår' : 'Høst'} ${year}`
 export function semesterWindow(semester, year) {
@@ -31,20 +36,31 @@ export function nextTeachingCheck(status, previous, { now = new Date(), eventCou
 export function sourceHref(value) {
   try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password ? url.href : '' } catch { return '' }
 }
+const validEventInterval = e => instant(e.start) && instant(e.end) && (e.point === true ? !e.allDay && Boolean(e.importSourceId || e.sourceId) && Date.parse(e.end) === Date.parse(e.start) : (e.point === undefined || e.point === false) && Date.parse(e.end) > Date.parse(e.start))
+const validCourseIdentity = course => ['sourceObjectId', 'campus', 'campusCode'].every(key => course[key] === undefined || text(course[key]) && course[key].length <= (key === 'campus' ? 300 : 200) && course[key] === course[key].trim() && !/[\u0000-\u001f]/.test(course[key]))
+const validCourseName = course => text(course.name) && (course.nameStatus === 'provisional' ? course.name === '' && text(course.code) && !!course.code.trim() : (course.nameStatus === undefined || course.nameStatus === 'confirmed') && !!course.name.trim())
 export function validPlanner(value) {
   if (!value || !unique(value.courses) || !unique(value.events) || !unique(value.sources)) return false
-  return value.courses.every(c => text(c.name) && c.name.trim() && text(c.code) && text(c.university) && text(c.notes ?? '') && ['sourceUrl', 'entryUrl'].every(key => c[key] === undefined || text(c[key]) && c[key].length <= 2048) && ['spring', 'autumn'].includes(c.semester) && Number.isInteger(c.year) && c.year >= 1900 && c.year <= 2200 && (c.credits == null || (Number.isFinite(c.credits) && c.credits >= 0)) && (c.programBinding === undefined || validProgramBinding(c.programBinding)) && (c.teachingCheck===undefined||validTeachingCheck(c.teachingCheck))) &&
-    value.events.every(e => e.activityKind === 'personal'
+  return value.courses.every(c => validCourseIdentity(c) && validCourseName(c) && text(c.code) && text(c.university) && text(c.notes ?? '') && ['sourceUrl', 'entryUrl'].every(key => c[key] === undefined || text(c[key]) && c[key].length <= 2048) && ['spring', 'autumn'].includes(c.semester) && Number.isInteger(c.year) && c.year >= 1900 && c.year <= 2200 && (c.credits == null || (Number.isFinite(c.credits) && c.credits >= 0)) && (c.programBinding === undefined || validProgramBinding(c.programBinding)) && (c.teachingCheck===undefined||validTeachingCheck(c.teachingCheck))) &&
+    value.events.every(e => (e.titleStatus === undefined || ['provisional', 'confirmed'].includes(e.titleStatus)) && validPointProvenance(e) && (e.pointProvenance === undefined || Boolean(e.importSourceId))) &&
+    value.events.every(e => e.activityKind === 'personal' && e.importSourceId
+      ? text(e.title) && !!e.title.trim() && e.courseId === '' && text(e.importSourceId) && !!e.importSourceId.trim() && text(e.importEntryKey) && !!e.importEntryKey.trim() && e.sourceId === undefined && validEventInterval(e) && e.dateLocal === osloLocal(e.start).slice(0, 10) && text(e.notes ?? '') && (e.cancelled === undefined || typeof e.cancelled === 'boolean') && (e.deleted === undefined || typeof e.deleted === 'boolean')
+      : e.activityKind === 'personal'
       ? text(e.title) && !!e.title.trim() && e.courseId === '' && e.sourceId === undefined && e.importSourceId === undefined && /^\d{4}-\d{2}-\d{2}$/.test(e.dateLocal || '') && (() => { try { Temporal.PlainDate.from(e.dateLocal); return true } catch { return false } })() && text(e.notes ?? '') && (e.location === undefined || text(e.location)) && (e.start === undefined || instant(e.start)) && (e.end === undefined || instant(e.end)) && matchesLocalDate(e.start, e.dateLocal) && matchesLocalDate(e.end, e.dateLocal) && (e.end === undefined || e.start !== undefined && Date.parse(e.end) > Date.parse(e.start)) && (e.cancelled === undefined || typeof e.cancelled === 'boolean') && (e.deleted === undefined || typeof e.deleted === 'boolean')
-      : text(e.title) && e.title.trim() && text(e.courseId) && (value.courses.some(c => c.id === e.courseId) || e.courseId === '' && text(e.importSourceId) && !!e.importSourceId.trim()) && (e.importSourceId === undefined || text(e.importSourceId) && !!e.importSourceId.trim() && text(e.importEntryKey) && !!e.importEntryKey.trim()) && instant(e.start) && instant(e.end) && Date.parse(e.end) > Date.parse(e.start) && text(e.notes ?? '') && (e.activityKind === undefined || ['', 'exam', 'assessment'].includes(e.activityKind)) && (e.cancelled === undefined || typeof e.cancelled === 'boolean') && (e.deleted === undefined || typeof e.deleted === 'boolean')) &&
+      : text(e.title) && e.title.trim() && text(e.courseId) && (value.courses.some(c => c.id === e.courseId) || e.courseId === '' && text(e.importSourceId) && !!e.importSourceId.trim()) && (e.importSourceId === undefined || text(e.importSourceId) && !!e.importSourceId.trim() && text(e.importEntryKey) && !!e.importEntryKey.trim()) && validEventInterval(e) && text(e.notes ?? '') && (e.activityKind === undefined || ['', 'exam', 'assessment'].includes(e.activityKind)) && (e.cancelled === undefined || typeof e.cancelled === 'boolean') && (e.deleted === undefined || typeof e.deleted === 'boolean')) &&
     value.sources.every(s => text(s.courseId) && value.courses.some(c => c.id === s.courseId) && ['file', 'url'].includes(s.kind) && (s.kind !== 'url' || (s.reconnectRequired === true && s.url === undefined) || (text(s.url) && s.url.startsWith('https://'))) && text(s.name) && instant(s.lastUpdated) && ['groups','excludedKeys','allGroups','pendingGroups','commonGroups'].every(key => s[key] === undefined || Array.isArray(s[key]) && s[key].every(text)) && Array.isArray(s.groups))
 }
 export function validateCourse(draft, previous = {}) {
-  if (!draft.name?.trim()) throw new Error('Skriv et emnenavn.')
+  const nameStatus = draft.nameStatus ?? previous.nameStatus
+  const named = typeof draft.name === 'string' && !!draft.name.trim()
+  if (nameStatus !== undefined && !['provisional', 'confirmed'].includes(nameStatus)) throw new Error('Ugyldig navnestatus.')
+  if (!named && !(nameStatus === 'provisional' && draft.code?.trim())) throw new Error('Skriv et emnenavn.')
   if (draft.credits !== '' && draft.credits != null && (!Number.isFinite(Number(draft.credits)) || Number(draft.credits) < 0)) throw new Error('Studiepoeng må være et positivt tall eller stå tomt.')
   semesterWindow(draft.semester, draft.year)
   if (draft.programBinding !== undefined && !validProgramBinding(draft.programBinding)) throw new Error('Programtilknytningen er ufullstendig eller ugyldig.')
+  if (!validCourseIdentity({ ...previous, ...draft })) throw new Error("Ugyldig kildeidentitet eller campus.")
   const course = { ...previous, ...draft, id: previous.id || draft.id || crypto.randomUUID(), name: draft.name.trim(), code: (draft.code || '').trim().toUpperCase(), university: (draft.university || '').trim(), credits: draft.credits === '' || draft.credits == null ? null : Number(draft.credits), description: draft.description || '', notes: draft.notes || '', year: Number(draft.year) }
+  if (nameStatus !== undefined) course.nameStatus = named ? 'confirmed' : 'provisional'
   if ((previous.sourceUrl || previous.sourceRecordId) && ['code', 'university', 'semester', 'year'].some(key => course[key] !== previous[key]) && !course.sourceBindingStale) {
     course.sourceBindingStale = Object.fromEntries(['code', 'university', 'semester', 'year', 'sourceProvider', 'sourceRecordId', 'sourceVersion', 'sourceUrl', 'entryUrl', 'campus', 'campusVerified', 'sourceBase'].filter(key => previous[key] !== undefined).map(key => [key, structuredClone(previous[key])]))
   }
@@ -52,11 +68,13 @@ export function validateCourse(draft, previous = {}) {
 }
 export function validateEvent(draft, previous = {}) {
   if (!draft.title?.trim()) throw new Error('Skriv et navn på undervisningen.')
-  if (!draft.courseId) throw new Error('Velg et emne først.')
+  if (!draft.courseId && !(previous.importSourceId && previous.importEntryKey && draft.courseId === '')) throw new Error('Velg et emne først.')
   let start, end
-  try { start = toInstant(draft.startLocal); end = toInstant(draft.endLocal) } catch { throw new Error('Oppgi gyldig start og slutt i norsk tid. Klokkeslettet kan være ugyldig eller tvetydig ved overgang til sommer- eller vintertid.') }
-  if (Date.parse(end) <= Date.parse(start)) throw new Error('Slutt må være etter start.')
-  return { ...previous, id: previous.id || crypto.randomUUID(), title: draft.title.trim(), courseId: draft.courseId, start, end, location: draft.location?.trim() || '', notes: draft.notes || '', allDay: draft.allDay ?? previous.allDay ?? false, cancelled: draft.cancelled ?? previous.cancelled ?? false }
+  try { start = previous.start && draft.startLocal === osloLocalExact(previous.start) ? previous.start : toInstant(draft.startLocal); end = previous.point && !draft.endLocal ? start : previous.end && draft.endLocal === osloLocalExact(previous.end) ? previous.end : toInstant(draft.endLocal) } catch { throw new Error('Oppgi gyldig start og slutt i norsk tid. Klokkeslettet kan være ugyldig eller tvetydig ved overgang til sommer- eller vintertid.') }
+  if (Date.parse(end) < Date.parse(start) || Date.parse(end) === Date.parse(start) && !previous.point) throw new Error('Slutt må være etter start.')
+  const result = { ...previous, id: previous.id || crypto.randomUUID(), title: draft.title.trim(), ...(previous.titleStatus !== undefined ? { titleStatus: draft.title.trim() === previous.title ? previous.titleStatus : 'confirmed' } : {}), courseId: draft.courseId, start, end, ...(previous.point !== undefined ? { point: Boolean(previous.point && Date.parse(start) === Date.parse(end)) } : {}), ...(previous.activityKind === 'personal' ? { courseId: '', dateLocal: osloLocal(start).slice(0, 10) } : {}), location: draft.location?.trim() || '', notes: draft.notes || '', allDay: draft.allDay ?? previous.allDay ?? false, cancelled: draft.cancelled ?? previous.cancelled ?? false }
+  if (!result.point) delete result.pointProvenance
+  return result
 }
 export function validatePersonalActivity(draft, previous = {}) {
   if (!draft.title?.trim()) throw new Error('Skriv et navn på aktiviteten.')
@@ -78,15 +96,24 @@ export function validatePersonalActivity(draft, previous = {}) {
   if (end) result.end = end
   return result
 }
-export const externalFields = ['title', 'courseId', 'start', 'end', 'location', 'description', 'group', 'activityKind', 'allDay', 'cancelled', 'transparent', 'information', 'groupMissing']
-export const sourceSnapshot = event => Object.fromEntries(externalFields.map(key => [key, event[key] ?? (['allDay', 'cancelled', 'transparent', 'information', 'groupMissing'].includes(key) ? false : '')]))
-export const eventBlocksTime = event => !event.cancelled && !event.deleted && !event.transparent && event.transparency !== 'TRANSPARENT' && !event.information && (event.activityKind !== 'personal' || instant(event.start) && instant(event.end) && Date.parse(event.end) > Date.parse(event.start))
+export const externalFields = ['title', 'courseId', 'start', 'end', 'location', 'description', 'group', 'activityKind', 'point', 'allDay', 'cancelled', 'transparent', 'information', 'groupMissing']
+export const sourceSnapshot = event => Object.fromEntries(externalFields.map(key => [key, event[key] ?? (['point', 'allDay', 'cancelled', 'transparent', 'information', 'groupMissing'].includes(key) ? false : '')]))
+export const eventBlocksTime = event => !event.point && !event.cancelled && !event.deleted && !event.transparent && event.transparency !== 'TRANSPARENT' && !event.information && (event.activityKind !== 'personal' || instant(event.start) && instant(event.end) && Date.parse(event.end) > Date.parse(event.start))
 export const uncertainPersonalTiming = (event, now = new Date()) => {
   if (event.activityKind !== 'personal' || event.cancelled || event.deleted || event.start && event.end) return false
   try { return event.dateLocal >= osloLocal(now.toISOString()).slice(0, 10) } catch { return true }
 }
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const verifiedSource = course => !course.sourceBindingStale && ['sourceProvider', 'sourceRecordId', 'sourceVersion'].every(key => typeof course[key] === 'string' && course[key].trim())
+const sameOccurrence = (saved, incoming) => {
+  if (!incoming.occurrenceInstant) return false
+  if (saved.occurrenceInstant) return saved.occurrenceInstant === incoming.occurrenceInstant
+  if (incoming.occurrenceAliases?.includes(saved.sourceKey)) return true
+  // A local legacy recurrence string has lost its timezone. Accept it only
+  // when the original source start corroborates the same instant, never the
+  // user's currently edited time. Moved/ambiguous legacy exceptions stay put.
+  return incoming.occurrenceLocalAliases?.includes(saved.sourceKey) && Date.parse(saved.sourceBase?.start) === Date.parse(incoming.occurrenceInstant)
+}
 
 // Three-way merge: the last source version is the base; notes are always local.
 export function mergeImport(planner, incoming, source, { course, authoritative = true, cancellations = [], absenceWindow, selection } = {}) {
@@ -109,6 +136,7 @@ export function mergeImport(planner, incoming, source, { course, authoritative =
         if (same(previous[key], base[key]) || previous[key] == null || previous[key] === '') previous[key] = course[key]
         else if (!same(course[key], base[key]) && !same(previous[key], course[key])) conflicts.push(key)
       }
+      if (previous.nameStatus === 'provisional' && text(previous.name) && previous.name.trim()) previous.nameStatus = 'confirmed'
       const span = course.programBinding?.studySemesters
       const selectedPeriodBelongsToSpan = Array.isArray(span) && span.includes(course.programBinding.studySemester) && verifiedSource(previous) && verifiedSource(course) && ['sourceProvider', 'sourceRecordId', 'sourceVersion'].every(key => previous[key] === course[key])
       if (selectedPeriodBelongsToSpan) { previous.year = course.year; previous.semester = course.semester }
@@ -121,6 +149,12 @@ export function mergeImport(planner, incoming, source, { course, authoritative =
   const seen = new Set()
   for (const remote of incoming) {
     let current = result.events.find(e => e.sourceId === source.id && e.sourceKey === remote.sourceKey && !seen.has(e.id))
+    if (!current && remote.occurrenceInstant && source.identityMode !== 'content') {
+      const peers = result.events.filter(e => e.sourceId === source.id && e.sourceUid === remote.sourceUid && !seen.has(e.id) && sameOccurrence(e, remote))
+      const incomingPeers = incoming.filter(e => e.sourceUid === remote.sourceUid && e.occurrenceInstant === remote.occurrenceInstant)
+      if (peers.length === 1 && incomingPeers.length === 1) current = peers[0]
+      else if (peers.length) throw new Error('Kalenderforekomsten kan ikke kobles entydig til tidligere import. Ingen aktiviteter er endret.')
+    }
     // TP UIDs change at every request. Only match moved times when the match is unique.
     if (!current && source.identityMode === 'content') {
       let peers = result.events.filter(e => e.sourceId === source.id && !seen.has(e.id) && (e.sourceBase || e).title === remote.title && osloLocal((e.sourceBase || e).start).slice(0, 10) === osloLocal(remote.start).slice(0, 10))
@@ -134,6 +168,7 @@ export function mergeImport(planner, incoming, source, { course, authoritative =
     const next = sourceSnapshot(remote)
     if (!current) {
       current = { ...remote, ...next, id: `event:${source.id}:${remote.sourceKey}`, sourceId: source.id, notes: '', sourceBase: next }
+      delete current.occurrenceAliases; delete current.occurrenceLocalAliases
       result.events.push(current); counts.added++
     } else {
       const base = current.sourceBase || sourceSnapshot(current)
@@ -148,13 +183,22 @@ export function mergeImport(planner, incoming, source, { course, authoritative =
       if (conflicts.length) { current.conflict = { message: 'Både du og kilden har endret denne økten. Dine endringer er beholdt.', fields: conflicts, incoming: next }; counts.conflicts++ }
       else if (changed) counts.updated++
       else counts.unchanged++
-      current.sourceBase = next; current.sourceKey = remote.sourceKey
+      current.sourceBase = next
+      if (source.identityMode === 'content') current.sourceKey = remote.sourceKey
       if (remote.sourceUid !== undefined) current.sourceUid = remote.sourceUid
+      if (remote.occurrenceInstant !== undefined) current.occurrenceInstant = remote.occurrenceInstant
       if (!next.cancelled && current.conflict?.fields.length === 1 && current.conflict.fields[0] === 'cancelled') delete current.conflict
     }
     seen.add(current.id)
   }
-  for (const current of result.events.filter(e => e.sourceId === source.id && !seen.has(e.id) && ((authoritative && selected(e) && !e.excluded && (!absenceWindow || Date.parse(e.start) >= Date.parse(absenceWindow.start) && Date.parse(e.end) <= Date.parse(absenceWindow.end))) || cancellations.some(c => c.uid === e.sourceUid && (!c.recurrence || e.sourceKey === JSON.stringify([c.uid, c.recurrence])))))) {
+  const cancelledIds = new Set(), cancellationWarnings = []
+  for (const cancellation of cancellations) {
+    const matches = event => !cancellation.recurrence || (cancellation.occurrenceInstant ? sameOccurrence(event, cancellation) : event.sourceKey === JSON.stringify([cancellation.uid, cancellation.recurrence]))
+    const peers = result.events.filter(event => event.sourceId === source.id && event.sourceUid === cancellation.uid && matches(event))
+    if (!cancellation.recurrence || peers.length === 1) for (const event of peers) cancelledIds.add(event.id)
+    else cancellationWarnings.push('En avlysning kan ikke knyttes entydig til en tidligere kalenderforekomst. Aktiviteten er beholdt; kontroller kilden og tidspunktet.')
+  }
+  for (const current of result.events.filter(e => e.sourceId === source.id && !seen.has(e.id) && ((authoritative && selected(e) && !e.excluded && (!absenceWindow || Date.parse(e.start) >= Date.parse(absenceWindow.start) && Date.parse(e.end) <= Date.parse(absenceWindow.end))) || cancelledIds.has(e.id)))) {
     if (current.excluded) { current.exclusionCancelled = true; current.sourceBase = { ...current.sourceBase, cancelled: true } }
     if (current.cancelled) continue
     current.cancelled = true; counts.cancelled++
@@ -178,6 +222,7 @@ export function mergeImport(planner, incoming, source, { course, authoritative =
     }
   }
   const index = result.sources.findIndex(s => s.id === source.id)
+  if (cancellationWarnings.length) source = { ...source, syncWarnings: [...new Set([...(source.syncWarnings || []), ...cancellationWarnings])] }
   if (index < 0) result.sources.push(source)
   else result.sources[index] = source
   return { planner: result, counts }

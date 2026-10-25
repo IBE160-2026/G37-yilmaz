@@ -28,6 +28,12 @@ const docxParts = {
 }
 
 describe('local document parsing without invented precision', () => {
+  it('accepts invented UTF-8 CSV and rejects invalid bytes without guessing another encoding', async () => {
+    const parsed = await parseDocumentBytes(new TextEncoder().encode('tittel;frist\nOppdiktet øvelse;2036-04-14 12:00').buffer, { format: 'csv' })
+    expect(parsed.rows[0].title).toBe('Oppdiktet øvelse')
+    await expect(parseDocumentBytes(new Uint8Array([0x74, 0x3b, 0xff]).buffer, { format: 'csv' }))
+      .rejects.toMatchObject({ message: expect.stringContaining('Ser teksten riktig ut?'), clarification: { kind: 'encoding', suggestedEncoding: 'windows-1252' } })
+  })
   it.each(['16.09', '16.09.2026', '09/10/2026 12:00', '2026-02-30T12:00'])('leaves unresolved date %s without a invented deadline', raw => {
     expect(parseDocumentDate(raw).value).toBe(''); expect(parseDocumentDate(raw).issues.length).toBeGreaterThan(0)
   })
@@ -65,9 +71,9 @@ describe('local document parsing without invented precision', () => {
     expect(parsed.rows[0]).toMatchObject({ kind: 'task', deadlineLocal: '', explicitId: 'todo1' })
     expect(parsed.rows[0].deadlineIssues.length).toBeGreaterThan(0)
   })
-  it('requires explicit teaching period, preserves fixed activities and rejects excessive recurrence', () => {
+  it('derives file dates, preserves fixed activities and rejects excessive recurrence', () => {
     const text = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:e1\r\nSUMMARY:Forelesning\r\nDTSTART:20260916T100000Z\r\nDTEND:20260916T110000Z\r\nEND:VEVENT\r\nEND:VCALENDAR'
-    expect(() => parseDocumentIcs(text)).toThrow(/kalendersemester/)
+    expect(parseDocumentIcs(text).rows[0]).toMatchObject({ kind: 'event', startLocal: '2026-09-16T12:00', endLocal: '2026-09-16T13:00' })
     expect(parseDocumentIcs(text, { semester: 'autumn', year: 2026 }).rows[0]).toMatchObject({ kind: 'event', startLocal: '2026-09-16T12:00', endLocal: '2026-09-16T13:00' })
     expect(() => parseDocumentIcs(text.replace('END:VEVENT', 'RRULE:FREQ=SECONDLY\r\nEND:VEVENT'), { semester: 'autumn', year: 2026 })).toThrow(/omfattende/)
   })

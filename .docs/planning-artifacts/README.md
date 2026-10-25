@@ -1,6 +1,8 @@
 # Planlegging og leveranseevidens
 
-Oppdatert **2026-10-16**, mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae00268`. Dokumentene nedenfor rekonstruerer sporbarheten etter tilbakemeldingen på briefen. De er ikke opprinnelige planer for allerede skrevet kode.
+**Samordnet 2026-10-25:** Hovedflyten er **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering**, med lokale regler og støttende import. PRD, stories og sporbarhet omfatter de integrerte import-/kalenderrettingene fra 18.–24. oktober innen samme avgrensede v1. [Publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) skiller historiske resultater fra nye kandidatkontroller. Manifestene fra 24. oktober dekker kilde-/byggfiler, ikke testfiler, fixturer eller konfigurasjon; likhet i manifestene beviser derfor ikke identisk testgrunnlag. Faglærertilbakemeldingen er lest. Sensorveiledning og godkjent proposal var ikke tilgjengelige i de avtalte dokumentmappene i denne runden; historiske lesepåstander nedenfor gjelder sine egne datoer.
+
+Rekonstruert **2026-10-16**, mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae00268`, med separat daterte oppfølginger. Dokumentene nedenfor rekonstruerer sporbarheten etter tilbakemeldingen på briefen. De er ikke opprinnelige planer for allerede skrevet kode. Samordningen adresserer lærerens krav om avgrenset v1, sjekkbare suksesskriterier, tekniske detaljer i arkitekturen og synlig kontroll av KI-generert arbeid.
 
 1. [Autoritativ brief i roten](../../brief.md): problem, hypotetisk bruker, avgrensning og SC-01–SC-07.
 2. [Gjeldende PRD](PRD.md): krav R-01–R-08 og kvalitetskrav Q-01–Q-03.
@@ -8,6 +10,9 @@ Oppdatert **2026-10-16**, mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae0
 4. [Arkitektur](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md): gjeldende beslutninger og tydelig merket historikk.
 5. [Sporbarhet](TRACEABILITY.md): forventet resultat, metode, kode, test og faktisk evidensstatus.
 6. [Plan for studentutprøving](USER-TRIAL-PLAN.md): framtidig undersøkelse, ingen innsamlede studentresultater.
+7. [Importavtale og brukerflyt](../../studieplanlegger/IMPORT.md): forhåndsvisning, identiteter, emnevalg, tidspunkt og kildenes grenser.
+8. [Kuratert TP CSV-formatkontrakt, 2026-10-23](../implementation-artifacts/tp-csv-format-contract-2026-10-23.md): offentlig formatgrunnlag og avgrensning mot private originalfiler.
+9. [Daterte kontrollresultater](../../studieplanlegger/VERIFICATION.md): konkrete feil, rettelser, tester og begrensninger. Testkode er lenket fra sporbarheten; interne arbeidsspesifikasjoner beholdes lokalt og er ikke del av den offentlige dokumentkjeden.
 
 [Oppstart](../../README.md), [løsningsguide](../implementation-artifacts/solution-guide.md), [utviklingsprosess](../implementation-artifacts/development-process.md), [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) supplerer planen. [Faglærertilbakemeldingen](../../tilbakemelding-product-brief.md) og hele sensorveiledningen er kontrollert ved publiseringsoppfølgingen 2026-10-16. Lærerens omtale av Claude Code må fortsatt avklares; denne dokumentasjonsrunden bruker Codex.
 

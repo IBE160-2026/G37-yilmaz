@@ -2,7 +2,7 @@
 
 Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten 2026 (15 studiepoeng).
 
-Repoet inneholder Studieplan, en lokal studieplanlegger, samt dokumentasjon av utvikling, testing og kvalitetssikring med KI.
+Studieplan hjelper studenten gjennom **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering**. Lokale regler bruker registrerte frister, gjenstående arbeid, avhengigheter og ledig tid til å foreslå neste handling. Studenten godkjenner planen og registrerer hva som faktisk skjedde. Import støtter denne flyten; manuell registrering fungerer uten eksterne kilder. Repoet inneholder appen og dokumentasjon av utvikling, testing og kvalitetssikring med KI.
 
 **Avgrensning 2026-10-16:** [Brief → PRD → stories → kode/test](.docs/planning-artifacts/README.md) er nå dokumentert som en datert rekonstruksjon etter faglærertilbakemeldingen. V1-import gjelder HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152; undervisning bare IBE110/IBE430/IBE160 høst 2026. NTNU omfatter ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026, uten komplett programløfte. Full nasjonal dekning er visjon. Ingen full eksamensdekning eller personlig gruppetilhørighet loves. Daterte tekniske kontroller nedenfor er historiske, ikke studentutprøving eller nye kjøringer 16. oktober.
 
@@ -12,11 +12,13 @@ Repoet inneholder Studieplan, en lokal studieplanlegger, samt dokumentasjon av u
 
 ## Dette inneholder dagens versjon
 
-Studieplan samler studieprogram, emner og tilgjengelig offentlig undervisning i én kontrollert importflyt. Publiserte alternativgrener beholdes som valg i stedet for å bli gjort obligatoriske; HiMolde-eksempelet krever IBE110 og IBE430 samt enten IBE160 eller kombinasjonen IBE102 og IBE152. Undervisning behandles per emne, med presis status for blant annet tomt resultat, timeout, transportfeil, ugyldig svar, tilgangskrav og manglende støtte. Tidligere lagrede aktiviteter og studentvalg beholdes ved kildefeil.
+En oppgave trenger bare tittel; emne, frist, arbeidsanslag og ordnede steg er valgfrie. En godkjent økt er planlagt tid. Faktisk tid og nytt gjenstående anslag registreres hver for seg, og fullført steg, ferdig oppgave og bekreftet innlevering er separate handlinger. Den [syntetiske hovedflyten](.docs/implementation-artifacts/solution-guide.md#hovedflyt-og-gjeldende-løfte--2026-10-16) viser hvordan delene henger sammen.
+
+Studieprogram, emner og offentlig undervisning kan importeres etter kontroll. Kildens alternativgrener beholdes som valg; tidligere aktiviteter og studentvalg bevares ved kildefeil. Fil- og kalenderlenkeimport deler forhåndsvisning og én samlet godkjenning, med nødvendige avklaringer av emner og usikre tidspunkt. Gjentatt import bevarer identiteter og egne endringer innen de dokumenterte kontraktene.
 
 Planleggingen støtter gjenbrukbare studietidsmønstre, usikre arbeidsanslag, daglig veiledning og studentgodkjent omplanlegging. Import- og kalendergrensesnittet bevarer relevante åpne seksjoner, rulleposisjon og fokus, viser læresteder, programmer og emner alfabetisk etter norsk navn, og viser stabile emnefarger sammen med tydelige emnekoder. Kalenderens topp har en eksporthandling som lager en lokal `.ics`-kopi; frister blir kompatible, transparente kalenderhendelser uten oppdiktet varighet. Implementert kildekode og avgrensede kontroller er ikke det samme som full nasjonal kilde- eller programdekning; se [importdekningen](studieplanlegger/IMPORT-COVERAGE.md).
 
-Sluttkontrollen **2. oktober 2026** verifiserte den samlede lokale koden i et isolert Docker-prosjekt. Arbeidssteg, vurderingskoblinger, kalenderkopi, programrekkefølge, registrering, planlegging, gjenskaping, backup/restore og SQLite-integritet bestod. **1382 enhetstester, 43 berørte nettleserforløp, 3 ordinære Node/SQLite-forløp og 2 nye syntetiske livssyklusforløp** avsluttet normalt; undervisningskontraktene inngår i enhetssuiten og har dessuten daterte, separate kontroller. Konkrete reviewrettelser og åpne begrensninger står i [VERIFICATION.md](studieplanlegger/VERIFICATION.md). Disse resultatene gir ikke full nasjonal dekning; slik dekning er framtidsvisjon fra 16. oktober.
+**Dokumentasjonen er samordnet 25. oktober 2026.** [VERIFICATION.md](studieplanlegger/VERIFICATION.md) skiller daterte tekniske resultater, gjentatte kontroller og åpne begrensninger. Resultatene fra 2. og 24. oktober er historiske kjøringer. Kilde-/bygghashene fra 24. oktober dekker ikke testfiler, fixturer eller konfigurasjon og beviser derfor ikke at hele testgrunnlaget er identisk. Teknisk nettleser-/Docker-kontroll er ikke studentutprøving; [studentprøven](.docs/planning-artifacts/USER-TRIAL-PLAN.md) er fortsatt planlagt.
 
 ## Kjør den komplette leveransen
 
@@ -55,7 +57,7 @@ På en ren Linux-maskin kan Playwrights systembiblioteker også mangle. Bruk da 
 
 ## Arkitektur og dokumentasjon
 
-`studieplanlegger/src/` inneholder klient og domeneregler, `studieplanlegger/server/` API/database og kildeadaptere, og `studieplanlegger/tests/` enhets-, nettleser- og produksjonstester. `.docs/planning-artifacts/` samler gjeldende krav og sporbarhet; `.docs/implementation-artifacts/` inneholder kuratert prosess og løsningsbeskrivelse. Sensorveiledningen er kontrollert i [sporbarhetsmatrisen](.docs/planning-artifacts/TRACEABILITY.md#sensorveiledningens-sju-områder), med konkrete begrensninger fremfor karakterløfter.
+`studieplanlegger/src/` inneholder klient og domeneregler, `studieplanlegger/server/` API/database og kildeadaptere, og `studieplanlegger/tests/` enhets-, nettleser- og produksjonstester. `.docs/planning-artifacts/` samler gjeldende krav og sporbarhet; `.docs/implementation-artifacts/` inneholder kuratert prosess, løsningsbeskrivelse og CSV-formatkontrakt. [Sporbarhetsmatrisen](.docs/planning-artifacts/TRACEABILITY.md#sensorveiledningens-sju-områder) bevarer den daterte vurderingsgjennomgangen fra 16. oktober. Sensorveiledning og godkjent proposal var ikke tilgjengelige i de avtalte dokumentmappene 25. oktober og er ikke lest på nytt.
 
 Løsningen består av en Vite-klient i vanlig JavaScript, et lokalt Node-API og SQLite. Produksjons-/Docker-modusen bruker SQLite som autoritativ lagring. Klienten sender komplette, validerte tilstandsendringer med forventet revisjon; serveren skriver dem transaksjonelt. Compose binder vertsporten til `127.0.0.1` og beholder databasen i volumet `studieplan-data`.
 
@@ -64,6 +66,7 @@ Dokumentasjonen nedenfor beskriver løsningen, utviklingsprosessen med KI/BMAD o
 - [Product brief](brief.md)
 - [Arkitektur](.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md)
 - [Løsningsguide](.docs/implementation-artifacts/solution-guide.md)
-- [Fullstack-, database- og Docker-spesifikasjon](.docs/implementation-artifacts/spec-fullstack-database-docker-delivery.md)
+- [Krav, stories og kode-/testsporbarhet](.docs/planning-artifacts/README.md)
+- [Kuratert TP CSV-formatkontrakt](.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md)
 - [Teknisk verifikasjon](studieplanlegger/VERIFICATION.md)
 - [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md)

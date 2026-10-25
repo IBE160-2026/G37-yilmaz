@@ -34,8 +34,8 @@ async function defaultApi(path,options) {
   if(!response.ok) throw new Error(data.error || 'Kilden kunne ikke hentes.')
   return data
 }
-export function createProgramImportView({ host, getState, commitPlanner, feedback = ()=>{}, manual = ()=>{}, onSettled = ()=>{}, api=defaultApi }) {
-  let controller=null, version=0, busy=false, activeLocalStatus=false, programs=[], cohorts=[], plan=null, preview=null, touched=false, addedCourses=[]
+export function createProgramImportView({ host, getState, commitPlanner, feedback = ()=>{}, manual = ()=>{}, onCourseSearch, onSettled = ()=>{}, api=defaultApi }) {
+  let controller=null, version=0, busy=false, activeLocalStatus=false, programs=[], cohorts=[], plan=null, preview=null, touched=false, addedCourses=[], pendingFocus=null
   const section=el('section');section.className='program-import';section.dataset.testid='program-import'
   const message=el('p');message.setAttribute('aria-live','polite')
   const institution=select('institution','Institusjon');for(const item of sortByVisibleName(institutions)) institution.append(new Option(item.name,item.id))
@@ -68,6 +68,8 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
   missingCourse.append(missingHelp,missingQuery,button('Søk i valgt periode',()=>run(searchMissingCourse)),missingResults,el('p','Manuell reserve – merkes som uverifisert:'),manualFields,button('Legg til uverifisert emne',addManualCourse))
   choices.append(courseChoices,missingCourse,previewButton)
   const manualButton=button('Registrer manuelt',manual);manualButton.className='secondary'
+  const courseSearch = onCourseSearch && button('Søk etter ett enkelt emne', () => { const period=selectedCalendarPeriod(); onCourseSearch({ university: institution.value || undefined, code: q.value.trim(), year: period.year || year.value, ...(period.semester ? {semester:period.semester} : {}) }) })
+  if (courseSearch) { courseSearch.className='secondary'; controls.append(courseSearch) }
   section.append(el('h3','Importer fra studieprogram'),el('p','Velg et publisert program, kull og semester. Se emnene og velg valgemner og undervisningsgrupper før du bekrefter.'),controls,sources,message,cancel,results,choices,actionStatus,previewHost,manualButton);host.append(section)
   const state = ()=> { const current=getState();return current.planner || (Array.isArray(current.courses)?current:emptyPlanner()) }
   const selectedProgram = ()=>programSelect.value === '' ? undefined : programs[Number(programSelect.value)]
@@ -116,8 +118,8 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     const focusKey=section.contains(document.activeElement)?document.activeElement.dataset.importKey:null
     busy=true;controller=new AbortController();const operation=++version;setBusy()
     activeLocalStatus=localStatus;if(localStatus){actionStatus.hidden=false;actionStatus.classList.remove('is-error');actionStatus.textContent=startText}
-    try {await work(operation)} catch(error) {if(operation===version && error.name!=='AbortError') {const text=`${error.message} Lagrede data er beholdt.`;if(localStatus){actionStatus.textContent=text;actionStatus.classList.add('is-error')}else message.textContent=text;feedback(text,true)}}
-    finally {if(operation===version){busy=false;activeLocalStatus=false;controller=null;setBusy();if(focusKey){const restored=previewHost.querySelector(`[data-import-key="${CSS.escape(focusKey)}"]`);const continuation=focusKey==='retry-failed'?previewHost.querySelector('[data-import-key="confirm-program"]'):null;(restored||continuation)?.focus({preventScroll:true})}onSettled()}}
+    try {await work(operation)} catch(error) {if(operation===version && error.name!=='AbortError') {const text=`${error.message} Lagrede data er beholdt.`;if(localStatus){feedback('');actionStatus.textContent=text;actionStatus.classList.add('is-error');actionStatus.focus()}else {message.textContent=text;feedback(text,true)}}}
+    finally {if(operation===version){busy=false;activeLocalStatus=false;controller=null;setBusy();if(pendingFocus){pendingFocus.focus();pendingFocus=null}else if(actionStatus.classList.contains('is-error'))actionStatus.focus();else if(focusKey){const restored=previewHost.querySelector(`[data-import-key="${CSS.escape(focusKey)}"]`);const continuation=focusKey==='retry-failed'?previewHost.querySelector('[data-import-key="confirm-program"]'):null;(restored||continuation)?.focus()}onSettled()}}
   }
   function stopPending(){version++;controller?.abort();controller=null;busy=false;activeLocalStatus=false;setBusy()}
   function invalidatePlan(){stopPending();plan=null;preview=null;addedCourses=[];choices.hidden=true;previewHost.hidden=true;courseChoices.replaceChildren();missingResults.replaceChildren()}
@@ -139,6 +141,7 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     status('Henter publiserte program. Store lister kan ta litt tid; du kan avbryte.');plan=null;preview=null;choices.hidden=true;previewHost.hidden=true;courseChoices.replaceChildren()
     const snapshot=selectionSnapshot(),data=await request('programs',{q:q.value.trim(),year:year.value});if(operation!==version||snapshot!==selectionSnapshot())return
     programs=sortByVisibleName(data.results || []);cohorts=[];fill(programSelect,programs.map((p,index)=>({value:String(index),label:programLabel(p)})),'Studieprogram');fill(cohortSelect,[],'Opptakskull');results.hidden=false
+    if (!programs.length && courseSearch) { status(`Ingen programtreff. Søk etter ett enkelt emne med samme institusjon, søketekst og år. ${data.completeness?.complete ? 'Hele kildeutvalget er hentet.' : 'Listen er ikke bekreftet fullstendig.'} ${(data.warnings || []).join(' ')}`); pendingFocus=courseSearch; return }
     writeDraft();status(`${programs.length} programtreff. ${data.completeness?.complete?'Hele kildeutvalget er hentet.':'Listen er ikke bekreftet fullstendig.'} ${(data.warnings || []).join(' ')}`);programSelect.focus()
   }
   programSelect.onchange=()=>{touched=true;cohorts=[];invalidatePlan();fill(cohortSelect,[],'Opptakskull');writeDraft();if(programSelect.value!=='')run(async(operation)=>{const selected=selectedProgram(),snapshot=selectionSnapshot(), data=await request('program-cohorts',{program:selected.code,sourceUrl:selected.sourceUrl});if(operation!==version||snapshot!==selectionSnapshot())return;cohorts=data.results || [];fill(cohortSelect,cohorts.map((c,index)=>({value:String(index),label:c.label || c.cohort})),'Opptakskull');writeDraft();status((data.warnings||[]).join(' ') || 'Velg ditt opptakskull.');cohortSelect.focus()})}
@@ -221,7 +224,7 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     if(selectedRows.length>40)throw new Error('Velg høyst 40 emner i én import.')
     validateProgrammeSelection(publishedPeriod,selectedRows)
     const selectedIds=new Set(selectedRows.map(course=>course.id));for(const requiredId of publishedPeriod.requiredCourseIds||[])if(!selectedIds.has(requiredId))throw new Error('Et emne som kilden oppgir som påkrevd, er valgt bort. Velg det igjen eller avbryt importen.')
-    const selection=selectionSnapshot(),baseline=JSON.stringify(state()),candidates=[],warnings=[...(plan.warnings||[])];let next=structuredClone(state())
+    const selection=selectionSnapshot(),baseline=JSON.stringify(getState()),candidates=[],warnings=[...(plan.warnings||[])];let next=structuredClone(state())
     for(let index=0;index<selectedRows.length;index++) {
       if(operation!==version)return
       const row=selectedRows[index],campus=campusSelect.value==='__unknown'?'':campusSelect.value
@@ -318,7 +321,7 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     const label=missingGroups?`Aktivitetsutvalg for ${course.code}`:`Undervisningsgrupper for ${course.code}`
     const details=el('details'),summary=el('summary'),groupChecks=new Map(),eventChecks=new Map();details.dataset.importKey=`groups:${course.id}`
     const selected=event=>source.groups.includes(event.group)&&!source.excludedKeys.includes(event.sourceKey)
-    const refresh=()=>{const count=parsed.events.filter(selected).length;summary.textContent=`${label} · ${count} av ${parsed.events.length} økter valgt`;candidate.teachingStatus=count?'ready':'selection-required';if(candidate.teachingStateNode){candidate.teachingStateNode.textContent=`Undervisning: ${teachingStatusLabel(candidate.teachingStatus)}`;candidate.teachingStateNode.className=`teaching-status teaching-status-${candidate.teachingStatus}`}for(const [group,check] of groupChecks){const events=parsed.events.filter(event=>event.group===group),selectedCount=events.filter(selected).length;check.checked=events.length?selectedCount===events.length:source.groups.includes(group);check.indeterminate=selectedCount>0&&selectedCount<events.length}for(const [event,check]of eventChecks)check.checked=selected(event)}
+    const refresh=()=>{const count=parsed.events.filter(selected).length;summary.textContent=`${label} · ${count} av ${parsed.events.length} økter valgt`;candidate.teachingStatus=count?'ready':'selection-required';if(candidate.teachingStateNode){candidate.teachingStateNode.textContent=`${teachingStatusLabel(candidate.teachingStatus)}`;candidate.teachingStateNode.className=`teaching-status teaching-status-${candidate.teachingStatus}`}for(const [group,check] of groupChecks){const events=parsed.events.filter(event=>event.group===group),selectedCount=events.filter(selected).length;check.checked=events.length?selectedCount===events.length:source.groups.includes(group);check.indeterminate=selectedCount>0&&selectedCount<events.length}for(const [event,check]of eventChecks)check.checked=selected(event)}
     details.append(summary)
     if(missingGroups)details.append(el('p','Kilden mangler gruppeidentitet for noen eller alle øktene. Kildeetikettene nedenfor beskriver aktiviteter; de bekrefter ikke hvilken gruppe du tilhører.'))
     details.append(el('p','Kontroller tidspunkt og sted. Utvalget bekrefter ikke personlig tilhørighet.'),button('Velg alle aktiviteter i dette timeplanvalget',()=>{source.groups=[...groups];source.excludedKeys=[];refresh()}),button('Velg ingen aktiviteter',()=>{source.groups=[];refresh()}))
@@ -335,12 +338,16 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     const local=previewHost.hidden?null:localSnapshot(previewHost)
     const heading=el('h4','Kontroller programimport');heading.tabIndex=-1;previewHost.replaceChildren(heading);previewHost.hidden=false;if(!preview)return
     controls.hidden=true;results.hidden=true;choices.hidden=true;sources.hidden=true
+    if (preview.refreshed) {
+      previewHost.append(el('p', 'Forhåndsvisningen er oppdatert. Emne- og aktivitetsvalgene er beholdt. Kontroller endringene før ny bekreftelse.'))
+      for (const conflict of preview.refreshConflicts || []) previewHost.append(el('p', conflict))
+    }
     for(const candidate of preview.candidates) {
       const {course,parsed,source}=candidate,card=el('article');card.className='course-card';card.dataset.courseCode=course.code;card.append(el('h4',`${course.code} ${course.name}`),el('p',`${semesterLabel(course.semester,course.year)} · ${course.credits??'Ukjente'} studiepoeng`),el('p',`${course.programBinding.programName} · Kull ${course.programBinding.cohort} · ${course.programBinding.modelName} · ${course.programBinding.studySemester}. studiesemester · Campus: ${course.programBinding.campus||'Ikke oppgitt'}`),course.studentAdded?el('p',course.manualUnverified?'Uverifisert manuelt emne. Ikke dokumentert av programkilden.':'Lagt til fra separat emnesøk. Ikke dokumentert av programkilden.'):link(course.sourceUrl,'Publisert kilde'))
       if(course.studentAdded&&!course.manualUnverified&&course.sourceUrl)card.append(link(course.sourceUrl,'Kilde for emnet'))
       if(course.description){const more=el('details');more.append(el('summary','Emnebeskrivelse'),el('p',course.description));card.append(more)}
       if(course.programBinding.sourceNotes){const excerpt=el('details');excerpt.className='programme-source-excerpt';excerpt.append(el('summary','Vis kilde'),el('p',course.programBinding.sourceNotes));card.append(excerpt)}
-      const teachingHost=el('div');candidate.teachingHost=teachingHost;const teachingState=el('p',`Undervisning: ${teachingStatusLabel(candidate.teachingStatus)}${candidate.teachingError?` (${candidate.teachingError})`:''}`);candidate.teachingStateNode=teachingState;teachingState.className=`teaching-status teaching-status-${candidate.teachingStatus||'idle'}`;card.append(teachingState,teachingHost)
+      const teachingHost=el('div');candidate.teachingHost=teachingHost;const teachingState=el('p',`${teachingStatusLabel(candidate.teachingStatus)}${candidate.teachingError?` (${candidate.teachingError})`:''}`);candidate.teachingStateNode=teachingState;teachingState.className=`teaching-status teaching-status-${candidate.teachingStatus||'idle'}`;card.append(teachingState,teachingHost)
       if(course.teachingCheck)card.append(el('p',teachingCheckText(course.teachingCheck),['success','empty'].includes(course.teachingCheck.status)?'muted':'import-warning'))
       if(parsed) {
         teachingChoices(teachingHost,course,parsed,source,candidate)
@@ -381,14 +388,31 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     if(!preview)return
     if(preview.selection!==selectionSnapshot())throw new Error('Programvalget er endret. Lag en ny forhåndsvisning før du lagrer.')
     for(const candidate of preview.candidates)if(candidate.parsed&&candidate.teachingSnapshot!==teachingSnapshot(candidate)){clearTeaching(candidate,false);throw new Error('Timeplanvalget er endret. Hent ønsket timeplan og velg aktivitetene på nytt før du bekrefter.')}
-    if(preview.baseline!==JSON.stringify(state()))throw new Error('Dataene er endret etter forhåndsvisningen. Lag en ny forhåndsvisning før du lagrer.')
+    if(preview.baseline!==JSON.stringify(getState())) {
+      if (!previewHost.querySelector('[data-refresh-preview]')) {
+        const refresh=button('Oppdater forhåndsvisningen',()=>run(refreshPreview,{localStatus:true,startText:'Oppdaterer forhåndsvisningen …'}));refresh.dataset.refreshPreview='';previewHost.append(refresh)
+      }
+      throw new Error('Dataene er endret. Velg «Oppdater forhåndsvisningen» og kontroller endringene før du lagrer.')
+    }
     let next=structuredClone(state());for(const candidate of preview.candidates){next=mergeCourseOnly(next,candidate.course);if(candidate.parsed)next=mergeImport(next,candidate.parsed.events,candidate.source,{course:candidate.course,...disappearancePolicy(candidate.source,candidate.course,candidate.parsed),selection:{groups:candidate.source.groups,excludedKeys:candidate.source.excludedKeys}}).planner}
     if(!validPlanner(next))throw new Error('Importplanen inneholder ugyldige opplysninger. Ingen data er lagret.')
     const count=preview.candidates.length,teachingReady=preview.candidates.filter(item=>selectedTeachingEvents(item.parsed,item.source).length).length,teachingEvents=preview.candidates.reduce((total,item)=>total+selectedTeachingEvents(item.parsed,item.source).length,0),teachingUnavailable=count-teachingReady, saved=await commitPlanner(next)
     if(saved===false || saved?.ok===false)throw new Error(saved?.error || 'Lagringen ble avvist. Forhåndsvisningen er beholdt.')
     const courseWord=count===1?'emne':'emner', eventWord=teachingEvents===1?'undervisningshendelse':'undervisningshendelser', sourceCourseWord=teachingReady===1?'emne':'emner', unavailableCourseWord=teachingUnavailable===1?'emne':'emner'
     const receipt=`${count} ${courseWord} er lagret samlet. ${teachingEvents} ${eventWord} ble importert fra ${teachingReady} ${sourceCourseWord}; ${teachingUnavailable} ${unavailableCourseWord} har ingen importert undervisning. Tidligere emne-ID-er, notater og oppgavelenker er beholdt.`
-    preview=null;touched=false;clearDraftStorage();previewHost.hidden=true;showChoices();feedback(receipt);actionStatus.hidden=false;actionStatus.classList.remove('is-error');actionStatus.textContent=receipt;actionStatus.tabIndex=-1;actionStatus.focus()
+    preview=null;touched=false;clearDraftStorage();previewHost.hidden=true;showChoices();feedback('');actionStatus.hidden=false;actionStatus.classList.remove('is-error');actionStatus.textContent=receipt;actionStatus.tabIndex=-1;actionStatus.focus()
+  }
+  function refreshPreview() {
+    if (!preview) return
+    let next=structuredClone(state())
+    for (const candidate of preview.candidates) {
+      next=mergeCourseOnly(next,candidate.course)
+      if(candidate.parsed) next=mergeImport(next,candidate.parsed.events,candidate.source,{course:candidate.course,...disappearancePolicy(candidate.source,candidate.course,candidate.parsed),selection:{groups:candidate.source.groups,excludedKeys:candidate.source.excludedKeys}}).planner
+    }
+    if(!validPlanner(next)) throw new Error('Valgene kan ikke brukes med dagens data. Gå tilbake til emnevalg og kontroller dem.')
+    preview.refreshConflicts=[...next.courses.filter(item=>item.conflict).map(item=>`${item.code}: ${item.conflict}`),...next.events.filter(item=>item.conflict).map(item=>`${item.title}: ${item.conflict.message}`)]
+    preview.baseline=JSON.stringify(getState());preview.refreshed=true;renderPreview();pendingFocus=previewHost.querySelector('h4')
+    actionStatus.textContent='Oppdatert. Kontroller forhåndsvisningen og bekreft på nytt.'
   }
   function restoreDraft() {
     let draft

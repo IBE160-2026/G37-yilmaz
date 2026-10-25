@@ -1,3 +1,4 @@
+import { reveal } from './helpers.js'
 import { test, expect } from '@playwright/test'
 import { emptyPlanner, validateCourse } from '../../src/planner.js'
 import { freeze, navigate, key } from './helpers.js'
@@ -11,15 +12,15 @@ async function boot(page, state) {
 }
 async function open(page, text, { filename = 'kontroll.csv', sourceId } = {}) {
   await navigate(page, 'subjects')
-  await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra dokument eller tekst', exact: true }).click()
+  await (await reveal(page.getByRole('button', { name: 'Finn studieprogram', exact: true }))).click()
+  await (await reveal(page.getByRole('button', { name: 'Fra fil eller tekst', exact: true }))).click()
   await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: filename, mimeType: filename.endsWith('.ics') ? 'text/calendar' : filename.endsWith('.txt') ? 'text/plain' : 'text/csv', buffer: Buffer.from(text) })
-  if (sourceId) await page.getByLabel('Ny kilde eller oppdatering', { exact: true }).selectOption(sourceId)
-  await page.getByRole('button', { name: 'Les arbeidskravet', exact: true }).click()
+  if (sourceId) await (await reveal(page.getByLabel('Ny kilde eller oppdatering', { exact: true }))).selectOption(sourceId)
+  await (await reveal(page.getByRole('button', { name: 'Vis forhåndsvisning', exact: true }))).click()
   await expect(page.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible()
 }
 async function confirm(page) {
-  await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
+  await (await reveal(page.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
   await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
 }
 
@@ -28,7 +29,7 @@ test('R2 mapped course stays a reference through actual repeat and revised docum
   await boot(page, { schemaVersion: 1, tasks: [], planner: { ...emptyPlanner(), courses: [manual] } })
   const text = 'id;type;tittel;emne;år;semester\nc;emne;Navnet fra dokumentet;DOC100;2026;høst'
   await open(page, text)
-  await page.getByLabel('Eksisterende eller nytt emne', { exact: true }).selectOption(manual.id)
+  await (await reveal(page.getByLabel('Eksisterende eller nytt emne', { exact: true }))).selectOption(manual.id)
   await confirm(page)
   const first = await stored(page), sourceId = first.importSources[0].id
   expect(first.planner.courses).toEqual([manual])
@@ -48,7 +49,7 @@ test('R2 corrected entry type survives exact repeat; a revised cross-kind update
   await boot(page, { schemaVersion: 1, tasks: [] })
   const text = 'id;type;tittel;start;slutt\ne;undervisning;Korriger denne aktiviteten;2026-09-16T10:00;2026-09-16T11:00'
   await open(page, text)
-  await page.getByLabel('Type oppføring', { exact: true }).selectOption('task')
+  await (await reveal(page.getByLabel('Type oppføring', { exact: true }))).selectOption('task')
   await confirm(page)
   const first = await stored(page), id = first.tasks[0].id, sourceId = first.importSources[0].id
   expect(first.planner.events).toHaveLength(0)
@@ -59,10 +60,10 @@ test('R2 corrected entry type survives exact repeat; a revised cross-kind update
   await page.reload(); await open(page, text.replace('Korriger denne aktiviteten', 'Revidert aktivitet'), { sourceId })
   await expect(page.getByLabel('Type oppføring', { exact: true })).toHaveValue('event')
   const before = await stored(page)
-  await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
+  await (await reveal(page.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
   await expect(page.locator('.document-preview [role=alert]')).toContainText('Typen er endret')
   expect(await stored(page)).toEqual(before)
-  await page.getByLabel('Avklar endret type', { exact: true }).selectOption('replace')
+  await (await reveal(page.getByLabel('Avklar endret type', { exact: true }))).selectOption('replace')
   await confirm(page)
   const after = await stored(page)
   expect(after.tasks).toHaveLength(0)
@@ -82,11 +83,11 @@ test('R2 completed and cancelled VTODO status is visible, omitted by default and
     const include = page.getByLabel('Ta med i planen', { exact: true })
     await expect(include).not.toBeChecked()
     const before = await stored(page)
-    await include.check()
-    await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
+    await (await reveal(include)).check()
+    await (await reveal(page.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
     await expect(page.locator('.document-preview [role=alert]')).toContainText('Velg uttrykkelig')
     expect(await stored(page)).toEqual(before)
-    await page.getByLabel('Avklar oppgavestatus', { exact: true }).selectOption('open')
+    await (await reveal(page.getByLabel('Avklar oppgavestatus', { exact: true }))).selectOption('open')
     await confirm(page)
     const after = await stored(page)
     expect(after.tasks.find(task => task.title === `Oppgave ${status}`)).toMatchObject({ completed: false, submitted: false, deadlineLocal: '2026-09-16T14:00' })
@@ -104,10 +105,10 @@ test('R2 text time ranges and full ISO offsets remain precise while unsupported 
   await expect(rows.nth(2).getByLabel('Frist', { exact: true })).toHaveValue('?')
   await expect(rows.nth(2).locator('blockquote')).toContainText('UTC')
   const before = await stored(page)
-  await page.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
+  await (await reveal(page.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
   await expect(page.locator('.document-preview [role=alert]')).toContainText('Avklar dato og klokkeslett')
   expect(await stored(page)).toEqual(before)
-  await rows.nth(2).getByLabel('Frist', { exact: true }).selectOption('none')
+  await (await reveal(rows.nth(2).getByLabel('Frist', { exact: true }))).selectOption('none')
   await confirm(page)
   const after = await stored(page)
   expect(after.planner.events[0]).toMatchObject({ start: '2026-09-20T10:00:00Z', end: '2026-09-20T11:00:00Z' })

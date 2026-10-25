@@ -1,3 +1,5 @@
+import { nameFirstLabel } from './name-sort.js'
+
 export function onboardingProgress(state) {
   const course = state.planner?.courses?.at(-1), task = state.tasks?.find(item => course && item.courseId === course.id) || state.tasks?.[0]
   const session = (state.sessions || []).find(item => task && item.taskId === task.id)
@@ -21,7 +23,7 @@ export function createOnboarding(actions) {
     const focused = host.contains(document.activeElement) ? document.activeElement.textContent : null
     host.replaceChildren(el('p', `KOM I GANG · STEG ${shownStep} AV 3`))
     if (shownStep === 1) {
-      host.append(el('h2', 'Legg til et emne'), el('p', progress.course ? `${progress.course.code} ${progress.course.name}` : 'Importer et emne, legg det til manuelt, eller hopp over og opprett en oppgave uten ferdig emneinformasjon.'))
+      host.append(el('h2', 'Legg til et emne'), el('p', progress.course ? nameFirstLabel(progress.course) : 'Importer et emne, legg det til manuelt, eller hopp over og opprett en oppgave uten ferdig emneinformasjon.'))
       host.append(button('Importer emne', () => { actions.begin(); actions.view('subjects'); document.querySelector('#connected-import-open')?.click() }, 'primary'), button('Legg til manuelt', () => { actions.begin(); actions.view('subjects'); document.querySelector('#course-new')?.click() }), button('Hopp over import', () => { shownStep = 2; signature = ''; actions.open() }))
     } else if (shownStep === 2) {
       host.append(el('h2', 'Legg til første oppgave'), el('p', progress.task ? progress.task.title : 'En tittel er nok. Frist, emne og arbeidsmengde kan avklares senere.'))

@@ -33,7 +33,7 @@ export function createReplanningView(actions) {
     dialog.append(heading, el('p', 'Se hva som legges til eller flyttes før du bestemmer deg. Avtaler, frister, låste økter og øvrige reservasjoner beholdes.'))
 
     const timeSection = el('section', '', 'study-time-choice')
-    timeSection.append(el('h3', 'Når passer det vanligvis å studere?'))
+    timeSection.append(el('h3', confirmed || STUDY_TIME_PRESETS[state.studyTimePreference?.kind] ? 'Lagret studietid' : 'Når passer det vanligvis å studere?'))
     if (confirmed) {
       timeSection.append(el('p', 'Forslaget bruker tiden du allerede har registrert som tilgjengelig.'))
       const advanced = el('button', 'Endre detaljert tilgjengelighet', 'secondary'); advanced.type = 'button'; advanced.onclick = () => { close(); actions.advanced?.() }
@@ -52,9 +52,14 @@ export function createReplanningView(actions) {
       variableInput.type = 'radio'; variableInput.name = 'study-time'; variableInput.value = 'varies'; variableInput.checked = choice === 'varies'
       variableCopy.append(el('strong', 'Det varierer'), el('span', 'Vurder konkrete tidspunkter uten et ukentlig mønster'))
       variableInput.onchange = () => { choice = 'varies'; compute() }; variable.append(variableInput, variableCopy); choices.append(variable)
-      timeSection.append(choices)
+      if (STUDY_TIME_PRESETS[state.studyTimePreference?.kind]) {
+        const saved = STUDY_TIME_PRESETS[state.studyTimePreference.kind]
+        timeSection.append(el('p', `${saved.label} · ${saved.detail}. Tidspunktene vurderes før lagring.`))
+        const change = el('details'); change.append(el('summary', 'Endre studietid'), choices); timeSection.append(change)
+      } else timeSection.append(choices)
       const advanced = el('button', 'Tilpass selv', 'secondary'); advanced.type = 'button'; advanced.onclick = () => { close(); actions.advanced?.() }
-      timeSection.append(advanced, el('p', 'Ingen valg? Da vises bare ett begrenset, foreløpig tidspunkt. Det lagres ikke som ukentlig kapasitet.', 'muted'))
+      timeSection.append(advanced)
+      if (!STUDY_TIME_PRESETS[state.studyTimePreference?.kind]) timeSection.append(el('p', 'Ingen valg? Da vises bare ett begrenset, foreløpig tidspunkt. Det lagres ikke som ukentlig kapasitet.', 'muted'))
     }
     dialog.append(timeSection)
 
@@ -74,14 +79,15 @@ export function createReplanningView(actions) {
           input.onchange = () => { comparisonPriorityIds = [...priorities.querySelectorAll('input:checked')].map(item => item.value) }
           label.append(input, document.createTextNode(task.title)); priorities.append(label)
         }
-        dialog.append(priorities)
+        const comparisonDetails = el('details'); comparisonDetails.append(el('summary', 'Sammenlign planalternativer'), priorities)
         const compare = el('button', 'Sammenlign planalternativer', 'secondary'); compare.type = 'button'; compare.onclick = () => showComparison(host, error)
-      dialog.append(compare)
+      comparisonDetails.append(compare); dialog.append(comparisonDetails)
     }
     const actionsRow = el('div', '', 'actions'), accept = el('button', 'Bruk planen'), reject = el('button', 'Ikke nå', 'secondary')
     accept.type = reject.type = 'button'; accept.dataset.accept = ''; reject.dataset.reject = ''; reject.onclick = close
     accept.onclick = () => apply(error, accept)
     actionsRow.append(accept, reject); dialog.append(host, error, actionsRow)
+    if (confirmed || STUDY_TIME_PRESETS[state.studyTimePreference?.kind]) timeSection.before(host)
     compute(); dialog.showModal(); heading.focus()
   }
 

@@ -7,7 +7,7 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-10-16
+updated: 2026-10-25
 binds: [R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, Q-01, Q-02, Q-03]
 historical_binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
@@ -15,11 +15,24 @@ sources:
   - ../../EPICS-CURRENT.md
   - ../../TRACEABILITY.md
   - ../../../../brief.md
-  - ../../../implementation-artifacts/spec-fullstack-database-docker-delivery.md
+  - ../../../../studieplanlegger/VERIFICATION.md
+  - ../../../implementation-artifacts/tp-csv-format-contract-2026-10-23.md
   - ../../../implementation-artifacts/solution-guide.md
 ---
 
 # Technical plan: Studieplanlegger
+
+## Current integrated contracts — 2026-10-25
+
+The core remains task → step → approved session → outcome → adjustment. Local rules in [tasks.js](../../../../studieplanlegger/src/tasks.js), [work-steps.js](../../../../studieplanlegger/src/work-steps.js), [replanning.js](../../../../studieplanlegger/src/replanning.js) and [work-log.js](../../../../studieplanlegger/src/work-log.js) keep optional steps, planned time, actual time, remaining estimates, completion and submission distinct. Imports supply reviewed context to this flow. The 16 October requirement map below retains its date and bounded HiMolde/NTNU promise; the following reconciliation describes the integrated corrections through 24 October.
+
+### AD-13 — Reviewed import identity, time and export
+
+R-02/R-05/R-06 and Q-01–Q-03 share one document preview and atomic state transaction. [document-course-identity.js](../../../../studieplanlegger/src/document-course-identity.js) and [document-course-resolution.js](../../../../studieplanlegger/src/document-course-resolution.js) qualify course code, institution, period and source context. Unique known identities can be reused; ambiguity and legacy empty links require grouped decisions. Explicit no-course decisions, manual links and edits remain authoritative. [import-source-contract.js](../../../../studieplanlegger/src/import-source-contract.js) and [import-preview.js](../../../../studieplanlegger/src/import-preview.js) preserve source and event IDs, accepted names, exclusions and explicit restore decisions across revisions and reimport. Delayed responses cannot replace a newer draft.
+
+Source time and a user decision about uncertain time have separate provenance. Valid intervals retain exact instants; an explicitly chosen point has no invented duration, capacity or deadline. A later changed source time cannot silently reuse an obsolete point decision. [calendar-import.js](../../../../studieplanlegger/src/calendar-import.js) validates components, occurrence identity and supported recurrence bounds, with visible partial rejection. Published TP course terms retain source ownership independently of an activity's calendar half-year. These contracts refine existing providers and formats; they add no national-coverage promise.
+
+R-03/R-08 keep capacity and the exported copy consistent. [calendar-export.js](../../../../studieplanlegger/src/calendar-export.js) preserves the established export selection and explains omissions before download. Whole-second ICS cannot represent fractional seconds; affected entries are omitted explicitly while stored instants remain unchanged. Points have no invented end, and transparency follows actual busy-time semantics. Export is neither synchronization nor evidence of acceptance by Outlook. [Traceability](../../TRACEABILITY.md) connects these rules to unit, visible-browser and production persistence cases. [Publication verification](../../../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) separates new candidate evidence from historical source/build hashes, whose manifests omit tests, fixtures and configuration.
 
 ## Current scope and requirement map — 2026-10-16
 
@@ -30,7 +43,7 @@ Production is a local Node API plus authoritative SQLite, with revision-checked,
 | Current requirements | Decisions and implementation boundaries |
 | --- | --- |
 | R-01, Q-01 | AD-9/AD-11: title-only capture, optional details, shared controller and readable task/session UI. |
-| R-02, Q-02 | AD-11: source-owned required/alternative choices, per-course teaching status, explicit review, failure-safe refresh. |
+| R-02, Q-02 | AD-11/AD-13: source-owned required/alternative choices, per-course teaching status, qualified identities, explicit review, failure-safe refresh. |
 | R-03, R-05 | AD-9/AD-11 and acceptance hardening: shared capacity/dependency rules, fingerprinted proposals, atomic commit and history/undo. |
 | R-04, R-08 | AD-9/AD-12: actual work and remaining estimates independent; stable ordered steps, optional assessment/review, read-only calendar copy, controlled plan comparison. |
 | R-06, Q-02 | AD-10: SQLite authority, automatic transactional migrations, optimistic revisions, backup/recovery and same-volume persistence. |
@@ -176,9 +189,9 @@ Seed checked against official sources on 2026-09-06. The following versions desc
 | Name | Version |
 | --- | --- |
 | HTML, CSS, JavaScript | Native browser standards; ES modules, no UI framework |
-| Node.js | 24 LTS; official page currently lists 24.20.0 |
+| Node.js | 24 LTS; the historical setup check recorded 24.20.0 on the official page |
 | create-vite | 9.2.0, `vanilla` JavaScript template |
-| Vite | 8.2.2, seed from current official vanilla template |
+| Vite | 8.2.2, historical vanilla-template seed |
 | Vitest | 5.0.0 |
 | @playwright/test | 1.63.0, bundled Chromium |
 | localStorage | Native browser Web Storage API |
@@ -237,7 +250,7 @@ Open `http://studieplan.localhost/`; keep the terminal running and stop with Ctr
 - Exact helper signatures, CSS details and test fixtures: choose within these contracts during stories; code owns the structural seed thereafter.
 - Hosting, deployment automation and production monitoring: revisit only if public distribution is requested; first version runs locally.
 - Cross-timezone travel remains limited. Production detects stale multi-client writes with expected revisions and HTTP 409; Vite/localStorage remains a development path without server revisions. Backup/export, validated restore and same-origin legacy import are implemented, but they do not protect against every disk or operator failure.
-- The original build and planning handoffs are historical. Use the shipped implementation specifications and verification evidence for the authorized additions and actual verification; do not recreate the app or restart completed planning.
+- The original build and planning handoffs are historical. Use the public requirement map, curated format contracts, source/test references and dated verification for the integrated additions; internal working specifications remain local. Do not recreate the app or restart completed planning.
 ## AD-12 — Integrerte vedlikeholdsutvidelser, 2026-09-29
 
 De fire utvidelsene følger den eksisterende énveisflyten `UI → domenevalidering → komplett envelope → lagringsadapter`. Arbeidssteg ligger inne i oppgaven med stabile ID-er. Tema, egenvurderinger og repetisjonsbeslutninger er egne valgfrie samlinger. Godkjente repetisjoner er ordinære `sessions`, ikke en parallell kalender. Plansammenligning er en frosset forhåndsvisning med `planningFingerprint`; bare eksplisitt bruk av ett alternativ skriver en atomisk og angrebar ny tilstand.

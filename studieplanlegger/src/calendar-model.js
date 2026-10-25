@@ -1,5 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill'
-import { OSLO, osloLocal, toInstant, matchesCourse } from './planner.js'
+import { OSLO, osloLocal, osloLocalExact, toInstant, matchesCourse } from './planner.js'
 import { extendedSessionInterval } from './work-capacity.js'
 import { isExamEvent } from './event-kind.js'
 
@@ -20,7 +20,7 @@ export function calendarEntries({ tasks = [], sessions = [], planner = {}, workW
   const entries = (planner.events || []).filter(e => !e.deleted).map(e => {
     if (e.activityKind !== 'personal') return { ...e, isExam: isExamEvent(e), courseCode: courseCode(e.courseId), key: `event:${e.id}`, kind: e.transparent || e.information || e.transparency === 'TRANSPARENT' ? 'information' : 'teaching', start: Date.parse(e.start), end: Date.parse(e.end) }
     const bounds = dayBounds(e.dateLocal), start = e.start ? Date.parse(e.start) : bounds.start, end = e.end ? Date.parse(e.end) : start
-    return { ...e, key: `event:${e.id}`, kind: 'personal', courseCode: '', start, end, point: !e.end, allDay: !e.start, timingPrecision: e.end ? 'interval' : e.start ? 'start' : 'date' }
+    return { ...e, key: `event:${e.id}`, kind: 'personal', courseCode: '', start, end, point: Boolean(e.point || !e.end), allDay: e.allDay || !e.start, timingPrecision: e.point ? 'point' : e.end ? 'interval' : e.start ? 'start' : 'date' }
   })
   for (const task of tasks.filter(t => t.deadlineLocal)) {
     let start, warning = ''
@@ -52,15 +52,25 @@ export function collisionLanes(entries) {
   }
   finish(); return result
 }
+const repeatedClock = zoned => {
+  const local = zoned.toPlainDateTime()
+  return local.toZonedDateTime(OSLO, { disambiguation: 'earlier' }).epochMilliseconds !== local.toZonedDateTime(OSLO, { disambiguation: 'later' }).epochMilliseconds
+}
+export function calendarInstantLabel(value, { includeDate = false, forceOffset = false } = {}) {
+  const instant = typeof value === 'number' ? Temporal.Instant.fromEpochMilliseconds(value) : Temporal.Instant.from(value)
+  const zoned = instant.toZonedDateTimeISO(OSLO)
+  const exact = osloLocalExact(instant.toString())
+  return `${includeDate ? exact.replace('T', ' ') : exact.slice(11)}${forceOffset || repeatedClock(zoned) ? ` (${zoned.offset})` : ''}`
+}
 export function timeLabel(entry) {
   if (entry.warning) return `${entry.local.slice(11)} (må presiseres)`
-  const stamp = time => osloLocal(new Date(time).toISOString()).slice(11)
+  const stamp = calendarInstantLabel
   if (entry.kind === 'personal' && entry.timingPrecision === 'date') return 'Tid ikke oppgitt'
   if (entry.kind === 'personal' && entry.timingPrecision === 'start') return `${stamp(entry.start)} · Varighet ikke oppgitt`
   if (entry.kind === 'deadline' && entry.allDay) return 'Frist – klokkeslett ikke oppgitt'
   if (entry.allDay) return 'Hele dagen'
-  if (entry.point) return `Frist kl. ${stamp(entry.start)}`
+  if (entry.point) return entry.kind === 'deadline' ? `Frist kl. ${stamp(entry.start)}` : `Kl. ${stamp(entry.start)} · Tidspunkt, reserverer ikke tid`
   const start = Temporal.Instant.fromEpochMilliseconds(entry.start).toZonedDateTimeISO(OSLO), end = Temporal.Instant.fromEpochMilliseconds(entry.end).toZonedDateTimeISO(OSLO)
-  const repeated = zone => zone.hour === 2 && zone.startOfDay().add({ days: 1 }).epochMilliseconds - zone.startOfDay().epochMilliseconds > 86400000
-  return start.offset !== end.offset || repeated(start) || repeated(end) ? `${stamp(entry.start)} (${start.offset})–${stamp(entry.end)} (${end.offset})` : `${stamp(entry.start)}–${stamp(entry.end)}`
+  const forceOffset = start.offset !== end.offset || repeatedClock(start) || repeatedClock(end)
+  return `${stamp(entry.start, { forceOffset })}–${stamp(entry.end, { forceOffset })}`
 }

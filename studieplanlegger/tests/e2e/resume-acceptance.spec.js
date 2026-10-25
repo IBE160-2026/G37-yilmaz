@@ -1,3 +1,4 @@
+import { reveal } from './helpers.js'
 import { test, expect } from '@playwright/test'
 import { navigate, saved, key, openImportMethod, openTaskDetails } from './helpers.js'
 
@@ -21,7 +22,7 @@ async function previewFile(page, value) {
   await menu(page)
   const control = page.getByRole('button', { name: 'Importer sikkerhetskopi', exact: true })
   await expect(control).toBeEnabled()
-  const choosing = page.waitForEvent('filechooser'); await control.click()
+  const choosing = page.waitForEvent('filechooser'); await (await reveal(control)).click()
   await (await choosing).setFiles(backup(value))
   await expect(page.locator('.data-dialog')).toBeVisible()
 }
@@ -30,7 +31,7 @@ test('a valid local file repairs corrupt storage without discarding its raw befo
   const corrupt = '{LOCAL_CORRUPT_RAW_RESUME_ACCEPTANCE_731', errors = await seed(page, corrupt)
   const restored = initial([task('recovered')])
   await previewFile(page, restored)
-  await page.getByRole('button', { name: 'Erstatt lokale data', exact: true }).click()
+  await (await reveal(page.getByRole('button', { name: 'Erstatt lokale data', exact: true }))).click()
   await expect.poll(async () => (await saved(page))?.tasks).toEqual(restored.tasks)
   expect(await page.evaluate(() => Object.entries(localStorage).filter(([name]) => name.startsWith('studieplanlegger:')).map(([, value]) => value).join('\n'))).toContain(corrupt)
   await page.reload(); expect((await saved(page)).tasks).toEqual(restored.tasks)
@@ -41,7 +42,7 @@ test('a valid local file repairs corrupt storage without discarding its raw befo
 test('a failed second replacement preserves both active data and the older recovery copy', async ({ page }) => {
   const a = initial([task('A')]), b = initial([task('B')]), c = initial([task('C')])
   const errors = await seed(page, a)
-  await previewFile(page, b); await page.getByRole('button', { name: 'Erstatt lokale data', exact: true }).click()
+  await previewFile(page, b); await (await reveal(page.getByRole('button', { name: 'Erstatt lokale data', exact: true }))).click()
   await expect.poll(async () => (await saved(page)).tasks).toEqual(b.tasks)
   const priorRecovery = await page.evaluate(key => localStorage.getItem(key), recoveryKey)
   expect(priorRecovery).toContain('Isolated task A')
@@ -52,25 +53,25 @@ test('a failed second replacement preserves both active data and the older recov
       return original.call(this, name, value)
     }
   }, key)
-  await previewFile(page, c); await page.getByRole('button', { name: 'Erstatt lokale data', exact: true }).click()
+  await previewFile(page, c); await (await reveal(page.getByRole('button', { name: 'Erstatt lokale data', exact: true }))).click()
   expect((await saved(page)).tasks).toEqual(b.tasks)
   expect(await page.evaluate(key => localStorage.getItem(key), recoveryKey)).toBe(priorRecovery)
   await expect(page.locator('.data-dialog')).toBeVisible()
   await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'Gjenopprett forrige kopi', exact: true }).click()
-  await page.getByRole('button', { name: 'Erstatt lokale data', exact: true }).click()
+  await (await reveal(page.getByRole('button', { name: 'Gjenopprett forrige kopi', exact: true }))).click()
+  await (await reveal(page.getByRole('button', { name: 'Erstatt lokale data', exact: true }))).click()
   await expect.poll(async () => (await saved(page)).tasks).toEqual(a.tasks)
   expect(errors).toEqual([])
 })
 
 test('teaching without a course cannot lock subsequent manual task registration', async ({ page }) => {
   const errors = await seed(page, { schemaVersion: 1, tasks: [] })
-  await navigate(page, 'subjects'); await page.locator('#event-new').click()
-  await page.locator('#new-task').click(); await expect(page.locator('#task-form')).toBeVisible()
-  await page.locator('#title').fill('Manual task after prerequisite warning')
+  await navigate(page, 'subjects'); await (await reveal(page.locator('#event-new'))).click()
+  await (await reveal(page.locator('#new-task'))).click(); await expect(page.locator('#task-form')).toBeVisible()
+  await (await reveal(page.locator('#title'))).fill('Manual task after prerequisite warning')
   await openTaskDetails(page)
-  await page.locator('#course').fill('Unlinked manual course')
-  await page.locator('#task-form').getByRole('button', { name: 'Lagre', exact: true }).click()
+  await (await reveal(page.locator('#course'))).fill('Unlinked manual course')
+  await (await reveal(page.locator('#task-form').getByRole('button', { name: 'Lagre', exact: true }))).click()
   await expect.poll(async () => (await saved(page)).tasks.length).toBe(1)
   await page.reload(); expect((await saved(page)).tasks[0].title).toBe('Manual task after prerequisite warning')
   expect(errors).toEqual([])
@@ -80,14 +81,14 @@ test('same-code explicit course links stay isolated in every full-calendar mode 
   const a = task('NTNU'), b = task('HVL', courses[1].id), data = initial([a, b])
   data.sessions = [{ id: 'hvl-session', dateLocal: '2026-09-08', startTime: '12:00', endTime: '13:00', taskId: b.id }]
   const errors = await seed(page, data)
-  await navigate(page, 'calendar'); await page.locator('.full-calendar-filters summary').click()
-  await page.locator('#full-calendar-course').selectOption(courses[1].id)
+  await navigate(page, 'calendar'); await (await reveal(page.locator('.full-calendar-filters summary'))).click()
+  await (await reveal(page.locator('#full-calendar-course'))).selectOption(courses[1].id)
   for (const mode of ['day', 'week', 'month', 'agenda']) {
-    await page.locator(`[data-calendar-view=${mode}]`).click()
+    await (await reveal(page.locator(`[data-calendar-view=${mode}]`))).click()
     await expect(page.locator('.full-calendar-viewport [data-calendar-key="task:NTNU"]')).toHaveCount(0)
     await expect(page.locator('.full-calendar-viewport [data-calendar-key="task:HVL"]').first()).toBeAttached()
   }
-  await navigate(page, 'overview'); await page.locator('#calendar-course-filter').selectOption(courses[1].id)
+  await navigate(page, 'overview'); await (await reveal(page.locator('#calendar-course-filter'))).selectOption(courses[1].id)
   await expect(page.locator('#compact-agenda')).not.toContainText('Isolated task NTNU')
   await expect(page.locator('#compact-agenda')).toContainText('Isolated task HVL')
   await expect(page.locator('#compact-agenda')).toContainText('12:00')
@@ -108,18 +109,24 @@ test('a clock-only transition updates the ongoing activity label', async ({ page
 test('zero selected file events cannot commit unpreviewed destructive changes', async ({ page }) => {
   const errors = await seed(page), calendar = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT', 'UID:isolated-resume-event', 'DTSTART:20260908T080000Z', 'DTEND:20260908T090000Z', 'SUMMARY:Isolated lecture', 'X-GROUP:Lecture', 'END:VEVENT', 'END:VCALENDAR', ''].join('\r\n')
   await navigate(page, 'subjects')
-  await openImportMethod(page, 'calendar')
-  const form = page.locator('form').filter({ has: page.locator('input[name=file]') })
-  await form.locator('[name=courseId]').selectOption(courses[0].id)
-  await form.locator('input[name=file]').setInputFiles({ name: 'isolated-resume.ics', mimeType: 'text/calendar', buffer: Buffer.from(calendar) })
-  await page.locator('#ics-preview').click(); await page.locator('.activity-choices input[type=checkbox]').check(); await page.getByRole('button', { name: 'Bekreft import', exact: true }).click()
-  const before = (await saved(page)).planner.events.filter(event => !event.cancelled && !event.deleted).length
+  const prepare = async () => {
+    await (await reveal(page.getByRole('button', { name: 'Importer', exact: true }))).click()
+    await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: 'isolated-resume.ics', mimeType: 'text/calendar', buffer: Buffer.from(calendar) })
+    await page.getByRole('button', { name: 'Vis forhåndsvisning', exact: true }).click()
+    await expect(page.locator('.document-preview')).toBeVisible()
+  }
+  await prepare(); await (await reveal(page.getByLabel('Ta med i planen', { exact: true }))).check(); await (await reveal(page.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
+  const original = await saved(page)
+  const before = original.planner.events.filter(event => !event.cancelled && !event.deleted).length
   expect(before).toBe(1)
-  await page.locator('#ics-preview').click(); await page.locator('.activity-choices input[type=checkbox]').check(); await page.locator('#import-preview .preview-events input[type=checkbox]').first().uncheck()
-  const preview = await page.locator('#import-preview').innerText()
-  const cancelled = Number(preview.match(/(\d+) fjernet\/avlyst/)?.[1] || 0), hidden = Number(preview.match(/(\d+) (?:lokalt )?skjult/)?.[1] || 0)
-  await page.getByRole('button', { name: 'Bekreft import', exact: true }).click()
-  const after = (await saved(page)).planner.events.filter(event => !event.cancelled && !event.deleted).length
-  expect(before - after).toBe(cancelled + hidden)
+  await (await reveal(page.getByRole('button', { name: 'Tilbake til Mine emner', exact: true }))).click()
+  await prepare(); await (await reveal(page.getByLabel('Ta med i planen', { exact: true }))).uncheck()
+  await (await reveal(page.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
+  await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
+  const repeated = await saved(page)
+  expect(repeated.planner).toEqual(original.planner)
+  expect(repeated.importSources[0].excludedKeys).toHaveLength(1)
+  const after = repeated.planner.events.filter(event => !event.cancelled && !event.deleted).length
+  expect(after).toBe(before)
   expect(errors).toEqual([])
 })

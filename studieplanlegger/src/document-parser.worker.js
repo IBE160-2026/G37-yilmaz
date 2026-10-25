@@ -8,5 +8,5 @@ self.onmessage = async ({ data }) => {
   try {
     const parsed = await parseDocumentBytes(data.buffer, { ...data.options, onProgress: message => self.postMessage({ documentImport: true, progress: message }) })
     self.postMessage({ documentImport: true, ok: true, parsed })
-  } catch (error) { self.postMessage({ documentImport: true, ok: false, error: error.message || 'Dokumentet kunne ikke leses. Lim inn teksten eller registrer planen manuelt.' }) }
+  } catch (error) { self.postMessage({ documentImport: true, ok: false, clarification: error.clarification, error: error.message || 'Dokumentet kunne ikke leses. Lim inn teksten eller registrer planen manuelt.' }) }
 }

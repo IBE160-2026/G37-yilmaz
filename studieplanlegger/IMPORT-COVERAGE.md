@@ -1,5 +1,7 @@
 # Import coverage and access requirements
 
+**Samordnet 2026-10-25:** Import er støtte for den lokale oppgave-/planleggingsflyten. Fil-, emnekoblings-, gjentakelses- og kalenderrettingene fra 18.–24. oktober utvider ikke kildeutvalget nedenfor. [Importavtalen](IMPORT.md) beskriver gjeldende atferd; [publiseringskontrollen](VERIFICATION.md#publiseringskontroll--2026-10-25) skiller nye syntetiske kandidatkontroller fra historisk transport og nettleseraksept. Historiske kildeobservasjoner er ikke nye oppslag eller en studentprøve. Kilde-/bygghashene fra 24. oktober omfatter ikke testfiler, fixturer eller konfigurasjon og fastslår ikke identisk testgrunnlag.
+
 ## Gjeldende v1 og historisk dekning — 2026-10-16
 
 V1 er avgrenset i [briefen](../brief.md) og [PRD](../.docs/planning-artifacts/PRD.md): HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, og NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Nasjonal dekning og tidligere «T3/restkrav» er framtidsvisjon, ikke åpne v1-leveransekrav. Andre adaptere beholdes med sine begrensninger.

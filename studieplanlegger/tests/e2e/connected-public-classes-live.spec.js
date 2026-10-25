@@ -1,3 +1,4 @@
+import { reveal } from './helpers.js'
 import { test, expect } from '@playwright/test'
 import { Temporal } from '@js-temporal/polyfill'
 import { navigate, key } from './helpers.js'
@@ -26,21 +27,21 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
   let first
   for (let attempt = 0; attempt < 2; attempt++) {
     await navigate(page, 'subjects')
-    await page.getByRole('button', { name: 'Importer emner og plan', exact: true }).click()
-    await page.getByRole('button', { name: 'Fra kalenderfil eller lenke', exact: true }).click()
+    await (await reveal(page.getByRole('button', { name: 'Finn studieprogram', exact: true }))).click()
+    await (await reveal(page.getByRole('button', { name: 'Fra kalenderlenke', exact: true }))).click()
     const form = page.locator('.institutional-calendar-import')
     if (!await form.evaluate(node => node.open)) await form.locator(':scope > summary').click()
-    await form.getByRole('combobox', { name: 'Offentlig kalenderkilde', exact: true }).selectOption(sample.kind)
-    await form.getByRole('button', { name: sample.button, exact: true }).click()
+    await (await reveal(form.getByRole('combobox', { name: 'Offentlig kalenderkilde', exact: true }))).selectOption(sample.kind)
+    await (await reveal(form.getByRole('button', { name: sample.button, exact: true }))).click()
     const classes = form.getByRole('combobox', { name: 'Publisert klasseplan', exact: true })
     await expect(classes.locator('option')).toHaveCount(sample.classes + 1, { timeout: 60_000 })
     await expect(classes).toHaveValue('')
-    await classes.selectOption({ label: sample.className })
-    await form.getByLabel('Kalenderår', { exact: true }).fill('2026')
-    await form.getByRole('combobox', { name: 'Kalendersemester', exact: true }).selectOption('autumn')
+    await (await reveal(classes)).selectOption({ label: sample.className })
+    await (await reveal(form.getByLabel('Kalenderår', { exact: true }))).fill('2026')
+    await (await reveal(form.getByRole('combobox', { name: 'Kalendersemester', exact: true }))).selectOption('autumn')
     const before = await saved()
     const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/import/calendar') && response.request().method() === 'POST')
-    await form.getByRole('button', { name: 'Forhåndsvis institusjonskalender', exact: true }).click()
+    await (await reveal(form.getByRole('button', { name: 'Forhåndsvis institusjonskalender', exact: true }))).click()
     const response = await responsePromise, result = await response.json()
     expect(response.status()).toBe(200)
     expect(result.sourceKind).toBe(`${sample.kind}-public-class`)
@@ -70,7 +71,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
       end: utc(await selected.getByLabel('Slutt i norsk tid', { exact: true }).inputValue()),
     }
     expect(selectedFields.title).toBe(sample.selectedTitle)
-    await selected.getByRole('checkbox', { name: 'Ta med i planen', exact: true }).check()
+    await (await reveal(selected.getByRole('checkbox', { name: 'Ta med i planen', exact: true }))).check()
     expect(await rows.locator('input[type=checkbox]:checked').count()).toBe(1)
     if (!attempt) {
       await selected.scrollIntoViewIfNeeded()
@@ -83,7 +84,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
       await page.setViewportSize({ width: 390, height: 844 })
     }
     expect(await saved()).toEqual(before)
-    await preview.getByRole('button', { name: 'Stemmer – lag plan', exact: true }).click()
+    await (await reveal(preview.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
     await expect(form.getByRole('status')).toContainText('Institusjonskalender lagret')
     const state = await saved()
     expect(state.planner.courses).toEqual([])

@@ -1,3 +1,4 @@
+import { reveal } from './helpers.js'
 import { test, expect } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
@@ -22,7 +23,7 @@ async function seed(page,data=fixture()) {
   return errors
 }
 async function dataMenu(page) { await navigate(page,'settings'); const menu=page.locator('#settings-panel .data-menu').filter({hasText:'Data og sikkerhetskopi'}); if(!await menu.evaluate(node=>node.open))await menu.locator('summary').click() }
-async function calendar(page,view) { await navigate(page,'calendar'); if(view)await page.locator(`[data-calendar-view="${view}"]`).click(); await page.locator('#full-calendar-date').fill('2026-09-08') }
+async function calendar(page,view) { await navigate(page,'calendar'); if(view)await (await reveal(page.locator(`[data-calendar-view="${view}"]`))).click(); await (await reveal(page.locator('#full-calendar-date'))).fill('2026-09-08') }
 
 test('desktop calendar aligns time, keeps point bands visible, exposes accurate details and persists context',async({page})=>{
   await page.setViewportSize({width:1440,height:900}); const errors=await seed(page); await calendar(page,'week')
@@ -36,12 +37,12 @@ test('desktop calendar aligns time, keeps point bands visible, exposes accurate 
   await expect(page.locator('.calendar-time-axis')).toHaveCount(1)
   const control=page.locator('.calendar-point-extras [data-calendar-key="event:lecture"]'), before=await viewport.evaluate(node=>node.scrollTop)
   expect((await control.boundingBox()).width).toBeGreaterThanOrEqual(95)
-  await control.click(); const dialog=page.locator('.calendar-details')
-  await expect(dialog).toContainText('TEST101 Innføring i programmering'); await expect(dialog).toContainText('Rom A101'); await expect(dialog).toContainText('2026'); await expect(dialog).toContainText('Europe/Oslo')
+  await (await reveal(control)).click(); const dialog=page.locator('.calendar-details')
+  await expect(dialog).toContainText('Innføring i programmering · TEST101'); await expect(dialog).toContainText('Rom A101'); await expect(dialog).toContainText('2026'); await expect(dialog).toContainText('Europe/Oslo')
   await page.keyboard.press('Escape'); await expect(control).toBeFocused(); expect(await viewport.evaluate(node=>node.scrollTop)).toBe(before)
   await page.screenshot({path:'artifacts/eleven-calendar-desktop-1440.png'})
-  await page.locator('[data-calendar-view="month"]').click(); await expect(page.getByRole('button',{name:/\+ \d+ flere/}).first()).toBeVisible()
-  await page.locator('[data-calendar-view="agenda"]').click(); await page.locator('#full-calendar-date').fill('2026-09-12')
+  await (await reveal(page.locator('[data-calendar-view="month"]'))).click(); await expect(page.getByRole('button',{name:/\+ \d+ flere/}).first()).toBeVisible()
+  await (await reveal(page.locator('[data-calendar-view="agenda"]'))).click(); await (await reveal(page.locator('#full-calendar-date'))).fill('2026-09-12')
   await page.reload(); await navigate(page,'calendar'); await expect(page.locator('[data-calendar-view="agenda"]')).toHaveAttribute('aria-pressed','true'); await expect(page.locator('#full-calendar-date')).toHaveValue('2026-09-12')
   expect(errors).toEqual([])
 })
@@ -55,11 +56,11 @@ test('mobile Calendar is directly reachable, month adapts, keyboard/large text f
   await viewport.evaluate(node => node.scrollTop = 500)
   await expect(page.locator('.calendar-timeline [data-calendar-key="event:lecture"]')).toBeInViewport()
   await page.screenshot({path:'artifacts/eleven-calendar-mobile-390.png'})
-  await page.locator('[data-calendar-view="month"]').click()
+  await (await reveal(page.locator('[data-calendar-view="month"]'))).click()
   expect(await page.locator('.full-calendar-viewport').evaluate(node=>node.scrollWidth<=node.clientWidth)).toBe(true)
   await page.screenshot({path:'artifacts/eleven-calendar-mobile-month.png'})
   await page.evaluate(()=>document.documentElement.style.fontSize='200%')
-  await page.locator('[data-calendar-view="agenda"]').focus(); await page.keyboard.press('Enter')
+  await (await reveal(page.locator('[data-calendar-view="agenda"]'))).focus(); await page.keyboard.press('Enter')
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
   await page.screenshot({path:'artifacts/eleven-calendar-mobile-200percent.png'})
   expect(errors).toEqual([])
@@ -80,42 +81,42 @@ test('course code and deterministic accent stay visible for teaching, deadline a
 })
 
 test('calendar filters course and kind without changing selected date',async({page})=>{
-  await seed(page); await calendar(page,'agenda'); await page.locator('.full-calendar-filters summary').click()
-  await page.locator('#full-calendar-course').selectOption(courseB.id)
+  await seed(page); await calendar(page,'agenda'); await (await reveal(page.locator('.full-calendar-filters summary'))).click()
+  await (await reveal(page.locator('#full-calendar-course'))).selectOption(courseB.id)
   await expect(page.locator('.calendar-full-agenda')).toContainText('Forelesning other')
   await expect(page.locator('.calendar-full-agenda')).not.toContainText('Forelesning lecture')
-  await page.locator('.full-calendar-filters').getByLabel('Undervisning',{exact:true}).uncheck()
+  await (await reveal(page.locator('.full-calendar-filters').getByLabel('Undervisning',{exact:true}))).uncheck()
   await expect(page.locator('.calendar-full-agenda')).toContainText('Ingen oppføringer')
   await expect(page.locator('#full-calendar-date')).toHaveValue('2026-09-08')
 })
 
 test('inline course is atomic with task and explicit cancel preserves saved state',async({page})=>{
-  await seed(page); const before=await saved(page); await page.locator('#new-task').click(); await page.locator('#title').fill('Utkast beholdes')
+  await seed(page); const before=await saved(page); await (await reveal(page.locator('#new-task'))).click(); await (await reveal(page.locator('#title'))).fill('Utkast beholdes')
   await openTaskDetails(page)
-  await expect(page.locator('#courseId')).toBeHidden(); await page.locator('.inline-course summary').click()
-  await page.locator('[name=inlineName]').fill('Nytt isolert emne'); await page.locator('[name=inlineCode]').fill('NEW101'); await page.getByRole('button',{name:'Bruk nytt emne'}).click()
+  await expect(page.locator('#courseId')).toBeHidden(); await (await reveal(page.locator('.inline-course summary'))).click()
+  await (await reveal(page.locator('[name=inlineName]'))).fill('Nytt isolert emne'); await (await reveal(page.locator('[name=inlineCode]'))).fill('NEW101'); await (await reveal(page.getByRole('button',{name:'Bruk nytt emne'}))).click()
   await expect(page.locator('#title')).toHaveValue('Utkast beholdes'); expect(await saved(page)).toEqual(before)
-  await page.locator('#cancel-task').click(); expect(await saved(page)).toEqual(before); await expect(page.locator('#completion-badge')).toBeHidden()
-  await page.locator('#new-task').click(); await page.locator('#title').fill('Atomisk oppgave'); await openTaskDetails(page); await page.locator('.inline-course summary').click(); await page.locator('[name=inlineName]').fill('Nytt isolert emne'); await page.locator('[name=inlineCode]').fill('NEW101'); await page.getByRole('button',{name:'Bruk nytt emne'}).click()
-  await page.locator('#task-form button[type=submit]').click(); await expect(page.locator('#task-form')).toBeHidden()
+  await (await reveal(page.locator('#cancel-task'))).click(); expect(await saved(page)).toEqual(before); await expect(page.locator('#completion-badge')).toBeHidden()
+  await (await reveal(page.locator('#new-task'))).click(); await (await reveal(page.locator('#title'))).fill('Atomisk oppgave'); await openTaskDetails(page); await (await reveal(page.locator('.inline-course summary'))).click(); await (await reveal(page.locator('[name=inlineName]'))).fill('Nytt isolert emne'); await (await reveal(page.locator('[name=inlineCode]'))).fill('NEW101'); await (await reveal(page.getByRole('button',{name:'Bruk nytt emne'}))).click()
+  await (await reveal(page.locator('#task-form button[type=submit]'))).click(); await expect(page.locator('#task-form')).toBeHidden()
   const after=await saved(page), created=after.tasks.find(t=>t.title==='Atomisk oppgave'); expect(after.planner.courses.some(c=>c.id===created.courseId&&c.code==='NEW101')).toBe(true)
 })
 
 test('course trash survives reload and restores exact relations, status undo is exact',async({page})=>{
   await seed(page); const before=await saved(page); await navigate(page,'subjects')
-  page.once('dialog',dialog=>dialog.accept()); await page.getByRole('button',{name:'Slett emne TEST101',exact:true}).click()
-  expect((await saved(page)).tasks[0]).not.toHaveProperty('courseId'); await page.reload(); await dataMenu(page); await page.getByRole('button',{name:/Papirkurv/}).click()
-  await page.locator('.data-dialog').getByRole('button',{name:'Gjenopprett',exact:true}).click(); await page.locator('.data-dialog').getByRole('button',{name:'Lukk',exact:true}).click()
+  page.once('dialog',dialog=>dialog.accept()); await (await reveal(page.getByRole('button',{name:'Slett emne TEST101',exact:true}))).click()
+  expect((await saved(page)).tasks[0]).not.toHaveProperty('courseId'); await page.reload(); await dataMenu(page); await (await reveal(page.getByRole('button',{name:/Papirkurv/}))).click()
+  await (await reveal(page.locator('.data-dialog').getByRole('button',{name:'Gjenopprett',exact:true}))).click(); await (await reveal(page.locator('.data-dialog').getByRole('button',{name:'Lukk',exact:true}))).click()
   const restored=await saved(page); expect(restored.tasks).toEqual(before.tasks); expect(restored.planner).toEqual(before.planner)
-  await navigate(page,'overview'); await page.locator('#next-plan [data-daily-row="task:i-dag"]').getByRole('button',{name:'Marker arbeid ferdig'}).click()
-  await page.locator('.contextual-undo').getByRole('button',{name:'Angre siste endring'}).click(); expect((await saved(page)).tasks).toEqual(before.tasks)
+  await navigate(page,'overview'); await (await reveal(page.locator('#next-plan [data-daily-row="task:i-dag"]').getByRole('button',{name:'Marker arbeid ferdig'}))).click()
+  await (await reveal(page.locator('.contextual-undo').getByRole('button',{name:'Angre siste endring'}))).click(); expect((await saved(page)).tasks).toEqual(before.tasks)
   expect((await saved(page)).workLogs).toBeUndefined()
   expect((await saved(page)).sessions).toEqual(before.sessions)
 })
 
 test('backup preview rejects malformed history, successful replacement has recoverable prior copy',async({page})=>{
   await seed(page); await dataMenu(page); const original=await saved(page)
-  const downloadPromise=page.waitForEvent('download'); await page.getByRole('button',{name:'Eksporter sikkerhetskopi'}).click(); const download=await downloadPromise
+  const downloadPromise=page.waitForEvent('download'); await (await reveal(page.getByRole('button',{name:'Eksporter sikkerhetskopi'}))).click(); const download=await downloadPromise
   const raw=await readFile(await download.path(),'utf8'), exported=JSON.parse(raw)
   const malformed=structuredClone(exported); malformed.data.history={version:1,undo:[],trash:[{id:'bad',label:'bad',at:'2026-09-08T06:00:00Z',changes:[{path:'tasks',id:'broken',index:0,before:{id:'broken'},after:null}]}]}
   await page.locator('#backup-file').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(malformed))})
@@ -123,15 +124,15 @@ test('backup preview rejects malformed history, successful replacement has recov
   exported.data.tasks[0].title='Restored isolated task'
   await page.locator('#backup-file').setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(exported))})
   await expect(page.locator('.data-dialog')).toContainText('Forhåndsvis'); expect(await saved(page)).toEqual(original)
-  await page.getByRole('button',{name:'Erstatt lokale data'}).click(); expect((await saved(page)).tasks[0].title).toBe('Restored isolated task')
+  await (await reveal(page.getByRole('button',{name:'Erstatt lokale data'}))).click(); expect((await saved(page)).tasks[0].title).toBe('Restored isolated task')
   expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('studieplanlegger:recovery:v1')).data)).toEqual(original)
 })
 
 test('work windows and task reservations are saved, shown, and do not reduce remaining work',async({page})=>{
   await seed(page); await navigate(page,'capacity'); const before=(await saved(page)).tasks
-  const form=page.locator('.work-window-form'); await form.locator('[name=kind]').selectOption('busy'); await form.locator('[name=label]').fill('Reise'); await form.locator('[name=startLocal]').fill('2026-09-08T14:00'); await form.locator('[name=endLocal]').fill('2026-09-08T15:00'); await form.getByRole('button',{name:'Lagre tidsrom'}).click()
+  const form=page.locator('.work-window-form'); await (await reveal(form.locator('[name=kind]'))).selectOption('busy'); await (await reveal(form.locator('[name=label]'))).fill('Reise'); await (await reveal(form.locator('[name=startLocal]'))).fill('2026-09-08T14:00'); await (await reveal(form.locator('[name=endLocal]'))).fill('2026-09-08T15:00'); await (await reveal(form.getByRole('button',{name:'Lagre tidsrom'}))).click()
   expect((await saved(page)).busyWindows).toHaveLength(1)
-  await page.locator('#new-session').click(); await page.locator('#session-dateLocal').fill('2026-09-08'); await page.locator('#session-startTime').fill('16:00'); await page.locator('#session-endTime').fill('17:00'); await page.locator('#session-taskId').selectOption('i-dag'); await page.getByRole('button',{name:'Lagre studieøkt'}).click()
+  await (await reveal(page.locator('#new-session'))).click(); await (await reveal(page.locator('#session-dateLocal'))).fill('2026-09-08'); await (await reveal(page.locator('#session-startTime'))).fill('16:00'); await (await reveal(page.locator('#session-endTime'))).fill('17:00'); await (await reveal(page.locator('#session-taskId'))).selectOption('i-dag'); await (await reveal(page.getByRole('button',{name:'Lagre studieøkt'}))).click()
   expect((await saved(page)).tasks).toEqual(before); await expect(page.locator('#capacity-task-list')).toContainText('Reservert:')
 })
 
@@ -139,14 +140,19 @@ for(const [institution,code] of [['nmbu','math100'],['hvl','dat100']])test(`actu
   const data={schemaVersion:1,tasks:[],planner:{courses:[{...course,name:code.toUpperCase(),code:code.toUpperCase(),university:institution.toUpperCase()}],sources:[],events:[]}}
   const requests=[];page.on('request',request=>{if(!new URL(request.url()).hostname.match(/^(127\.0\.0\.1|localhost)$/))requests.push(request.url())})
   await seed(page,data); await navigate(page,'subjects')
-  await openImportMethod(page, 'calendar')
-  await page.locator('#calendar-import-form [name=file]').setInputFiles(resolve(`tests/fixtures/public-programs/timeedit-${institution}-${code}-2026.ics`));await page.locator('#ics-preview').click()
-  await expect(page.locator('#import-preview')).toContainText('gruppenummer')
-  if(institution==='nmbu')expect(await page.locator('.activity-choices label').filter({hasText:'Regneøving'}).locator('input').isChecked()).toBe(false)
-  await page.locator('.activity-choices input').first().check()
+  await (await reveal(page.getByRole('button', {name:'Importer',exact:true}))).click()
+  await page.getByLabel('Velg fil',{exact:true}).setInputFiles(resolve(`tests/fixtures/public-programs/timeedit-${institution}-${code}-2026.ics`))
+  await page.getByRole('button', { name: 'Vis forhåndsvisning', exact: true }).click()
+  await expect(page.locator('.document-preview')).toContainText('gruppenummer')
+  const events = page.locator('.document-preview-row').filter({has:page.locator('[data-field=startLocal]')})
+  expect(await events.getByLabel('Ta med i planen',{exact:true}).evaluateAll(inputs=>inputs.every(input=>!input.checked))).toBe(true)
+  const courseChoice = page.getByLabel('Eksisterende eller nytt emne', { exact: true })
+  if (await courseChoice.count()) await (await reveal(courseChoice)).selectOption(data.planner.courses[0].id)
+  await (await reveal(events.first().getByLabel('Ta med i planen',{exact:true}))).check()
   await page.screenshot({path:`artifacts/eleven-import-${institution}-desktop.png`})
-  await page.getByRole('button',{name:'Bekreft import',exact:true}).click()
-  const imported=await saved(page); expect(imported.planner.events.length).toBeGreaterThan(0); expect(imported.planner.sources[0].kind).toBe('file')
+  await (await reveal(page.getByRole('button',{name:'Importer valgte',exact:true}))).click()
+  await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
+  const imported=await saved(page); expect(imported.planner.events.length).toBeGreaterThan(0); expect(imported.importSources[0].format).toBe('ics')
   await page.reload(); expect((await saved(page)).planner.events).toEqual(imported.planner.events); expect(requests).toEqual([])
 })
 
@@ -156,15 +162,15 @@ test('wizard preserves search/semester/campus on back, distinguishes gates, and 
   await seed(page,{schemaVersion:1,tasks:[],planner:emptyPlanner()});await navigate(page,'subjects')
   await openCourseImport(page)
   await expect(page.locator('#course-import-form [name=code]')).toBeHidden()
-  await page.locator('#course-import-form [name=university]').selectOption('ntnu')
+  await (await reveal(page.locator('#course-import-form [name=university]'))).selectOption('ntnu')
   await expect(page.locator('.import-wizard')).toContainText('Steg 1')
-  await page.getByRole('button',{name:'Neste: søk og semester'}).click()
+  await (await reveal(page.getByRole('button',{name:'Neste: søk og semester'}))).click()
   await expect(page.locator('#course-import-form [name=university]')).toBeHidden()
-  await page.locator('#course-import-form [name=code]').fill('TEST101');await page.locator('#course-import-form [name=campus]').fill('Trondheim');await page.locator('#ntnu-fetch').click()
+  await (await reveal(page.locator('#course-import-form [name=code]'))).fill('TEST101');await (await reveal(page.locator('#course-import-form [name=campus]'))).fill('Trondheim');await (await reveal(page.locator('#ntnu-fetch'))).click()
   await expect(page.locator('#course-import-form')).toBeHidden()
-  await page.locator('.wizard-results button').first().click();await expect(page.locator('#import-preview')).toContainText('TEST101')
-  await page.getByRole('button',{name:'Tilbake',exact:true}).click();await expect(page.locator('#course-import-form [name=code]')).toHaveValue('TEST101');await expect(page.locator('#course-import-form [name=campus]')).toHaveValue('Trondheim');await expect(page.locator('#course-import-form')).toBeHidden()
-  await page.getByRole('button',{name:'Vis valgt forhåndsvisning'}).click();await page.getByRole('button',{name:'Importer bare emnet'}).click();expect((await saved(page)).planner.courses).toHaveLength(1)
+  await (await reveal(page.locator('.wizard-results button').first())).click();await expect(page.locator('#import-preview')).toContainText('TEST101')
+  await (await reveal(page.getByRole('button',{name:'Tilbake',exact:true}))).click();await expect(page.locator('#course-import-form [name=code]')).toHaveValue('TEST101');await expect(page.locator('#course-import-form [name=campus]')).toHaveValue('Trondheim');await expect(page.locator('#course-import-form')).toBeHidden()
+  await (await reveal(page.getByRole('button',{name:'Vis valgt forhåndsvisning'}))).click();await (await reveal(page.getByRole('button',{name:'Importer bare emnet'}))).click();expect((await saved(page)).planner.courses).toHaveLength(1)
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:'artifacts/eleven-import-mobile-390.png'})
 })
 function emptyPlanner(){return {courses:[],events:[],sources:[]}}
