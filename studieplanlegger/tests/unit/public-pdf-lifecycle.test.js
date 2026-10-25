@@ -13,9 +13,9 @@ describe('terminable public PDF reader', () => {
   it('keeps the public fixture free of Info, custom and personal XMP metadata', async () => {
     const bytes = await fixture()
     const raw = bytes.toString('latin1')
-    expect(raw).not.toMatch(/\/(?:Author|Creator|Producer|CreationDate|ModDate|NoAuth|NoCreat|NoProduc|NoCreateDate|NoMDate|Custom)\b/)
-    expect(raw).not.toMatch(/\/Info\s+\d+\s+\d+\s+R\b|\/Prev\b/)
-    expect(raw).not.toMatch(/(?:dc:creator|xmp:CreatorTool|pdf:Producer|xmp:(?:Create|Modify|Metadata)Date)/i)
+    expect(/\/(?:Author|Creator|Producer|CreationDate|ModDate|NoAuth|NoCreat|NoProduc|NoCreateDate|NoMDate|Custom)\b/.test(raw)).toBe(false)
+    expect(/\/Info\s+\d+\s+\d+\s+R\b|\/Prev\b/.test(raw)).toBe(false)
+    expect(/(?:dc:creator|xmp:CreatorTool|pdf:Producer|xmp:(?:Create|Modify|Metadata)Date)/i.test(raw)).toBe(false)
     expect(raw.match(/startxref/g)).toHaveLength(1)
     expect(raw.match(/%%EOF/g)).toHaveLength(1)
 
@@ -24,8 +24,8 @@ describe('terminable public PDF reader', () => {
     try {
       const metadata = await document.getMetadata()
       const structuralInfoKeys = new Set(['EncryptFilterName', 'IsAcroFormPresent', 'IsCollectionPresent', 'IsLinearized', 'IsSignaturesPresent', 'IsXFAPresent', 'Language', 'PDFFormatVersion'])
-      expect(Object.keys(metadata.info).filter(key => !structuralInfoKeys.has(key))).toEqual([])
-      expect(metadata.metadata ? [...metadata.metadata] : []).toEqual([])
+      expect(Object.keys(metadata.info).every(key => structuralInfoKeys.has(key))).toBe(true)
+      expect(metadata.metadata ? [...metadata.metadata].length : 0).toBe(0)
     } finally {
       await loadingTask.destroy()
     }
