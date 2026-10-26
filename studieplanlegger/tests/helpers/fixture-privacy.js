@@ -2,7 +2,10 @@ import * as cheerio from 'cheerio'
 import { createHash } from 'node:crypto'
 
 const syntheticTeacher = /^Testunderviser [A-Z]+$/
-const syntheticPeople = value => String(value).split(/\s*(?:,|\\n|;)\s*/).every(part => syntheticTeacher.test(part.trim()))
+const syntheticPeople = value => String(value).split(/\s*(?:,|\\n|;|\r?\n)\s*/).every(part => syntheticTeacher.test(part.trim()))
+const syntheticPersonReference = value => /^(?:SYNTHETIC_TEACHER_[A-Z]+|https:\/\/example\.invalid\/teacher\/SYNTHETIC_TEACHER_[A-Z]+\.html)$/.test(value)
+const personKey = key => /^(?:authors?|creators?|lastmodifiedby|staffnames|staff|teachers?|lecturers?|instructors?|persons?|profiles?|contactperson|emneansvarlig|organizer|attendees?)(?:names?|ids?|urls?|links?|values?)?$/i.test(key.replace(/[-_]/g, ''))
+const teachingPersonRole = value => /^(?:forelesere?|undervisere?|emneansvarlig|lecturers?|teachers?|instructors?|staff|persons?)$/i.test(value.trim())
 const populated = value => value != null && value !== '' && (!Array.isArray(value) || value.length > 0)
 const schemaTypes = value => (Array.isArray(value) ? value : [value]).filter(type => typeof type === 'string')
   .map(type => type.replace(/^https?:\/\/schema\.org\//i, '').toLowerCase())
@@ -14,15 +17,18 @@ const organization = value => value && typeof value === 'object' && !Array.isArr
 export function fixtureMetadataFindings(input, format = 'json') {
   const findings = []
   const add = (category, path) => findings.push({ category, path })
-  const personalKey = /^(?:authors?|creators?|lastModifiedBy|staffnames|staff|teachers?|lecturers?|instructors?|persons?|profiles?|profileUrl|contactperson|emneansvarlig|organizer|attendees?)$/i
   const synthetic = value => Array.isArray(value) ? value.every(synthetic) : typeof value === 'string' && syntheticPeople(value)
   function json(value, path) {
     if (Array.isArray(value)) return value.forEach((child, index) => json(child, `${path}[${index}]`))
     if (value && typeof value === 'object') {
-      if (schemaTypes(value['@type']).includes('person') && !synthetic(value.name)) add('person-schema', path)
+      if (schemaTypes(value['@type']).includes('person')) {
+        if (!synthetic(value.name)) add('person-schema', path)
+        // A synthetic name cannot excuse a copied identifier, URL or other field.
+        if (Object.entries(value).some(([key, child]) => !['@type', 'name'].includes(key) && populated(child))) add('person-schema-field', path)
+      }
       Object.entries(value).forEach(([key, child], index) => {
         const childPath = `${path}.field[${index}]`
-        if (personalKey.test(key) && populated(child) && !synthetic(child) && !organization(child)) add('person-metadata', childPath)
+        if (personKey(key) && populated(child) && !synthetic(child) && !organization(child)) add('person-metadata', childPath)
         json(child, childPath)
       })
     } else if (typeof value === 'string') text(value, path)
@@ -32,7 +38,7 @@ export function fixtureMetadataFindings(input, format = 'json') {
     if (/^[\[{]/.test(trimmed)) {
       try { json(JSON.parse(trimmed), `${path}.json`); return } catch { /* ordinary text */ }
     }
-    if (/<(?:html|head|body|main|section|div|p|a|script|meta|span)\b/i.test(value)) html(value, `${path}.html`)
+    if (/<(?:html|head|body|main|section|div|p|a|script|meta|span|select|table|td)\b/i.test(value)) html(value, `${path}.html`)
   }
   function html(value, path) {
     const $ = cheerio.load(value)
@@ -50,13 +56,81 @@ export function fixtureMetadataFindings(input, format = 'json') {
     $('script').each((index, node) => text($(node).html() || '', `${path}.script[${index}]`))
     $('*').each((index, node) => {
       Object.entries(node.attribs || {}).forEach(([key, child], attributeIndex) => {
-        if (/^data-(?:author|creator|person|profile)$/i.test(key) && child.trim()) add('html-person-attribute', `${path}.node[${index}].attribute[${attributeIndex}]`)
+        if (key.startsWith('data-') && personKey(key.slice(5)) && child.trim() && !syntheticPeople(child) && !syntheticPersonReference(child)) add('html-person-attribute', `${path}.node[${index}].attribute[${attributeIndex}]`)
         if (key.startsWith('data-')) text(child, `${path}.node[${index}].attribute[${attributeIndex}]`)
       })
     })
+    findings.push(...teachingPersonHtmlFindings(value).map(finding => ({ ...finding, path: `${path}.${finding.path}` })))
   }
   if (format === 'html') html(input, '$')
   else json(input, '$')
+  return findings
+}
+
+// Bounded HTML contracts for the person fields found in captured timetables.
+// Discover every matching filter/header; do not rely on a first match or on a
+// particular column number. Unknown attributes require review even when the
+// visible label is synthetic. Diagnostics never include source values or IDs.
+export function teachingPersonHtmlFindings(source) {
+  const $ = cheerio.load(source), findings = [], checkedCells = new Set()
+  const add = (category, path) => findings.push({ category, path })
+  function attributes(root, path) {
+    root.find('*').addBack().each((nodeIndex, node) => {
+      Object.entries(node.attribs || {}).forEach(([key, value], attributeIndex) => {
+        const structural = (key === 'class' && value.split(/\s+/).every(part => ['', 'headlineLink', 'bl', 'fancyformfieldsearchselect', 'hasURL', 'column1', 'columnLine', 'nw', 'c-1'].includes(part)))
+          || (key === 'id' && node.tagName === 'select' && /^te_link_\d+$/.test(value))
+          || (key === 'for' && node.tagName === 'label' && /^te_link_\d+$/.test(value))
+          || (['data-name', 'title'].includes(key) && teachingPersonRole(value))
+          || (key === 'size' && node.tagName === 'select' && /^\d+$/.test(value))
+          || (['multiple', 'selected', 'data-id'].includes(key) && value === '')
+        if (!structural && value && !syntheticPeople(value) && !syntheticPersonReference(value)) add('html-teaching-person-attribute', `${path}.node[${nodeIndex}].attribute[${attributeIndex}]`)
+      })
+    })
+  }
+  $('select').each((index, node) => {
+    const field = $(node), id = field.attr('id')
+    const labels = $('label').toArray().filter(label => id && $(label).attr('for') === id)
+    if (!teachingPersonRole(field.attr('data-name') || '') && !labels.some(label => teachingPersonRole($(label).text()) || teachingPersonRole($(label).attr('title') || ''))) return
+    const path = `person-filter[${index}]`
+    field.find('option').each((optionIndex, option) => {
+      const text = $(option).text().trim()
+      if (text && !syntheticPeople(text)) add('html-teaching-person-label', `${path}.option[${optionIndex}]`)
+    })
+    // Text outside an option (or nested after it) must not inherit its allowlist.
+    const residue = field.clone(); residue.find('option').remove()
+    if (residue.text().trim()) add('html-teaching-person-label', `${path}.outside-options`)
+    const container = field.closest('.headlineLink')
+    attributes(container.length ? container : field, path)
+    labels.forEach((label, labelIndex) => {
+      if (!teachingPersonRole($(label).text())) add('html-teaching-person-label', `${path}.label[${labelIndex}]`)
+      if (!container.length || !$(label).parents().toArray().includes(container[0])) attributes($(label), `${path}.label[${labelIndex}]`)
+    })
+    // Only the checked field and its complete role labels account for wrapper
+    // text. A sibling or text node cannot borrow an option's synthetic marker.
+    function outsideFieldText(current) {
+      if (current === node || labels.includes(current)) return ''
+      if (current.type === 'text') return current.data
+      return (current.children || []).map(outsideFieldText).join('')
+    }
+    if (container.length && outsideFieldText(container[0]).trim()) add('html-teaching-person-label', `${path}.outside-select`)
+  })
+  $('tr').each((headerIndex, row) => {
+    const headers = $(row).children('th')
+    headers.each((column, header) => {
+      if (!teachingPersonRole($(header).text())) return
+      const table = $(row).closest('table')
+      table.find('tr').each((rowIndex, dataRow) => {
+        if ($(dataRow).closest('table')[0] !== table[0]) return
+        const cell = $(dataRow).children('td').eq(column), node = cell[0]
+        if (!node || checkedCells.has(node)) return
+        checkedCells.add(node)
+        const path = `person-column[${headerIndex}].row[${rowIndex}]`
+        const text = cell.text().trim()
+        if (text && !syntheticPeople(text)) add('html-teaching-person-label', path)
+        attributes(cell, path)
+      })
+    })
+  })
   return findings
 }
 
