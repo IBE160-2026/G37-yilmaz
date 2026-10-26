@@ -1,6 +1,7 @@
 import { closeWork, futureReservations } from './work-log.js'
 import { getRemainingMinutes, estimateChoiceRange } from './tasks.js'
 import { personalEstimate } from './personal-estimates.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 import { proposeReview, decideReview, updateReviewTopic, removeAssessmentReview, recordAssessment, assessmentSessionContext } from './review-planning.js'
 
 const el = (tag, text) => { const node = document.createElement(tag); if (text) node.textContent = text; return node }
@@ -14,6 +15,7 @@ export function createWorkLogView(actions) {
     open(taskId, sessionId, outcome = 'more', options = {}) {
       const state = actions.state(), task = state.tasks.find(item => item.id === taskId)
       if (!task) return
+      applyCourseColor(dialog, resolvedCourseId(task))
       opener = document.activeElement; baseline = JSON.stringify(state)
       draft = { taskId, ...(sessionId ? { sessionId } : {}), operationId: sessionId ? `close-${sessionId}` : crypto.randomUUID(),
         ...(options.stepOnly ? { stepOnly: true } : {}), ...(Number.isSafeInteger(options.plannedMinutes) ? { plannedMinutes: options.plannedMinutes } : {}) }

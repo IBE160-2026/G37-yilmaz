@@ -140,23 +140,33 @@ test('one programme preparation fetches an exact teaching object and commits onc
   expect(saved.planner.sources[0].groups).toHaveLength(1)
 })
 
-test('legacy teaching layer shows course identity and clears stale colour when a reused row loses its course code', async ({ page }) => {
+test('legacy teaching layer retains stable course colour on rename and uses neutral when the ID is removed', async ({ page }) => {
   await page.goto('/')
   const result=await page.evaluate(async()=>{
     const {createTeachingLayer}=await import('/src/teaching-calendar.js')
+    const {registerCourseColors}=await import('/src/course-colors.js')
     const host=document.createElement('section')
     host.innerHTML='<div class="calendar-legend"></div><div class="calendar-month-view"></div><button data-calendar-date="2026-09-14" aria-pressed="true" aria-label="14. september"></button>'
     document.body.append(host)
     const layer=createTeachingLayer(host,{}),event={id:'teaching-1',courseId:'course-1',title:'Forelesning',start:'2026-09-14T08:00:00.000Z',end:'2026-09-14T10:00:00.000Z',location:'A-1'}
-    layer.render({events:[event],courses:[{id:'course-1',code:'IBE160'}]})
+    const courses=[{id:'course-1',code:'IBE160'}]
+    registerCourseColors(courses)
+    layer.render({events:[event],courses})
     const row=host.querySelector('[data-calendar-event="teaching-1"]'),before={text:row.textContent,color:row.style.getPropertyValue('--course-color')}
-    layer.render({events:[event],courses:[]})
-    layer.render({events:[event],courses:[]})
-    return{before,after:{text:row.textContent,color:row.style.getPropertyValue('--course-color')},label:host.querySelector('[data-calendar-date]').getAttribute('aria-label')}
+    const renamedCourses=[{id:'course-1',code:'RENAMED101'}]
+    registerCourseColors(renamedCourses)
+    layer.render({events:[event],courses:renamedCourses})
+    const renamed={text:row.textContent,color:row.style.getPropertyValue('--course-color')}
+    layer.render({events:[{...event,courseId:''}],courses:renamedCourses})
+    layer.render({events:[{...event,courseId:''}],courses:renamedCourses})
+    return{before,renamed,after:{text:row.textContent,color:row.style.getPropertyValue('--course-color')},label:host.querySelector('[data-calendar-date]').getAttribute('aria-label')}
   })
   expect(result.before.text).toContain('IBE160')
   expect(result.before.color).not.toBe('')
+  expect(result.renamed.text).toContain('RENAMED101')
+  expect(result.renamed.color).toBe(result.before.color)
   expect(result.after.text).not.toContain('IBE160')
-  expect(result.after.color).toBe('')
+  expect(result.after.text).not.toContain('RENAMED101')
+  expect(result.after.color).toBe('var(--course-neutral-marker)')
   expect(result.label).toBe('14. september, 1 undervisningsøkter, 0 egne aktiviteter')
 })

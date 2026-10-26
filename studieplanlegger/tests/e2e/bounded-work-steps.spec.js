@@ -41,6 +41,7 @@ test('mixed steps keep content through cancellation, completion, reorder, save, 
   expect(changed.steps[0]).toEqual(task.steps[0]); expect(changed.steps[1]).toEqual(task.steps[1]); expect(changed.steps[3]).toEqual(task.steps[2])
   expect(changed.steps[2]).toMatchObject({ title: 'Redigert eldre steg', estimatedMinutes: 15, completed: false, provenance: { kind: 'legacy-next-step' } })
   await page.reload(); expect((await saved(page)).tasks[0]).toEqual(changed)
+  await navigate(page, 'all')
   dialog = await editor(page)
   await expect(dialog.locator('.work-step-list > li')).toHaveCount(4)
   await dialog.getByRole('button', { name: 'Lagre alle steg', exact: true }).click()

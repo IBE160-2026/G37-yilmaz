@@ -14,6 +14,7 @@
   overflow-y: hidden;
   scroll-snap-type: x proximity;
   padding: 4px 4px 8px;
+  scrollbar-color: var(--field-border) var(--surface);
 }
 #full-calendar .calendar-readable-content .calendar-entry { flex: 0 0 260px; max-width: 100%; scroll-snap-align: start; }
 #full-calendar .calendar-readable-content.has-scroll::after { display: none; }

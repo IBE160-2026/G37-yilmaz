@@ -1,4 +1,6 @@
 import { emptyPlanner, validatePersonalActivity } from './planner.js'
+import { initializeAppearance } from './appearance.js'
+import { registerCourseColors } from './course-colors.js'
 import { createSubjectsView } from './subjects-view.js'
 import './redesign.css'
 import { validateDraft, editTask, deleteTask, setTaskCompleted, setTaskSubmitted,
@@ -24,6 +26,7 @@ import { createTextRegistrationView } from './text-registration-view.js'
 import { resolveExactCourse, resolveExactTask, parseOsloDeadline, parseRemainingMinutes } from './text-registration.js'
 import { detachMissingTopicRelations, detachRemovedReviewSessions } from './review-planning.js'
 
+initializeAppearance()
 const storage = createStorage()
 let extras = {}, dataTools, sync, workView, replanView, onboarding, studySessionView, workStepsView, textRegistrationView
 let tasks = []
@@ -449,6 +452,7 @@ function persistAction(result, id, action, message, stepActionId = null) {
   }
 }
 function refresh() {
+  registerCourseColors(planner?.courses || [])
   const now = new Date()
   const candidates = minuteError ? [] : rankedSuggestions(tasks, minutes)
   const pending = sortedTasks(tasks.filter(task => !task.completed || (task.requiresSubmission && !task.submitted)))

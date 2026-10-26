@@ -10,6 +10,11 @@ async function installState(page, { tasks = [], events = [], courses = [course] 
   await page.goto('/')
   await page.evaluate(({ key, tasks, events, courses }) => localStorage.setItem(key, JSON.stringify({ schemaVersion: 1, tasks, planner: { courses, events, sources: [] } })), { key, tasks, events, courses })
   await instrumentWrites(page); await page.reload()
+  // Opening the input is setup, before the measured creation/change journeys.
+  const disclosure = page.locator('#text-registration > .text-registration-disclosure')
+  await expect(disclosure).not.toHaveAttribute('open', '')
+  await disclosure.locator(':scope > summary').click()
+  await expect(page.locator('#text-registration').getByLabel('Skriv hva du vil legge til eller endre')).toBeVisible()
 }
 
 test('renaming a pending target with unchanged ID and value rejects stale identity and keeps the proposal editable', async ({ page }) => {
@@ -168,7 +173,10 @@ test('synthetic final screenshots have no document overflow and retain focused p
   for (const shot of shots) { await page.setViewportSize(shot); await registration.scrollIntoViewIfNeeded(); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await expect(addTask).toBeFocused(); await page.screenshot({ path: `artifacts/rule-text-exam-${shot.name}.png`, fullPage: true }) }
   await registration.getByText('Endre detaljer').click(); await page.addStyleTag({ content: 'html { font-size: 24px !important; }' }); await page.setViewportSize({ width: 390, height: 844 }); await command.focus(); await registration.getByLabel('Tittel').focus()
   for (const control of [registration.getByLabel('Tittel'), registration.getByLabel('Emne (valgfritt, nøyaktig kode eller navn)'), registration.getByLabel('Frist (valgfritt)'), registration.getByLabel('Gjenstående arbeid (valgfritt)'), registration.getByRole('button', { name: 'Legg til oppgave' })]) {
-    await expect(control).toBeFocused(); const bounds = await control.evaluate(element => ({ bottom: element.getBoundingClientRect().bottom, navTop: document.querySelector('.view-actions').getBoundingClientRect().top })); expect(bounds.bottom).toBeLessThanOrEqual(bounds.navTop - 8); await page.keyboard.press('Tab')
+    await expect(control).toBeFocused(); const bounds = await control.evaluate(element => {
+      const nav = document.querySelector('.view-actions')
+      return { bottom: element.getBoundingClientRect().bottom, availableBottom: getComputedStyle(nav).position === 'fixed' ? nav.getBoundingClientRect().top : innerHeight }
+    }); expect(bounds.bottom).toBeLessThanOrEqual(bounds.availableBottom - 8); await page.keyboard.press('Tab')
   }
   await registration.getByLabel('Tittel').focus(); await registration.scrollIntoViewIfNeeded(); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await page.screenshot({ path: 'artifacts/rule-text-exam-390-large-text.png', fullPage: true })
 })

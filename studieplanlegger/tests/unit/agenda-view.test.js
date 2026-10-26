@@ -6,6 +6,25 @@ const event = (id, start, end, patch = {}) => ({ id, title: id, courseId: course
 const model = { now: new Date('2026-09-30T08:00:00Z'), tasks: [], sessions: [], planner: { courses: [course], events: [] } }
 
 describe('rolling agenda from registered data', () => {
+  it('propagates stable course IDs for teaching, deadlines and sessions without assigning ambiguous legacy text', () => {
+    const data = structuredClone(model)
+    data.planner.courses.push({ ...course, id: 'other-institution', university: 'Synthetic B' })
+    data.planner.events = [event('teaching', '2026-10-01T10:00:00Z', '2026-10-01T11:00:00Z')]
+    data.tasks = [
+      { id: 'linked', title: 'Linked task', course: course.code, courseId: 'other-institution', deadlineLocal: '2026-10-01T15:00' },
+      { id: 'ambiguous', title: 'Legacy task', course: course.code, deadlineLocal: '2026-10-01T16:00' },
+    ]
+    data.sessions = [{ id: 'session', taskId: 'linked', dateLocal: '2026-10-01', startTime: '10:00', endTime: '11:00' }]
+    const original = structuredClone(data), entries = upcomingAgenda(data)
+    expect(entries.find(entry => entry.id === 'teaching').courseId).toBe(course.id)
+    expect(entries.find(entry => entry.id === 'linked').courseId).toBe('other-institution')
+    expect(entries.find(entry => entry.id === 'session').courseId).toBe('other-institution')
+    expect(entries.find(entry => entry.id === 'ambiguous').courseId).toBeNull()
+    data.planner.courses.pop()
+    expect(upcomingAgenda(data).find(entry => entry.id === 'ambiguous').courseId).toBe(course.id)
+    data.planner.courses.push(original.planner.courses[1])
+    expect(data).toEqual(original)
+  })
   it('includes all event types across months, keeps ongoing teaching first and preserves source data', () => {
     const data = structuredClone(model)
     data.planner.events = [event('next-month', '2026-10-01T10:00:00Z', '2026-10-01T11:00:00Z', { location: 'Rom Æ' }), event('ongoing', '2026-09-30T07:30:00Z', '2026-09-30T08:30:00Z')]

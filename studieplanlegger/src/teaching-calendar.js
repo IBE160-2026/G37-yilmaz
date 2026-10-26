@@ -1,5 +1,5 @@
 import { osloLocal } from './planner.js'
-import { courseColor } from './calendar.js'
+import { applyCourseColor } from './course-colors.js'
 import { eventPresentation } from './event-kind.js'
 const eventOrder = event => event.start || `${event.dateLocal || ''}T00:00`
 
@@ -62,8 +62,7 @@ export function createTeachingLayer(host, actions) {
         row.classList.toggle('is-personal', personal)
         row.classList.toggle('is-exam', presentation.isExam)
         row.setAttribute('aria-label', `${personal ? 'Egen aktivitet' : presentation.label}: ${code ? `${code}, ` : ''}${event.title}`)
-        if (code) row.style.setProperty('--course-color', courseColor(code))
-        else row.style.removeProperty('--course-color')
+        applyCourseColor(row, event.courseId)
         row.disabled = disabled
         if (previous.nextElementSibling !== row) previous.after(row)
         previous = row

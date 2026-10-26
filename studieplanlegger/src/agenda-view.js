@@ -1,6 +1,6 @@
 import { osloLocal, matchesCourse } from './planner.js'
 import { extendedSessionInterval } from './work-capacity.js'
-import { courseColor } from './calendar.js'
+import { applyCourseColor, courseColorSlot, resolvedCourseId } from './course-colors.js'
 import { isExamEvent } from './event-kind.js'
 import { deadlineInstant } from './tasks.js'
 
@@ -20,7 +20,7 @@ export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, course
     entries.push({ key: `event:${event.id}`, id: event.id, kind: personal ? 'personal' : 'teaching', isExam: isExamEvent(event), title: event.title, sortTime,
       date: start.slice(0, 10), time: personal && !event.start || event.allDay ? '' : start.slice(11), endTime: event.end ? end.slice(11) : '',
       endDate: event.end ? end.slice(0, 10) : '', ongoing: Boolean(event.start && event.end && Date.parse(event.start) <= +now),
-      course: subject?.code || subject?.name || '', location: event.location || '', allDay: !!event.allDay })
+      courseId: event.courseId, course: subject?.code || subject?.name || '', location: event.location || '', allDay: !!event.allDay })
   }
   for (const task of tasks) {
     let deadline
@@ -30,7 +30,7 @@ export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, course
     const subject = courses.find(item => item.id === task.courseId)
     entries.push({ key: `task:${task.id}`, id: task.id, kind: 'deadline', title: task.title, sortTime: deadline,
       date: task.deadlineLocal.slice(0, 10), time: task.deadlineLocal.slice(11), allDay: task.deadlineLocal.length === 10, course: subject?.code || task.course,
-      ready: !!task.completed })
+      courseId: resolvedCourseId(task, courses), ready: !!task.completed })
   }
   for (const session of sessions) {
     const task = tasks.find(item => item.id === session.taskId)
@@ -42,7 +42,7 @@ export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, course
       const subject = courses.find(item => item.id === task?.courseId)
       entries.push({ key: `session:${session.id}`, id: session.id, kind: 'session', title: task ? `Studieøkt: ${task.title}` : 'Studieøkt', sortTime: interval.start,
         date: start.slice(0, 10), time: start.slice(11), endTime: end.slice(11), endDate: end.slice(0, 10),
-        ongoing: interval.start <= +now, course: subject?.code || subject?.name || task?.course || 'Avsatt studietid' })
+        ongoing: interval.start <= +now, courseId: resolvedCourseId(task, courses), course: subject?.code || subject?.name || task?.course || 'Avsatt studietid' })
     } catch { /* Invalid legacy sessions remain available for repair in the editor. */ }
   }
   return entries.sort((a, b) => Number(!!b.ongoing) - Number(!!a.ongoing) ||
@@ -65,7 +65,7 @@ export function createAgenda(host, actions) {
     // Native modal dialogs make the background inert. Do not persist their
     // transient state in the agenda between controller renders.
     const disabled = !model.readable
-    const nextSignature = JSON.stringify([entries, expanded, disabled, model.courseFilter])
+    const nextSignature = JSON.stringify([entries, entries.map(entry => courseColorSlot(entry.courseId)), expanded, disabled, model.courseFilter])
     if (signature === nextSignature) return
     signature = nextSignature
     const focusKey = host.contains(document.activeElement) ? document.activeElement.dataset.agendaKey : null
@@ -73,8 +73,9 @@ export function createAgenda(host, actions) {
     host.replaceChildren(node('p', 'agenda-section-label', 'Det neste på planen'), list)
     for (const entry of expanded ? entries : entries.slice(0, 5)) {
       const li = node('li', `compact-agenda-item kind-${entry.kind}${entry.isExam ? ' is-exam' : ''}`)
+      applyCourseColor(li, entry.courseId)
       const button = node('button', 'agenda-entry')
-      if (entry.course) button.style.setProperty('--course-color', courseColor(entry.course))
+      applyCourseColor(button, entry.courseId)
       button.type = 'button'
       button.disabled = disabled
       button.dataset.agendaKey = entry.key

@@ -1,4 +1,4 @@
-# PRD: avgrenset Studieplan-leveranse
+# PRD: avgrenset Ajour-leveranse
 
 **Rekonstruert 2026-10-16.** Grunnlag og proveniens står i [indeksen](README.md). [Briefen](../../brief.md) eier produktløftet; kravene her beskriver eksisterende funksjonalitet og en planlagt studentprøve, ikke nye funksjonsbestillinger.
 
@@ -26,11 +26,31 @@ Importkravet er HiMolde IT 2026–27 (IBE110 + IBE430 og enten IBE160 eller IBE1
 
 ## Aksept og status
 
+### Emnepalett og mørk modus — 2026-10-26
+
+Q-01/Q-02 og R-06 videreføres uten layoutendring eller nytt produktløfte: tolv kuraterte emneidentiteter skal ha lesbare lyse/mørke varianter, bruke ledige plasser før gjenbruk og følge stabil emne-ID gjennom visning, endring og omlasting. Navn/kode og aktivitet-/statusmarkeringer beholdes. System/Lyst/Mørkt og en tilgjengelig toppknapp skal bytte tema uten å miste skjermtilstand eller skrive domenedata. Vanlig tekst krever 4,5:1, nødvendige kontrollgrenser/fokus 3:1. Separate nettleserpreferanser krever ingen database-/backupmigrering og loves ikke bevart portabelt i sikkerhetskopier. [Verifikasjonen](../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) avgrenser de faktiske kontrollene; studentutprøving er fortsatt ikke gjennomført.
+
+### Lokal Ajour-oppfølging — 2026-10-26
+
+R-01/R-03/R-04/R-05/R-06 og Q-01–Q-03 presiseres innen samme V1: Ved 900 px skal neste-steg-etiketten ha naturlig bredde og tidsspørsmålet høre sammen med hurtigvalg/egendefinert tid. Fylte mobiloversikter skal ha kort intro og tidlig Start. Leveringspåminnelser skal være roligere enn Start og fortsatt skille forfalt, ferdig arbeid og bekreftet innlevering. Tom onboarding skal tydelig tilby oppgave med bare tittel; import er valgfri.
+
+Ved 390 px/200 % tekst skal dialogenes Lagre/Avbryt være synlige, innholdet faktisk kunne rulles og alle felt nås med tastatur uten footeroverlapp. Utkast, verdier, fokusretur, åpne seksjoner og relevant rulling bevares. Q-02/Q-03 krever at begge NIH-personfiltre og relevante navn-/ID-/verdi-/lenke-/attributtfelt håndteres med bevart parserstruktur og selvstendige syntetiske negative prøver; én syntetisk etikett fritar ikke resten av dokumentet. Dekningen skal beskrives avgrenset.
+
+[Resultater fra UI- og personvernoppfølgingen](../../studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) er teknisk evidens. R-07/SC-07 forblir en planlagt studentprøve. Ingen nye tilbydere, datamigrering eller kilde-/nytteløfter innføres.
+
+### Ajour-grensesnitt og bevaring — 2026-10-25
+
+R-01–R-06/R-08 og Q-01–Q-03 videreføres i Ajour. Oversikten skal gi en tidlig, tydelig handling, korte utsnitt av kommende arbeid og omplanlegging, med lenker til fullstendige visninger. Desktop bruker sentrert innhold rundt 1160 px; mobil bruker én kolonne uten stor dekorasjon, og kalenderen kan være bredere. Tomme og ufullstendige data skal gi ærlige tilstander, uten oppdiktede tidsanslag eller påstand om at ukjent arbeid passer.
+
+Samme visuelle tokens skal omfatte navigasjon, kalender, skjemaer, dialoger og feil. Ved 1440/900/390 px, forstørret tekst, tastatur og redusert bevegelse skal innhold, fokus og godkjenning være tilgjengelige. Tekstkontrast skal nå 4,5:1. Utkast, fokus, rulling og åpne seksjoner skal bevares ved oppdatering. Forhåndsvisning skal fortsatt skrive ingenting; ugyldige eller foreldede forslag skal avvises samlet.
+
+Dette er en presentasjonsendring uten datamigrering: lagrings-/sesjonsnøkler, konvolutter, backupformat/-versjon, API, SQLite, ICS-identiteter og driftsnavn beholdes. [Arkitekturens AD-14](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-14--ajour-presentation-with-stable-data-contracts-2026-10-25) angir navneklassifiseringen. [Den daterte verifikasjonen](../../studieplanlegger/VERIFICATION.md#ajour-grensesnitt-og-databevaring--2026-10-25) oppgir faktisk status; R-07/SC-07 er fortsatt en planlagt studentprøve.
+
 ### Personvern og kalenderintegritet — 2026-10-25
 
 R-02/R-05/R-06 og Q-02/Q-03 omfatter den bestilte rettingen av personvernrester og de fire dokumenterte kalenderfeilene. Standarddefinerte symbolverdier skal tolkes uavhengig av bokstavstørrelse, uten å endre UID eller fritekst. Motstridende identiteter og ugyldige tidskombinasjoner skal gi en tydelig forklaring; delvis import skal ikke slette tidligere data. Testmaterialet skal bevare nødvendig parserstruktur, faginnhold og attribusjon, mens unødvendige personfelt fjernes eller nødvendige felt syntetiseres. [Gjeldende verifikasjon](../../studieplanlegger/VERIFICATION.md) oppgir faktisk kontrollert kandidat og resultat; dette utvider ikke V1 eller dokumenterer studentutprøving.
 
-**Samordning 2026-10-25:** Krav-ID-ene og v1-avgrensningen er beholdt. Oppfølgingene nedenfor er daterte presiseringer av samme flyt, ikke nye institusjonsløfter. [Sporbarheten](TRACEABILITY.md) peker til kode/test; [publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) oppgir kontrollert grunnlag og dato. Historiske resultater er ikke nye kandidatresultater. Studentprøven R-07/SC-07 er fortsatt ikke gjennomført. Sensorveiledning og godkjent proposal var utilgjengelige i de avtalte dokumentmappene i denne runden.
+**Tidligere samordning, før Ajour 2026-10-25:** Krav-ID-ene og v1-avgrensningen er beholdt. Oppfølgingene nedenfor er daterte presiseringer av samme flyt, ikke nye institusjonsløfter. [Sporbarheten](TRACEABILITY.md) peker til kode/test; [publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) oppgir kontrollert grunnlag og dato. Historiske resultater er ikke nye kandidatresultater. Studentprøven R-07/SC-07 er fortsatt ikke gjennomført. Sensorveiledning og godkjent proposal var utilgjengelige i de avtalte dokumentmappene i denne runden.
 
 ### Consolidated import and calendar closure approved — 2026-10-24
 

@@ -1,10 +1,45 @@
-# Sporbarhet fra løfte til evidens
+# Ajour: sporbarhet fra løfte til evidens
+
+## Emnepalett og mørk modus — 2026-10-26
+
+| Krav/story | Kode og kontrollgrunnlag |
+| --- | --- |
+| Q-01; R-01/R-03/R-08; S-01/S-03/S-08 | [Fargeregister](../../studieplanlegger/src/course-colors.js) og [semantiske temaer](../../studieplanlegger/src/redesign.css): tolv ID-baserte emnefarger, lyse/mørke varianter og bevart aktivitet-/statustekst. [Enhetsprøver](../../studieplanlegger/tests/unit/course-colors.test.js) dekker rekkefølge, navneendring, like koder, tillegg, gjenimport, sletting/Angre, kontrollert gjenbruk og ugyldig lagring. |
+| Q-01/Q-02; R-06/S-06 | [Tidlig temalasting](../../studieplanlegger/public/theme-init.js), [kontroller](../../studieplanlegger/src/appearance.js), [bootstrapprøver](../../studieplanlegger/tests/unit/theme-init.test.js) og [faktisk nettleser](../../studieplanlegger/tests/e2e/ajour-theme.spec.js): System/Lyst/Mørkt, lokalt valg, kontrast og bevaring av dialog-/kalendertilstand. |
+| R-06/S-06; Q-03 | [Kompatibilitet](../../studieplanlegger/tests/unit/ajour-compatibility.test.js) og [isolert runtime](../../studieplanlegger/tests/run-tp-csv-persistence.mjs): gamle data/backup/UID-er, statiske lyse/mørke ressurser og tema uten domeneskriving. |
+
+[Nyeste temaverifikasjon](../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) oppgir faktiske kjøringer, bilder og restpunkter. Tidligere NIH-retting og dokumentopprydding bevares. SC-07/studentprøve, personlig refleksjon og faktisk Outlook-kontroll er fortsatt separate, uutførte vurderingsaktiviteter.
+
+## Lokal Ajour-oppfølging — 2026-10-26
+
+| Krav/story | Kode og etterprøvbar kontroll |
+| --- | --- |
+| R-01/R-03; S-01/S-03; Q-01 | [Studiedesign](../../studieplanlegger/src/study-design.js), [oversikt](../../studieplanlegger/src/daily-overview.js), [onboarding](../../studieplanlegger/src/onboarding.js), [stil](../../studieplanlegger/src/redesign.css) og [Ajour-nettleserprøver](../../studieplanlegger/tests/e2e/ajour.spec.js): naturlig 900px-etikett, semantisk samlet tid, kort fylt mobilintro, tidlig Start og tittel-only inngang. |
+| R-04/R-05; S-04/S-05; Q-01 | [Emnevisning](../../studieplanlegger/src/subjects-view.js) og [oppgavevisning](../../studieplanlegger/src/task-view.js): rolige leveringspåminnelser med adskilte tilstander; [Ajour-prøver](../../studieplanlegger/tests/e2e/ajour.spec.js) kontrollerer 390px/200%-dialogrulling, tastatur, synlige handlinger og fokusretur. |
+| Q-02/Q-03; S-02/S-06 | [Personvernhjelper](../../studieplanlegger/tests/helpers/fixture-privacy.js), [selvstendige negative prøver](../../studieplanlegger/tests/unit/fixture-privacy.test.js), [TimeEdit-parserprøver](../../studieplanlegger/tests/unit/public-timeedit.test.js) og [fixtureproveniens](../../studieplanlegger/tests/fixtures/public-timeedit/README.md): begge NIH-filtre og hvert relevant personfelt/attributt kontrolleres uavhengig; struktur og kildeattribusjon bevares. |
+| R-06/R-08; S-06/S-08; Q-03 | [Ajour-kompatibilitet](../../studieplanlegger/tests/unit/ajour-compatibility.test.js), [databasekjører](../../studieplanlegger/tests/run-database-e2e.mjs) og [importpersistens](../../studieplanlegger/tests/run-tp-csv-persistence.mjs): uendrede lagrings-/backup-/UID-kontrakter, låst installasjon og eksakte tilstander i isolert kandidat. |
+
+[Den tidligere oppfølgingsverifikasjonen](../../studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) har dato, faktisk testutvalg, antall, omkjøringer og begrensninger. Docker var blokkert i den runden; senere status står i temaverifikasjonen ovenfor. Studentprøve SC-07 er ikke gjennomført. Tidligere lesing av sensorveiledningen 25. oktober og tidligere manglende tilgang omtales hver for sin runde.
+
+## Ajour-grensesnitt og bevaring — 2026-10-25
+
+Samme R-/Q-/S-ID-er og avgrensede V1 gjelder. Tabellen angir kontrollgrunnlaget for Ajour-arbeidet; faktiske resultater og begrensninger står i [den egne verifikasjonsdelen](../../studieplanlegger/VERIFICATION.md#ajour-grensesnitt-og-databevaring--2026-10-25). Docker kunne ikke kjøres i Ajour-runden 25. oktober. Tidligere pass nedenfor gjelder tidligere versjoner.
+
+| Krav/story | Endring og direkte kontrollgrunnlag |
+|---|---|
+| R-01/R-03; S-01/S-03; Q-01 | [Oversikt](../../studieplanlegger/src/daily-overview.js), [studiedesign](../../studieplanlegger/src/study-design.js), [UI](../../studieplanlegger/src/ui.js) og [visuell inngang](../../studieplanlegger/src/redesigned-ui.js): synlig neste handling, ærlige tom-/ukjenttilstander og korte utdrag. Ajour-nettleserkontroll ved 1440/900/390 px og forstørret tekst. |
+| R-02/R-05; S-02/S-05; Q-01 | [Programimport](../../studieplanlegger/src/program-import-view.js), [emnevisning](../../studieplanlegger/src/subjects-view.js), [dialoger](../../studieplanlegger/src/editor-dialogs.js) og [importstil](../../studieplanlegger/src/document-import.css): bevar utkast/fokus/rulling, tilgjengelig importbekreftelse og godkjenning uten skjulte skriver. Berørte syntetiske ICS/CSV/TP- og dialogforløp. |
+| R-04/R-05/R-08; S-04/S-05/S-08 | Eksisterende hovedflyt, egenvurdering, omplanlegging, angre og eksport kontrolleres etter presentasjonsendringen. Separate fullføringer, ukjent tid og uendrede data ved forhåndsvisning er akseptkrav, ikke antatte følger av et skjermbilde. |
+| R-06/R-08; S-06/S-08; Q-02 | [Backup](../../studieplanlegger/src/backup.js), [kalendereksport](../../studieplanlegger/src/calendar-export.js) og [emnefarger](../../studieplanlegger/src/calendar.js): syntetisk før-endring-lagring/-backup, samme datakontrakter, stabile ID-er/UID-er og deterministisk fargetildeling. |
+| R-06/S-06; Q-03 | [Databaseforløp](../../studieplanlegger/tests/run-database-e2e.mjs) og [TP CSV-persistens](../../studieplanlegger/tests/run-tp-csv-persistence.mjs): isolert Node/SQLite og Docker, eksakte relasjoner ved gjenskaping, statiske merkevarefiler og fullstendig databevaring. Endelig utvalg og resultater føres i verifikasjonen. |
+
+Faglærertilbakemeldingen og alle sju sider av den identifiserte sensorveiledningen er lest i denne oppfølgingen. Dette støtter kravsporbarhet, designkonsistens og dokumentert kvalitet; studentforståelse og effekt er fortsatt ikke undersøkt.
 
 ## Samordnet leveranse — 2026-10-25
 
 [Brief](../../brief.md) → [PRD](PRD.md) → [stories](EPICS-CURRENT.md) følger **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering**. R-01/S-01 dekker registreringen, R-03/S-03 forslag, R-04/S-04 utfall og R-05/S-05 godkjenning/angre; R-02/S-02 gir støttende import, og R-06/S-06 bevarer sammenhengen i lokal lagring. R-08/S-08 bevarer valgfrie tillegg. Oppfølgingene nedenfor endrer ikke HiMolde-/NTNU-avgrensningen.
 
-Nyeste kandidatresultater står først i [VERIFICATION](../../studieplanlegger/VERIFICATION.md), med utvalg, dato og begrensninger. Tabellene nedenfor lenker testkode; eldre kjøreresultater tilhører sine daterte kontrollpunkter. SC-07/studentutprøving er fortsatt ikke utført. Faglærertilbakemeldingen er lest; sensorveiledning og godkjent proposal ble ikke funnet i de avtalte dokumentmappene og er ikke lest i denne runden.
+Nyeste kandidatresultater står først i [VERIFICATION](../../studieplanlegger/VERIFICATION.md), med utvalg, dato og begrensninger. Tabellene nedenfor lenker testkode; eldre kjøreresultater tilhører sine daterte kontrollpunkter. SC-07/studentutprøving er fortsatt ikke utført. Faglærertilbakemeldingen ble lest; sensorveiledning og godkjent proposal ble ikke funnet i publiseringsrunden før Ajour samme dag. Sensorveiledningen ble senere lest i Ajour-runden som dokumentert ovenfor.
 
 ### Personvern og kalenderintegritet — 2026-10-25
 

@@ -12,7 +12,7 @@ for (const width of [360, 1280]) {
     page.on('response', response => { if (response.status() >= 400) errors.push(response.url()) })
     page.on('request', request => { if (new URL(request.url()).origin !== localOrigin) errors.push(request.url()) })
     await page.goto('/')
-    await expect(page).toHaveTitle('Studieplan')
+    await expect(page).toHaveTitle('Ajour – Kom ajour.')
     await expect(page.locator('html')).toHaveAttribute('lang', 'nb')
     await expect(page.locator('#view-overview')).toHaveAttribute('aria-pressed', 'true')
     await page.keyboard.press('Tab')

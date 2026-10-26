@@ -2,7 +2,8 @@ import { Temporal } from '@js-temporal/polyfill'
 import { calendarToday, calendarRange, calendarEntries, entriesForDay, collisionLanes, dayBounds, timeLabel, addDays } from './calendar-model.js'
 import { OSLO } from './planner.js'
 import { calendarAxis, axisSegments } from './calendar-axis.js'
-import { courseColor, formatDay, formatDeadline } from './calendar.js'
+import { formatDay, formatDeadline, taskStatus } from './calendar.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 import './calendar-page.css'
 import { createCalendarViewport } from './calendar-viewport.js'
 import { calendarExportItems, calendarExportOmissions, calendarExportTime, downloadCalendarIcs } from './calendar-export.js'
@@ -89,7 +90,8 @@ export function createCalendarPage(actions) {
   const readableList = el('details', null, 'calendar-readable-events calendar-point-extras'), readableSummary = el('summary'), readableContent = el('div', null, 'calendar-readable-content')
   readableList.open = true; readableList.hidden = true; readableContent.setAttribute('aria-label', 'Lesbar aktivitetsliste, rull for flere aktiviteter'); readableContent.tabIndex = 0
   readableList.append(readableSummary, readableContent)
-  host.append(heading, modes, toolbar, scrollHint, readableList, viewport)
+  const titleRow = el('div', null, 'calendar-title-row'); titleRow.append(heading)
+  host.append(titleRow, modes, toolbar, scrollHint, readableList, viewport)
   let layoutFrame = 0
   function alignBands() {
     const grid = viewport.querySelector('.calendar-time-grid'); if (!grid) return
@@ -130,6 +132,7 @@ export function createCalendarPage(actions) {
   function closeDetails() { dialog.close(); window.scrollTo(pageScroll.x, pageScroll.y); viewport.scrollTo(viewportScroll.x, viewportScroll.y); focusControl(opener) }
   dialog.addEventListener('cancel', event => { event.preventDefault(); closeDetails() })
   function showDetails(entry, control) {
+    applyCourseColor(dialog, resolvedCourseId(entry))
     opener = control; pageScroll = { x: scrollX, y: scrollY }; viewportScroll = { x: viewport.scrollLeft, y: viewport.scrollTop }
     dialog.replaceChildren(el('p', entry.isExam ? '📝 Eksamen' : kinds[entry.kind], 'eyebrow'), el('h2', entry.title)); dialog.classList.toggle('is-exam', Boolean(entry.isExam)); dialog.classList.toggle('is-personal', entry.kind === 'personal'); dialog.querySelector('h2').id = 'calendar-details-title'; dialog.setAttribute('aria-labelledby', 'calendar-details-title')
     const course = model.planner?.courses.find(c => c.id === entry.courseId)
@@ -148,12 +151,13 @@ export function createCalendarPage(actions) {
     control.dataset.calendarKey = entry.key
     control.dataset.calendarFocusKey = entry.key
     const course = model.planner?.courses.find(c => c.id === entry.courseId), code = course?.code || entry.courseCode || '', context = [course ? nameFirstLabel(course) : code || entry.course, entry.location].filter(Boolean).join(' · ')
-    if (code) control.style.setProperty('--course-color', courseColor(code))
+    applyCourseColor(control, resolvedCourseId(entry))
     const when = date ? `${formatDay(date, { year: true })} · ${timeLabel(entry)}` : timeLabel(entry)
-    const kindLabel = `${entry.isExam ? '📝 Eksamen' : kinds[entry.kind]}${context ? ` · ${context}` : ''}`
+    const statusLabel = entry.cancelled ? 'Avlyst' : entry.kind === 'deadline' && entry.completed ? taskStatus(entry) : ''
+    const kindLabel = `${statusLabel ? `${statusLabel} · ` : ''}${entry.isExam ? '📝 Eksamen' : kinds[entry.kind]}${context ? ` · ${context}` : ''}`
     const whenClass = compact ? 'entry-time entry-time-compact' : 'entry-time'
     const title = code && !entry.title.toLocaleUpperCase('nb').startsWith(code.toLocaleUpperCase('nb')) ? `${code} · ${entry.title}` : entry.title
-    if (entry.isExam) control.append(el('span', '📝 Eksamen', 'exam-badge'), ...(code ? [el('span', code, 'exam-course')] : []), el('strong', entry.title), el('span', when, whenClass), el('span', context, 'entry-kind'))
+    if (entry.isExam) control.append(el('span', `${statusLabel ? `${statusLabel} · ` : ''}📝 Eksamen`, 'exam-badge'), ...(code ? [el('span', code, 'exam-course')] : []), el('strong', entry.title), el('span', when, whenClass), el('span', context, 'entry-kind'))
     else control.append(el('span', when, whenClass), el('strong', title), el('span', kindLabel, 'entry-kind'))
     if (compact) control.classList.add('is-short')
     const continuation = [entry.start < entry.clippedStart ? 'Fortsetter fra forrige dag' : '', entry.end > entry.clippedEnd ? 'Fortsetter neste dag' : ''].filter(Boolean).join(' · ')
@@ -181,19 +185,26 @@ export function createCalendarPage(actions) {
           const chooser = el('dialog', null, 'editor-dialog calendar-details calendar-short-chooser')
           chooser.setAttribute('aria-label', 'Korte aktiviteter')
           chooser.append(el('h2', 'Korte aktiviteter'))
-          for (const entry of group.items) chooser.append(button((entry.cancelled ? 'Avlyst: ' : '') + timeLabel(entry) + ' · ' + entry.title, () => {
-            chooser.close(); showDetails(entry, control)
-          }, 'calendar-entry entry-' + entry.kind + (entry.cancelled ? ' is-cancelled' : '')))
+          for (const entry of group.items) {
+            const choice = entryButton(entry)
+            choice.onclick = () => { chooser.close(); showDetails(entry, control) }
+            chooser.append(choice)
+          }
           chooser.append(button('Lukk detaljer', () => chooser.close()))
           chooser.addEventListener('close', () => { chooser.remove(); if (!dialog.open) focusControl(control) })
           host.append(chooser); chooser.showModal()
         }
       }, 'calendar-short-control secondary')
       control.dataset.calendarShort = group.items.map(entry => entry.key).join(' ')
+      applyCourseColor(control, group.items.every(entry => resolvedCourseId(entry) === resolvedCourseId(first)) ? resolvedCourseId(first) : null)
       control.dataset.calendarFocusKey = 'short:' + timeline.closest('[data-date]').dataset.date + ':' + first.key
       control.style.top = group.top + 'px'
       control.classList.toggle('is-cancelled', group.items.every(entry => entry.cancelled))
-      control.setAttribute('aria-label', 'Åpne detaljer: ' + group.items.map(entry => (entry.cancelled ? 'Avlyst: ' : '') + timeLabel(entry) + ' · ' + entry.title).join('; '))
+      control.setAttribute('aria-label', 'Åpne detaljer: ' + group.items.map(entry => {
+        const course = model.planner?.courses.find(item => item.id === entry.courseId)
+        return [entry.cancelled ? 'Avlyst' : '', entry.isExam ? 'Eksamen' : kinds[entry.kind],
+          course ? nameFirstLabel(course) : entry.course || 'Uten emne', timeLabel(entry), entry.title].filter(Boolean).join(' · ')
+      }).join('; '))
       control.title = control.getAttribute('aria-label')
       timeline.append(control)
     }
@@ -213,6 +224,7 @@ export function createCalendarPage(actions) {
     for (const course of sortByVisibleName(model.planner?.courses || [])) { const choice = el('option', nameFirstLabel(course)); choice.value = course.id; courseSelect.append(choice) }
     if (!(model.planner?.courses || []).some(c => c.id === state.courseId)) state.courseId = ''
     courseSelect.value = state.courseId
+    applyCourseColor(courseSelect, state.courseId)
     for (const mode of modes.children) mode.setAttribute('aria-pressed', String(mode.dataset.calendarView === state.view))
     const checks = [...filter.querySelectorAll('input[type=checkbox]')]
     Object.keys(kinds).forEach((kind, index) => { checks[index].checked = state.kinds.includes(kind) })
@@ -256,6 +268,7 @@ export function createCalendarPage(actions) {
           for (const part of axisSegments(entry, dayAxis)) {
             if (part.minutes < 44) {
               const marker = el('div', null, 'short-event calendar-duration-marker entry-' + entry.kind)
+              applyCourseColor(marker, resolvedCourseId(entry))
               marker.dataset.calendarGeometry = entry.key
               marker.setAttribute('aria-hidden', 'true')
               marker.classList.toggle('is-cancelled', Boolean(entry.cancelled))

@@ -1,6 +1,7 @@
 import { taskSteps, saveWorkSteps, completeWorkStep, reopenWorkStep, migrateLegacyStep, removeWorkStep } from './work-steps.js'
 import { createWorkStepProposal, approveWorkStepProposal } from './work-step-proposals.js'
 import { parseDocumentInput } from './document-import.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 
 const el = (tag, text, className = '') => { const node = document.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node }
 const button = (text, action, className = 'secondary') => { const node = el('button', text, className); node.type = 'button'; node.onclick = action; return node }
@@ -17,6 +18,7 @@ export function createWorkStepsView(actions) {
     const storedTask = actions.state().tasks.find(item => item.id === taskId)
     if (!storedTask) { close(); return }
     const task = migrateLegacyStep(storedTask)
+    applyCourseColor(dialog, resolvedCourseId(task))
     dialog.replaceChildren(el('h2', `Arbeidssteg · ${task.title}`), el('p', 'Stegestimater er kontekst. De legges ikke til oppgavens gjenstående arbeid.', 'muted'))
     dialog.firstChild.id = 'work-steps-heading'; dialog.setAttribute('aria-labelledby', 'work-steps-heading')
     const stepError = el('p'); stepError.setAttribute('role', 'alert'); stepError.className = 'work-step-error'

@@ -16,7 +16,7 @@ async function screenshot(page, info, name) {
 
 test('independent A02: manual first course to title-only task and an edited free study session', async ({ page }, info) => {
   await freeze(page, '2026-09-09T09:00:00+02:00'); await page.goto('/')
-  await page.locator('#connected-onboarding').getByRole('button', { name: 'Legg til manuelt', exact: true }).click()
+  await page.locator('#connected-onboarding').getByRole('button', { name: 'Legg til emne manuelt', exact: true }).click()
   const editor = page.locator('#subject-editor')
   await editor.getByLabel('Emnenavn', { exact: true }).fill('Innføring i programmering')
   await editor.getByLabel('Emnekode', { exact: true }).fill('INF101')
@@ -94,7 +94,7 @@ test('independent A04/A13: larger text, keyboard capture and honest sparse-histo
   await freeze(page, '2026-09-09T09:00:00+02:00')
   await page.setViewportSize({ width: 390, height: 844 }); await page.goto('/')
   await page.addStyleTag({ content: 'html { font-size: 200% !important; }' })
-  const start = page.locator('#connected-onboarding').getByRole('button', { name: 'Hopp over import', exact: true })
+  const start = page.locator('#connected-onboarding').getByRole('button', { name: 'Legg til oppgave', exact: true })
   await tabTo(page, start); await page.keyboard.press('Enter')
   await page.locator('#title').fill('En oppgave registrert med tastatur')
   await page.locator('.personal-estimate > summary').click()

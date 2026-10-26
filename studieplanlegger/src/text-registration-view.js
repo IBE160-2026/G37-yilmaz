@@ -21,7 +21,9 @@ export function createTextRegistrationView(host, actions) {
   const help = node('p', 'Eksempler: «Øve på koding» · «Lever fysikkoppgave innen 4.10» · «Egen aktivitet: Tannlege 4.10 kl. 12–13»', 'muted')
   const feedback = node('div', '', 'text-registration-feedback'); feedback.setAttribute('role', 'status'); feedback.setAttribute('aria-live', 'polite')
   const proposal = node('form', '', 'text-registration-proposal'); proposal.hidden = true
-  form.append(label, help, propose); host.append(form, feedback, proposal)
+  const disclosure = node('details', '', 'text-registration-disclosure')
+  disclosure.append(node('summary', 'Skriv en oppgave eller endring'), form, feedback, proposal)
+  form.append(label, help, propose); host.append(disclosure)
   let current = null, busy = false, lastModel = null
 
   function show(parsed) {

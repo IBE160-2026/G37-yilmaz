@@ -1,4 +1,27 @@
-# Epics og stories for dagens leveranse
+# Epics og stories for Ajour
+
+## Lokal Ajour-oppfølging — 2026-10-26
+
+Presisering av S-01/S-03/S-04/S-05/S-06 og Q-01–Q-03 innen godkjent V1:
+
+- **Given** en fylt oversikt ved 900 eller 390 px, **when** neste handling vises, **then** etiketten har naturlig bredde, tidsspørsmål/hurtigvalg/egendefinert verdi hører sammen og Start kommer tidlig etter en kort mobilintro.
+- **Given** tom onboarding eller forfalt/ferdig/levert arbeid, **when** handlingene vises, **then** tittel alene tilbys tydelig, import er valgfri, brytende knapper har luft og leveringspåminnelser bevarer hver tilstand uten å konkurrere med Start.
+- **Given** dialoger ved 390 px/200 % tekst, **when** alle felt nås med tastatur og intern rulling, **then** Lagre/Avbryt forblir synlige, footer dekker ikke feltene, og fokusretur, verdier, drafts og åpne seksjoner bevares.
+- **Given** begge NIH-personfiltre eller personrester i senere segmenter/attributter, **when** personvernprøvene kjøres, **then** hvert relevant felt kontrolleres selvstendig og nødvendig parserstruktur bevares; et syntetisk token fritar ingen annen verdi.
+- **Given** det komplette kontrollerte filutvalget, **when** kandidaten får egen låst installasjon og relevante regressjoner, **then** faktiske resultater og manifest-samsvar føres med dato; utilgjengelig Docker rapporteres som manglende kontroll.
+
+[Aktuell evidens](../../studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) er teknisk kontroll. S-07/studentprøve forblir planlagt, og historisk publisering `9d3a169` før Ajour blir ikke ny akseptanse.
+
+## Ajour-grensesnitt og bevaring — 2026-10-25
+
+Presisering av eksisterende S-01–S-06/S-08 og Q-01–Q-03; dette innfører ingen ny kilde eller utvidelse av V1:
+
+- **Given** tomme eller fylte data, **when** oversikten åpnes på 1440/900/390 px eller med forstørret tekst, **then** neste handling kommer tidlig, korte utdrag leder til fullstendige visninger, og mobilsiden har ingen horisontal overflyt.
+- **Given** ukjent tid, separate arbeids-/innleveringstilstander eller et forslag, **when** Ajour-visningene brukes, **then** ukjent informasjon forblir ukjent, fullføringer holdes atskilt og forhåndsvisning skriver ingenting før godkjenning.
+- **Given** åpne skjemaer, importavklaringer og kalender, **when** innhold oppdateres eller tastatur brukes, **then** utkast, fokus, rulling og åpne seksjoner bevares, dialogfokus returnerer og importbekreftelsen er tilgjengelig.
+- **Given** syntetiske data og sikkerhetskopier fra før navneendringen, **when** de lastes, gjenopprettes og eksporteres, **then** data, relasjoner og ICS-UID-er bevares uten migrering; samme isolerte SQLite-/Docker-lagring overlever gjenskaping sammen med statiske merkevareressurser.
+
+Kontrollene inkluderer lang tekst, hover/fokus/valg/feil, minst 4,5:1 tekstkontrast og redusert bevegelse. Faktiske kjøreresultater føres separat i [Ajour-verifikasjonen](../../studieplanlegger/VERIFICATION.md#ajour-grensesnitt-og-databevaring--2026-10-25). S-07/studentutprøving er fortsatt ikke gjennomført.
 
 **Samordnet 2026-10-25.** S-01/S-03/S-04/S-05 følger **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering** med lokale regler; S-02 støtter flyten med import, S-06 bevarer data, og S-08 bevarer valgfrie tillegg. Et eget steg er valgfritt. Krav-ID-er og HiMolde-/NTNU-avgrensning er uendret. Daterte tekniske resultater nedenfor tilhører sine kontrollerte versjoner; [publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) skiller dem fra kandidatkontrollene. S-07/studentprøven er fortsatt planlagt.
 

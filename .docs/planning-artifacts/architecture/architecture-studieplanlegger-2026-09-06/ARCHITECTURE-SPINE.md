@@ -1,5 +1,5 @@
 ---
-name: Studieplanlegger
+name: Ajour
 type: architecture-spine
 purpose: build-substrate
 altitude: feature
@@ -7,7 +7,7 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-10-25
+updated: 2026-10-26
 binds: [R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, Q-01, Q-02, Q-03]
 historical_binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
@@ -20,7 +20,33 @@ sources:
   - ../../../implementation-artifacts/solution-guide.md
 ---
 
-# Technical plan: Studieplanlegger
+# Technical plan: Ajour
+
+## AD-15 — Local appearance preferences and course identity, 2026-10-26
+
+The existing layout and domain contracts remain. A synchronous same-origin [theme bootstrap](../../../../studieplanlegger/public/theme-init.js) establishes `data-theme`, native `color-scheme` and initial paint before styles/application loading. [Appearance controls](../../../../studieplanlegger/src/appearance.js) subscribe to it; switching variables does not rebuild views. System is the default; explicit light/dark overrides OS changes. The top button stores the opposite displayed theme. Storage failures leave an in-memory usable preference.
+
+[Course colours](../../../../studieplanlegger/src/course-colors.js) register the complete collection before rendering. Stable course IDs own slots; display code/name may resolve a legacy task only when exactly one known ID matches. Ambiguous/no-course entries remain neutral. Twelve active automatic courses use twelve different slots, with controlled least-used reuse above twelve. Deleted mappings are retained for undo. If a historic slot has been reused, only the colliding restored ID moves to a free slot; shrinking from more than twelve also repairs only necessary collisions. No existing user colour-choice field/UI was found. AD-14's eight-slot display-code hash is superseded by this decision.
+
+`ajour:appearance:v1` and `ajour.course-colors.v1` are origin-local presentation preferences, outside the domain envelope, SQLite and backups. Restoring an older backup without these preferences creates a valid deterministic allocation; portable preservation is not promised. Semantic light/dark background, marker and text variables retain each slot's hue family. Names/codes and exam, cancellation, deadline, completion/submission text remain independent of colour. Existing storage/API/UID/runtime names below stay unchanged. [Current evidence](../../../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) reports the isolated locked candidate separately from historical runs.
+
+## AD-14 — Ajour presentation with stable data contracts, 2026-10-25
+
+The current product name is **Ajour**, with lowercase **ajour**, **Kom ajour.** and **Planer endrer seg. Det er helt greit.**. This decision changes presentation within R-01–R-06/R-08 and Q-01–Q-03. It introduces no provider, source coverage or data migration. [redesigned-ui.js](../../../../studieplanlegger/src/redesigned-ui.js) continues to wrap the existing controller and views; task, import, approval and undo owners retain their contracts.
+
+The light visual system uses background `#FCFAF8`, coral `#EF7A65`, text `#5A3043`, lavender `#CFBCE9`, pink `#F5DFDF`, cards `#FFFCF9`, fields `#FFFFFF`, help text `#795A68` and button text `#402332`. Semantic tokens apply across overview, navigation, calendar, forms, dialogs and states. Desktop overview is centered around 1160 px; mobile is one column with an early action and no large decoration. Short excerpts link to complete views, the calendar may be wider and its viewport remains bounded. The original 25 October refresh retained course hashing; AD-15 supersedes that allocation for the approved theme change.
+
+Notebook/face, wordmark and decoration are local SVG recreations based on the supplied desktop/mobile PNG references. No larger design package was available. Existing local Manrope and its OFL license remain; no external fonts or tracking are introduced. These are documented implementation deviations, not a claim of an original vector handoff or pixel-identical reproduction. Decorative artwork must stay silent to assistive technology. Focus, contrast, enlarged text, reduced motion, drafts, scroll position, disclosures and reachable import confirmation are explicit verification concerns.
+
+| Name category | Treatment |
+|---|---|
+| Current title, wordmark, metadata and readable download names | Present Ajour; change only display names, not the stored/exported identity contract. |
+| Browser/session storage | Keep `studieplanlegger:v1`, `studieplanlegger:recovery:v1` and `studieplanlegger:program-import-draft:v1`, existing envelopes and versions. |
+| Backup, API and calendar identity | Keep `studieplan-local-backup`, backup version, `__STUDIEPLAN_API__`, existing routes/flags, `x-studieplan-*` properties and UID domains `@studieplanlegger.local` / `@studieplan.local`. |
+| Runtime and operations | Keep SQLite schema/migrations, `studieplan.sqlite`, `STUDIEPLAN_*` variables, Compose service `studieplan`, volume key `studieplan-data`, project identities, folder names, commands and the existing `studieplan.localhost` origin so browser storage stays reachable. |
+| Academic/source/history terms | Preserve generic study-plan terms, source URLs, dated historical labels and quoted teacher/user feedback. The historical action label `Ny samlet studieplan` remains recognized by the data contract. |
+
+Synthetic storage and a UI-exported backup captured before this change provide compatibility input. Verification must compare full data/relations and stable ICS UIDs through reload, restore and export, and separately exercise the built client on isolated Node/SQLite and Docker with the same test storage after recreation. [Ajour verification](../../../../studieplanlegger/VERIFICATION.md#ajour-grensesnitt-og-databevaring--2026-10-25) records actual results; historical tests below do not establish acceptance of the new interface.
 
 ## Current integrated contracts — 2026-10-25
 

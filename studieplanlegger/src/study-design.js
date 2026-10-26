@@ -11,7 +11,7 @@ function element(tag, className, value) {
   return node
 }
 const icons = {
-  settings: '<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="white"/><circle cx="15" cy="17" r="3" fill="white"/>',
+  settings: '<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="var(--surface)"/><circle cx="15" cy="17" r="3" fill="var(--surface)"/>',
   home: '<path d="m3 10 9-7 9 7v10H3Z"/><path d="M9 20v-7h6v7"/>',
   list: '<rect x="4" y="3" width="16" height="18" rx="3"/><path d="m7 8 1 1 2-2m-3 7 1 1 2-2m3-5h4m-4 6h4"/>',
   calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18m-13 4h1m6 0h1"/>',
@@ -42,7 +42,10 @@ export function createStudyDesign(actions) {
     indicator.style.width = a.width + 'px'; indicator.style.height = a.height + 'px'
   }
   function updateMarkers() {
-    marker(nav, mobile.matches && overflow?.querySelector('[aria-pressed="true"]') ? '#mobile-navigation-more' : 'button[aria-pressed="true"]')
+    const secondary = overflow?.querySelector('[aria-pressed="true"]')
+    more.toggleAttribute('data-active-route', Boolean(secondary))
+    more.setAttribute('aria-label', secondary ? `Mer – ${secondary.textContent} er valgt` : 'Mer')
+    marker(nav, mobile.matches && secondary ? '#mobile-navigation-more' : 'button[aria-pressed="true"]')
     marker($('.quick-times'), 'button[aria-pressed="true"]')
   }
   function closeMore(restore = false) {
@@ -93,12 +96,21 @@ export function createStudyDesign(actions) {
     nav.addEventListener('focusout', event => { if (event.relatedTarget && !nav.contains(event.relatedTarget)) closeMore() })
     const quickMarker = element('span', 'selection-marker'); quickMarker.setAttribute('aria-hidden', 'true'); $('.quick-times').prepend(quickMarker)
     text($('label[for="available-minutes"]'), 'Egendefinert tid (minutter)')
-    text($('.focus-intro .eyebrow'), 'NESTE HANDLING')
+    text($('.focus-intro .eyebrow'), 'DITT NESTE STEG')
     text($('.focus-intro > div:first-child > p:last-child'), 'Hvor mye tid har du?')
+    text($('#focus-heading'), 'Ditt neste steg')
+    const timeChoices = element('fieldset', 'time-choices')
+    timeChoices.append(element('legend', '', 'Hvor mye tid har du?'), $('.quick-times'), $('.custom-time'))
+    $('.focus-intro > div:first-child > p:last-child').remove()
+    $('#time-form').prepend(timeChoices)
     const illustration = new Image(260, 260)
-    illustration.src = '/study-focus-v2.png'; illustration.alt = ''; illustration.decoding = 'async'
+    illustration.src = '/brand/notebook.svg'; illustration.alt = ''; illustration.decoding = 'async'
     $('.focus-visual').replaceChildren(illustration)
-    $('#focus-panel').after($('.focus-results'))
+    // Put the suggested action first in the reading and mobile tab order.
+    // Time choices remain available directly below it without replacing nodes.
+    $('#focus-panel').append($('#time-form'))
+    $('#focus-panel').after($('#overview-summary'))
+    $('#summary-week').hidden = true
     text($('#summary-week > span:last-child'), 'Denne uken')
     text($('#summary-overdue > span:last-child'), 'Forfalt')
     text($('#summary-ready > span:last-child'), 'Til levering')
@@ -150,6 +162,11 @@ export function createStudyDesign(actions) {
   return {
     update(nextModel) {
       model = nextModel; mount(); mountDialogs()
+      $('#ajour-intro').hidden = model.view !== 'overview'
+      $('#ajour-intro').classList.toggle('is-populated', Boolean(model.tasks?.length || model.sessions?.length || model.planner?.courses?.length || model.planner?.events?.length))
+      const captureHost = model.view === 'overview' ? $('#text-registration') : model.view === 'calendar' ? $('.calendar-title-row') : $('.app-header')
+      const captureActions = $('.header-actions')
+      if (captureActions.parentElement !== captureHost) captureHost.append(captureActions)
       text($('#page-heading'), { overview: 'Oversikt', week: 'Denne uken', all: 'Alle oppgaver', time: 'Finn en oppgave', capacity: 'Planlegg uken', subjects: 'Mine emner', calendar: 'Kalender', settings: 'Innstillinger' }[model.view] || 'Oversikt')
       updateMarkers(); updateCapacity(); updateCalendar()
       const suggestion = document.querySelector('.focus-results .primary-suggestion:not([hidden])')

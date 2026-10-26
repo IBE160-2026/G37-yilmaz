@@ -96,7 +96,7 @@ test('edit, remove and complete a next step leave parent estimate, completion an
   await saveStep(page).click()
   await openMenu(page, parent.title)
   await step(page, parent.title, 'Neste steg gjort').click()
-  const completedStep = { ...withoutStep, steps: [{ id: `${parent.id}:legacy-next-step`, title: 'Finn to kilder', estimatedMinutes: 10, completed: true, provenance: { kind: 'manual' } }] }
+  const completedStep = { ...withoutStep, steps: [{ id: `${parent.id}:legacy-next-step`, title: 'Finn to kilder', estimatedMinutes: 10, completed: true, unblocksWaiting: false, provenance: { kind: 'manual' } }] }
   expect((await saved(page)).tasks[0]).toEqual(completedStep)
   await expect(work(page, parent.title)).not.toBeChecked()
   await expect(row(page, parent.title)).toContainText('Hele oppgaven: 240 min')
@@ -106,7 +106,7 @@ test('edit, remove and complete a next step leave parent estimate, completion an
   await saveStep(page).click()
   await page.reload()
   await navigate(page, 'week')
-  expect((await saved(page)).tasks[0]).toEqual({ ...withoutStep, steps: [...completedStep.steps, { id: `${parent.id}:legacy-next-step:2`, title: 'Skriv innledningen', estimatedMinutes: 25, completed: false, provenance: { kind: 'manual' } }] })
+  expect((await saved(page)).tasks[0]).toEqual({ ...withoutStep, steps: [...completedStep.steps, { id: `${parent.id}:legacy-next-step:2`, title: 'Skriv innledningen', estimatedMinutes: 25, completed: false, unblocksWaiting: false, provenance: { kind: 'manual' } }] })
   await expect(work(page, parent.title)).not.toBeChecked()
 })
 
@@ -137,7 +137,7 @@ test('one explained main suggestion uses remaining work, deadline order and opti
   await expect(visibleRows(page)).toHaveCount(3)
   await expect(page.locator('#toggle-alternatives')).toHaveAttribute('aria-expanded', 'true')
   await expect(row(page, fallback.title)).toContainText('Hele oppgaven: 30 min')
-  await page.keyboard.press('Shift+Tab')
+  await tabTo(page, row(page, future.title).locator('.task-menu > summary'), 'Shift+Tab')
   await expect(row(page, future.title).locator('.task-menu > summary')).toBeFocused()
   await page.keyboard.press('Enter')
   await tabTo(page, step(page, future.title, 'Fjern neste steg'))
@@ -180,7 +180,7 @@ test('empty time results keep all deadlines and next-step editing reachable with
   await expect(row(page, large.title)).toContainText('Hele oppgaven er ikke ferdig etter steget')
   await navigate(page, 'all')
   await expect(row(page, large.title)).toContainText('Åpne oppgaveteksten og les kravene')
-  expect((await saved(page)).tasks).toEqual([later, { ...large, steps: [{ id: `${large.id}:legacy-next-step`, title: 'Åpne oppgaveteksten og les kravene', estimatedMinutes: 20, completed: false, provenance: { kind: 'manual' } }] }])
+  expect((await saved(page)).tasks).toEqual([later, { ...large, steps: [{ id: `${large.id}:legacy-next-step`, title: 'Åpne oppgaveteksten og les kravene', estimatedMinutes: 20, completed: false, unblocksWaiting: false, provenance: { kind: 'manual' } }] }])
   expect(await writes(page)).toHaveLength(1)
 })
 
@@ -273,7 +273,7 @@ test('failed step save, completion and removal preserve both stored data and the
   await expect(page.locator('#step-description')).toHaveValue('Lag en disposisjon')
   await expect(page.locator('#step-estimatedMinutes')).toHaveValue('20')
   await expect(saveStep(page)).toBeFocused()
-  await expect(page.getByRole('status')).toContainText('ikke lagret')
+  await expect(page.locator('#feedback')).toContainText('ikke lagret')
   await page.evaluate(() => { window.failWrite = false })
   await saveStep(page).click()
   for (const action of ['Neste steg gjort', 'Fjern neste steg']) {
@@ -288,7 +288,7 @@ test('failed step save, completion and removal preserve both stored data and the
   }
   await openMenu(page, parent.title)
   await step(page, parent.title, 'Neste steg gjort').click()
-  expect((await saved(page)).tasks).toEqual([{ ...parent, steps: [{ id: `${parent.id}:legacy-next-step`, title: 'Lag en disposisjon', estimatedMinutes: 20, completed: true, provenance: { kind: 'manual' } }] }])
+  expect((await saved(page)).tasks).toEqual([{ ...parent, steps: [{ id: `${parent.id}:legacy-next-step`, title: 'Lag en disposisjon', estimatedMinutes: 20, completed: true, unblocksWaiting: false, provenance: { kind: 'manual' } }] }])
   expect(await writes(page)).toHaveLength(5)
 })
 

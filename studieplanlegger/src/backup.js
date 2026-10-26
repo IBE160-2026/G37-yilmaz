@@ -114,6 +114,6 @@ export function previewBackup(input, current) {
 }
 export function downloadBackup(backup) {
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob)
-  const link = document.createElement('a'); link.href = url; link.download = `studieplan-${backup.createdAt.slice(0, 10)}.json`; link.click()
+  const link = document.createElement('a'); link.href = url; link.download = `ajour-${backup.createdAt.slice(0, 10)}.json`; link.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }

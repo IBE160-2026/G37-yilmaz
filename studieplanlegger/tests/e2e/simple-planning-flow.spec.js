@@ -17,7 +17,7 @@ test('first use goes from title-only task through one checked move to apply and 
   await freeze(page, '2026-09-25T09:00:00+02:00'); await page.goto('/')
   let actions = 0
   const act = async fn => { actions++; await fn() }
-  await act(() => page.locator('#connected-onboarding').getByRole('button', { name: 'Hopp over import' }).click())
+  await act(() => page.locator('#connected-onboarding').getByRole('button', { name: 'Legg til oppgave' }).click())
   await act(() => page.getByLabel('Tittel', { exact: true }).fill('Skriv refleksjonsnotat'))
   await act(() => page.locator('#task-form').getByRole('button', { name: 'Lagre', exact: true }).click())
   await act(() => page.locator('#connected-onboarding').getByRole('button', { name: 'Se planforslag', exact: true }).click())

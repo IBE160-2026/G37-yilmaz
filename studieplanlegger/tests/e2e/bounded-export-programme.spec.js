@@ -79,7 +79,10 @@ test('mixed export names omitted deadlines and downloads exact topic titles and 
     await page.screenshot({ path: info.outputPath(`bounded-export-${width}.png`), fullPage: true })
     const pending = page.waitForEvent('download')
     await downloadButton.press('Enter')
-    const source = await readFile(await (await pending).path(), 'utf8'), events = parseEvents(source)
+    const download = await pending
+    expect(download.suggestedFilename()).toBe('ajour.ics')
+    const source = await readFile(await download.path(), 'utf8'), events = parseEvents(source)
+    expect(new ICAL.Component(ICAL.parse(source)).getFirstPropertyValue('x-wr-calname')).toBe('Ajour')
     expect(events).toHaveLength(4)
     const byUid = new Map(events.map(event => [event.getFirstPropertyValue('uid'), event]))
     expect(byUid.get(calendarUid('session', 'known-review')).getFirstPropertyValue('summary')).toBe(`Repetisjon: ${topicTitle}`)

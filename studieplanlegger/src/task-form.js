@@ -2,6 +2,7 @@ import { validateCourse, semesterLabel, osloYear } from './planner.js'
 import { getRemainingMinutes } from './tasks.js'
 import { personalEstimate } from './personal-estimates.js'
 import { nameFirstLabel, sortByVisibleName } from './name-sort.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 export function courseOptionLabels(courses) {
   const base = c => nameFirstLabel(c, [c.university || 'Institusjon ikke oppgitt', c.campus, semesterLabel(c.semester, c.year)])
   return new Map(courses.map(course => {
@@ -33,6 +34,7 @@ export function createTaskForm(form) {
   form.elements.dependencyIds.setAttribute('aria-label', 'Forutsetninger')
   const estimate = document.createElement('details'); estimate.className = 'personal-estimate'; estimate.innerHTML = '<summary>Forslag fra lokal arbeidshistorikk</summary><p></p><button type="button" class="secondary" hidden>Bruk som gjenstående estimat</button>'; form.elements.remainingMinutes.closest('.field').append(estimate)
   let courses = [], pending, selectedLabel, signature = '', model, editingTask, remainingTouched = false
+  const updateCourseColor = () => applyCourseColor(form.closest('dialog') || form, resolvedCourseId({ courseId: selector.value, course: input.value }, courses))
   const estimateContext = () => ({ ...editingTask, course: input.value, courseId: selector.value, taskType: form.elements.taskType.value })
   estimate.querySelector('button').onclick = () => { const result = personalEstimate(model, estimateContext()); if (result.available) { remainingTouched = true; form.elements.remainingMinutes.value = result.minutes } }
   const estimateText = () => { const result = personalEstimate(model || {}, estimateContext()); estimate.querySelector('p').textContent = result.explanation || result.reason; estimate.querySelector('button').hidden = !result.available }
@@ -49,19 +51,22 @@ export function createTaskForm(form) {
     if (input.value === selectedLabel) return
     const matches = [...courses, ...(pending ? [pending] : [])].filter(c => [label(c), c.code, c.name].includes(input.value))
     selector.value = matches.length === 1 ? matches[0].id : ''; selectedLabel = input.value
+    updateCourseColor()
     estimateText()
   })
-  selector.addEventListener('change', () => { const course = [...courses, ...(pending ? [pending] : [])].find(c => c.id === selector.value); if (course) { input.value = course.code || course.name; selectedLabel = input.value }; estimateText() })
+  selector.addEventListener('change', () => { const course = [...courses, ...(pending ? [pending] : [])].find(c => c.id === selector.value); if (course) { input.value = course.code || course.name; selectedLabel = input.value }; updateCourseColor(); estimateText() })
   inline.querySelector('button').onclick = () => {
     try {
       pending = validateCourse({ name: form.elements.inlineName.value, code: form.elements.inlineCode.value, university: form.elements.inlineUniversity.value, semester: form.elements.inlineSemester.value, year: form.elements.inlineYear.value, credits: '' })
       options(); selector.value = pending.id; input.value = pending.code || pending.name; selectedLabel = input.value; inline.open = false; input.focus(); inline.querySelector('[role=alert]').textContent = ''; estimateText()
+      updateCourseColor()
     } catch (error) { inline.querySelector('[role=alert]').textContent = error.message }
   }
   return {
     render(nextModel) { model = nextModel; courses = model.planner?.courses || []; const next = JSON.stringify(courses); if (signature !== next) { signature = next; options() } },
     open(task) {
       editingTask = task; remainingTouched = false; pending = null; options(); selectedLabel = task?.course || ''; input.value = selectedLabel; selector.value = task?.courseId || ''; inline.open = false; extra.open = Boolean(task?.id); inline.querySelector('[role=alert]').textContent = ''
+      updateCourseColor()
       form.elements.remainingMinutes.value = task?.remainingMinutes !== undefined ? task.remainingMinutes ?? '' : task?.estimatedMinutes ?? ''
       const deps = form.elements.dependencyIds; deps.replaceChildren()
       for (const candidate of model?.tasks || []) if (candidate.id !== task?.id) { const option = new Option(candidate.title, candidate.id); option.selected = Boolean(task?.dependencyIds?.includes(candidate.id)); deps.append(option) }

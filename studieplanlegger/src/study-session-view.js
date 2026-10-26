@@ -1,5 +1,6 @@
 import { getActionMinutes } from './tasks.js'
 import { primaryWorkStep } from './work-steps.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 
 const el = (tag, text, className = '') => { const node = document.createElement(tag); node.className = className; if (text) node.textContent = text; return node }
 
@@ -12,6 +13,7 @@ export function createStudySessionView(actions) {
   return {
     isOpen: () => dialog.open,
     open(task, availableMinutes) {
+      applyCourseColor(dialog, resolvedCourseId(task))
       opener = document.activeElement; taskId = task.id; started = false
       plannedMinutes = Math.min(getActionMinutes(task), availableMinutes)
       const step = primaryWorkStep(task)

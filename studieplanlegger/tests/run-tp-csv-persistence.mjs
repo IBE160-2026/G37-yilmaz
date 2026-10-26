@@ -7,6 +7,7 @@ import { createServer } from 'node:net'
 import { mkdir, readFile, writeFile, readdir } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { createHash, randomBytes } from 'node:crypto'
+import { chromium } from '@playwright/test'
 
 const mode = process.argv[2] || 'node'
 assert.ok(['node', 'docker', 'both'].includes(mode), 'Expected node, docker or both')
@@ -81,10 +82,50 @@ const filesUnder = async directory => {
   const nested = await Promise.all(entries.map(entry => entry.isDirectory() ? filesUnder(`${directory}/${entry.name}`) : entry.isFile() ? [`${directory}/${entry.name}`] : []))
   return nested.flat()
 }
+// Public assets are shipped inside dist; the runtime image intentionally has
+// no /app/public directory. Their served bytes are also checked below against
+// the local public originals, before and after recreation.
 const sourcePaths = [...(await Promise.all(['src', 'server', 'dist'].map(filesUnder))).flat(), 'package.json', 'package-lock.json'].sort()
 result.hashes = Object.fromEntries(await Promise.all(sourcePaths.map(async path => [path, createHash('sha256').update(await readFile(path)).digest('hex')])))
 const assertLocalHashes = async () => {
   for (const path of sourcePaths) assert.equal(createHash('sha256').update(await readFile(path)).digest('hex'), result.hashes[path], `Runtime code changed during verification: ${path}`)
+}
+const assertBrandAssets = async (address, runtime, scenario, phase) => {
+  const response = await fetch(address)
+  assert.ok(response.ok, 'Owned runtime must serve the client')
+  const html = await response.text()
+  assert.match(html, /<title>Ajour – Kom ajour\.<\/title>/)
+  const themeScript = html.indexOf('/theme-init.js')
+  assert.ok(themeScript > 0 && themeScript < html.indexOf('rel="stylesheet"'), 'Theme bootstrap precedes stylesheets')
+  const paths = ['brand/wordmark.svg', 'brand/notebook.svg', 'brand/companion.svg', 'brand/wordmark-dark.svg', 'brand/notebook-dark.svg', 'brand/companion-dark.svg', 'favicon.svg']
+  for (const path of paths) {
+    const asset = await fetch(`${address}/${path}`)
+    assert.ok(asset.ok, `Missing local brand asset: ${path}`)
+    assert.match(asset.headers.get('content-type') || '', /^image\/svg\+xml\b/)
+    assert.deepEqual(Buffer.from(await asset.arrayBuffer()), await readFile(`public/${path}`), `Runtime asset bytes: ${path}`)
+  }
+  const theme = await fetch(`${address}/theme-init.js`)
+  assert.ok(theme.ok, 'Missing local theme bootstrap')
+  assert.match(theme.headers.get('content-type') || '', /^(?:text|application)\/javascript\b/)
+  assert.deepEqual(Buffer.from(await theme.arrayBuffer()), await readFile('public/theme-init.js'), 'Runtime theme bootstrap bytes')
+  const before = await (await fetch(`${address}/api/state`)).json()
+  const browser = await chromium.launch({ headless: true })
+  try {
+    const context = await browser.newContext({ colorScheme: 'dark', reducedMotion: 'reduce', viewport: { width: 390, height: 844 } })
+    const page = await context.newPage()
+    await page.goto(address)
+    await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark' && document.querySelector('#theme-toggle')?.getAttribute('aria-label') === 'Bytt til lyst tema')
+    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme), 'dark')
+    await page.getByRole('button', { name: 'Bytt til lyst tema', exact: true }).click()
+    await page.waitForFunction(() => document.documentElement.dataset.theme === 'light')
+    await page.reload()
+    await page.getByRole('button', { name: 'Bytt til mørkt tema', exact: true }).waitFor()
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'light', 'Explicit theme survives reload against dark system')
+    await page.getByRole('button', { name: 'Bytt til mørkt tema', exact: true }).click()
+    await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark')
+    assert.deepEqual(await (await fetch(`${address}/api/state`)).json(), before, 'Theme controls must not write SQLite state or revision')
+  } finally { await browser.close() }
+  result.checks.push({ runtime, scenario, phase, title: 'Ajour – Kom ajour.', brandAssetsVerified: paths.length, themeAssetsVerified: 1, themeTogglesVerified: 2, themeReloadVerified: true, domainStateUnchanged: true })
 }
 // The path is supplied only by the owned-resource branches below. Never open an
 // existing application database or use its constructor/migrations for evidence.
@@ -147,6 +188,7 @@ const exercise = async (runtime, scenario, address, output, start, stop, readSql
   await assertLocalHashes()
   console.log(JSON.stringify({ event: 'scenario-start', runtime, scenario, address }))
   await start()
+  await assertBrandAssets(address, runtime, scenario, 'initial-client')
   const state = async () => { const response = await fetch(`${address}/api/state`); assert.ok(response.ok); return response.json() }
   const initial = await state(); assert.equal(initial.revision, 0)
   assert.equal(initial.envelope.planner?.events?.length || 0, 0)
@@ -164,6 +206,7 @@ const exercise = async (runtime, scenario, address, output, start, stop, readSql
   const persisted = await state()
   await writeFile(snapshot, JSON.stringify(persisted.envelope, null, 2))
   await stop(); await start()
+  await assertBrandAssets(address, runtime, scenario, 'recreated-client')
   assert.deepEqual(await state(), persisted)
   assertSqlite(readSqlite(), persisted, runtime, scenario, 'after-recreation')
   const envelope = persisted.envelope

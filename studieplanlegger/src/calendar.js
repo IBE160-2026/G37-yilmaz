@@ -1,9 +1,10 @@
 import { createTeachingLayer } from './teaching-calendar.js'
 import { isOverdue, sortedTasks } from './tasks.js'
+import { applyCourseColor, courseColorSlot, resolvedCourseId } from './course-colors.js'
+export { courseColor } from './course-colors.js'
 
 const MONTHS = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember']
 const WEEKDAYS = ['søndag', 'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag']
-const COURSE_COLORS = ['#7963c6', '#367f73', '#b56c3f', '#4879ae', '#a35786', '#7c8135', '#b45858', '#557c89']
 const pad = value => String(value).padStart(2, '0')
 
 // Local noon is used only for calendar arithmetic. A deadline's stored clock
@@ -74,12 +75,6 @@ export function taskStatus(task) {
   if (task.submitted) return 'Levert (bekreftet manuelt)'
   if (task.completed) return task.requiresSubmission ? 'Klar til levering' : 'Fullført'
   return 'Ikke fullført'
-}
-
-export function courseColor(course) {
-  let hash = 0
-  for (const letter of String(course).trim().toUpperCase()) hash = (Math.imul(hash, 31) + letter.codePointAt(0)) >>> 0
-  return COURSE_COLORS[hash % COURSE_COLORS.length]
 }
 
 function createDeadlineCalendar(host, { edit, editSession }) {
@@ -195,7 +190,7 @@ function createDeadlineCalendar(host, { edit, editSession }) {
           card = { item, time, course, title, status, overdue, editButton }
           cards.set(task.id, card)
         }
-        card.item.style.setProperty('--course-color', task.course ? courseColor(task.course) : '#7c5c3e')
+        applyCourseColor(card.item, resolvedCourseId(task))
         card.item.classList.toggle('is-unassigned', !task.course)
         card.item.classList.toggle('is-ready', Boolean(task.requiresSubmission && task.completed && !task.submitted))
         card.item.classList.toggle('is-completed', task.completed)
@@ -241,6 +236,7 @@ function createDeadlineCalendar(host, { edit, editSession }) {
           card = { item, time, editButton }
           cards.set(session.id, card)
         }
+        applyCourseColor(card.item, resolvedCourseId(snapshot.allTasks.find(task => task.id === session.taskId)))
         setText(card.time, `kl. ${session.startTime}–${session.endTime}`)
         card.time.dateTime = `${session.dateLocal}T${session.startTime}`
         card.editButton.disabled = snapshot.disabled || typeof editSession !== 'function'
@@ -377,13 +373,13 @@ function createDeadlineCalendar(host, { edit, editSession }) {
       entry.count.hidden = dayTasks.length === 0
       setText(entry.sessionCount, daySessions.length ? `Ø ${daySessions.length}` : '')
       entry.sessionCount.hidden = daySessions.length === 0
-      const courses = [...new Set(dayTasks.map(task => task.course))].sort().slice(0, 3)
-      const signature = JSON.stringify(courses)
+      const courses = [...new Map(dayTasks.map(task => { const id = resolvedCourseId(task) || ''; return [id, { id, label: task.course || 'Uten emne' }] })).values()].sort((a, b) => a.id.localeCompare(b.id)).slice(0, 3)
+      const signature = JSON.stringify([courses, courses.map(course => courseColorSlot(course.id))])
       if (entry.courseSignature !== signature) {
         entry.dots.replaceChildren(...courses.map(course => {
           const dot = element('span', 'course-dot')
-          dot.style.setProperty('--course-color', courseColor(course))
-          dot.title = course
+          applyCourseColor(dot, course.id)
+          dot.title = course.label
           return dot
         }))
         entry.courseSignature = signature
@@ -446,8 +442,8 @@ function createDeadlineCalendar(host, { edit, editSession }) {
   }
 
   return {
-    render({ tasks, sessions = [], now, disabled = false }) {
-      snapshot = { tasks, sessions, now, disabled }
+    render({ tasks, allTasks = tasks, sessions = [], now, disabled = false }) {
+      snapshot = { tasks, allTasks, sessions, now, disabled }
       if (!period) {
         selectedDate = dateKey(now)
         period = { year: now.getFullYear(), month: now.getMonth() }

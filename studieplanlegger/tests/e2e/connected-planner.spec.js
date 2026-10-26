@@ -14,7 +14,7 @@ const stored = page => page.evaluate(key => JSON.parse(localStorage.getItem(key)
 test('A02/A04 empty startup writes nothing; a title-only task and explicit unknown survive reload', async ({ page }) => {
   await page.goto('/'); expect(await stored(page)).toBeNull()
   await expect(page.locator('#connected-onboarding')).toBeVisible()
-  await (await reveal(page.locator('#connected-onboarding').getByRole('button', { name: 'Hopp over import', exact: true }))).click()
+  await (await reveal(page.locator('#connected-onboarding').getByRole('button', { name: 'Legg til oppgave', exact: true }))).click()
   await (await reveal(page.locator('#title'))).fill('Bare en tittel')
   await expect(page.locator('.task-optional-details')).not.toHaveAttribute('open', '')
   await (await reveal(page.locator('#task-form').getByRole('button', { name: 'Lagre', exact: true }))).click()

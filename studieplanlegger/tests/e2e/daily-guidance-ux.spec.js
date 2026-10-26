@@ -32,10 +32,10 @@ for (const width of [1440, 1280, 390]) {
     page.on('pageerror', error => errors.push(error.message))
     await boot(page, width, width === 390 ? 20 : 16)
 
-    await expect(page.getByRole('heading', { name: 'Status i dag' })).toBeVisible()
-    await expect(page.getByRole('status')).toContainText('Presentasjonen har anslagsvis 1–2 timer arbeid igjen')
-    await expect(page.getByRole('status')).toContainText('Det kan mangle opptil 45 minutter')
-    await expect(page.getByRole('heading', { name: 'Jeg har tid nå' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Planen skal passe deg.' })).toBeVisible()
+    await expect(page.locator('#daily-overview').getByRole('status')).toContainText('Presentasjonen har anslagsvis 1–2 timer arbeid igjen')
+    await expect(page.locator('#daily-overview').getByRole('status')).toContainText('Det kan mangle opptil 45 minutter')
+    await expect(page.getByRole('heading', { name: 'Ditt neste steg' })).toBeVisible()
     await expect(page.getByText('Hvor mye tid har du?')).toBeVisible()
 
     await page.getByRole('button', { name: '15 min', exact: true }).click()
@@ -58,7 +58,7 @@ for (const width of [1440, 1280, 390]) {
 
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     if (width === 390) {
-      const order = await page.evaluate(() => ['#daily-overview', '#focus-panel', '#dashboard-suggestions', '#next-plan'].map(selector => document.querySelector(selector)?.getBoundingClientRect().top))
+      const order = await page.evaluate(() => ['#ajour-intro', '#focus-panel', '#dashboard-suggestions', '#next-plan', '#daily-overview'].map(selector => document.querySelector(selector)?.getBoundingClientRect().top))
       expect(order.every((value, index) => index === 0 || value >= order[index - 1])).toBe(true)
       const nav = page.locator('.view-actions')
       expect((await nav.boundingBox()).y + (await nav.boundingBox()).height).toBeLessThanOrEqual(1000)
@@ -76,7 +76,7 @@ test('positiv dagsstatus viser at planen går opp uten omplanleggingsknapp', asy
   await page.goto('/')
   await page.evaluate(({ key, positive }) => localStorage.setItem(key, JSON.stringify(positive)), { key, positive })
   await page.reload()
-  await expect(page.getByRole('status')).toContainText('Planen går opp')
+  await expect(page.locator('#daily-overview').getByRole('status')).toContainText('Planen går opp')
   await expect(page.getByRole('button', { name: 'Se realistisk forslag' })).toHaveCount(0)
 })
 
@@ -100,8 +100,9 @@ test('start, øktutfall, arbeidskrav og realistisk forslag er eksplisitte', asyn
 
   await page.getByRole('button', { name: 'Legg inn arbeidskrav' }).click()
   await expect(page.getByRole('heading', { name: 'Importer fil eller tekst' })).toBeVisible()
-  await expect(page.getByText(/lokalt i nettleseren/)).toBeVisible()
+  await expect(page.getByText(/Filen leses lokalt\./)).toBeVisible()
   await expect(page.getByLabel('Velg fil')).toHaveAttribute('accept', /pdf/)
+  await page.getByText('Lim inn tekst i stedet', { exact: true }).click()
   await expect(page.getByLabel('Eller lim inn tekst')).toBeVisible()
 
   await page.getByRole('button', { name: 'Oversikt', exact: true }).click()
@@ -142,8 +143,8 @@ test('tom konto viser ett oppstartssteg og tillater oppgave uten emne', async ({
   await page.reload()
   const onboarding = page.locator('#connected-onboarding')
   await expect(onboarding).toContainText('STEG 1 AV 3')
-  await expect(onboarding.getByRole('heading', { name: 'Legg til et emne' })).toBeVisible()
-  await onboarding.getByRole('button', { name: 'Hopp over import' }).click()
+  await expect(onboarding.getByRole('heading', { name: 'Start med en oppgave' })).toBeVisible()
+  await onboarding.getByRole('button', { name: 'Legg til oppgave' }).click()
   await expect(page.locator('#task-form')).toBeVisible()
   await page.getByLabel('Tittel').fill('Oppgave uten emne')
   await page.locator('#task-form').getByRole('button', { name: 'Lagre', exact: true }).click()
