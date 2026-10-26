@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
 import * as cheerio from 'cheerio'
-import { calendarPersonFindings, calendarTextContract, calendarTextContractFindings, fixtureMetadataFindings, xmlPersonMetadataFindings } from '../helpers/fixture-privacy.js'
+import { calendarPersonFindings, calendarTextContract, calendarTextContractFindings, fixtureMetadataFindings, teachingPersonHtmlFindings, xmlPersonMetadataFindings } from '../helpers/fixture-privacy.js'
 
 // Read ZIP parts with the same dependency that the installed DOCX extractor uses.
 const require = createRequire(import.meta.url)
@@ -236,21 +236,44 @@ describe('fixture privacy minimization', () => {
     expect(new Set(teachers).size).toBe(11)
     expect(teachers.every(value => syntheticTeacher.test(value))).toBe(true)
 
+    // The page also has datepicker tables. Check the schedule itself explicitly.
+    const scheduleRows = $('table.restable tr')
+    const scheduleTeachers = scheduleRows.toArray().map(row => $(row).children('td').eq(5).text().trim()).filter(Boolean)
+    expect(scheduleRows.length).toBe(62)
+    expect(scheduleRows.toArray().filter(row => $(row).children('td').length === 9).length).toBe(30)
+    expect(scheduleTeachers.length).toBe(27)
+    expect(new Set(scheduleTeachers).size).toBe(7)
+    expect(scheduleTeachers.every(value => syntheticTeacher.test(value))).toBe(true)
+    expect(teachingPersonHtmlFindings(fixture('public-timeedit/nih-schedule.html'))).toEqual([])
+
     const himolde = JSON.parse(fixture('public-tp/himolde-events.json'))
     expect(himolde.events.map(event => event.staffnames.length)).toEqual([1, 0, 0])
     expect(himolde.events[0].staffnames.every(value => syntheticTeacher.test(value))).toBe(true)
   })
 
-  it('checks every JSON/HTML fixture recursively, including encoded HTML and metadata', () => {
-    const findings = []
-    for (const url of walk(fixtureUrl)) {
-      if (!/\.(?:json|html)$/.test(url.pathname)) continue
-      const format = url.pathname.endsWith('.html') ? 'html' : 'json'
-      const source = fixture(url)
-      for (const finding of fixtureMetadataFindings(format === 'json' ? JSON.parse(source) : source, format)) {
-        findings.push({ file: url.pathname.slice(fixtureUrl.pathname.length), ...finding })
-      }
-    }
+  it('minimizes both NIH lecturer filters including labels, identifiers, links and attributes', () => {
+    const $ = cheerio.load(fixture('public-timeedit/nih-schedule.html'))
+    const filters = $('select[data-name="Foreleser"]')
+    expect(filters.length).toBe(2)
+    filters.each((filterIndex, node) => {
+      const options = $(node).find('option')
+      expect(options.length).toBe(7)
+      expect(options.toArray().every(option => syntheticTeacher.test($(option).text().trim()))).toBe(true)
+      expect(options.toArray().every(option => Object.keys(option.attribs).length === 1)).toBe(true)
+      expect(options.toArray().every(option => filterIndex === 0
+        ? /^https:\/\/example\.invalid\/teacher\/SYNTHETIC_TEACHER_[A-Z]+\.html$/.test($(option).attr('value'))
+        : /^SYNTHETIC_TEACHER_[A-Z]+$/.test($(option).attr('value')))).toBe(true)
+    })
+  })
+
+  // Keep the complete recursive audit, with a separate result/time budget per
+  // fixture so machine load cannot turn the whole corpus into one timed test.
+  it.each(walk(fixtureUrl).filter(url => /\.(?:json|html)$/.test(url.pathname))
+    .map(url => url.pathname.slice(fixtureUrl.pathname.length)))('checks JSON/HTML fixture %s recursively, including encoded HTML and metadata', relative => {
+    const format = relative.endsWith('.html') ? 'html' : 'json'
+    const source = fixture(relative)
+    const findings = fixtureMetadataFindings(format === 'json' ? JSON.parse(source) : source, format)
+      .map(finding => ({ file: relative, ...finding }))
     expect(findings).toEqual([])
   })
 
@@ -317,6 +340,92 @@ describe('fixture privacy minimization', () => {
 
 describe('privacy guards with wholly invented negative examples', () => {
   const calendar = (field, value) => `BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nUID:synthetic-1@example.invalid\r\n${field}:${value}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`
+  const personFilters = () => [6, 37].map((id, index) => `<div class="headlineLink" data-id=""><label for="te_link_${id}" class="bl" title="Foreleser">Foreleser</label><select id="te_link_${id}" data-name="Foreleser" class="fancyformfieldsearchselect${index === 0 ? ' hasURL' : ''}" multiple="" size="3"><option value="${index === 0 ? 'https://example.invalid/teacher/SYNTHETIC_TEACHER_A.html' : 'SYNTHETIC_TEACHER_A'}">Testunderviser A</option><option value="SYNTHETIC_TEACHER_B">Testunderviser B</option></select></div>`).join('')
+  const personTable = (column, value) => `<table><tr>${'<th>Emne</th>'.repeat(column)}<th>Foreleser</th></tr><tr>${'<td>TEST101</td>'.repeat(column)}<td class="column1 columnLine c-1">${value}</td></tr></table>`
+
+  it.each([0, 1])('checks every option and attribute of lecturer filter %i independently', filterIndex => {
+    expect(teachingPersonHtmlFindings(personFilters())).toEqual([])
+    const mutations = [
+      field => field.find('option').last().text('fiktiv personrest'),
+      field => field.find('option').last().text('Testunderviser B, fiktiv personrest'),
+      field => field.find('option').last().text('Testunderviser B\nfiktiv personrest'),
+      field => field.find('option').last().attr('value', '987654321'),
+      field => field.find('option').last().attr('value', 'https://example.invalid/person/FIKTIV_PERSONREST'),
+      field => field.find('option').last().attr('value', 'SYNTHETIC_TEACHER_B FIKTIV_PERSONREST'),
+      field => field.find('option').last().attr('data-id', 'FIKTIV_PERSONREST'),
+      field => field.find('option').last().attr('title', 'FIKTIV_PERSONREST'),
+      field => field.find('option').last().attr('data-settings', '{"personId":"FIKTIV_PERSONREST"}'),
+      field => field.attr('data-person-url', 'https://example.invalid/person/FIKTIV_PERSONREST'),
+      field => field.attr('title', 'Testunderviser A FIKTIV_PERSONREST'),
+      field => field.parent().attr('data-id', 'FIKTIV_PERSONREST'),
+      field => field.siblings('label').attr('title', 'FIKTIV_PERSONREST'),
+    ]
+    for (const mutate of mutations) {
+      const $ = cheerio.load(personFilters()); mutate($('select').eq(filterIndex))
+      const findings = teachingPersonHtmlFindings($.html())
+      expect(findings.length).toBeGreaterThan(0)
+      expect(findings.every(finding => finding.path.startsWith(`person-filter[${filterIndex}]`))).toBe(true)
+      expect(JSON.stringify(findings).includes('PERSONREST')).toBe(false)
+    }
+  })
+
+  it.each([0, 1, 5])('checks all person-column segments, descendants and attributes at column %i', column => {
+    expect(teachingPersonHtmlFindings(personTable(column, 'Testunderviser A, Testunderviser B'))).toEqual([])
+    for (const value of ['fiktiv personrest', 'Testunderviser A; fiktiv personrest', 'Testunderviser A<br><span>fiktiv personrest</span>', '<a href="https://example.invalid/person/FIKTIV_PERSONREST">Testunderviser A</a>', '<span data-id="FIKTIV_PERSONREST">Testunderviser A</span>']) {
+      const findings = teachingPersonHtmlFindings(personFilters() + personTable(column, value))
+      expect(findings.length).toBeGreaterThan(0)
+      expect(findings.every(finding => finding.path.startsWith('person-column['))).toBe(true)
+      expect(JSON.stringify(findings).includes('PERSONREST')).toBe(false)
+    }
+    const $ = cheerio.load(personTable(column, 'Testunderviser A'))
+    $('td').last().attr('title', 'FIKTIV_PERSONREST')
+    expect(teachingPersonHtmlFindings($.html()).some(finding => finding.category === 'html-teaching-person-attribute')).toBe(true)
+  })
+
+  it.each([0, 1])('checks complete labels and outside-select wrapper text for filter %i', filterIndex => {
+    const mutations = [
+      field => field.siblings('label').append(' FIKTIV_PERSONREST'),
+      field => field.siblings('label').prepend('FIKTIV_PERSONREST '),
+      field => field.siblings('label').append('<span>FIKTIV_PERSONREST</span>'),
+      field => field.after('<span>FIKTIV_PERSONREST</span>'),
+      field => field.before('<span>Testunderviser A FIKTIV_PERSONREST</span>'),
+      field => field.parent().append('FIKTIV_PERSONREST'),
+      field => { field.removeAttr('data-name'); field.siblings('label').append(' FIKTIV_PERSONREST') },
+    ]
+    for (const mutate of mutations) {
+      const $ = cheerio.load(personFilters()); mutate($('select').eq(filterIndex))
+      const findings = teachingPersonHtmlFindings($.html())
+      expect(findings.length).toBeGreaterThan(0)
+      expect(findings.every(finding => finding.path.startsWith(`person-filter[${filterIndex}]`))).toBe(true)
+      expect(JSON.stringify(findings).includes('PERSONREST')).toBe(false)
+      expect(fixtureMetadataFindings({ safe: 'Testunderviser A', html: $.html() }).length).toBeGreaterThan(0)
+    }
+  })
+
+  it.each([0, 1])('checks associated labels outside the wrapper for filter %i', filterIndex => {
+    for (const residue of ['text', 'attribute', 'role-from-title']) {
+      const $ = cheerio.load(personFilters()), field = $('select').eq(filterIndex)
+      const label = field.siblings('label').insertBefore(field.parent())
+      expect(teachingPersonHtmlFindings($.html())).toEqual([])
+      if (residue === 'attribute') label.attr('title', 'FIKTIV_PERSONREST')
+      else {
+        if (residue === 'role-from-title') field.removeAttr('data-name')
+        label.append('<span>FIKTIV_PERSONREST</span>')
+      }
+      const findings = teachingPersonHtmlFindings($.html())
+      expect(findings.length).toBeGreaterThan(0)
+      expect(findings.every(finding => finding.path.startsWith(`person-filter[${filterIndex}]`))).toBe(true)
+      expect(JSON.stringify(findings).includes('PERSONREST')).toBe(false)
+    }
+  })
+
+  it('discovers filters from associated labels and checks HTML embedded in JSON', () => {
+    const $ = cheerio.load(personFilters())
+    $('select').removeAttr('data-name')
+    $('select').last().find('option').last().text('fiktiv personrest')
+    expect(teachingPersonHtmlFindings($.html()).length).toBeGreaterThan(0)
+    expect(fixtureMetadataFindings({ safe: 'Testunderviser A', html: $.html() }).length).toBeGreaterThan(0)
+  })
   // Intentionally fictional invalid labels. No regression depends on a real name.
   it.each([
     ['hvl', 'DESCRIPTION', 'Fiktiv Personrest\\nTestunderviser A\\nID 1'],
@@ -383,6 +492,11 @@ describe('privacy guards with wholly invented negative examples', () => {
     { html: '<meta name="DC.creator" content="Fiktiv Personrest">' },
     { html: '<meta name="dcterms.creator" content="Fiktiv Personrest">' },
     { html: '<span itemprop="author name">Fiktiv Personrest</span>' },
+    { person: 'Testunderviser A', person_id: 'FIKTIV_PERSONREST' },
+    { teacher: 'Testunderviser A', teacherUrl: 'https://example.invalid/FIKTIV_PERSONREST' },
+    { '@type': 'Person', name: 'Testunderviser A', identifier: 'FIKTIV_PERSONREST' },
+    { '@type': 'Person', name: 'Testunderviser A', url: 'https://example.invalid/FIKTIV_PERSONREST' },
+    { html: '<span data-teacher-id="FIKTIV_PERSONREST">Testunderviser A</span>' },
   ])('rejects nested person metadata with category-only diagnostics %#', value => {
     const findings = fixtureMetadataFindings(value)
     expect(findings.length).toBeGreaterThan(0)
