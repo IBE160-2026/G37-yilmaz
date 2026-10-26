@@ -1,5 +1,6 @@
 import { emptyPlanner, validateCourse, validateEvent, validatePersonalActivity, mergeImport, mergeCourseOnly, resolveImportedCourse, osloLocal, osloLocalExact, osloYear, semesterLabel, teachingOverlap, matchesCourse, sourceHref } from './planner.js'
-import { courseColor, formatDeadline } from './calendar.js'
+import { formatDeadline } from './calendar.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 import { parseCalendar } from './calendar-import.js'
 import { createImportWizard } from './import-wizard.js'
 import { nextRefresh } from './calendar-sync.js'
@@ -31,7 +32,7 @@ export function subjectEventAgendaEntries(planner, now = new Date(), course) {
   }).map(event => {
     const subject = planner.courses.find(item => item.id === event.courseId), code = subject?.code || subject?.name || '', personal = event.activityKind === 'personal', presentation = eventPresentation(event)
     const time = event.start || `${event.dateLocal}T00:00`, detail = event.point ? `${eventStamp(event)} · ${event.location || 'Sted mangler'}` : personal ? `${event.dateLocal}${event.start ? ` · ${osloLocal(event.start).slice(11)}${event.end ? `–${osloLocal(event.end).slice(11)}` : ' · Varighet ikke oppgitt'}` : ' · Tid ikke oppgitt'} · ${event.location || 'Sted mangler'}` : `${eventStamp(event)} · ${event.location || 'Sted mangler'}`
-    return { time, title: `${personal ? 'E · Egen aktivitet' : `${presentation.symbol} · ${presentation.label}`} · ${code ? `${code} · ` : ''}${event.title}`, detail, event, kind: personal ? 'personal' : 'teaching', course: code, isExam: presentation.isExam }
+    return { time, title: `${personal ? 'E · Egen aktivitet' : `${presentation.symbol} · ${presentation.label}`} · ${code ? `${code} · ` : ''}${event.title}`, detail, event, kind: personal ? 'personal' : 'teaching', courseId: event.courseId, course: code, isExam: presentation.isExam }
   }).sort((a, b) => a.time.localeCompare(b.time) || a.title.localeCompare(b.title, 'nb'))
 }
 const normalizedChoice = values => [...new Set(values || [])].sort((a,b)=>String(a).localeCompare(String(b),'nb'))
@@ -170,6 +171,7 @@ export function createSubjectsView(actions) {
     editorReturnFocus = document.activeElement
     editorReturnSelector = previous?.id ? `[data-${kind}-id="${CSS.escape(previous.id)}"] button` : null
     editing = { kind, previous }; editor.replaceChildren(el('h3', `${previous ? 'Rediger' : 'Nytt'} ${kind === 'course' ? 'emne' : personal ? 'egen aktivitet' : 'undervisning'}`)); editor.hidden = false
+    applyCourseColor(editor.closest('dialog') || editor, kind === 'course' ? previous?.id : previous?.courseId)
     if (kind === 'course') {
       field('name', 'Emnenavn', previous?.name).required = previous?.nameStatus !== 'provisional'
       if (previous?.nameStatus === 'provisional') editor.append(el('p', 'Emnenavnet er ukjent. Emnekoden vises som foreløpig navn til du oppgir et navn. Eksisterende koblinger beholdes.'))
@@ -194,6 +196,14 @@ export function createSubjectsView(actions) {
       field('location', 'Sted (valgfritt)', previous?.location)
     }
     field('notes', 'Egne notater', previous?.notes, 'textarea')
+    if (editor.elements.courseId) {
+      const updateColor = () => {
+        applyCourseColor(editor.closest('dialog') || editor, editor.elements.courseId.value)
+        applyCourseColor(editor.elements.courseId, editor.elements.courseId.value)
+      }
+      editor.elements.courseId.addEventListener('change', updateColor)
+      updateColor()
+    }
     if (previous?.sourceUrl || previous?.sourceId) editor.append(el('p', 'Hentet fra ekstern kilde. Egne notater beholdes ved oppdatering.'))
     if (kind === 'course' && previous?.sourceUrl) editor.append(el('p', 'Endring av emnekode, universitet eller periode gjør kildebindingen utdatert. Hent og bekreft emneinformasjonen på nytt; eksisterende oppgaver og undervisningsdatoer flyttes ikke.'))
     const submit = el('button', kind === 'course' ? 'Lagre emne' : personal ? 'Lagre egen aktivitet' : 'Lagre undervisning'); submit.type = 'submit'
@@ -312,6 +322,7 @@ export function createSubjectsView(actions) {
     const local=previewHost.hidden?null:previewSnapshot(previewHost)
     previewHost.hidden = false; previewHost.replaceChildren(el('h3', 'Forhåndsvis import'))
     const { course, parsed, source } = preview
+    applyCourseColor(previewHost, course.id)
     if (source) source.excludedKeys ||= []
     const priorBinding = state().courses.find(item => item.id === course.id)?.sourceBindingStale
     if (priorBinding && !course.sourceBindingStale) previewHost.append(el('p', `Bekreft ny kildebinding for ${semesterLabel(course.semester, course.year)}. Tidligere kilde fra ${semesterLabel(priorBinding.semester, priorBinding.year)} beholdes i historikken. Oppgaver, undervisningsdatoer og kalenderkilder flyttes ikke.`, 'import-warning'))
@@ -401,9 +412,9 @@ export function createSubjectsView(actions) {
   }
   const filterLabel = el('label', 'Filtrer kalender på emne', 'calendar-course-filter'), courseFilter = el('select'); courseFilter.id = 'calendar-course-filter'; filterLabel.append(courseFilter)
   document.querySelector('#calendar-host').before(filterLabel)
-  courseFilter.addEventListener('change', () => { agendaSignature = ''; actions.courseFilter(courseFilter.value); actions.refresh() })
+  courseFilter.addEventListener('change', () => { agendaSignature = ''; applyCourseColor(courseFilter, courseFilter.value); actions.courseFilter(courseFilter.value); actions.refresh() })
   const agenda = el('section', null, 'teaching-agenda'); agenda.id = 'teaching-agenda'; document.querySelector('#calendar-host').after(agenda)
-  const reminders = el('div', null, 'delivery-reminders'); reminders.id = 'delivery-reminders'; document.querySelector('.focus-results').prepend(reminders)
+  const reminders = el('div', null, 'delivery-reminders'); reminders.id = 'delivery-reminders'; document.querySelector('.focus-results').append(reminders)
   const overlap = el('div', null, 'teaching-overlap'); overlap.id = 'teaching-overlap'; document.querySelector('#time-form').after(overlap)
   document.querySelector('#time-form').addEventListener('submit', () => {
     if (model?.minuteError) return
@@ -431,12 +442,13 @@ export function createSubjectsView(actions) {
       }
       calendarForm.elements.courseId.value = planner.courses.some(c => c.id === selected) ? selected : sortedCourses[0]?.id || ''
       courseFilter.value = filter
+      applyCourseColor(courseFilter, courseFilter.value)
       if (filter && !planner.courses.some(c => c.id === filter)) actions.courseFilter('')
       const courses = query('#course-list'); courses.replaceChildren()
       if (!planner.courses.length) courses.append(el('p', 'Ingen emner ennå. Velg «Nytt emne» eller hent emneinformasjon.'))
       for (const course of sortedCourses) {
         const card = el('article', null, 'course-card'); card.dataset.courseId = course.id
-        card.style.setProperty('--course-color', courseColor(course.code || course.name))
+        applyCourseColor(card, course.id)
         const documentSource = documentSources.find(source => source.id === course.importSourceId) || documentSources.find(source => source.entries.some(entry => entry.kind === 'course' && entry.targetId === course.id))
         const sourceEntry = documentSource?.entries.find(entry => entry.kind === 'course' && entry.targetId === course.id)
         const sourceLabel = documentSource?.origin?.kind === 'link' ? 'kalenderlenke (øyeblikksbilde)' : documentSource?.format === 'text' ? 'tekstdokument' : `${documentSource?.format.toUpperCase()}-fil`
@@ -528,7 +540,7 @@ export function createSubjectsView(actions) {
         const presentation = eventPresentation(event)
         const card = el('article', null, `event-card${presentation.isExam ? ' is-exam' : ''}${event.activityKind === 'personal' ? ' is-personal' : ''}`); card.dataset.eventId = event.id
         const eventCourse = planner.courses.find(course => course.id === event.courseId)
-        if (eventCourse) card.style.setProperty('--course-color', courseColor(eventCourse.code || eventCourse.name))
+        applyCourseColor(card, event.courseId)
         const eventCode=eventCourse?.code||eventCourse?.name||''
         const personal = event.activityKind === 'personal', timing = event.point ? eventStamp(event) : personal ? event.start ? `${exactStamp(event.start)}${event.end ? `–${exactStamp(event.end)}` : ' · Varighet ikke oppgitt'}` : `${event.dateLocal} · Tid ikke oppgitt` : eventStamp(event)
         const documentSource = documentSources.find(source => source.id === event.importSourceId)
@@ -558,16 +570,16 @@ export function createSubjectsView(actions) {
         const time = subjectDeadlineTime(task)
         if (!time) continue
         const taskCourse=planner.courses.find(item=>item.id===task.courseId),code=taskCourse?.code||task.course
-        if (subjectDeadlineUpcoming(task, now)) entries.push({ time, title: `F · ${code ? `${code} · ` : ''}${task.title}`, detail: `${formatDeadline(task.deadlineLocal, { year: true })} · ${code}`, open: () => actions.editTask(task.id), kind: 'deadline', course: code })
+        if (subjectDeadlineUpcoming(task, now)) entries.push({ time, title: `F · ${code ? `${code} · ` : ''}${task.title}`, detail: `${formatDeadline(task.deadlineLocal, { year: true })} · ${code}`, open: () => actions.editTask(task.id), kind: 'deadline', courseId: resolvedCourseId(task, planner.courses), course: code })
       }
       entries.sort((a, b) => a.time.localeCompare(b.time) || a.title.localeCompare(b.title, 'nb'))
       if (!entries.length) agenda.append(el('p', 'Ingen kommende undervisning eller frister for dette emnevalget.'))
-      const list = el('ul'); for (const entry of entries.slice(0, 100)) { const li = el('li', null, `agenda-${entry.kind}${entry.isExam ? ' is-exam' : ''}`); if (entry.course) li.style.setProperty('--course-color', courseColor(entry.course)); li.append(button(entry.title, entry.open), el('p', entry.detail)); list.append(li) } agenda.append(list)
+      const list = el('ul'); for (const entry of entries.slice(0, 100)) { const li = el('li', null, `agenda-${entry.kind}${entry.isExam ? ' is-exam' : ''}`); applyCourseColor(li, entry.courseId); li.append(button(entry.title, entry.open), el('p', entry.detail)); list.append(li) } agenda.append(list)
       if (entries.length > 100) agenda.append(el('p', 'Viser de neste 100 oppføringene. All undervisning finnes under Mine emner.'))
     }
     const ready = model.tasks.filter(t => t.requiresSubmission && t.completed && !t.submitted)
     const reminderSignature = JSON.stringify(ready.map(t => [t.id, t.title, t.course]))
-    if (reminders.dataset.signature !== reminderSignature) { reminders.dataset.signature = reminderSignature; reminders.replaceChildren(); if (ready.length) { reminders.append(el('h3', 'Husk å levere')); for (const task of ready) reminders.append(button(`${task.title} · ${task.course} · Klar til levering`, () => actions.editTask(task.id))) } }
+    if (reminders.dataset.signature !== reminderSignature) { reminders.dataset.signature = reminderSignature; reminders.replaceChildren(); if (ready.length) { reminders.append(el('h3', 'Klar til levering')); for (const task of ready) { const open = button([task.title, task.course].filter(Boolean).join(' · '), () => actions.editTask(task.id)); open.className = 'secondary'; reminders.append(open) } } }
     reminders.hidden = !ready.length
     const conflict = teachingOverlap(planner.events, now, model.minutes)
     const overlapSignature = JSON.stringify([conflict.events.map(e => e.id), conflict.availableMinutes, model.minuteError])

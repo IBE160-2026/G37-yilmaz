@@ -23,6 +23,7 @@ test('Calendar corrections backup: downloaded state restores exact identities an
   const download = await downloadPending
   const bytes = readFileSync(await download.path())
   const backup = JSON.parse(bytes.toString('utf8'))
+  expect(download.suggestedFilename()).toBe(`ajour-${backup.createdAt.slice(0, 10)}.json`)
   expect(backup.format).toBe('studieplan-local-backup')
   expect(backup.data).toEqual(expected)
 

@@ -4,23 +4,22 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Samle fristene dine og finn neste steg i studiearbeidet." />
-    <title>Studieplan</title>
+    <meta name="description" content="Kom ajour. Samle oppgaver, finn neste steg og juster planen når hverdagen endrer seg." />
+    <meta name="theme-color" content="#FCFAF8" />
+    <script src="/theme-init.js"></script>
+    <title>Ajour – Kom ajour.</title>
     <link rel="stylesheet" href="/fonts/manrope.css" />
   </head>
   <body>
     <a class="skip-link" href="#hovedinnhold">Hopp til hovedinnhold</a>
     <aside class="app-sidebar" aria-label="Hovednavigasjon">
-      <div class="brand">
-        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
-          <rect width="40" height="40" rx="12" fill="currentColor"/>
-          <path d="M11 12h7a5 5 0 0 1 5 5v12a7 7 0 0 0-5-2h-7V12Zm18 0h-3a5 5 0 0 0-3 1" fill="none" stroke="#fffdf7" stroke-width="2" stroke-linejoin="round"/>
-          <path d="m27 21 3 3 5-6" fill="none" stroke="#d5eaa8" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <div>
-          <p class="brand-name">Studieplan</p>
-          <p class="brand-subline">Løft hverdagen din.</p>
-        </div>
+      <div class="brand" aria-label="Ajour">
+        <img class="brand-mark" src="/brand/notebook.svg" width="38" height="38" alt="" />
+        <img class="brand-name" src="/brand/wordmark.svg" width="105" height="40" alt="ajour" />
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Bytt til mørkt tema" title="Bytt til mørkt tema">
+          <span data-theme-icon="moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg></span>
+          <span data-theme-icon="sun" aria-hidden="true" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></span>
+        </button>
       </div>
       <nav class="view-actions" aria-label="Oppgavevisning">
         <button id="view-overview" type="button" data-icon="home" aria-pressed="true">Oversikt</button>
@@ -182,6 +181,14 @@
         </form>
         <div id="workspace" class="workspace" hidden>
           <div class="work-area">
+            <section id="ajour-intro" class="ajour-intro" aria-labelledby="ajour-heading">
+              <div><p class="eyebrow">EN PLAN SOM SPILLER PÅ LAG</p>
+                <h2 id="ajour-heading">Kom ajour.</h2>
+                <p class="ajour-tagline">Planer endrer seg. Det er helt greit.</p>
+                <p class="ajour-description">Samle det du skal gjøre. Finn ditt neste steg.<br />Juster planen når hverdagen skjer.</p>
+              </div>
+              <img src="/brand/companion.svg" width="400" height="244" alt="" aria-hidden="true" />
+            </section>
             <section id="empty-dashboard" class="empty-dashboard panel reveal-section" hidden aria-live="polite">
               <div class="empty-dashboard-copy">
                 <p class="eyebrow">Kom i gang</p>
@@ -193,7 +200,7 @@
                 </div>
               </div>
               <div class="empty-dashboard-visual" aria-hidden="true">
-                <img src="/study-focus-v2.png" alt="" width="260" height="260" loading="lazy" />
+                <img src="/brand/notebook.svg" alt="" width="64" height="64" loading="lazy" />
               </div>
             </section>
             <div class="onboarding-steps" aria-label="Slik kommer du i gang">
@@ -290,7 +297,8 @@
               <ul id="capacity-task-list" class="capacity-task-list"></ul>
             </section>
             <section id="text-registration" class="text-registration panel reveal-section" aria-labelledby="text-registration-heading">
-              <h2 id="text-registration-heading">Rask registrering med tekst</h2>
+              <h2 id="text-registration-heading">Legg til nå. Fyll ut resten senere.</h2>
+              <p class="muted">En tittel er nok til å komme i gang.</p>
             </section>
             <section id="tasks-panel" class="panel reveal-section" aria-labelledby="tasks-heading" style="--reveal-delay: 130ms">
               <div class="section-heading">
@@ -333,7 +341,7 @@
         </div>
       </main>
       <footer>
-        <span>Et lite steg videre.</span>
+        <span>Ajour / Kom ajour.</span>
         <details class="local-help">
           <summary>Hjelp og lokal lagring</summary>
           <div>

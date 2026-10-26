@@ -7,10 +7,14 @@ export function onboardingProgress(state) {
 }
 
 export function createOnboarding(actions) {
-  const host = document.createElement('section'); host.id = 'connected-onboarding'; host.className = 'panel connected-onboarding'; document.querySelector('.work-area').prepend(host)
-  let signature = '', active = false, shownStep = null
+  const host = document.createElement('section'); host.id = 'connected-onboarding'; host.className = 'panel connected-onboarding'; document.querySelector('#ajour-intro').after(host)
+  let signature = '', active = false, shownStep = null, previousProgress = null
   const el = (tag, text) => { const node = document.createElement(tag); if (text) node.textContent = text; return node }
   const button = (text, fn, className = 'secondary') => { const node = el('button', text); node.type = 'button'; node.className = className; node.onclick = fn; return node }
+  let currentTask, currentCourse
+  // Keep the task opener alive when onboarding advances or the dialog updates.
+  const taskControl = button('Legg til oppgave', () => { shownStep = 2; signature = ''; currentTask ? actions.edit(currentTask.id) : actions.open({ courseId: currentCourse?.id }) }, 'primary')
+  const planControl = button('Se planforslag', () => actions.replan(currentTask?.id), 'primary')
   return { render(model) {
     if (!model.onboarding && !model.tasks.length && !model.planner?.courses?.length && !model.sessions?.length && !model.planner?.events?.length) active = true
     const show = !model.onboarding?.dismissed && !model.onboarding?.completed && (active || model.onboarding) && model.view === 'overview' && model.readable
@@ -18,21 +22,27 @@ export function createOnboarding(actions) {
     if (!show) return
     document.querySelector('#empty-dashboard').hidden = true
     const progress = onboardingProgress(model)
-    if (shownStep === null || progress.step > shownStep) shownStep = Math.min(progress.step, 3)
+    currentTask = progress.task; currentCourse = progress.course
+    if (shownStep === null || progress.step > previousProgress) shownStep = Math.min(progress.step, 3)
+    previousProgress = progress.step
     const next = JSON.stringify([progress, model.workWindows, shownStep, model.editing]); if (signature === next) return; signature = next
     const focused = host.contains(document.activeElement) ? document.activeElement.textContent : null
     host.replaceChildren(el('p', `KOM I GANG · STEG ${shownStep} AV 3`))
     if (shownStep === 1) {
-      host.append(el('h2', 'Legg til et emne'), el('p', progress.course ? nameFirstLabel(progress.course) : 'Importer et emne, legg det til manuelt, eller hopp over og opprett en oppgave uten ferdig emneinformasjon.'))
-      host.append(button('Importer emne', () => { actions.begin(); actions.view('subjects'); document.querySelector('#connected-import-open')?.click() }, 'primary'), button('Legg til manuelt', () => { actions.begin(); actions.view('subjects'); document.querySelector('#course-new')?.click() }), button('Hopp over import', () => { shownStep = 2; signature = ''; actions.open() }))
+      host.append(el('h2', 'Start med en oppgave'), el('p', progress.course ? nameFirstLabel(progress.course) : 'En tittel er nok. Du kan legge til eller importere emner senere. Import er valgfritt.'))
+      taskControl.textContent = progress.task ? 'Rediger oppgaven' : 'Legg til oppgave'
+      host.append(taskControl, button('Importer emne', () => { actions.begin(); actions.view('subjects'); document.querySelector('#connected-import-open')?.click() }), button('Legg til emne manuelt', () => { actions.begin(); actions.view('subjects'); document.querySelector('#course-new')?.click() }))
     } else if (shownStep === 2) {
       host.append(el('h2', 'Legg til første oppgave'), el('p', progress.task ? progress.task.title : 'En tittel er nok. Frist, emne og arbeidsmengde kan avklares senere.'))
-      host.append(button(progress.task ? 'Rediger oppgaven' : 'Ny oppgave', () => progress.task ? actions.edit(progress.task.id) : actions.open({ courseId: progress.course?.id }), 'primary'), button('Tilbake', () => { shownStep = 1; signature = ''; actions.view('overview') }))
+      taskControl.textContent = progress.task ? 'Rediger oppgaven' : 'Ny oppgave'
+      host.append(taskControl, button('Tilbake', () => { shownStep = 1; signature = ''; actions.view('overview') }))
       if (progress.task) host.append(button('Neste', () => { shownStep = 3; signature = ''; actions.view('overview') }))
     } else {
       host.append(el('h2', 'Finn tid til oppgaven'), el('p', progress.session ? `${progress.session.dateLocal} ${progress.session.startTime}–${progress.session.endTime}` : 'Velg vanlig studietid og se et konkret forslag. Du kan også fortsette å legge inn oppgaver først.'))
-      host.append(button('Se planforslag', () => actions.replan(progress.task?.id), 'primary'), button('Detaljert tilgjengelighet', () => { actions.view('capacity'); document.querySelector('.work-window-form input[name=startLocal]')?.focus() }), button('Tilbake', () => { shownStep = 2; signature = ''; actions.view('overview') }), button(progress.session ? 'Fullfør oppstart' : 'Fortsett senere', () => actions.dismiss(Boolean(progress.session))))
+      host.append(planControl, button('Detaljert tilgjengelighet', () => { actions.view('capacity'); document.querySelector('.work-window-form input[name=startLocal]')?.focus() }), button('Tilbake', () => { shownStep = 2; signature = ''; actions.view('overview') }), button(progress.session ? 'Fullfør oppstart' : 'Fortsett senere', () => actions.dismiss(Boolean(progress.session))))
     }
+    const controls = el('div'); controls.className = 'onboarding-actions'
+    controls.append(...host.querySelectorAll(':scope > button')); host.append(controls)
     for (const control of host.querySelectorAll('button')) control.disabled = Boolean(model.editing)
     if (focused) [...host.querySelectorAll('button')].find(item => item.textContent === focused && !item.disabled)?.focus({ preventScroll: true })
   } }

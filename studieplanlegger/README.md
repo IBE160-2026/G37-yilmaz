@@ -1,8 +1,18 @@
-# Studieplan
+# Ajour
 
-Studieplan knytter **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering** sammen med lokale regler. Bare oppgavetittel er obligatorisk; registrerte opplysninger og valgfrie importer gir grunnlaget for forslag som studenten kontrollerer før lagring. Appen bruker ingen generativ KI under kjøring.
+Ajour knytter **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering** sammen med lokale regler. Bare oppgavetittel er obligatorisk; registrerte opplysninger og valgfrie importer gir grunnlaget for forslag som studenten kontrollerer før lagring. Appen bruker ingen generativ KI under kjøring.
 
-**Samordnet leveransedokumentasjon, 2026-10-25:** Import, kalendergrenser og eksport er beskrevet nedenfor. [Verifikasjonen](VERIFICATION.md) viser nyeste kontrollerte kandidat, personvernrettinger og tekniske begrensninger først; eldre resultater beholder sine datoer. Private originaler og faktisk studentnytte er ikke verifisert.
+**Ajour-oppdatering, 2026-10-26:** Ordmerket er **ajour**, med «Kom ajour.» og «Planer endrer seg. Det er helt greit.». Oversikten prioriterer neste handling og korte utdrag med vei videre til komplette visninger. De lokale SVG-illustrasjonene er gjenskapt med de to leverte PNG-referansene som grunnlag; en større designpakke var ikke tilgjengelig. Eksisterende Manrope og fontlisens beholdes. [Tidligere UI- og personvernkontroll](VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) skiller oppfølgingens resultater fra den historiske Ajour-runden 25. oktober og publiseringen `9d3a169` før Ajour.
+
+Navneendringen krever ingen datamigrering. Mappen `studieplanlegger`, eksisterende lagrings-/backupformat, miljøvariabler og Docker-tjenesten `studieplan` med volumet `studieplan-data` beholder navnene sine. Bruk oppstartskommandoene nedenfor som før.
+
+**Farger og utseende, 2026-10-26:** Sol-/måneknappen ved logoen bytter mellom lyst og mørkt. **Innstillinger → Utseende → System / Lyst / Mørkt** velger om appen følger systemet eller et fast tema. Første bruk følger systemet, også senere systemendringer. Knappen lagrer det motsatte av temaet som vises. Byttet beholder åpne dialoger, utkast og kalenderposisjon.
+
+Tolv samordnede emnefarger følger emnets stabile ID, også når to læresteder bruker samme kode. Ledige plasser brukes før gjenbruk; mer enn tolv emner gir forutsigbar gjenbruk. Navn, kode, aktivitetstype og status står fortsatt i tekst. Vanlig sletting/Angre beholder fargen. Hvis en slettet fargeplass i mellomtiden er tatt av et annet emne, flyttes bare den nødvendige kollisjonen til en ledig plass; øvrige tildelinger beholdes. Det samme gjelder når en samling med fargegjenbruk krymper til tolv emner.
+
+Tema (`ajour:appearance:v1`) og ID→fargeplass (`ajour.course-colors.v1`) er separate preferanser i nettleseren, per adresse. De inngår **ikke** i database eller sikkerhetskopi. En gammel backup får gyldige standardfarger når slike preferanser mangler. Ugyldig eller utilgjengelig preferanselagring hindrer ikke bruk, men valget kan da gå tapt ved omlasting. Eksisterende automatisk kodehash er erstattet; appen hadde ingen tidligere brukerbetjent fargevelger eller lagret brukerfarge å migrere. [Ny temakontroll](VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) skiller denne endringen fra tidligere Ajour-resultater.
+
+**Samordnet leveransedokumentasjon, 2026-10-26:** Import, kalendergrenser og eksport er beskrevet nedenfor. [Verifikasjonen](VERIFICATION.md) viser nyeste kontrollerte kandidat, personvernrettinger og tekniske begrensninger først; eldre resultater beholder sine datoer. Private originaler og faktisk studentnytte er ikke verifisert.
 
 **Gjeldende avgrensning 2026-10-16:** [Planindeksen](../.docs/planning-artifacts/README.md) knytter brief, PRD og stories til kode/test som en datert rekonstruksjon. V1-import er HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, samt NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Full nasjonal dekning er visjon. Historiske tekniske kontroller nedenfor er ikke nye kjøringer eller dokumentert studentnytte.
 
@@ -26,13 +36,30 @@ Files and link snapshots are copies. Use the saved document source's update acti
 
 Under **Fra kalenderlenke** kan du hente et **øyeblikksbilde** og avklare emner i samme forhåndsvisning uten først å opprette dem. **Synkronisering for ett lagret emne** beholder den eksisterende oppdateringsavtalen. TP-visning støttes bare for én offentlig emne-/terminoppføring på `tp.educloud.no/<institusjon>/app/schedule` med `semester`, `scheduleType=course` og `course`, hos UiO, UiB, UiT, OsloMet, Nord, INN, UiS, UiA, HiMolde og HiØ (allerede eksisterende TP-adapter). Semester og kildevalg kontrolleres mot publiserte data. Personlige visninger, innlogging og andre nettsider tolkes ikke som kalendere; bruk sidens iCalendar-/ICS-eksport eller last ned en `.ics`-fil. Et kildebytte rydder gammel lenkefeil og hindrer forsinkede svar i å endre den nye importen.
 
+## Isolert lokal utprøving av Ajour
+
+Kjør fra denne appmappen i en egen PowerShell-terminal. Dette bruker Node/SQLite på port 5200 med en separat database under ignorerte `artifacts`, uten å oppdatere Docker eller bruke vanlig lagring. Bruk et privat nettleservindu til den syntetiske utprøvingen.
+
+```powershell
+npm.cmd run build
+if ($LASTEXITCODE -ne 0) { throw 'Bygget feilet.' }
+$env:HOST = '127.0.0.1'
+$env:PORT = '5200'
+$env:STUDIEPLAN_DB = Join-Path $PWD 'artifacts\ajour-preview\studieplan.sqlite'
+$env:STUDIEPLAN_SEED = 'false'
+Remove-Item Env:STUDIEPLAN_SEED_JSON -ErrorAction SilentlyContinue
+node server/app.js
+```
+
+Åpne **http://127.0.0.1:5200**. Første oppstart er tom; syntetiske oppgaver beholdes ved neste oppstart med samme fil. Ctrl+C stopper bare denne serveren. Hvis porten er opptatt, avslutt din egen prøveprosess eller velg en annen ledig port; ikke stopp en ukjent tjeneste. [Verifikasjonen](VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) oppgir hvilke nye kontroller som er kjørt på kandidaten og aktuell Docker-status.
+
 ## Full-stack drift med Docker
 
 Forutsetning: Docker med Compose v2; kontroller med `docker compose version`. Standardoppstart krever ingen miljøfil eller nøkler. Valgfri konfigurasjon står i [.env.example](.env.example): `STUDIEPLAN_PORT` velger den lokale vertsporten (standard 8088), `STUDIEPLAN_SEED` er normalt `false`, og `STUDIEPLAN_SEED_JSON` brukes bare ved uttrykkelig valgt seed til tom database. Kopier eventuelt filen til `.env`; ekte studentdata skal ikke legges i Git. Porten bindes fortsatt til loopback. Ingen bestemt Docker Engine-patchversjon er dokumentert som testkrav.
 
 Den komplette leveransen bygger nettleserklient, Node-server og SQLite-database fra de låste npm-avhengighetene. Node-basisbildet bruker den valgte, mutable taggen `node:24-bookworm-slim`. Skjemaet opprettes automatisk, og databasen ligger i et navngitt Docker-volum.
 
-Kommandoen nedenfor er runtime-verifisert fra en ren leveransekopi. Den bygger klient og server, oppretter SQLite-skjemaet automatisk og starter den lokale tjenesten:
+Kommandoen nedenfor er historisk runtime-verifisert fra en ren leveransekopi. [Verifikasjonen](VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) skiller ny isolert Docker-kontroll fra den tidligere motorblokkeringen; den er ikke en oppdatering av vanlig drift. Kommandoen bygger klient og server, oppretter SQLite-skjemaet automatisk og starter den lokale tjenesten:
 
 ```powershell
 docker compose up --build -d
@@ -93,7 +120,7 @@ Bruk samme adresse og nettleserprofil hver gang. **Gamle data på http://localho
 - **Mine emner:** fag, emnekoblinger og samlet import.
 - **Planlegg uken:** tilgjengelig arbeidstid, faste opptatte tidsrom, kapasitet og realistiske planforslag.
 
-På mobil er hovedmålene i bunnmenyen; øvrige valg ligger under «Mer». «Innstillinger» samler sikkerhetskopi, angre/papirkurv, oppstart og personlige estimater.
+På mobil ligger hovedmålene i toppnavigasjonen; øvrige valg ligger under «Mer». «Innstillinger» samler sikkerhetskopi, angre/papirkurv, oppstart og personlige estimater.
 
 En oppgave trenger bare **tittel**. Frist kan være bare dato eller dato med klokkeslett; en dato uten tid beholdes og eksporteres som heldagsfrist. Emne, prioritet, avhengigheter og oppgavetype finnes under «Flere detaljer». Gjenstående arbeid kan være et intervall; «Vet ikke» er ukjent, ikke null, og en åpen øvre grense bevares som åpen. Null minutter markerer ikke oppgaven som ferdig. Ved validerings- eller lagringsfeil beholdes utkastet.
 

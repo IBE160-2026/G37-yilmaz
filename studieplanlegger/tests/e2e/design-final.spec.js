@@ -31,6 +31,93 @@ async function navigate(page, view) {
   if (!await button.isVisible()) await page.locator('#mobile-navigation-more').click()
   await button.click()
 }
+// This browser-side helper supports solid sRGB surfaces and color alpha only.
+// Reject other paint effects rather than reporting a precise-looking ratio.
+function renderedContrasts(requests) {
+  const rgba = color => {
+    const rgb = color.match(/^rgba?\((.+)\)$/i)
+    const srgb = color.match(/^color\((srgb(?:-linear)?)\s+(.+)\)$/i)
+    if (!rgb && !srgb) throw new Error(`Unsupported computed color: ${color}`)
+    const values = (rgb ? rgb[1] : srgb[2]).trim().split(/[\s,/]+/)
+    if (values.length < 3 || values.length > 4) throw new Error(`Unsupported computed color: ${color}`)
+    const channels = values.map((value, index) => {
+      if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?%?$/i.test(value)) throw new Error(`Unsupported computed color: ${color}`)
+      const channel = Number.parseFloat(value) / (value.endsWith('%') ? 100 : index < 3 && rgb ? 255 : 1)
+      if (!Number.isFinite(channel) || channel < 0 || channel > 1) throw new Error(`Unsupported computed color range: ${color}`)
+      return channel
+    })
+    const toSrgb = channel => channel <= .0031308 ? 12.92 * channel : 1.055 * channel ** (1 / 2.4) - .055
+    return [...channels.slice(0, 3).map(channel => (srgb?.[1] === 'srgb-linear' ? toSrgb(channel) : channel) * 255), channels[3] ?? 1]
+  }
+  const solidStyle = element => {
+    const style = getComputedStyle(element)
+    const label = element.id ? `#${element.id}` : element.tagName
+    if (Number(style.opacity) !== 1) throw new Error(`Unsupported opacity on ${label}: ${style.opacity}`)
+    if (style.backgroundImage !== 'none') throw new Error(`Unsupported background image or gradient on ${label}: ${style.backgroundImage}`)
+    if (style.filter !== 'none' || style.backdropFilter !== 'none' || style.mixBlendMode !== 'normal') throw new Error(`Unsupported paint effect on ${label}`)
+    return style
+  }
+  const blend = (front, back) => front.slice(0, 3).map((channel, index) => channel * front[3] + back[index] * (1 - front[3]))
+  const luminance = color => color.slice(0, 3).map(n => n / 255).map(n => n <= .04045 ? n / 12.92 : ((n + .055) / 1.055) ** 2.4)
+    .reduce((sum, channel, index) => sum + channel * [.2126, .7152, .0722][index], 0)
+  return requests.map(({ selector, property = 'color' }) => {
+    const element = document.querySelector(selector), ancestors = []
+    if (!element) throw new Error(`Missing contrast target: ${selector}`)
+    for (let current = element; current; current = current.parentElement) ancestors.unshift(current)
+    // A transparent card inherits the rendered surface below it. Measuring
+    // rgba(0,0,0,0) as black would give a false contrast result after Ajour.
+    const background = ancestors.reduce((back, current) => {
+      const style = solidStyle(current)
+      if (current === element && current.matches('.quick-times [aria-pressed="true"]')) {
+        // The selected quick choice sits above its sibling selection marker.
+        const marker = current.parentElement.querySelector('.selection-marker')
+        if (marker) back = blend(rgba(solidStyle(marker).backgroundColor), back)
+      }
+      return blend(rgba(style.backgroundColor), back)
+    }, [255, 255, 255])
+    const style = solidStyle(element)
+    if (property.startsWith('border')) {
+      const edge = property.replace(/Color$/, '')
+      if (Number.parseFloat(style[`${edge}Width`]) <= 0 || ['none', 'hidden'].includes(style[`${edge}Style`])) throw new Error(`Missing visible ${edge} on ${selector}`)
+      if (style.backgroundClip !== 'border-box') throw new Error(`Unsupported border background clip on ${selector}: ${style.backgroundClip}`)
+    }
+    const foreground = blend(rgba(style[property]), background)
+    const a = luminance(foreground), b = luminance(background)
+    return { selector, property, ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) }
+  })
+}
+async function expectReadableText(page, selectors) {
+  for (const selector of selectors) await expect(page.locator(selector).first()).toBeVisible()
+  const contrasts = await page.evaluate(renderedContrasts, selectors.map(selector => ({ selector })))
+  for (const entry of contrasts) expect(entry.ratio, entry.selector).toBeGreaterThanOrEqual(4.5)
+}
+
+test('contrast measurement handles sRGB, linear sRGB and alpha, and rejects unsupported paint', async ({ page }) => {
+  await page.setContent('<div id="surface" style="background: white"><span id="sample">Contrast fixture</span></div>')
+  for (const [color, ratio] of [
+    ['rgb(0, 0, 0)', 21],
+    ['rgba(0, 0, 0, 0.5)', 3.976653],
+    ['color(srgb 0.5 0.5 0.5)', 3.976653],
+    ['color(srgb 0 0 0 / 0.5)', 3.976653],
+    ['color(srgb-linear 0.5 0.5 0.5)', 21 / 11],
+  ]) {
+    await page.locator('#sample').evaluate((element, color) => { element.style.color = color }, color)
+    const [measurement] = await page.evaluate(renderedContrasts, [{ selector: '#sample' }])
+    expect(measurement.ratio, color).toBeCloseTo(ratio, 5)
+  }
+  for (const [selector, property, value, error] of [
+    ['#sample', 'color', 'color(display-p3 0.5 0.5 0.5)', /Unsupported computed color/],
+    ['#surface', 'backgroundColor', 'oklab(0.5 0 0)', /Unsupported computed color/],
+    ['#sample', 'opacity', '0.5', /Unsupported opacity/],
+    ['#surface', 'opacity', '0.5', /Unsupported opacity/],
+    ['#sample', 'backgroundImage', 'linear-gradient(white, black)', /Unsupported background image or gradient/],
+    ['#surface', 'backgroundImage', 'linear-gradient(white, black)', /Unsupported background image or gradient/],
+  ]) {
+    await page.locator(selector).evaluate((element, { property, value }) => { element.style[property] = value }, { property, value })
+    await expect(page.evaluate(renderedContrasts, [{ selector: '#sample' }])).rejects.toThrow(error)
+    await page.locator(selector).evaluate((element, property) => { element.style[property] = '' }, property)
+  }
+})
 
 for (const width of [1440, 390]) {
   for (const kind of ['empty', 'partial', 'populated']) {
@@ -39,6 +126,8 @@ for (const width of [1440, 390]) {
       const errors = []; page.on('pageerror', error => errors.push(error.message))
       await seed(page, kind)
       await expect(page.locator('#page-heading')).toHaveText('Oversikt')
+      await expect(page.locator('#ajour-intro')).toBeVisible()
+      await expect(page.locator('#calendar-panel')).toBeHidden()
       expect(await page.evaluate(() => [...document.fonts].some(font => font.family === 'Manrope' && font.status === 'loaded'))).toBe(true)
       expect(await page.locator('body').innerText()).not.toMatch(/Ã|Â|â€|â†/)
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
@@ -49,23 +138,26 @@ for (const width of [1440, 390]) {
         await expect(page.locator('#calendar-panel')).toBeHidden()
         await expect(page.locator('#new-task')).toBeHidden()
       } else {
-        await expect(page.locator('#compact-agenda')).toContainText('Realfagbygget, R1')
-        await expect(page.locator('#compact-agenda')).toContainText('12:15–14:00')
+        await expect(page.locator('#next-plan')).toContainText(events[0].title)
+        await expect(page.locator('#next-plan')).toContainText('12:15–14:00')
         if (kind === 'partial') await expect(page.locator('#focus-panel')).toBeHidden()
         else {
           const primary = page.locator('#dashboard-suggestions .primary-suggestion')
           await expect(primary).toContainText(tasks[0].title)
-          // The daily overview is now primary; quick suggestions remain below it.
-          const actionBounds = await page.locator('#daily-overview button').first().boundingBox()
-          expect(actionBounds.y + actionBounds.height).toBeLessThan(width === 1440 ? 900 : (await page.locator('.view-actions').boundingBox()).y)
-          if (width === 1440) expect((await page.locator('#calendar-panel').boundingBox()).x).toBeGreaterThan((await primary.boundingBox()).x)
+          const actionBounds = await primary.locator('.task-primary').boundingBox()
+          expect(actionBounds.y + actionBounds.height).toBeLessThanOrEqual(page.viewportSize().height)
+          if (width === 1440) {
+            const upcoming = await page.locator('#next-plan').boundingBox(), replanning = await page.locator('#daily-overview').boundingBox()
+            expect(replanning.x).toBeGreaterThan(upcoming.x + upcoming.width)
+            expect(Math.abs(replanning.y - upcoming.y)).toBeLessThanOrEqual(1)
+          }
         }
       }
       await page.screenshot({ path: `artifacts/studieplan-${kind}-${width}.png`, animations: 'disabled' })
       if (width === 390) await page.screenshot({ path: `artifacts/studieplan-${kind}-${width}-full.png`, fullPage: true, animations: 'disabled' })
       const before = await page.evaluate(key => localStorage.getItem(key), key)
       if (kind === 'empty') {
-        const firstTask = page.locator('#connected-onboarding').getByRole('button', { name: 'Hopp over import', exact: true })
+        const firstTask = page.locator('#connected-onboarding').getByRole('button', { name: 'Legg til oppgave', exact: true })
         await firstTask.click()
         await expect(page.getByRole('dialog')).toBeVisible()
         await expect(page.locator('#title')).toBeFocused()
@@ -82,12 +174,14 @@ for (const width of [1440, 390]) {
         await expect(page.locator('#subject-editor [name=name]')).toBeFocused()
         await page.keyboard.press('Escape')
       } else if (kind === 'partial') {
-        if (width === 390) await navigate(page, 'all')
+        await navigate(page, 'all')
+        await expect(page.locator('#compact-agenda')).toContainText('Realfagbygget, R1')
+        await expect(page.locator('#compact-agenda')).toContainText('12:15–14:00')
         await page.locator('[data-agenda-key="event:visual-teaching-1"]').click()
         await expect(page.locator('#subject-editor [name=title]')).toHaveValue(events[0].title)
         await expect(page.locator('#subject-editor [name=startLocal]')).toHaveValue('2026-09-08T12:15')
         await page.keyboard.press('Escape')
-        await navigate(page, width === 390 ? 'all' : 'overview')
+        await navigate(page, 'all')
         await page.locator('#calendar-course-filter').selectOption(courses[1].id)
         await expect(page.locator('#compact-agenda')).not.toContainText(events[0].title)
         await expect(page.locator('#compact-agenda')).toContainText(events[1].title)
@@ -104,7 +198,9 @@ for (const width of [1440, 390]) {
         await suggestion.getByRole('button', { name: `Rediger «${tasks[0].title}»`, exact: true }).click()
         await expect(page.locator('#title')).toHaveValue(tasks[0].title)
         await page.keyboard.press('Escape')
-        if (width === 390) await navigate(page, 'all')
+        await navigate(page, 'all')
+        await expect(page.locator('#compact-agenda')).toContainText('Realfagbygget, R1')
+        await expect(page.locator('#compact-agenda')).toContainText('12:15–14:00')
         await page.getByRole('button', { name: 'Månedsvisning', exact: true }).click()
         await page.locator('[data-calendar-date="2026-09-08"]').click()
         await expect(page.locator('.calendar-teaching')).toContainText('12:15–14:00')
@@ -147,19 +243,15 @@ test('larger text, reduced motion, keyboard focus and modal focus containment', 
 for (const width of [1440, 390]) {
   test(`forms, course page and measured text contrast at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 })
+    await page.emulateMedia({ reducedMotion: 'reduce' })
     await seed(page, 'populated')
-    const contrasts = await page.evaluate(() => {
-      const luminance = color => {
-        const channels = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(n => n / 255).map(n => n <= .04045 ? n / 12.92 : ((n + .055) / 1.055) ** 2.4)
-        return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722
-      }
-      return [['#focus-heading', '#focus-panel'], ['.custom-time label', '#focus-panel'], ['#time-form button[type=submit]', '#time-form button[type=submit]'], ['.task-title', '.primary-suggestion'], ['.agenda-item-details', '#calendar-panel']].map(([selector, surface]) => {
-        const a = luminance(getComputedStyle(document.querySelector(selector)).color)
-        const b = luminance(getComputedStyle(document.querySelector(surface)).backgroundColor)
-        return { selector, ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) }
-      })
-    })
-    for (const entry of contrasts) expect(entry.ratio, entry.selector).toBeGreaterThanOrEqual(4.5)
+    await expectReadableText(page, ['#focus-heading', '.custom-time label', '.quick-times [aria-pressed="true"]', '#dashboard-suggestions .primary-suggestion .task-primary', '#dashboard-suggestions .primary-suggestion .task-title', '#daily-overview h2', '#daily-overview [role=status]'])
+    await navigate(page, 'all')
+    await expectReadableText(page, ['.agenda-item-details'])
+    await expect(page.locator('#calendar-course-filter')).toBeVisible()
+    const fieldContrasts = await page.evaluate(renderedContrasts, ['Top', 'Right', 'Bottom', 'Left'].map(edge => ({ selector: '#calendar-course-filter', property: `border${edge}Color` })))
+    for (const entry of fieldContrasts) expect(entry.ratio, `${entry.selector} ${entry.property}`).toBeGreaterThanOrEqual(3)
+    await navigate(page, 'overview')
     await page.locator('#new-task').click()
     await page.locator('#title').fill('Forbered presentasjon om bærekraftig teknologi')
     await openTaskDetails(page)

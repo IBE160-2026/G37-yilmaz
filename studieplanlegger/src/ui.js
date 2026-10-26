@@ -4,6 +4,7 @@ import { createTaskList } from './task-view.js'
 import { createCapacityView } from './capacity-view.js'
 import { createTaskForm } from './task-form.js'
 import { primaryWorkStep } from './work-steps.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 
 const $ = selector => document.querySelector(selector)
 const setText = (element, value) => { if (element.textContent !== value) element.textContent = value }
@@ -82,7 +83,7 @@ export function createUI(actions) {
     for (const collection of collections) collection.disable(disabled)
     capacity.disable(disabled)
     for (const id of ['empty-create', 'suggestion-new', 'empty-onboard-task', 'empty-onboard-subject', 'empty-step', 'suggestion-step', 'feedback-next-step', 'feedback-plan']) $( `#${id}`).disabled = disabled
-    if (latestModel) calendar.render({ tasks: latestModel.tasks.filter(task => !latestModel.courseFilter || task.courseId === latestModel.courseFilter || latestModel.planner?.courses.some(course => course.id === latestModel.courseFilter && (task.course === course.code || task.course === course.name))), events: (latestModel.planner?.events || []).filter(event => !latestModel.courseFilter || event.courseId === latestModel.courseFilter), courses: latestModel.planner?.courses || [], sessions: latestModel.sessions, now: latestModel.now, disabled })
+    if (latestModel) calendar.render({ tasks: latestModel.tasks.filter(task => !latestModel.courseFilter || task.courseId === latestModel.courseFilter || latestModel.planner?.courses.some(course => course.id === latestModel.courseFilter && (task.course === course.code || task.course === course.name))), allTasks: latestModel.tasks, events: (latestModel.planner?.events || []).filter(event => !latestModel.courseFilter || event.courseId === latestModel.courseFilter), courses: latestModel.planner?.courses || [], sessions: latestModel.sessions, now: latestModel.now, disabled })
   }
   function message(text, stepActionId = null, planActionId = null) {
     capacity.clearMessages()
@@ -297,6 +298,7 @@ export function createUI(actions) {
     },
     openStep(task) {
       returnFocus = document.activeElement
+      applyCourseColor(stepForm.closest('dialog') || stepForm, resolvedCourseId(task))
       const activeStep = primaryWorkStep(task)
       stepForm.reset()
       stepErrors()
@@ -344,10 +346,14 @@ export function createUI(actions) {
       const showOnboarding = isFocusView && hasNoTasks && !model.onboarding?.dismissed
       document.body.dataset.accountState = isBareAccount ? 'empty' : hasNoTasks ? 'partial' : 'populated'
       create.hidden = draftOpen() || showOnboarding || view === 'settings'
-      $('#overview-summary').hidden = view !== 'overview' || tasks.length === 0 || isBareAccount
+      const overdue = overdueCount(tasks, now)
+      const readyCount = tasks.filter(task => task.requiresSubmission && task.completed && !task.submitted).length
+      $('#overview-summary').hidden = view !== 'overview' || !(overdue || readyCount)
+      $('#summary-overdue').hidden = overdue === 0
+      $('#summary-ready').hidden = readyCount === 0
       $('#focus-panel').hidden = !isFocusView || hasNoTasks
       $('.focus-results').hidden = !isFocusView || hasNoTasks
-      $('#tasks-panel').hidden = ['time', 'capacity', 'subjects', 'calendar', 'settings'].includes(view) || showOnboarding
+      $('#tasks-panel').hidden = ['overview', 'time', 'capacity', 'subjects', 'calendar', 'settings'].includes(view) || showOnboarding
       $('#capacity-panel').hidden = view !== 'capacity'
       $('#overview-all').hidden = view !== 'overview' || isBareAccount
       $('#dashboard-suggestions').hidden = view !== 'overview' || isBareAccount
@@ -357,11 +363,11 @@ export function createUI(actions) {
       if (empty.parentElement !== emptyMount) emptyMount.prepend(empty)
       if (emptyDashboard) {
         emptyDashboard.hidden = !showOnboarding
-        setText(emptyDashboard.querySelector('h2'), isBareAccount ? 'Gjør plass til en enklere studieuke.' : 'Gi oppgavene dine en plass.')
-        setText(emptyDashboardText, isBareAccount ? 'Samle emner, undervisning og oppgaver. Få oversikt over hva som passer å gjøre nå.' : 'Du har startet oversikten din. Legg til en oppgave, så finner du enkelt arbeid som passer tiden du har.')
+        setText(emptyDashboard.querySelector('h2'), 'Legg til nå. Fyll ut resten senere.')
+        setText(emptyDashboardText, 'En tittel er nok til å komme i gang. Emne, frist og tid kan du legge til når du vet mer.')
         $('#empty-onboard-subject').hidden = Boolean(model.planner?.courses?.length)
       }
-      if (calendarPanel) calendarPanel.hidden = (isBareAccount && isFocusView) || ['subjects', 'capacity', 'calendar', 'settings'].includes(view)
+      if (calendarPanel) calendarPanel.hidden = (isBareAccount && isFocusView) || ['overview', 'subjects', 'capacity', 'calendar', 'settings'].includes(view)
       const titles = { overview: 'Kommende frister', week: 'Denne uken', all: 'Alle oppgaver', time: 'Hva kan jeg gjøre nå?', capacity: 'Kapasitet', subjects: 'Mine emner', calendar: 'Kalender', settings: 'Innstillinger' }
       setText($('#tasks-heading'), titles[view])
       for (const name of Object.keys(titles)) $(`#view-${name}`).setAttribute('aria-pressed', String(name === view))
@@ -369,8 +375,7 @@ export function createUI(actions) {
       if (subjectButton) subjectButton.setAttribute('aria-pressed', String(view === 'subjects'))
       setText($('#today-label'), formatDay(dateKey(now), { weekday: true, year: true }))
       setText($('#summary-week-count'), String(tasksThisWeek(tasks, now).filter(pending).length))
-      setText($('#summary-overdue-count'), String(overdueCount(tasks, now)))
-    const readyCount = tasks.filter(task => task.requiresSubmission && task.completed && !task.submitted).length
+      setText($('#summary-overdue-count'), String(overdue))
       setText($('#summary-ready-count'), String(readyCount))
       $('#week-info').hidden = view !== 'week'
       const bounds = weekBounds(now)

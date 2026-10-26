@@ -1,6 +1,7 @@
 import { previewBackup, previewLocalRecovery, downloadBackup, exportBackup } from './backup.js'
 import { formatDay, formatDeadline } from './calendar.js'
 import { osloLocal } from './planner.js'
+import { createAppearanceSettings } from './appearance.js'
 const node = (tag, text) => { const el = document.createElement(tag); if (text) el.textContent = text; return el }
 const button = (text, action) => { const el = node('button', text); el.type = 'button'; el.className = 'secondary'; el.onclick = action; return el }
 export function displayTimestamp(value) {
@@ -76,6 +77,7 @@ export function createDataTools(actions) {
   const panel = node('div'); panel.append(trash, save, restore, recovery, input); menu.append(panel)
   menu.open = true
   host.append(node('h2', 'Innstillinger'), node('p', 'Sikkerhetskopi, angre og papirkurv. Dataene lagres på denne enheten.'), undo, menu, feedback)
+  host.querySelector('h2').after(createAppearanceSettings())
   const planning = node('details'); planning.className = 'data-menu planning-settings'; planning.open = true; planning.append(node('summary', 'Planlegging'))
   const personalization = node('section'); personalization.className = 'personalization-settings'; personalization.append(node('h3', 'Personalisering'))
   const enabledLabel = node('label', 'Bruk lokal historikk til frivillige estimatforslag '), enabled = node('input'); enabled.type = 'checkbox'; enabled.checked = actions.state().personalization?.enabled !== false; enabledLabel.prepend(enabled)

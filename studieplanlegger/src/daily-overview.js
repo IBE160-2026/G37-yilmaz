@@ -2,6 +2,7 @@
 import { formatDay, taskStatus } from './calendar.js'
 import { OSLO, osloLocal } from './planner.js'
 import { dailyStatus } from './daily-guidance.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 const pending = task => !task.completed || (task.requiresSubmission && !task.submitted)
 const eventClock = new Intl.DateTimeFormat('nb-NO', { hour: '2-digit', minute: '2-digit', timeZone: OSLO })
 const compactTime = (entry, date) => {
@@ -39,33 +40,45 @@ export function dailyOverview(model) {
   return { activity, deadline, overdue: deadlines.filter(e => e.start < now), today, rows }
 }
 export function createDailyOverview(actions) {
-  const host = document.createElement('section'); host.id = 'daily-overview'; host.className = 'daily-overview panel'; host.setAttribute('aria-label', 'Status i dag'); document.querySelector('.work-area').prepend(host)
-  const planHost = document.createElement('section'); planHost.id = 'next-plan'; planHost.className = 'daily-overview panel next-plan'; planHost.setAttribute('aria-label', 'Neste på planen'); document.querySelector('#tasks-panel').before(planHost)
+  const grid = document.createElement('div'); grid.className = 'ajour-plan-grid'; document.querySelector('#focus-panel').after(grid)
+  const host = document.createElement('section'); host.id = 'daily-overview'; host.className = 'daily-overview panel'; host.setAttribute('aria-label', 'Status i dag')
+  const planHost = document.createElement('section'); planHost.id = 'next-plan'; planHost.className = 'daily-overview panel next-plan'; planHost.setAttribute('aria-label', 'Neste på planen'); grid.append(planHost, host)
   const el = (tag, text) => { const node = document.createElement(tag); node.textContent = text; return node }
   const button = (text, key, fn) => { const node = el('button', text); node.type = 'button'; node.className = 'secondary'; node.dataset.dailyKey = key; node.onclick = fn; return node }
-  let signature = ''
+  let signature = '', statusTask
+  // Keep the opener node alive while model.editing changes during a dialog.
+  const replanControl = button('Se forslag til ny tid', 'status:replan', () => !statusTask ? actions.open() : statusTask.completed ? actions.summary('ready') : actions.replan(statusTask.id))
   return { render(model) {
-    host.hidden = planHost.hidden = model.view !== 'overview' || !model.readable || !(model.tasks.length || model.sessions?.length || model.planner?.courses?.length || model.planner?.events?.length); if (host.hidden) return
-    const date = calendarToday(model.now), data = dailyOverview(model), next = JSON.stringify([date, data, model.capacity, model.editing, data.activity && data.activity.start <= +model.now, data.rows.map(row => row.sessions.map(s => [s.start <= +model.now, s.end <= +model.now]))]); if (signature === next) return; signature = next
+    grid.hidden = host.hidden = planHost.hidden = model.view !== 'overview' || !model.readable || !(model.tasks.length || model.sessions?.length || model.planner?.courses?.length || model.planner?.events?.length); if (host.hidden) return
+    const date = calendarToday(model.now), data = dailyOverview(model), entries = calendarEntries(model), status = dailyStatus(model), next = JSON.stringify([date, data, entries, status, model.planner?.courses, model.capacity, model.editing, data.activity && data.activity.start <= +model.now, data.rows.map(row => row.sessions.map(s => [s.start <= +model.now, s.end <= +model.now]))]); if (signature === next) return; signature = next
     const focused = host.contains(document.activeElement) || planHost.contains(document.activeElement) ? document.activeElement.dataset.dailyKey : null
     const opened = new Set([...planHost.querySelectorAll('details[open]')].map(node => node.dataset.dailyMenu))
-    const status = dailyStatus(model)
-    host.replaceChildren(el('h2', 'Status i dag'))
-    const statusCard = el('div', ''); statusCard.className = `daily-status is-${status.tone}`; statusCard.setAttribute('role', 'status'); statusCard.append(el('p', status.text))
-    if (status.tone === 'danger') statusCard.append(button('Se realistisk forslag', 'status:replan', () => actions.replan(status.taskId)))
-    host.append(statusCard)
+    const companion = document.createElement('img'); companion.src = '/brand/notebook.svg'; companion.alt = ''; companion.width = companion.height = 44
+    host.replaceChildren(companion, el('h2', 'Planen skal passe deg.'), el('p', 'Mistet en økt? Se over et forslag til endring før noe flyttes.'))
+    const statusCard = el('div', ''); statusCard.className = `daily-status is-${status.tone}`; statusCard.setAttribute('role', 'status'); statusCard.append(el('p', status.text.includes(status.title) ? status.text : `${status.title}: ${status.text}`))
+    statusTask = model.tasks.find(task => task.id === status.taskId)
+    replanControl.textContent = !statusTask ? 'Legg til oppgave' : statusTask.completed ? 'Se oppgaver til levering' : status.tone === 'danger' ? 'Se realistisk forslag' : 'Se forslag til ny tid'
+    host.append(statusCard, replanControl, el('p', 'Ingenting endres uten at du godkjenner.'))
     planHost.replaceChildren(el('h2', 'Neste på planen'))
-    const rowSessionKeys = new Set(data.rows.flatMap(row => row.sessions.map(session => session.key)))
-    const upcoming = calendarEntries(model).filter(entry => !entry.cancelled && ['teaching', 'personal', 'session'].includes(entry.kind) && (entry.end > +model.now || entry.point && (entry.start >= +model.now || entry.kind === 'personal' && entry.dateLocal >= date)) && !rowSessionKeys.has(entry.key)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 3)
-    if (upcoming.length) {
-      planHost.append(el('h3', 'Kommende aktiviteter'))
-      for (const entry of upcoming) { const row = el('div', ''); row.className = `daily-row${entry.isExam ? ' is-exam' : ''}${entry.kind === 'personal' ? ' is-personal' : ''}`; row.dataset.dailyRow = entry.key; row.append(el('p', `${entry.kind === 'personal' ? 'Egen aktivitet · ' : entry.isExam ? '📝 Eksamen · ' : ''}${entry.title} · ${compactTime(entry, date)}`), button('Åpne', `${entry.key}:open`, () => entry.kind === 'session' ? actions.editSession(entry.id) : actions.editEvent(entry.id))); planHost.append(row) }
-    } else planHost.append(el('p', 'Ingen kommende aktivitet er registrert.'))
     const visibleRows = data.rows.slice(0, 3), firstToday = data.rows.find(row => data.today.some(task => task.id === row.task.id))
     if (firstToday && !visibleRows.includes(firstToday)) visibleRows[Math.max(0, visibleRows.length - 1)] = firstToday
-    if (visibleRows.length) planHost.append(el('h3', 'Oppgaver i dag'))
+    const rowSessionKeys = new Set(visibleRows.flatMap(row => row.sessions.map(session => session.key)))
+    const upcoming = entries.filter(entry => !entry.cancelled && ['teaching', 'personal', 'session'].includes(entry.kind) && (entry.end > +model.now || entry.point && (entry.start >= +model.now || entry.kind === 'personal' && entry.dateLocal >= date)) && !rowSessionKeys.has(entry.key)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 3)
+    if (upcoming.length) {
+      planHost.append(el('h3', 'Kommende aktiviteter'))
+      for (const entry of upcoming) {
+        const row = el('div', ''); row.className = `daily-row${entry.isExam ? ' is-exam' : ''}${entry.kind === 'personal' ? ' is-personal' : ''}`; row.dataset.dailyRow = entry.key
+        applyCourseColor(row, resolvedCourseId(entry))
+        const course = model.planner?.courses?.find(item => item.id === entry.courseId)
+        const context = [course ? [course.code, course.name].filter(Boolean).join(' ') : entry.courseCode || entry.course, entry.location].filter(Boolean)
+        const open = button('Åpne', `${entry.key}:open`, () => entry.kind === 'session' ? actions.editSession(entry.id) : actions.editEvent(entry.id)); open.setAttribute('aria-label', `Åpne ${entry.title} · ${compactTime(entry, date)}`)
+        row.append(el('p', `${entry.kind === 'personal' ? 'Egen aktivitet · ' : entry.isExam ? '📝 Eksamen · ' : ''}${entry.title} · ${compactTime(entry, date)}${context.length ? ` · ${context.join(' · ')}` : ''}`), open); planHost.append(row)
+      }
+    } else if (!data.activity) planHost.append(el('p', 'Ingen kommende aktivitet er registrert.'))
+    if (visibleRows.length) planHost.append(el('h3', 'Oppgaver å følge opp'))
     for (const { task, key, deadline, sessions } of visibleRows) {
       const row = el('article', ''); row.className = 'daily-row daily-task'; row.dataset.dailyRow = key
+      applyCourseColor(row, resolvedCourseId(task))
       const copy = el('div', ''); copy.className = 'daily-task-copy'; copy.append(el('h4', task.title))
       const course = model.planner?.courses?.find(c => c.id === task.courseId)
       copy.append(el('p', `${course ? `${course.code} ${course.name}` : task.course || 'Emne ikke oppgitt'} · ${taskStatus(task)}`))
@@ -89,10 +102,11 @@ export function createDailyOverview(actions) {
       const actionsRow = el('div', ''); actionsRow.className = 'daily-task-actions'; actionsRow.append(primary, menu)
       row.append(copy, actionsRow); planHost.append(row)
     }
-    const deadlines = calendarEntries(model).filter(entry => entry.kind === 'deadline' && !entry.done && entry.start >= +model.now).sort((a, b) => (a.local || '').localeCompare(b.local || '')).slice(0, 3)
-    planHost.append(el('h3', 'Kommende frister'))
-    if (!deadlines.length) planHost.append(el('p', 'Ingen kommende frister er registrert.'))
-    for (const entry of deadlines) { const row = el('div', ''); row.className = 'daily-row deadline-row'; row.append(el('p', `${entry.title} · ${compactTime(entry, date)}`), button('Åpne', `deadline:${entry.id}:open`, () => actions.edit(entry.id))); planHost.append(row) }
+    const shownTaskIds = new Set(visibleRows.map(row => row.task.id))
+    const deadlines = entries.filter(entry => entry.kind === 'deadline' && !entry.done && entry.start >= +model.now && !shownTaskIds.has(entry.id)).sort((a, b) => (a.local || '').localeCompare(b.local || '')).slice(0, 2)
+    if (deadlines.length) planHost.append(el('h3', 'Kommende frister'))
+    else if (!visibleRows.some(row => row.deadline?.start >= +model.now)) planHost.append(el('p', 'Ingen kommende frister er registrert.'))
+    for (const entry of deadlines) { const row = el('div', ''); row.className = 'daily-row deadline-row'; applyCourseColor(row, resolvedCourseId(entry)); const open = button('Åpne', `deadline:${entry.id}:open`, () => actions.edit(entry.id)); open.setAttribute('aria-label', `Åpne fristen for ${entry.title}`); row.append(el('p', `${entry.title} · ${compactTime(entry, date)}`), open); planHost.append(row) }
     const controls = el('div', ''); controls.className = 'actions'; controls.append(button('Åpne kalender', 'navigation:calendar', () => actions.view('calendar')), button('Se alle oppgaver', 'navigation:tasks', () => actions.view('all'))); planHost.append(controls)
     for (const control of [...host.querySelectorAll('button'), ...planHost.querySelectorAll('button')]) control.disabled = Boolean(model.editing)
     if (focused) {

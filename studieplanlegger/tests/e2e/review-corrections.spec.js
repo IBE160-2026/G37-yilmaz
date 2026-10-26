@@ -87,7 +87,7 @@ test('missing course prerequisite does not lock Ny oppgave or Nytt emne', async 
 test('clock transition updates Neste aktivitet to Paagar without moving focused action', async ({ page }) => {
   const data = initial(); data.planner.events = [{ id: 'event', courseId: 'c', title: 'Teaching', start: '2026-09-08T08:00:00Z', end: '2026-09-08T09:00:00Z' }]
   await seed(page, data, '2026-09-08T07:59:59Z')
-  const host = page.locator('#next-plan'), action = host.getByRole('button', { name: 'Åpne', exact: true }).first()
+  const host = page.locator('#next-plan'), action = host.getByRole('button', { name: 'Åpne Teaching · i dag kl. 10:00–11:00', exact: true })
   await expect(host).toContainText('Teaching · i dag kl. 10:00–11:00'); await action.focus()
   await page.clock.runFor(2100)
   await expect(host).toContainText('Teaching · i dag kl. 10:00–11:00'); await expect(action).toBeFocused()
@@ -150,7 +150,7 @@ test('same-code explicit courses stay separate in all full-calendar modes and co
   const data = initial(); data.planner.courses.push({ ...course, id: 'hvl', university: 'HVL' })
   data.tasks.push({ ...task, id: 'hvl-task', title: 'HVL task', courseId: 'hvl' })
   data.sessions = [{ id: 'linked', taskId: 'hvl-task', dateLocal: '2026-09-08', startTime: '23:00', endTime: '01:00', endDateLocal: '2026-09-09' }]
-  await seed(page, data); await page.locator('#calendar-course-filter').selectOption('hvl')
+  await seed(page, data); await navigate(page, 'all'); await page.locator('#calendar-course-filter').selectOption('hvl')
   await expect(page.locator('[data-agenda-key="task:t"]')).toHaveCount(0)
   await expect(page.locator('[data-agenda-key="session:linked"]')).toContainText('2026-09-09')
   await navigate(page, 'calendar'); await page.getByText('Filtre og hjelp', { exact: true }).click(); await page.locator('#full-calendar-course').selectOption('hvl')

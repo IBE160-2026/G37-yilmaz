@@ -3,6 +3,10 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { navigate, openTaskDetails, openMenu, edit, openCourseImport } from '../e2e/helpers.js'
 
 test.describe.configure({ mode: 'serial' })
+// Keep the dated synthetic work windows in the current planning period.
+test.beforeEach(async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-04T05:00:00Z'))
+})
 const phase = process.env.STUDIEPLAN_ACCEPTANCE_PHASE || 'create'
 const snapshotPath = process.env.STUDIEPLAN_ACCEPTANCE_SNAPSHOT
 const state = async page => {
@@ -18,6 +22,8 @@ async function put(page, envelope) {
 }
 async function proposal(page, text, action) {
   const registration = page.locator('#text-registration')
+  const disclosure = registration.locator('> .text-registration-disclosure')
+  if (!await disclosure.evaluate(node => node.open)) await disclosure.locator(':scope > summary').click()
   await registration.getByLabel('Skriv hva du vil legge til eller endre').fill(text)
   await registration.getByRole('button', { name: 'Lag forslag', exact: true }).click()
   await registration.getByRole('button', { name: action, exact: true }).click()

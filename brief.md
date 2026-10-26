@@ -1,13 +1,17 @@
 ---
-title: "Product Brief: Studieplan"
+title: "Product Brief: Ajour"
 status: bounded-delivery-documented
 created: 2026-09-06
-updated: 2026-10-25
+updated: 2026-10-26
 ---
 
-# Product brief: Studieplan
+# Product brief: Ajour
 
-Studieplan hjelper studenten å gjøre oppgaver og tilgjengelig tid om til en gjennomførbar plan, registrere hva som faktisk skjedde og godkjenne nødvendige endringer. Appen kjører lokalt uten konto eller betalte tjenester. Studenten beholder kontroll over import, arbeidsanslag og planvalg.
+Ajour hjelper studenten å gjøre oppgaver og tilgjengelig tid om til en gjennomførbar plan, registrere hva som faktisk skjedde og godkjenne nødvendige endringer. Appen kjører lokalt uten konto eller betalte tjenester. Studenten beholder kontroll over import, arbeidsanslag og planvalg.
+
+**Utseende, 2026-10-26:** Tolv stabile emnefarger og System/Lyst/Mørkt viderefører dagens layout og hovedreise. Tema er en lokal visningspreferanse; dette endrer ikke V1, importdekning eller dataløfter. [Nyeste tekniske kontroll](studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) er ikke dokumentasjon på studentnytte.
+
+**Ajour, oppfølging 2026-10-26:** «Kom ajour.» og «Planer endrer seg. Det er helt greit.» uttrykker den samme avgrensede planleggingssløyfen. Navnet og grensesnittet oppdateres uten nye kilde- eller funksjonsløfter. [Den daterte Ajour-verifikasjonen](studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) dokumenterer oppfølging av tydelig neste handling, tilgjengelige dialoger og personvern i testmaterialet. Studentnytte er fortsatt ikke utprøvd.
 
 Briefen er avgrenset **2026-10-16** etter [faglærerens tilbakemelding](tilbakemelding-product-brief.md) på commit `5e23204`. [PRD, stories og sporbarhet](.docs/planning-artifacts/README.md) er en datert rekonstruksjon av levert funksjonalitet, ikke en påstand om at disse dokumentene styrte tidligere utvikling.
 
@@ -15,7 +19,7 @@ Briefen er avgrenset **2026-10-16** etter [faglærerens tilbakemelding](tilbakem
 
 En **hypotetisk** HiMolde-student tar IBE110, IBE430 og IBE160 og har deltidsjobb to ettermiddager. Emneinformasjon, undervisning, Canvas-oppgaver og egne notater gir mange bruddstykker, men svarer ikke samlet på hva studenten kan gjøre den neste halvtimen. En tapt økt eller et for lavt anslag gjør planen urealistisk. Dette er et designscenario, ikke et gjennomført studentintervju.
 
-Kalenderapper viser avtaler og frister, Canvas samler fagets informasjon og innleveringer, og oppgavelister hjelper med å huske arbeid. Studieplan forsøker å knytte disse behovene sammen gjennom én kontrollert planleggingssløyfe. Det er ingen påstand om markedsunikhet eller dokumentert lavere arbeidsbelastning.
+Kalenderapper viser avtaler og frister, Canvas samler fagets informasjon og innleveringer, og oppgavelister hjelper med å huske arbeid. Ajour forsøker å knytte disse behovene sammen gjennom én kontrollert planleggingssløyfe. Det er ingen påstand om markedsunikhet eller dokumentert lavere arbeidsbelastning.
 
 ## Hovedflyt og låst v1
 

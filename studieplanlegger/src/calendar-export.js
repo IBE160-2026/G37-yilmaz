@@ -137,7 +137,7 @@ export function calendarExportOmissions(state, options = {}) {
 }
 
 export function generateCalendarIcs(state, options = {}) {
-  const lines = ['BEGIN:VCALENDAR', 'PRODID:-//Studieplanlegger//Lokal eksport//NO', 'VERSION:2.0', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Studieplanlegger']
+  const lines = ['BEGIN:VCALENDAR', 'PRODID:-//Ajour//Lokal eksport//NO', 'VERSION:2.0', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Ajour']
   for (const item of calendarExportItems(state, options)) {
     const summary = [item.course ? `[${item.course}]` : '', item.kind === 'deadline' ? 'Frist:' : '', item.title].filter(Boolean).join(' ')
     if (item.kind === 'deadline') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.due.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.due)}`, `SUMMARY:${escapeText(summary)}`, 'TRANSP:TRANSPARENT', 'END:VEVENT')
@@ -160,7 +160,7 @@ export function downloadCalendarIcs(state, options = {}) {
   const source = generateCalendarIcs(state, options)
   if (!validateGeneratedIcs(source)) throw new Error('Kalenderfilen kunne ikke valideres.')
   const url = URL.createObjectURL(new Blob([source], { type: 'text/calendar;charset=utf-8' }))
-  const link = document.createElement('a'); link.href = url; link.download = options.filename || 'studieplan.ics'; link.click()
+  const link = document.createElement('a'); link.href = url; link.download = options.filename || 'ajour.ics'; link.click()
   queueMicrotask(() => URL.revokeObjectURL(url))
   return source
 }

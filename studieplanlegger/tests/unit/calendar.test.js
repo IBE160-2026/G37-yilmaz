@@ -5,6 +5,7 @@ import {
 } from '../../src/calendar.js'
 import { selectTasksForMinutes } from '../../src/tasks.js'
 import { createStorage } from '../../src/storage.js'
+import { registerCourseColors } from '../../src/course-colors.js'
 
 const task = (id, patch = {}) => ({
   id, title: `Oppgave ${id}`, course: 'IBE160', deadlineLocal: '2026-09-16T20:48',
@@ -187,12 +188,13 @@ describe('kalenderen avleder oppgaver fra samme lagrede kilde', () => {
     expect(taskStatus(task('a', patch))).toBe(expected)
   })
 
-  it('holder emnefarger stabile på tvers av rekkefølge, dato og mellomrom/store bokstaver', () => {
-    const courses = ['IBE160', 'MAT100', 'Norsk', 'Fysikk', 'Økonomi', 'α']
+  it('bruker samme ID-baserte emnefarger i kalenderen ved endret visningsrekkefølge', () => {
+    const courses = ['synthetic-a', 'synthetic-b', 'synthetic-c']
+    registerCourseColors(courses.map(id => ({ id, code: 'SAME101' })))
     const first = courses.map(courseColor)
-    for (const color of first) expect(color).toMatch(/^#[0-9a-f]{6}$/)
+    expect(new Set(first).size).toBe(3)
+    for (const color of first) expect(color).toMatch(/^var\(--course-\d+-marker\)$/)
     expect(courses.toReversed().map(courseColor).toReversed()).toEqual(first)
-    expect(courseColor(' ibe160 ')).toBe(courseColor('IBE160'))
-    expect(courses.map(courseColor)).toEqual(first)
+    expect(courseColor()).toBe('var(--course-neutral-marker)')
   })
 })

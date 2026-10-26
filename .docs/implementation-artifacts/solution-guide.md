@@ -1,4 +1,16 @@
-# Slik virker Studieplan
+# Slik virker Ajour
+
+## Lokal oppfølging — 2026-10-26
+
+Den fylte mobiloversikten har en kort introduksjon før Start. Tidsspørsmålet, hurtigvalgene og egendefinert tid er én samlet kontrollgruppe. Forfalt arbeid, ferdig arbeid og bekreftet innlevering beholder ulike handlinger, med rolige påminnelser etter hovedhandlingen. Tom onboarding tilbyr oppgave med bare tittel tydelig; import er valgfri. Dialoger skal ha synlige handlinger og faktisk intern rulling ved 200 % tekst, med alle felt tilgjengelige fra tastaturet og fokus tilbake ved lukking.
+
+[Gjeldende verifikasjon](../../studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) skiller nye kandidatkontroller fra historikken og oppgir Docker-blokkeringen. Dette er tekniske rettinger innen samme V1, ikke dokumentert studentnytte.
+
+## Ajour-grensesnitt — 2026-10-25
+
+Ajour beholder den samme hovedflyten og de samme dataene. **Kom ajour.** møter studenten med neste handling, og **Planer endrer seg. Det er helt greit.** forklarer plassen til omplanlegging. Korte oversiktsutdrag leder til fullstendige oppgave-, kalender- og planvisninger. Mobil prioriterer handlingen i én kolonne; kalenderen beholder egen avgrenset rulling. Tomme tilstander og ukjent tid skal forklares uten demoarbeid, oppdiktede anslag eller ubekreftede påstander om ledig kapasitet.
+
+Ordmerke, notatbok/ansikt og dekor er lokale SVG-er gjenskapt fra de leverte desktop-/mobil-PNG-ene. En større designpakke var ikke tilgjengelig. Manrope og eksisterende fontlisens beholdes. [Arkitekturens AD-14](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-14--ajour-presentation-with-stable-data-contracts-2026-10-25) beskriver palett, teknisk navneklassifisering og bevarte kontrakter. [Ajour-verifikasjonen](../../studieplanlegger/VERIFICATION.md#ajour-grensesnitt-og-databevaring--2026-10-25) har separat status for den nye utformingen og kompatibiliteten; tidligere kjøringer beviser ikke denne endringen.
 
 ## Hovedflyt og gjeldende løfte — 2026-10-16
 
@@ -17,9 +29,9 @@ flowchart LR
 
 Tekniske beslutninger og sammenhengen med krav står i [arkitekturen](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). [Studentprøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) er framtidig. Denne dokumentasjonsrunden bruker Codex/BMAD. Sensorveiledningen for del 1 er kontrollert i sin helhet 2026-10-16; lærerens Claude Code-formulering er fortsatt et avklaringspunkt, se utviklingsprosessen.
 
-Studieplan er en lokal studieplanlegger skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet, som er dokumentert i [utviklingsprosessen](development-process.md). Dokumentet er ikke studentens personlige refleksjonsrapport.
+Ajour er en lokal studieplanlegger skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet, som er dokumentert i [utviklingsprosessen](development-process.md). Dokumentet er ikke studentens personlige refleksjonsrapport.
 
-**Samordning 2026-10-25:** [Importavtalen](../../studieplanlegger/IMPORT.md) beskriver felles forhåndsvisning, avklaring av emner/tid, gjentatt import og kildegrenser. [Nyeste verifikasjon](../../studieplanlegger/VERIFICATION.md) skiller kandidatkontrollene fra historiske resultater. Sensorveiledning og godkjent proposal ble ikke funnet i de avtalte dokumentmappene og er ikke lest i denne runden; eldre lesepåstander gjelder sine oppgitte datoer.
+**Samordning 2026-10-25:** [Importavtalen](../../studieplanlegger/IMPORT.md) beskriver felles forhåndsvisning, avklaring av emner/tid, gjentatt import og kildegrenser. [Nyeste verifikasjon](../../studieplanlegger/VERIFICATION.md) skiller kandidatkontrollene fra historiske resultater. Sensorveiledning og godkjent proposal manglet i publiseringsrunden før Ajour 25. oktober. Alle sju sensorsider ble senere lest i Ajour-runden samme dag; godkjent proposal er fortsatt ikke identifisert.
 
 ## To lokale kjøremåter
 
@@ -90,7 +102,7 @@ Ingen av funksjonene hevder at arbeid er utført. De bruker registrerte opplysni
 | Faktisk arbeid | Minutter og utfall studenten registrerer etter arbeid. Arbeidsloggen kan brukes i frivillige, lokale estimatforslag. |
 | Gjenstående arbeid | Studentens nåværende anslag for det som fortsatt må gjøres. Det reduseres ikke bare fordi en økt er passert. |
 | Ferdig / fullført | Studenten har bekreftet at selve arbeidet er ferdig. Hvis oppgaven skal leveres, er den da «klar til levering». |
-| Levert | Studenten har separat bekreftet innlevering. Studieplan kontrollerer ikke lærestedets innleveringssystem. |
+| Levert | Studenten har separat bekreftet innlevering. Ajour kontrollerer ikke lærestedets innleveringssystem. |
 
 «Neste steg gjort» markerer det aktive steget fullført og beholder identitet og historikk. Handlingen registrerer ikke automatisk minutter og fullfører ikke hele oppgaven. Null gjenstående arbeid betyr heller ikke automatisk ferdig. Disse skillene gjør at kalenderen, arbeidsloggen og innleveringsstatusen ikke brukes som bevis for hverandre.
 

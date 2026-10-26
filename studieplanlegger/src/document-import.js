@@ -10,6 +10,7 @@ import { documentInstitution } from './document-course-identity.js'
 import { validDocumentOrigin } from './import-source-contract.js'
 import { nameFirstLabel, visibleName } from './name-sort.js'
 import { calendarInstantLabel } from './calendar-model.js'
+import { applyCourseColor } from './course-colors.js'
 import './document-import.css'
 
 export { createDocumentImportPreview, buildDocumentImportCommit } from './import-preview.js'
@@ -414,6 +415,8 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
       const newlyResolved = row.kind === 'course' && pendingRows.has(row.index) && !pending && active?.rowKey !== rowIdentity(row) && !hasNativeInput
       const section = el('details', undefined, 'document-preview-row'); section.dataset.rowIndex = row.index; section.dataset.rowKey = rowIdentity(row); section.dataset.pending = String(Boolean(pending)); section.open = rowErrors.length > 0 || !newlyResolved && (openRows.has(row.index) || firstRender && (preview.rows.length === 1 || pending || row.requiresGroupChoice && !row.groupChoiceResolved))
       const savedCourse = row.kind === 'course' && linkedCourse(row)
+      const proposedCourse = row.courseChoice?.startsWith('row:') ? preview.rows[Number(row.courseChoice.slice(4))] : null
+      applyCourseColor(section, row.kind === 'course' ? row.courseTarget || row.targetId : proposedCourse ? proposedCourse.courseTarget || proposedCourse.targetId : row.courseChoice)
       const mark = (key, input) => { input.dataset.field = key; return input }
       const rowField = (key, parent, label, value, onChange, type = 'text') => {
         const identity = editorKey(rowIdentity(row), key), editor = retainedNativeInputs.get(identity) || referenceDraftEditors.get(identity)

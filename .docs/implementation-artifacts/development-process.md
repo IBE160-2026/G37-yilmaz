@@ -1,6 +1,24 @@
 # Development process and quality assurance
 
-This document records verifiable facts about how Studieplan was developed with AI assistance and BMAD. It is not the student's personal reflection report and does not claim personal learning, user value, or experience that has not been documented.
+This document records verifiable facts about how Ajour was developed with AI assistance and BMAD. It is not the student's personal reflection report and does not claim personal learning, user value, or experience that has not been documented.
+
+## Local Ajour delivery follow-up — 2026-10-26
+
+The approved local follow-up preserves the existing working tree, bounded V1 and data contracts. It addresses the teacher's clear main flow, traceable testing and fixture-privacy feedback. Running synthetic UI checks and earlier actual images reproduced the 900px heading wrap, long populated mobile introduction and competing reminders. New 200% keyboard tests exposed footer overlap and an onboarding opener replacement that broke focus return; the implementation fixes those causes and retains regressions. The explicitly approved NIH correction supersedes the earlier privacy deferral and requires independent synthetic negatives for both filters and field/attribute residue.
+
+VERIFICATION is condensed in place with current status first and dated material failures/limits retained; historical anchors remain valid. The complete selected working files are tested in an isolated candidate with its own unchanged-lockfile install, not inferred from HEAD. The earlier locked-install gap is closed for this candidate. Docker remains unavailable because its Linux engine pipe is missing and the service is stopped; the engine was not started. [Current evidence](../../studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) records actual results and remaining checks. Local references, raw prompts/logs, generated screenshots/data and an unused old illustration remain outside delivery; necessary SVG/font/license files and test inputs remain selected. No index write, staging, commit, push or production update is part of this work.
+
+The guide's seven-page reading belongs to the documented 25 October Ajour round; the earlier publication round lacked access. This follow-up does not invent a new reading, approved proposal, student trial, personal reflection or Outlook result.
+
+## Ajour interface implementation — 2026-10-25
+
+The approved local change starts from `9d3a1698db8b9c0a213d2448ec1abfa92893c2fb` and retains the bounded V1 and task → optional step → approved session → outcome → adjustment journey. The teacher feedback and all seven pages of the sensor guide were read for this work; its SHA-256 matches the guide identified in the planning index. This addresses bounded scope, clear main flow, consistent design, traceable checks and visible control of AI-assisted work. Earlier entries about an unavailable guide remain evidence of their own rounds. The approved proposal and overarching guide have not been identified.
+
+The design input consists of `START_HER.md`, `ajour-desktop.png` and `ajour-mobile.png`. The text provides design context, while the PNGs guide hierarchy, color and local artwork. No larger asset package was available. The notebook/face, lowercase wordmark and decorations are recreated locally as SVG rather than supplied original vectors. Manrope and the existing SIL Open Font License are retained. These deviations are explicit; there is no claim of an original vector/font package, a pixel-identical copy or a new student study.
+
+Current product labels become Ajour. Generic study-plan language, historical quotations and source URLs retain their meaning. Storage/session keys, backup envelope/version, SQLite/schema, API/flags, ICS UID domains/extensions, environment names and Compose/folder/command identities remain compatibility contracts; [AD-14](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-14--ajour-presentation-with-stable-data-contracts-2026-10-25) records the exact classification. No migration is part of the name change.
+
+Before-images and synthetic storage/backup captured before the change remain local ignored evidence. [The Ajour verification entry](../../studieplanlegger/VERIFICATION.md#ajour-grensesnitt-og-databevaring--2026-10-25) separates actual visual, browser, compatibility and Node/SQLite results. Docker could not run because its engine was stopped; starting it might restart existing production, so it remains an explicit verification gap. Prior passes are not reused as new acceptance. Raw agent logs, reference packages and temporary evidence are excluded from future delivery. The work is local only, with no staging, commit, push, deployment, production update or expansion of live-source testing. A fixture privacy finding was deferred at that checkpoint without reproducing personal values; the approved 26 October follow-up takes over its correction.
 
 ## Delivery reconciliation — 2026-10-25
 
@@ -58,7 +76,7 @@ For example, the full-stack review used blind, edge-case, and verification-gap l
 
 One example was the initial failure to start BMAD through `uv` in the agent context. The failure was separated into executable, command/path, and permission possibilities. The existing installation and required generator later ran through the environment's narrow approved mechanism with exit code 0, without reinstalling `uv` or changing file associations or security settings. The dated runtime record is in [VERIFICATION.md](../../studieplanlegger/VERIFICATION.md#docker-transport-follow-up--2026-09-20).
 
-Studieplan itself does not call a generative-AI service at runtime. Its suggestions are produced from registered data and deterministic rules. The locally shipped illustration is a static development asset, and the bundled fonts retain the [SIL Open Font License](../../studieplanlegger/public/fonts/OFL.txt).
+Ajour itself does not call a generative-AI service at runtime. Its suggestions are produced from registered data and deterministic rules. The locally shipped illustration is a static development asset, and the bundled fonts retain the [SIL Open Font License](../../studieplanlegger/public/fonts/OFL.txt).
 
 ## Concrete findings and corrections
 

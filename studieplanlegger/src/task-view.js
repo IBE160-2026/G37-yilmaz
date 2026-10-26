@@ -1,6 +1,7 @@
 import { suggestionReason } from './tasks.js'
 import { isOverdue, getRemainingMinutes, getRemainingRange, formatEstimateRange } from './tasks.js'
-import { courseColor, formatDeadline, taskStatus } from './calendar.js'
+import { formatDeadline, taskStatus } from './calendar.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 import { taskBlockers, unblocksCount, canStartTask } from './task-dependencies.js'
 import { primaryWorkStep } from './work-steps.js'
 
@@ -39,6 +40,8 @@ export function createTaskList(list, actions) {
     const stepEstimate = node('p', 'action-estimate')
     stepBox.append(stepLabel, stepText, stepEstimate)
     const reason = node('p', 'suggestion-reason')
+    const explanation = node('details', 'suggestion-explanation')
+    explanation.append(node('summary', '', 'Hvorfor dette forslaget?'), reason)
     const blockers = node('p', 'task-blockers')
     const submissionHint = node('p', 'muted', 'Angre levering før du endrer arbeidsstatus.')
     const controls = node('div', 'task-actions')
@@ -89,7 +92,7 @@ export function createTaskList(list, actions) {
     feedback.setAttribute('role', 'alert')
     feedback.hidden = true
     row.feedback = feedback
-    item.append(kicker, top, title, meta, capacityWarning, stepBox, blockers, reason, submissionHint, controls, feedback)
+    item.append(kicker, top, title, meta, capacityWarning, stepBox, blockers, controls, explanation, submissionHint, feedback)
     return row
   }
   function setDisabled(row, disabled) {
@@ -122,7 +125,7 @@ export function createTaskList(list, actions) {
         row.task = task
         row.item.hidden = suggestion && index > 0 && !alternatives
         row.item.classList.toggle('primary-suggestion', suggestion && index === 0)
-        row.item.style.setProperty('--course-color', courseColor(task.course))
+        applyCourseColor(row.item, resolvedCourseId(task))
         row.kicker.hidden = !suggestion
         setText(row.kicker, index === 0 ? 'Anbefalt' : index === 1 ? 'Alternativ' : 'Kort oppgave')
         setText(row.title, task.title)
@@ -148,6 +151,7 @@ export function createTaskList(list, actions) {
         setText(row.stepText, activeStep?.title || activeStep?.description || '')
         setText(row.stepEstimate, activeStep?.estimatedMinutes ? `${activeStep.estimatedMinutes} min · bare neste steg · inkludert i gjenstående arbeid` : 'Estimat ikke oppgitt · bare neste steg · inkludert i gjenstående arbeid')
         row.reason.hidden = !suggestion
+        row.reason.parentElement.hidden = !suggestion
         const unblocks = unblocksCount(task, allTasks)
         setText(row.reason, `${suggestionReason(task, minutes, now, index, allTasks)}${unblocks ? ` Kan åpne for ${unblocks} registrerte oppgaver som avhenger av denne.` : ''}`)
         const blocked = taskBlockers(task, allTasks); row.blockers.hidden = !blocked.length; setText(row.blockers, blocked.map(item => item.reason).join(' '))

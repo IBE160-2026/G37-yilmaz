@@ -8,7 +8,10 @@ const calendar = page => page.locator('#calendar-panel')
 const day = (page, date) => calendar(page).locator(`[data-calendar-date="${date}"]`)
 const dayRows = page => calendar(page).locator('.calendar-day-list [data-calendar-task]')
 const agendaRows = page => calendar(page).locator('#compact-agenda .kind-deadline')
-const month = page => calendar(page).getByRole('button', { name: 'Månedsvisning', exact: true }).click()
+const month = async page => {
+  if (!await calendar(page).isVisible()) await navigate(page, 'all')
+  await calendar(page).getByRole('button', { name: 'Månedsvisning', exact: true }).click()
+}
 const suggestions = page => page.locator('#dashboard-suggestions > li:visible')
 
 for (const width of [360, 1280]) {
@@ -29,7 +32,7 @@ for (const width of [360, 1280]) {
       await expect(page.locator('#summary-overdue-count')).toHaveText(String(Math.min(6, count)))
       if (count === 0) {
         const onboarding = page.locator('#connected-onboarding')
-        const firstTask = onboarding.getByRole('button', { name: 'Hopp over import', exact: true })
+        const firstTask = onboarding.getByRole('button', { name: 'Legg til oppgave', exact: true })
         await expect(onboarding).toBeVisible()
         await expect(firstTask).toBeVisible()
         await expect(onboarding.getByRole('button', { name: 'Importer emne', exact: true })).toBeVisible()
@@ -55,7 +58,8 @@ for (const width of [360, 1280]) {
         await page.screenshot({ path: testInfo.outputPath(`dashboard-${count}-tasks-${width}.png`), fullPage: true })
         return
       } else {
-        width === 360 ? await expect(calendar(page)).toBeHidden() : await expect(calendar(page)).toBeVisible()
+        await expect(calendar(page)).toBeHidden()
+        await expect(page.locator('#next-plan')).toBeVisible()
         await expect(suggestions(page)).toHaveCount(1)
         await expect(suggestions(page)).toContainText('Les oppgaveteksten og lag en disposisjon')
         await expect(suggestions(page)).toContainText('20 min · bare neste steg')
@@ -103,8 +107,8 @@ for (const width of [360, 1280]) {
       await navigate(page, 'overview')
       await page.screenshot({ path: testInfo.outputPath(`dashboard-${count}-tasks-${width}.png`), fullPage: true })
       if (width !== 360) {
-        await page.locator('#summary-week').click()
-        await expect(page.locator('#view-week')).toHaveAttribute('aria-pressed', 'true')
+        await page.locator('[data-daily-key="navigation:tasks"]').click()
+        await expect(page.locator('#view-all')).toHaveAttribute('aria-pressed', 'true')
       }
       expect(await writes(page)).toEqual([])
     })
@@ -192,6 +196,7 @@ test('editing from calendar, suggestion and task list updates one shared task an
   await day(page, '2026-09-10').click()
   await expect(dayRows(page)).toContainText('Rapporten er oppdatert')
   await expect(dayRows(page)).toContainText('kl. 18:45')
+  await navigate(page, 'overview')
   await expect(suggestions(page)).toContainText('Rapporten er oppdatert')
   await suggestions(page).locator('.task-menu > summary').click()
   await suggestions(page).getByRole('button', { name: 'Rediger «Rapporten er oppdatert»', exact: true }).click()
@@ -214,7 +219,7 @@ test('editing from calendar, suggestion and task list updates one shared task an
   await day(page, '2026-09-04').click()
   await expect(dayRows(page)).toContainText('kl. 21:15')
   const { nextStep: _legacyStep, ...migratedSelected } = selected
-  expect((await saved(page)).tasks).toEqual([{ ...migratedSelected, title: 'Rapporten er oppdatert', course: 'IBE160 nytt emne', deadlineLocal: '2026-09-04T21:15', steps: [{ id: `${selected.id}:legacy-next-step`, title: 'Lag en kort disposisjon', estimatedMinutes: 20, completed: false, provenance: { kind: 'legacy-next-step' } }] }])
+  expect((await saved(page)).tasks).toEqual([{ ...migratedSelected, title: 'Rapporten er oppdatert', course: 'IBE160 nytt emne', deadlineLocal: '2026-09-04T21:15', steps: [{ id: `${selected.id}:legacy-next-step`, title: 'Lag en kort disposisjon', estimatedMinutes: 20, completed: false, unblocksWaiting: false, provenance: { kind: 'legacy-next-step' } }] }])
   expect(await writes(page)).toHaveLength(3)
   await page.reload()
   await navigate(page, 'all')

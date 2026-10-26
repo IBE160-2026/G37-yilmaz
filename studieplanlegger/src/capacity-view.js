@@ -2,6 +2,7 @@ import { formatDay, formatDeadline, taskStatus } from './calendar.js'
 import { capacityNotice } from './capacity-notice.js'
 import { getRemainingMinutes, getRemainingRange, formatEstimateRange } from './tasks.js'
 import { osloLocal } from './planner.js'
+import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 
 const $ = selector => document.querySelector(selector)
 const setText = (node, text) => { if (node.textContent !== text) node.textContent = text }
@@ -32,6 +33,9 @@ export function createCapacityView(actions) {
   windowForm.querySelector('[type=button]').onclick = () => { windowEditing = null; windowForm.reset(); delete windowForm.dataset.dirty; windowForm.querySelector('[role=alert]').textContent = ''; windowForm.elements.kind.disabled = false }
   const sessions = new Map()
   const tasks = new Map()
+  let currentTasks = []
+  const updateCourseColor = () => applyCourseColor(form.closest('dialog') || form, resolvedCourseId(currentTasks.find(task => task.id === form.elements.taskId.value)))
+  form.elements.taskId.addEventListener('change', updateCourseColor)
   let disabled = true
   $('#compare-plans').addEventListener('click', () => actions.replan())
   $('#new-session').addEventListener('click', actions.openSession)
@@ -78,6 +82,7 @@ export function createCapacityView(actions) {
       errors()
       setText($('#session-form-heading'), session ? 'Rediger studieøkt' : 'Ny studieøkt')
       for (const field of fields) form.elements[field].value = session?.[field] || ''
+      updateCourseColor()
       form.elements.locked.checked = Boolean(session?.locked)
       form.hidden = false
       form.elements.dateLocal.focus()
@@ -93,6 +98,7 @@ export function createCapacityView(actions) {
     },
     render(model) {
       const { capacity, sessions: savedSessions = [], tasks: savedTasks } = model
+      currentTasks = savedTasks
       const nextTaskSignature = JSON.stringify(savedTasks.map(task => [task.id, task.title]))
       if (nextTaskSignature !== taskSignature) { taskSignature = nextTaskSignature; const selected = form.elements.taskId.value; form.elements.taskId.replaceChildren(new Option('Ufordelt studieøkt', '')); for (const task of savedTasks) form.elements.taskId.append(new Option(task.title, task.id)); form.elements.taskId.value = selected }
       const nextWindows = JSON.stringify([model.workWindows, model.busyWindows])
@@ -133,6 +139,7 @@ export function createCapacityView(actions) {
           sessions.set(session.id, row)
         }
         row.value = session
+        applyCourseColor(row.item, resolvedCourseId(savedTasks.find(task => task.id === session.taskId)))
         row.close.hidden = !session.taskId || savedTasks.some(task => task.id === session.taskId && task.completed)
         row.close.disabled = disabled
         const label = `Studieøkt ${formatDay(session.dateLocal, { year: true })} kl. ${session.startTime}–${session.endTime}${session.locked ? ' · Låst' : ''}`
@@ -164,6 +171,7 @@ export function createCapacityView(actions) {
           row = { item, title, deadline, minutes, explanation, allocations, edit }
           tasks.set(task.id, row)
         }
+        applyCourseColor(row.item, resolvedCourseId(task))
         setText(row.title, `${task.course} · ${task.title}`)
         setText(row.deadline, `Frist: ${formatDeadline(task.deadlineLocal, { year: true })} · ${taskStatus(task)}`)
         setText(row.minutes, `Gjenstående: ${formatEstimateRange(getRemainingRange(task))} · Satt av: ${planned.allocatedMinutes} min · Ikke planlagt: ${planned.missingMinMinutes || 0}–${planned.missingMaxMinutes ?? planned.missingMinutes} min`)
