@@ -1,5 +1,7 @@
 # Epics og stories for Ajour
 
+**Rekonstruert 2026-10-16; revidert 2026-10-26.** Produktomfang og S-01–S-08 er beholdt. Etter prosjekteierens beslutning 26. oktober gjelder S-07 egenutprøving, **planlagt / ikke gjennomført**, uten andre testpersoner. Tidligere plan om ekstern studentprøve ble ikke gjennomført eller bestått. Daterte tekniske oppfølginger nedenfor er historikk, ikke resultater fra egenutprøvingen. [Siste tekniske kontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26).
+
 ## Lokal Ajour-oppfølging — 2026-10-26
 
 Presisering av S-01/S-03/S-04/S-05/S-06 og Q-01–Q-03 innen godkjent V1:
@@ -10,7 +12,7 @@ Presisering av S-01/S-03/S-04/S-05/S-06 og Q-01–Q-03 innen godkjent V1:
 - **Given** begge NIH-personfiltre eller personrester i senere segmenter/attributter, **when** personvernprøvene kjøres, **then** hvert relevant felt kontrolleres selvstendig og nødvendig parserstruktur bevares; et syntetisk token fritar ingen annen verdi.
 - **Given** det komplette kontrollerte filutvalget, **when** kandidaten får egen låst installasjon og relevante regressjoner, **then** faktiske resultater og manifest-samsvar føres med dato; utilgjengelig Docker rapporteres som manglende kontroll.
 
-[Aktuell evidens](../../studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) er teknisk kontroll. S-07/studentprøve forblir planlagt, og historisk publisering `9d3a169` før Ajour blir ikke ny akseptanse.
+[Aktuell evidens](../../studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) er teknisk kontroll. S-07/egenutprøving er planlagt / ikke gjennomført, og historisk publisering `9d3a169` før Ajour blir ikke ny akseptanse.
 
 ## Ajour-grensesnitt og bevaring — 2026-10-25
 
@@ -21,9 +23,9 @@ Presisering av eksisterende S-01–S-06/S-08 og Q-01–Q-03; dette innfører ing
 - **Given** åpne skjemaer, importavklaringer og kalender, **when** innhold oppdateres eller tastatur brukes, **then** utkast, fokus, rulling og åpne seksjoner bevares, dialogfokus returnerer og importbekreftelsen er tilgjengelig.
 - **Given** syntetiske data og sikkerhetskopier fra før navneendringen, **when** de lastes, gjenopprettes og eksporteres, **then** data, relasjoner og ICS-UID-er bevares uten migrering; samme isolerte SQLite-/Docker-lagring overlever gjenskaping sammen med statiske merkevareressurser.
 
-Kontrollene inkluderer lang tekst, hover/fokus/valg/feil, minst 4,5:1 tekstkontrast og redusert bevegelse. Faktiske kjøreresultater føres separat i [Ajour-verifikasjonen](../../studieplanlegger/VERIFICATION.md#ajour-grensesnitt-og-databevaring--2026-10-25). S-07/studentutprøving er fortsatt ikke gjennomført.
+Kontrollene inkluderer lang tekst, hover/fokus/valg/feil, minst 4,5:1 tekstkontrast og redusert bevegelse. Faktiske kjøreresultater føres separat i [Ajour-verifikasjonen](../../studieplanlegger/VERIFICATION.md#ajour-grensesnitt-og-databevaring--2026-10-25). S-07/egenutprøving er planlagt / ikke gjennomført.
 
-**Samordnet 2026-10-25.** S-01/S-03/S-04/S-05 følger **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering** med lokale regler; S-02 støtter flyten med import, S-06 bevarer data, og S-08 bevarer valgfrie tillegg. Et eget steg er valgfritt. Krav-ID-er og HiMolde-/NTNU-avgrensning er uendret. Daterte tekniske resultater nedenfor tilhører sine kontrollerte versjoner; [publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) skiller dem fra kandidatkontrollene. S-07/studentprøven er fortsatt planlagt.
+**Samordnet 2026-10-25.** S-01/S-03/S-04/S-05 følger **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering** med lokale regler; S-02 støtter flyten med import, S-06 bevarer data, og S-08 bevarer valgfrie tillegg. Et eget steg er valgfritt. Krav-ID-er og HiMolde-/NTNU-avgrensning er uendret. Daterte tekniske resultater nedenfor tilhører sine kontrollerte versjoner; [publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) skiller dem fra kandidatkontrollene. S-07/egenutprøvingen er planlagt / ikke gjennomført.
 
 ## Personvern og kalenderintegritet — 2026-10-25
 
@@ -61,7 +63,7 @@ The [approved bounded correction](../../studieplanlegger/VERIFICATION.md#import-
 - **Given** desktop, 390px or enlarged text, **when** keyboard controls or delayed responses update the draft, **then** focus, scroll, open sections and newer choices remain usable. Technical screenshots and action/control counts are recorded separately from student testing in [VERIFICATION](../../studieplanlegger/VERIFICATION.md).
 - **Given** a time decision, an incomplete numeric edit or a retained receipt, **when** selection/rendering changes or a later edit is saved, **then** reselection preserves the explicit time decision, rendering retains the live input and current row binding, and stale receipt undo rejects without changing the saved envelope. Colliding group labels remain distinguishable; compact and detailed institution choices show the same effective affiliation and consent.
 
-**Rekonstruert 2026-10-16**, jf. [proveniens og historikk](README.md). Disse åtte små historiene beskriver eksisterende kode og en framtidig studentprøve. «Implementert» betyr at kode og tekniske tester finnes; det er ikke en ny kjøring eller studentaksept. [PRD](PRD.md) eier R-/Q-kravene, og [sporbarhet](TRACEABILITY.md) peker til kode, navngitte tester og daterte resultater.
+**Rekonstruert 2026-10-16**, jf. [proveniens og historikk](README.md). Disse åtte små historiene beskriver eksisterende kode og planlagt egenutprøving. «Implementert» betyr at kode og tekniske tester finnes; det er ikke en ny kjøring eller studentaksept. [PRD](PRD.md) eier R-/Q-kravene, og [sporbarhet](TRACEABILITY.md) peker til kode, navngitte tester og daterte resultater.
 
 ## Epic E-01: Etablere en plan
 
@@ -72,7 +74,7 @@ Som student vil jeg registrere det jeg vet, slik at manglende detaljer ikke hind
 - **Given** tom planlegger, **When** jeg lagrer et manuelt emne og en oppgave med bare tittel, **Then** oppgaven lagres uten oppdiktet frist eller anslag.
 - **Given** oppgaven og tilgjengelig tid, **When** jeg kontrollerer og godkjenner en økt og laster siden på nytt, **Then** emne, oppgave og økt beholder sine koblinger.
 
-Status: implementert; automatisert teknisk onboarding finnes. Studentforståelse gjenstår i S-07.
+Status: implementert; automatisert teknisk onboarding finnes. Prosjekteierens egenutprøving gjenstår i S-07; ukjente studenters forståelse er ikke undersøkt.
 
 ### S-02 — Avgrenset, kontrollert import (R-02, Q-02; SC-02)
 
@@ -145,14 +147,16 @@ Som student vil jeg bevare planen uten konto og kunne følge dokumentert lokal o
 
 Status: implementert; datert Node/SQLite- og Docker-evidens. Ingen ny Docker-kjøring 2026-10-16.
 
-### S-07 — Undersøke studentforståelse (R-07, Q-01; SC-07)
+### S-07 — Gjennomføre og dokumentere egenutprøving (R-07, Q-01; SC-07)
 
-Som leveranseansvarlig vil jeg skille teknisk funksjon fra faktisk studentforståelse.
+Som prosjekteier vil jeg gjennomføre en manuell prøve med syntetiske data og dokumentere mine egne observasjoner av hovedflyten.
 
-- **Given** en frivillig ny student og syntetiske data, **When** [prøveplanen](USER-TRIAL-PLAN.md) gjennomføres, **Then** registreres selvstendig fullføring av hovedflyten og studentens forklaring av ferdig/levert.
-- **Given** nødvendig fasilitatorhjelp eller feil forklaring, **When** prøven vurderes, **Then** kriteriet rapporteres som ikke oppnådd i den prøven, med konkret problem og uten oppdiktet nytte.
+- **Given** en isolert testinstans og syntetiske data, **When** jeg utfører de sju scenariene i [prøveplanen](USER-TRIAL-PLAN.md), **Then** registrerer jeg forventet mot faktisk resultat, feil og eventuell omprøving for hvert scenario.
+- **Given** oppgave med bare tittel og valgfritt emne/steg/anslag, **When** jeg godkjenner en økt, registrerer faktisk arbeid og nytt gjenstående anslag, kontrollerer omplanlegging/Angre og ferdig/levert, **Then** dokumenterer jeg om de separate tilstandene oppfører seg som forventet.
+- **Given** syntetisk kalender og lagrede oppgaver, **When** jeg prøver emnefarger, temabytte, omlasting og isolert sikkerhetskopi/gjenoppretting, **Then** registrerer jeg hva som faktisk bevares og eventuelle avvik. Lokale visningspreferanser loves ikke overført i sikkerhetskopien.
+- **Given** tekniske tester eller tomme observasjonsfelt, **When** status oppsummeres, **Then** teller de ikke som mine manuelle erfaringer eller som bevis for ukjente brukeres forståelse.
 
-Status: planlagt, ikke gjennomført. Personlig refleksjon og eventuell lengre egenbruk må skrives av studenten fra faktiske erfaringer.
+**Status: planlagt / ikke gjennomført.** Endret til egenutprøving etter prosjekteierens beslutning **2026-10-26**; ingen andre testpersoner rekrutteres. Den tidligere studentprøven ble ikke gjennomført eller bestått. Personlig refleksjon skrives fra prosjekteierens faktiske erfaringer.
 
 ### S-08 — Bevare eksisterende tillegg (R-08; støtter SC-04/SC-05)
 
@@ -205,14 +209,14 @@ Review corrections on the same date add these cases to S-02/S-05/S-06 and the ex
 
 The added [visible review journeys](../../studieplanlegger/tests/e2e/import-usability-review.spec.js), [unit regressions](../../studieplanlegger/tests/unit/import-usability-review.test.js) and expanded [selection/editor journey](../../studieplanlegger/tests/e2e/import-resolution.spec.js) verify these outcomes. Final post-review technical acceptance passed, including Node/SQLite and Docker recreation; earlier checkpoints remain historical. Tests are synthetic technical evidence. Public CSV schema, private CSV/TP equivalence and actual student understanding remain distinct, unverified claims; see dated [verification results](../../studieplanlegger/VERIFICATION.md).
 
-### S-02/S-05/S-06/S-07 follow-up - 2026-10-21
+### S-02/S-05/S-06 follow-up - 2026-10-21
 
 The [reimport repair](../../studieplanlegger/VERIFICATION.md#reimport-repair-final-verification---2026-10-21) adds these acceptance cases: a display-title change after reload retains activity IDs; pre-fix deletion/exclusion history survives reimport; real deletion needs an explicit grouped keep/restore decision; changing the missing candidate requires fresh consent; accepted course names and manual edits remain; undo followed by reimport retains valid relationships. Dates and course consequences distinguish ambiguous choices. No missing activity is silently recreated. Concrete results and limits are in [VERIFICATION](../../studieplanlegger/VERIFICATION.md).
 
 
 ### Source lifecycle continuation - 2026-10-21
 
-The user's subsequent failure reopens the existing R-02/R-05/R-06 and S-02/S-05/S-06/S-07 import journey. [The approved continuation](../../studieplanlegger/VERIFICATION.md#reopened-source-lifecycle-blocker---2026-10-21) requires A-to-B-to-A source revisions, deletion restore/omit and refreshed confirmation to reach storage with stable IDs; known per-course institutions must survive missing raw context, and deliberate corrections need explicit consent. New-file source selection and asynchronous drafts must remain isolated. Invalid previews explain their state rather than show zero completed totals. This applies the teacher's main-flow and documented-quality feedback within the same bounded providers/formats. [Dated verification](../../studieplanlegger/VERIFICATION.md) distinguishes proven synthetic failures, implementation checks and final runtime acceptance; earlier counts are not proof of this later blocker.
+The user's subsequent failure reopens the existing R-02/R-05/R-06 and S-02/S-05/S-06 import journey. [The approved continuation](../../studieplanlegger/VERIFICATION.md#reopened-source-lifecycle-blocker---2026-10-21) requires A-to-B-to-A source revisions, deletion restore/omit and refreshed confirmation to reach storage with stable IDs; known per-course institutions must survive missing raw context, and deliberate corrections need explicit consent. New-file source selection and asynchronous drafts must remain isolated. Invalid previews explain their state rather than show zero completed totals. This applies the teacher's main-flow and documented-quality feedback within the same bounded providers/formats. [Dated verification](../../studieplanlegger/VERIFICATION.md) distinguishes proven synthetic failures, implementation checks and final runtime acceptance; earlier counts are not proof of this later blocker.
 
 ### S-02/S-05/S-06: recognized TP CSV repair — 2026-10-23
 

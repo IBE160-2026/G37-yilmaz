@@ -1,5 +1,43 @@
 # Verifisering av Ajour
 
+## Lokal commitkontroll — 2026-10-26
+
+Avgrenset sluttkontroll av dokumentrevisjonen nedenfor og de tre navnetekstene, fra `main` på `2d7be923853fed30173399df6c62765103a69ca5`, med tom indeks ved start. Begge dokumentrollene er beholdt: briefen er produktgrunnlaget, PRD-en utdyper behov, krav og aksept. V1, stabile ID-er og rekonstruksjonshistorikk er uendret. Egenutprøving er fortsatt **planlagt / ikke gjennomført**, observasjonsfeltene er tomme, og personlig refleksjon er ikke fylt ut.
+
+Den tidligere 2278-kjøringen gjaldt samme rapporterte tre tekstendringer. Siden den ikke hadde et eget filmanifest, ble tekniske kontroller kjørt på nytt for dette commitutvalget. De **707 tracked ikke-Markdown-filene i appen** har identiske SHA-256-manifester før og etter testene; manifestets SHA-256 er `ae3d6fde33fc2d6ce828b3e61e78b74385e7051d30d5c8fb150a32581125c22d`. Rålogger, manifester og bygg forblir lokale/ignorerte.
+
+| Ny kontroll før lokal commit | Faktisk resultat |
+| --- | --- |
+| Fokusutvalg | `npm.cmd test -- --maxWorkers=2 tests/unit/database-delivery.test.js tests/unit/import-middleware-program-plan.test.js tests/unit/import-routing-matrix.test.js tests/unit/ajour-compatibility.test.js`: **52/52 i 4 filer**, exit 0, **2,27 s**. |
+| Full enhetssuite | `npm.cmd test -- --maxWorkers=2`: **2278/2278 i 132 filer**, exit 0, **50,00 s**. Fokusutvalget inngår i fullsuiten. |
+| Produksjonsbygg | `npm.cmd run build`: **87 moduler**, exit 0, **1,07 s**. Eksisterende bundlevarsel over 500 kB består. PDF-header-varselet i testene kommer fra den syntetiske ugyldige PDF-prøven. |
+| Verktøygrunnlag | Eksisterende Node **24.19.0**, npm **11.17.0**, Vitest **5.0.0**, Vite **8.2.2**, Playwright **1.63.0**. Ingen ny installasjon eller endring av manifest/låsefil; lokale Vitest-/Vite-patcher avviker fortsatt fra låsefilen. |
+| Dokumentasjon | Hele endringsdiffen, inkludert slettinger, er lest. Uavhengig kontroll bekrefter dokumentroller, V1, ID-er og korrekt prøvestatus. Faktiske Markdown-overskrifter, tabeller og escaping er kontrollert; **12 PowerShell-kodeblokker** er syntaksparset uten kjøring, **0 feil**. Lenker/ankre og kravkjeden er kontrollert på nytt; endelig kontroll føres i sesjonsloggen. |
+| Personvern og filutvalg | **18 relevante kandidatfiler:** 15 Markdown og tre serverfiler. Mønster-/formatkontroll av **323 unike filer**, inkludert **298 tracked fixturer** og den nye kuraterte loggen; **11 ICS** utfoldet og **269 HTML/JSON** samt PDF-/DOCX-metadata kontrollert. Eksisterende syntetiske verdier og offentlige kilde-/kontaktopplysninger er klassifisert; ingen nye uavklarte treff i commitutvalget. Læreroriginalene samsvarer med HEAD etter Git-normalisering av linjeendinger. Private data, databaser, sikkerhetskopier, rålogger, skjermbilder og genererte artefakter er utenfor utvalget. Dette er en avgrenset kontroll, ikke en universell garanti. |
+
+Restpunktene er beholdt som henholdsvis uutførte aktiviteter, tekniske begrensninger og uidentifiserte vurderingskilder. Manglende kildegrunnlag er ikke gjort til nye obligatoriske innleveringskrav. Lærerens originalfiler er bevart. Ingen nye nettleser-, Docker-, live-kilde- eller manuelle prøver er utført. Eldre resultater nedenfor er datert historikk. Oppdraget autoriserer bare lokale commits, uten push, publisering eller driftsendringer; commitresultatet føres i sesjonsloggen.
+
+## Dokumentrevisjon og navnekontroll — 2026-10-26
+
+Denne seksjonen gjelder den foregående dokumentrunden før commitkontrollen ovenfor; dens testtider og Git-status beholdes som historikk.
+
+Eksisterende PRD, brief, stories, sporbarhet og prøveplan er samordnet med lærerfeedback og prosjekteierens oppdrag. Rekonstruksjonsdatoen 16. oktober, V1-avgrensningen og stabile ID-er er beholdt. PRD-en samler produkt, problem, målgruppe/behov, krav, faktisk researchgrunnlag og reelle åpne spørsmål. Uriktige dokumentpåstander er korrigert i leveransedokumenter, sesjonslogg, åpne punkter og relevant lokalt arbeidsnotat.
+
+**SC-07/R-07/S-07:** Etter prosjekteierens beslutning 2026-10-26 gjelder [prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) manuell egenutprøving alene, med sju scenarier, syntetiske data og isolert lagring. Status er **planlagt / ikke gjennomført**. Ingen andre testpersoner rekrutteres. Den tidligere eksterne studentprøven ble ikke gjennomført eller bestått. Automatiske tester er teknisk evidens og fyller ikke ut manuelle observasjoner eller personlig refleksjon.
+
+Navnesøket klassifiserte aktive produktnavn, generiske fagord, historikk/kildetekst og tekniske kontrakter. UI, nettlesertittel, metadata og brukerrettede eksportnavn brukte allerede Ajour. Tre runtime-/feiltekster er nå rettet i `server/app.js`, `server/import-api.js` og `server/database.js`. Mapper/pakkenavn, lagringsnøkler, database-/backupformat, API-er, importidentiteter/User-Agent, ICS-UID-er/adapter-PRODID, `STUDIEPLAN_*` og Compose-navn beholdes, jf. [arkitekturen](../.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-14--ajour-presentation-with-stable-data-contracts-2026-10-25). Ingen migrering eller ny funksjon er innført.
+
+| Nye kontroller i denne runden | Faktisk resultat |
+| --- | --- |
+| Full enhetssuite etter de tre tekstendringene | `npm.cmd test`: **2278/2278 i 132 filer**, exit 0, **78,02 s**. |
+| Produksjonsbygg | `npm.cmd run build`: **87 moduler**, exit 0, **6,00 s**. Eksisterende bundlevarsel over 500 kB og et plugin-tidsvarsel; ingen byggfeil. |
+| Kontrollgrunnlag | Eksisterende lokal installasjon: Node **24.19.0**, Vitest **5.0.0**, Vite **8.2.2**. Ingen ny `npm ci`; manifest/låsefil angir nyere patchversjoner. Dette er ikke den tidligere isolerte, låste kandidaten. |
+| Dokumentlenker og ID-er | **36 Markdown-filer, 487 lokale lenker og 84 ankre**, ingen manglende mål. SC-01–SC-07, R-01–R-08, Q-01–Q-03, S-01–S-08 og E-01–E-03 er definert og koblet. Kodeblokkers eksempellenker er holdt utenfor. |
+| Uavhengig dokumentgjennomgang | Innhold kontrollert mot oppdrag, lærerfeedback og sensorvedlegg; struktur og språk kontrollert separat. Fire praktiske prøveplanfunn er rettet: beholdt framtidig økt til kalender/restore, isolert oppstartsoppskrift, nødvendig prøveoppsett etter tittel alene og uttrykkelig navneendring før fargekontroll. Ingen åpne funn fra gjennomgangen. |
+| Git og whitespace | `git diff --check` bestått; LF/CRLF-varsler er linjeendingsinformasjon. HEAD er uendret, og staged diff er tom. Sesjonslogg er skrevet lokalt uten commit. |
+
+Ingen nye nettleser-, Node/SQLite-runtime-, Docker- eller live-kildeprøver er kjørt her. Siste slike bevis er datert i [publiseringskandidaten](#samordning-og-publiseringskandidat--2026-10-26) og [temaoppfølgingen](#emnepalett-og-mørk-modus--2026-10-26); eldre Docker-blokkeringer er historiske. Private originalkalendere, brukerens databaser, profiler og sikkerhetskopier er ikke åpnet. Ingen staging, commit eller push er utført, heller ikke automatisk loggcommit.
+
 ## Samordning og publiseringskandidat — 2026-10-26
 
 Lærerens faktiske `origin/main` var `1e6af23dc09971a435d843950106075d73ed06d0`, med committene `87081a7` og `1e6af23` etter lokalt grunnlag `9d3a169`. Hele den innkommende endringen var tillegg av `CLAUDE.md` og `.claude/skills/sesjonslogg/SKILL.md`. Ingen lokale filkollisjoner eller pågående Git-operasjon ble funnet; indeksen var tom for staged endringer. `git merge --ff-only --no-autostash origin/main` bevarte lærerens opprinnelige commits.
@@ -18,7 +56,7 @@ Lærerens faktiske `origin/main` var `1e6af23dc09971a435d843950106075d73ed06d0`,
 
 **Gjenbrukt bevis, ikke nye kjøringer:** Alle **709 ikke-Markdown-filer**, inkludert kode, tester, fixturer, konfigurasjon og avhengigheter, er byteidentiske med temaoppfølgingens testede manifest. Faktisk rårapport bekrefter **215/215 Chromium-tilfeller i 20 filer**, ingen feil/hopp/flaky. Faktiske runtime-rapporter bekrefter **3 Node + 3 Docker-scenarioer**, 20 UI-/20 SQLite-kontroller, seks gjenskapinger og to synlige backup-gjenopprettinger; alle 180 runtimehashverdier samsvarer med det tidligere testede grunnlaget. Node-delen i `tp-csv-1793046145980-47833a89` bestod før kjøringens Docker-tilgangsfeil; separat `tp-csv-1793046716218-f44d5569` bestod Docker. Ingen ny Docker- eller live-kildekjøring er utført her.
 
-Faglærerfeedbacken og sensorvedleggets sju sider er lest i denne runden; kontrollsummen samsvarer med planindeksen. Samordningen følger opp sporbarhet, kontrollerbar kvalitet og ryddige fixturer. Brief, PRD, krav-ID-er og avgrenset V1 bevares uten ny kravrunde. Studentutprøving/SC-07, personlig refleksjon og faktisk Outlook-kontroll er fortsatt egne åpne aktiviteter. Godkjent proposal, overordnet sensorveiledning og lærerens omtale av Claude Code er fortsatt dokumenterte avklaringspunkter. Ingen ny teknisk blokkering er påvist i dette utvalget.
+Faglærerfeedbacken og sensorvedleggets sju sider er lest i denne runden; kontrollsummen samsvarer med planindeksen. Samordningen følger opp sporbarhet, kontrollerbar kvalitet og ryddige fixturer. Brief, PRD, krav-ID-er og avgrenset V1 bevares uten ny kravrunde. SC-07, personlig refleksjon og faktisk Outlook-kontroll er egne åpne aktiviteter; SC-07 følger nå egenutprøvingsplanen beskrevet øverst. Godkjent proposal og overordnet sensorveiledning er ikke identifisert. Ingen ny teknisk blokkering er påvist i dette utvalget.
 
 Private originaler, databaser, sikkerhetskopier, nettleserprofiler, rålogger, mellomnotater, referanser og genererte artefakter inngår ikke i leveransen. Historiske NIH-verdier er ikke sanert fra Git-historikken. Ingen reset, autostash, historikkomskriving, repository-navnebytte eller driftsoppdatering inngår; brukerdata, port 80 og driftscontaineren er uberørt. Faktisk publiseringsresultat registreres i den separate sesjonsloggen etter vellykket push.
 
@@ -26,7 +64,7 @@ Private originaler, databaser, sikkerhetskopier, nettleserprofiler, rålogger, m
 
 Den godkjente temaoppfølgingen bevarer dagens layout, logo og funksjonalitet. Tolv kuraterte emnefarger erstatter tidligere åtte kodebaserte farger; hver har bakgrunn, markør og tekst i begge temaer. Førgrunnlaget med tolv syntetiske emner viste bare sju forskjellige markører. Temaknappen og **System · Lyst · Mørkt** i Innstillinger endrer utseendet uten ny sidelasting eller domeneskriving. Hovedreisen og avgrenset V1 er uendret.
 
-**Status:** implementert, uavhengig gjennomgått og kontrollert i en isolert kandidat med egen `npm ci` fra uendret låsefil. Ingen åpne tekniske blokkeringer er påvist i dette avgrensede sluttutvalget; versjonen er klar for lokal utprøving og brukerens manuelle commit. Den tidligere Docker-blokkeringen er lukket med nye kontroller nedenfor. Eksisterende bundlevarsel og ikke gjennomført student-/Outlook-utprøving er fortsatt reelle begrensninger, ikke en påstand om en feilfri app.
+**Status ved temaoppfølgingen:** implementert, uavhengig gjennomgått og kontrollert i en isolert kandidat med egen `npm ci` fra uendret låsefil. Ingen åpne tekniske blokkeringer ble påvist i dette avgrensede sluttutvalget. Den tidligere Docker-blokkeringen ble lukket med kontrollene nedenfor. Eksisterende bundlevarsel og ikke gjennomført manuell utprøving/Outlook-kontroll er reelle begrensninger, ikke en påstand om en feilfri app. Gjeldende egenutprøving har status som beskrevet øverst.
 
 | Kontroll på den oppdaterte kandidaten | Resultat |
 | --- | --- |
@@ -54,7 +92,7 @@ Mellomkjøringer holdes adskilt: første fullsuite ga **2267 pass / 9 feil**, fo
 
 NIH-rettingen og tidligere dokumentopprydding er bevart: **alle 298 fixturer og begge personvernhjelper-/testfilene** er byteidentiske med det godkjente lokale førgrunnlaget. Personvernsuiten kjørte på nytt med **339 pass**. Hele leveranseutvalget ble kontrollert for kjente person-/kontakt-/tilgangs-/metadatamønstre: de samme **51 klassifiserte treffkategoriene**, ingen nye uavklarte treff. Dette er avgrenset felt- og mønsterkontroll, ikke universell navnedeteksjon. **90 tekniske kontraktfiler**, inkludert alle 80 backendfiler, lagring, backup, import/eksport, planregler, Compose og avhengigheter, er uendret. Ingen database-/backupmigrering, repository-endring eller endring av `STUDIEPLAN_*`, gamle nøkler eller ICS-UID-er.
 
-Studentutprøving/SC07, personlig refleksjon og faktisk Outlook-kontroll er fortsatt åpne vurderings-/bruksaktiviteter, ikke gjennomførte tekniske tester. Sensorveiledningens sju sider ble lest på nytt i denne temaoppfølgingen, med kontrollsum som i [planindeksen](../.docs/planning-artifacts/README.md); eldre fraværsnotater beskriver sine daværende runder. Ingen manglende proposal eller godkjenning er konstruert. Ingen staging, commit, push eller driftsoppdatering er del av arbeidet.
+SC-07, personlig refleksjon og faktisk Outlook-kontroll var ikke gjennomført ved denne tekniske kontrollen; SC-07 følger nå egenutprøvingsplanen beskrevet øverst. Sensorveiledningens sju sider ble lest på nytt i denne temaoppfølgingen, med kontrollsum som i [planindeksen](../.docs/planning-artifacts/README.md); eldre fraværsnotater beskriver sine daværende runder. Godkjent proposal var ikke identifisert. Ingen staging, commit, push eller driftsoppdatering var del av denne lokale temaoppfølgingen.
 
 <a id="gjeldende-lokal-oppfølging--2026-10-26"></a>
 
@@ -97,7 +135,7 @@ Vesentlige mellomresultater: før review bestod **1972 enheter**, **114 målrett
 
 **Leveranseavgrensning:** produktkode, tester, minimale fixturer, fire SVG-er og lokale fonter/lisens inngår. Referanser, designprompter/-pakker, rålogger, databaser, sikkerhetskopier, skjermbilder og genererte bygg inngår ikke. Den ubrukte `public/study-focus-v2.png` er bevart lokalt under ignorerte `artifacts/ajour-final-2026-10-26/local-archive/`, og er utelatt fra kandidaten. En presis ignore-regel dekker Ajours standard backupfilnavn. Ingen lokal arbeidsfil er slettet permanent eller fjernet fra Git-indeksen. Tidligere NIH-verdier i Git-historikk er ikke omskrevet av denne arbeidskopirettingen.
 
-**Åpent teknisk evidenspunkt før commit:** ny Dockeraksept er blokkert. Klient 29.8.0 finnes, men `desktop-linux` mangler `dockerDesktopLinuxEngine`-pipe, tjenesten er stoppet og ingen separat Linux-motor er tilgjengelig. Docker Desktop ble ikke startet fordi eksisterende tjenester med automatisk restart kan berøres. Når en motor kan gjøres tilgjengelig uten å starte/endre driften, kjøres `node tests/run-tp-csv-persistence.mjs docker main,correction-ui,corrections-ics` i kandidaten med kjørerens egne porter, containere og testvolumer. Gamle Dockerbevis er ikke nye pass. Nettleserkjøringenes tidsvariasjon og eksisterende bundlevarsel er dokumenterte begrensninger, ikke skjult av omkjøringene.
+**Historisk teknisk evidenspunkt i denne runden:** ny Dockeraksept var blokkert. Klient 29.8.0 fantes, men `desktop-linux` manglet `dockerDesktopLinuxEngine`-pipe, tjenesten var stoppet og ingen separat Linux-motor var tilgjengelig. Docker Desktop ble ikke startet fordi eksisterende tjenester med automatisk restart kunne berøres. Den senere [temaoppfølgingen](#emnepalett-og-mørk-modus--2026-10-26) dokumenterer bestått isolert Dockeraksept; blokkeringen gjelder ikke siste dokumenterte kontroll. Nettleserkjøringenes tidsvariasjon og eksisterende bundlevarsel er dokumenterte begrensninger, ikke skjult av omkjøringene.
 
 Den prøvde PowerShell-oppskriften står i [README](README.md#isolert-lokal-utprøving-av-ajour). Bruk kandidatens appmappe, egen database, `HOST=127.0.0.1`, `PORT=5190` og `STUDIEPLAN_SEED=false`; fjern eventuell `STUDIEPLAN_SEED_JSON` i samme prosess. Den lokale hjelperen `ajour-followup-2026-10-26/preview.ps1` utenfor repositoryet utfører akkurat dette og bygger først. Ingen staging, indeksendring, commit, push eller oppdatering av driftscontaineren er utført i oppfølgingen.
 

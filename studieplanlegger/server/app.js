@@ -44,7 +44,7 @@ async function staticFiles(req, res) {
 const server = createServer((req, res) => state(req, res, () => importMiddleware(req, res, () => {
   staticFiles(req, res).catch(() => { if (!res.headersSent) res.writeHead(500); if (!res.writableEnded) res.end('Server error') })
 })))
-server.listen(port, host, () => console.log(`Studieplan listening on ${host}:${port}`))
+server.listen(port, host, () => console.log(`Ajour listening on ${host}:${port}`))
 function shutdown() { server.close(() => { database.close(); process.exit(0) }) }
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)

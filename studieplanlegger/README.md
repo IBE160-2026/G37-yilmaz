@@ -1,6 +1,6 @@
 # Ajour
 
-Ajour knytter **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering** sammen med lokale regler. Bare oppgavetittel er obligatorisk; registrerte opplysninger og valgfrie importer gir grunnlaget for forslag som studenten kontrollerer før lagring. Appen bruker ingen generativ KI under kjøring.
+Ajour knytter **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering** sammen med lokale regler. Bare oppgavetittel er obligatorisk; registrerte opplysninger og valgfrie importer gir grunnlaget for forslag som studenten kontrollerer før lagring. Appen bruker ingen generativ KI under kjøring.
 
 **Ajour-oppdatering, 2026-10-26:** Ordmerket er **ajour**, med «Kom ajour.» og «Planer endrer seg. Det er helt greit.». Oversikten prioriterer neste handling og korte utdrag med vei videre til komplette visninger. De lokale SVG-illustrasjonene er gjenskapt med de to leverte PNG-referansene som grunnlag; en større designpakke var ikke tilgjengelig. Eksisterende Manrope og fontlisens beholdes. [Tidligere UI- og personvernkontroll](VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) skiller oppfølgingens resultater fra den historiske Ajour-runden 25. oktober og publiseringen `9d3a169` før Ajour.
 
@@ -16,7 +16,7 @@ Tema (`ajour:appearance:v1`) og ID→fargeplass (`ajour.course-colors.v1`) er se
 
 **Gjeldende avgrensning 2026-10-16:** [Planindeksen](../.docs/planning-artifacts/README.md) knytter brief, PRD og stories til kode/test som en datert rekonstruksjon. V1-import er HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, samt NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Full nasjonal dekning er visjon. Historiske tekniske kontroller nedenfor er ikke nye kjøringer eller dokumentert studentnytte.
 
-En syntetisk hovedflyt er å opprette et manuelt emne og oppgaven «Les eksempelkapittel», legge til et valgfritt steg, godkjenne en ledig økt, registrere faktisk arbeid og nytt gjenstående anslag, og godkjenne eller forkaste en justering. Fullført steg, ferdig arbeid og bekreftet innlevering er separate handlinger. Se [løsningsguiden](../.docs/implementation-artifacts/solution-guide.md) og [planen for studentutprøving](../.docs/planning-artifacts/USER-TRIAL-PLAN.md).
+En syntetisk hovedflyt er å opprette oppgaven «Les eksempelkapittel» med bare tittel, eventuelt legge til emne og steg, godkjenne en ledig økt, registrere faktisk arbeid og nytt gjenstående anslag, og godkjenne eller forkaste en justering. Fullført steg, ferdig arbeid og bekreftet innlevering er separate handlinger. Se [løsningsguiden](../.docs/implementation-artifacts/solution-guide.md) og [planen for egenutprøving](../.docs/planning-artifacts/USER-TRIAL-PLAN.md). Etter prosjekteierens beslutning 26. oktober utfører prosjekteieren prøven alene med syntetiske data i et isolert miljø. Status er **planlagt / ikke gjennomført**; automatiske tester fyller ikke ut de manuelle observasjonene.
 
 ## Import files and calendar links
 
