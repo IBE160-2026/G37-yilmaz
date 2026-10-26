@@ -9,7 +9,7 @@ updated: 2026-10-26
 
 Ajour hjelper studenten å gjøre oppgaver og tilgjengelig tid om til en gjennomførbar plan, registrere hva som faktisk skjedde og godkjenne nødvendige endringer. Appen kjører lokalt uten konto eller betalte tjenester. Studenten beholder kontroll over import, arbeidsanslag og planvalg.
 
-**Utseende, 2026-10-26:** Tolv stabile emnefarger og System/Lyst/Mørkt viderefører dagens layout og hovedreise. Tema er en lokal visningspreferanse; dette endrer ikke V1, importdekning eller dataløfter. [Nyeste tekniske kontroll](studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) er ikke dokumentasjon på studentnytte.
+**Utseende, 2026-10-26:** Tolv stabile emnefarger og System/Lyst/Mørkt viderefører dagens layout og hovedreise. Tema er en lokal visningspreferanse; dette endrer ikke V1, importdekning eller dataløfter. [Temarundens tekniske kontroll](studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) er ikke dokumentasjon på studentnytte.
 
 **Ajour, oppfølging 2026-10-26:** «Kom ajour.» og «Planer endrer seg. Det er helt greit.» uttrykker den samme avgrensede planleggingssløyfen. Navnet og grensesnittet oppdateres uten nye kilde- eller funksjonsløfter. [Den daterte Ajour-verifikasjonen](studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) dokumenterer oppfølging av tydelig neste handling, tilgjengelige dialoger og personvern i testmaterialet. Studentnytte er fortsatt ikke utprøvd.
 
@@ -19,11 +19,11 @@ Briefen er avgrenset **2026-10-16** etter [faglærerens tilbakemelding](tilbakem
 
 En **hypotetisk** HiMolde-student tar IBE110, IBE430 og IBE160 og har deltidsjobb to ettermiddager. Emneinformasjon, undervisning, Canvas-oppgaver og egne notater gir mange bruddstykker, men svarer ikke samlet på hva studenten kan gjøre den neste halvtimen. En tapt økt eller et for lavt anslag gjør planen urealistisk. Dette er et designscenario, ikke et gjennomført studentintervju.
 
-Kalenderapper viser avtaler og frister, Canvas samler fagets informasjon og innleveringer, og oppgavelister hjelper med å huske arbeid. Ajour forsøker å knytte disse behovene sammen gjennom én kontrollert planleggingssløyfe. Det er ingen påstand om markedsunikhet eller dokumentert lavere arbeidsbelastning.
+Kalenderapper viser avtaler og frister, Canvas samler fagets informasjon og innleveringer, og oppgavelister hjelper med å huske arbeid. Ajour forsøker å knytte disse behovene sammen gjennom én kontrollert planleggingssløyfe. Det er ingen påstand om markedsunikhet eller dokumentert lavere arbeidsbelastning. [Researchgrunnlaget i PRD-en](.docs/planning-artifacts/PRD.md#researchgrunnlag-og-lignende-løsninger) skiller kilder fra antakelser.
 
 ## Hovedflyt og låst v1
 
-**Oppgave → arbeidssteg → godkjent studieøkt → utfall → justering.** Registrer oppgaven manuelt eller bekreft et importforslag, velg et gjennomførbart neste steg, og kontroller økten før den lagres. Etter arbeid registrerer studenten utfallet og godkjenner eventuelle planendringer. Bare oppgavetittel er obligatorisk; et eget arbeidssteg er valgfritt. Ukjent tid og manglende frist skal fortsatt være ukjent. Fullført steg, fullført oppgave og manuelt bekreftet innlevering er tre forskjellige tilstander. Logget tid er verken automatisk gjenstående arbeid eller dokumentasjon på mestring.
+**Oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering.** Registrer oppgaven manuelt eller bekreft et importforslag, velg et gjennomførbart neste steg, og kontroller økten før den lagres. Etter arbeid registrerer studenten utfallet og godkjenner eventuelle planendringer. Bare oppgavetittel er obligatorisk; et eget arbeidssteg er valgfritt. Ukjent tid og manglende frist skal fortsatt være ukjent. Fullført steg, fullført oppgave og manuelt bekreftet innlevering er tre forskjellige tilstander. Logget tid er verken automatisk gjenstående arbeid eller dokumentasjon på mestring.
 
 Kjernen omfatter emner og oppgaver, undervisning og tilgjengelig tid, forklarte handlingsforslag, arbeidsutfall, godkjent omplanlegging med angre, samt varig lokal lagring og dokumentert Docker-oppstart. Forslagene bygger på lokale regler og registrerte opplysninger. Import gir støttedata til denne flyten; manuell registrering gjør kjernen brukbar uten eksterne kilder.
 
@@ -43,8 +43,10 @@ Hver rad har krav, story, kode, test/metode og evidensstatus i [sporbarhetsmatri
 | SC-04 | Registrering av faktisk tid endrer ikke automatisk gjenstående anslag; steg, arbeid og innlevering fullføres separat. |
 | SC-05 | Et forslag skriver ingen økter før godkjenning; godkjente endringer kan angres samlet. |
 | SC-06 | Emner, oppgaver, økter og relasjoner overlever omstart/gjenskaping med samme lokale datavolum. |
-| SC-07 | En ny student kan fullføre hovedflyten og forklare skillet mellom ferdig og levert uten fasilitatorhjelp, etter prøveprotokollen. **Ikke testet med student.** |
+| SC-07 | Prosjekteieren gjennomfører sju manuelle scenarier med syntetiske data i isolert testmiljø og dokumenterer forventet mot faktisk resultat, feil og eventuell omprøving. **Planlagt / ikke gjennomført.** |
+
+**Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. SC-07 beholder ID-en og følger [prøveplanen](.docs/planning-artifacts/USER-TRIAL-PLAN.md). Den tidligere planlagte studentprøven ble ikke gjennomført eller bestått. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner; målgruppen er uendret.
 
 ## Utenfor v1 og videre visjon
 
-Offentlig hosting, kontoer, betaling, skysynk, generativ KI i appen, automatisk kontakt, oppmøtekontroll og automatisk innlevering/bekreftelse er utenfor. Full nasjonal dekning er **framtidsvisjon**, ikke et uoppfylt v1-krav. Eksisterende adaptere beholdes med sine dokumenterte begrensninger. Før mer funksjonalitet prioriteres kvalitet, sporbarhet og faktisk studentutprøving. Teknisk arkitektur og daterte kjøreresultater finnes via [planindeksen](.docs/planning-artifacts/README.md); de beviser ikke studentnytte.
+Offentlig hosting, kontoer, betaling, skysynk, generativ KI i appen, automatisk kontakt, oppmøtekontroll og automatisk innlevering/bekreftelse er utenfor. Full nasjonal dekning er **framtidsvisjon**, ikke et uoppfylt v1-krav. Eksisterende adaptere beholdes med sine dokumenterte begrensninger. Før mer funksjonalitet prioriteres kvalitet, sporbarhet og planlagt egenutprøving. Teknisk arkitektur og daterte kjøreresultater finnes via [planindeksen](.docs/planning-artifacts/README.md); de beviser ikke studentnytte.

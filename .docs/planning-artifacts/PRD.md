@@ -1,125 +1,109 @@
+---
+title: "PRD: Ajour"
+status: final
+created: 2026-10-16
+updated: 2026-10-26
+---
+
 # PRD: avgrenset Ajour-leveranse
 
-**Rekonstruert 2026-10-16.** Grunnlag og proveniens står i [indeksen](README.md). [Briefen](../../brief.md) eier produktløftet; kravene her beskriver eksisterende funksjonalitet og en planlagt studentprøve, ikke nye funksjonsbestillinger.
+**Rekonstruert 2026-10-16, revidert 2026-10-26.** Dette er den eksisterende PRD-en, oppdatert etter [lærerens tilbakemelding](../../tilbakemelding-product-brief.md) og PRD-forberedelsene gjengitt i prosjekteierens oppdrag. Den beskriver allerede utviklet funksjonalitet og planlagt egenutprøving; den er ikke en opprinnelig plan for koden. [Briefen](../../brief.md) eier produktløftet, og [planindeksen](README.md) dokumenterer proveniens.
 
-## Bruker og avgrensning
+## Hva vi skal lage og hvilket problem det skal løse
 
-Primærscenarioet er den hypotetiske HiMolde-studenten med IBE110, IBE430, IBE160 og deltidsjobb. Kjernen er **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering**. Lokale regler bruker registrerte opplysninger; import støtter planleggingen. Et eget steg er valgfritt, og appen skal fungere med manuell registrering når eksterne kilder er utilgjengelige. Studenten kontrollerer hva som lagres; forslag og ukjent informasjon blir ikke behandlet som bekreftede fakta.
+Ajour er en lokal studieplanlegger som knytter oppgaver til tilgjengelig tid, foreslår neste handling og lar studenten justere planen etter faktisk arbeid. Emneinformasjon, undervisning, oppgavetekster og egne notater ligger ofte hver for seg. En kalender eller fristliste alene svarer ikke nødvendigvis på hva studenten kan gjøre nå når tiden er knapp eller et anslag har endret seg. Dette er prosjektets problemforståelse, ikke et resultat fra studentintervjuer.
 
-Importkravet er HiMolde IT 2026–27 (IBE110 + IBE430 og enten IBE160 eller IBE102 + IBE152), undervisning bare for IBE110/IBE430/IBE160 høst 2026, og NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Nasjonal dekning er visjon. Lokal fullstack, database og Docker er med; obligatorisk hosting, kontoer, cloud og generativ KI er utenfor.
+Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**. Bare oppgavetittel er obligatorisk. Studenten kan legge til emne, frist, steg og arbeidsanslag senere, kontrollere en foreslått økt, registrere faktisk arbeid og velge om planen skal endres. Forslag bygger på lokale regler og opplysninger studenten har registrert. Ukjent tid forblir ukjent, og ingen planendring lagres uten godkjenning.
 
-## Krav
+## Hvem løsningen er for og hvilke behov de kan ha
+
+Målgruppen er studenter ved norske universiteter og høgskoler som må samordne flere emner og begrenset arbeidstid. Primærscenarioet er en **hypotetisk HiMolde-student** med IBE110, IBE430, IBE160 og deltidsjobb to ettermiddager. Det er et designscenario, ikke en intervjuet person. Behovsantakelsene er å kunne starte med lite registrering, finne håndterbart arbeid, se tidskonflikter og endre et urealistisk anslag uten å miste oversikten.
+
+Studenten trenger tydelig skille mellom fullført steg, ferdig oppgave og bekreftet innlevering. Faktisk brukt tid skal holdes atskilt fra gjenstående anslag og faglig mestring. Egenutprøvingen utføres bare av prosjekteieren; målgruppen endres ikke av hvem som gjennomfører prøven. Vi har ikke dokumentert at ukjente brukere forstår appen eller at studentgruppen generelt får nytte av den.
+
+## V1-avgrensning
+
+V1 omfatter manuell registrering, emner og oppgaver, undervisning og tilgjengelig tid, forklarte øktforslag, arbeidsutfall, godkjent omplanlegging med Angre, lokal varig lagring og dokumentert Docker-oppstart uten konto eller betalt API. Manuell registrering skal fungere når eksterne kilder er nede. Eksisterende ordnede steg, frivillig egenvurdering/repetisjon, kalenderkopi og plansammenligning bevares.
+
+Importløftet er fortsatt **«HiMolde IT 2026–27 og NTNU emneutvalg høst 2026»**:
+
+- HiMolde-programprøven har IBE110 og IBE430, samt valget **IBE160 eller IBE102 + IBE152**. Undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026.
+- NTNU-prøvene gjelder emnemetadata og emnelenket undervisning for **ARK1001 og EXPH0100 høsten 2026**. Det loves ikke komplett NTNU-program, full eksamensdekning eller personlig gruppetilhørighet.
+- [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) avgrenser lokale kontrakttester, historisk offentlig transport og teknisk UI-kontroll. Hele HiMolde-programflytens gjentakelse er fortsatt ikke verifisert. Eksisterende adaptere utvider ikke leveranseløftet.
+
+## Krav og akseptansekriterier
+
+ID-ene er stabile. [Stories](EPICS-CURRENT.md) utdyper Given/When/Then, og [sporbarheten](TRACEABILITY.md) kobler hvert krav til kode, test/metode og datert evidens.
 
 | ID | Krav og sjekkbart resultat | Brief / story |
 | --- | --- | --- |
-| R-01 | Manuelt emne og tittel alene kan bli en lagret oppgave; frivillige felt kan fylles senere, og omlasting bevarer emne-/oppgave-/øktkoblinger. | SC-01 / S-01 |
-| R-02 | Import bevarer kildens påkrevde emner og alternative grener. Vis kilde, periode, usikkerhet og endringer før bekreftelse. Feilet oppdatering bevarer tidligere undervisning og valg. | SC-02 / S-02 |
-| R-03 | Forslag bruker registrerte vinduer, opptatt undervisning/aktiviteter, frister, avhengigheter og gjenstående arbeid. Manglende/ukjent kapasitet forklares; ikke gjett mestring eller utført arbeid. | SC-03 / S-03 |
+| R-01 | En oppgave kan lagres med bare tittel, også uten emne. Frivillige felt kan fylles senere; omlasting bevarer lagrede emne-/oppgave-/øktkoblinger. | SC-01 / S-01 |
+| R-02 | Import bevarer kildens påkrevde emner og alternative grener. Kilde, periode, usikkerhet og endringer vises før bekreftelse. Feilet oppdatering bevarer tidligere undervisning og valg. | SC-02 / S-02 |
+| R-03 | Forslag bruker registrerte arbeidsvinduer, opptatt tid, frister, avhengigheter og gjenstående arbeid. Nye økter unngår kjente konflikter; manglende kapasitet og ukjent grunnlag forklares uten å gjette mestring eller utført arbeid. | SC-03 / S-03 |
 | R-04 | Faktiske minutter og nytt gjenstående anslag registreres hver for seg. Fullført steg fullfører ikke oppgaven; fullført oppgave bekrefter ikke innlevering. | SC-04 / S-04 |
-| R-05 | Forhåndsvisning skriver ikke planen. Godkjenning validerer grunnlaget på nytt og skriver samlet; angre gjenoppretter samlet endring, foreldet grunnlag avvises. | SC-05 / S-05 |
-| R-06 | Lokal produksjonslagring bevarer identiteter og relasjoner etter restart/gjenskaping med samme volum; ugyldig eller foreldet skriving avvises uten delvis lagring. | SC-06 / S-06 |
-| R-07 | En ny student gjennomfører hovedflyten og forklarer ferdig/levert uten fasilitatorhjelp etter prøveprotokollen. Teknisk onboarding er ikke studentbevis. | SC-07 / S-07 |
+| R-05 | Forhåndsvisning skriver ikke planen. Godkjenning kontrollerer grunnlaget på nytt og lagrer samlet; Angre gjenoppretter den samlede endringen. Foreldet grunnlag avvises uten delvis lagring. | SC-05 / S-05 |
+| R-06 | Lokal produksjonslagring bevarer identiteter og relasjoner etter omstart/gjenskaping med samme datavolum. Ugyldig eller foreldet lagring avvises uten delvis endring; sikkerhetskopi/gjenoppretting bevarer domenedata. | SC-06 / S-06 |
+| R-07 | Egenutprøving utføres av prosjekteieren etter prøveplanens sju scenarier, med syntetiske data, isolert lagring og registrerte observasjoner per scenario. Automatiske tester erstatter ikke den manuelle prøven. | SC-07 / S-07 |
 | R-08 | Bevar leverte tillegg: ordnede steg, frivillig egenvurdering/repetisjon, kalenderkopi og plansammenligning. Logget tid er ikke mestring; repetisjon krever godkjenning og eksport er ikke synkronisering. | Eksisterende tillegg / S-08 |
-| Q-01 | Norsk grensesnitt, merkede felt, tastaturfokus og tekstlig status/emnekode; farge er tillegg til tekst. | SC-01, SC-07 / S-01, S-07 |
-| Q-02 | Ingen konto eller betalt API kreves. Studentdata lagres lokalt; private notater, rålogger og runtimefiler skal ikke inngå i Git-leveransen. Offentlige importkilder er eksterne avhengigheter. | SC-02, SC-06 / S-02, S-06 |
-| Q-03 | Evidens oppgir dato, metode og avgrensning. Skill fixturtest, live transport, teknisk UI, Docker og studentprøve. | Alle SC / alle stories |
+| Q-01 | Norsk grensesnitt, merkede felt, tastaturfokus og tekstlig status/emnekode. Farge supplerer tekst. Kalender, emnefarger og System/Lyst/Mørkt er lesbare; temabytte bevarer arbeid og åpne utkast. | SC-01, SC-07 / S-01, S-07 |
+| Q-02 | Ingen konto eller betalt API kreves. Studentdata lagres lokalt; private notater, rålogger og runtimefiler inngår ikke i Git-leveransen. Testdata minimeres uten å miste nødvendig kilde- og parserstruktur. | SC-02, SC-06 / S-02, S-06 |
+| Q-03 | Evidens oppgir dato, metode og avgrensning. Skill fixturtest, offentlig kildetransport, teknisk UI-/Docker-kontroll og prosjekteierens manuelle egenutprøving. | Alle SC / alle stories |
 
-## Aksept og status
+### Videreførte presiseringer av eksisterende krav
 
-### Emnepalett og mørk modus — 2026-10-26
+Dette samler presiseringene fra 18.–26. oktober uten nye funksjoner. Detaljerte eksempler er bevart i [stories](EPICS-CURRENT.md), [importavtalen](../../studieplanlegger/IMPORT.md) og [arkitekturen](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md).
 
-Q-01/Q-02 og R-06 videreføres uten layoutendring eller nytt produktløfte: tolv kuraterte emneidentiteter skal ha lesbare lyse/mørke varianter, bruke ledige plasser før gjenbruk og følge stabil emne-ID gjennom visning, endring og omlasting. Navn/kode og aktivitet-/statusmarkeringer beholdes. System/Lyst/Mørkt og en tilgjengelig toppknapp skal bytte tema uten å miste skjermtilstand eller skrive domenedata. Vanlig tekst krever 4,5:1, nødvendige kontrollgrenser/fokus 3:1. Separate nettleserpreferanser krever ingen database-/backupmigrering og loves ikke bevart portabelt i sikkerhetskopier. [Verifikasjonen](../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) avgrenser de faktiske kontrollene; studentutprøving er fortsatt ikke gjennomført.
+- **R-02/R-05/R-06:** Import skal gi én forståelig vei fra kildevalg via forhåndsvisning og nødvendige gruppeavklaringer til samlet bekreftelse. Gyldige valg, manuelle koblinger, uttrykkelig uten-emne-valg og beholdte utelatelser skal overleve oppdatering. Kildeskifte og forsinkede svar skal ikke overskrive nyere utkast. Entydige navn og koblinger gjenbrukes; manglende, provisorisk eller motstridende informasjon skal vises ærlig. Samme emnekode ved ulike læresteder skal ikke blandes.
+- **R-02/R-03:** Kildens periode og nøyaktige tidspunkt skal bevares. Manglende, like eller ugyldige sluttider gir ikke automatisk varighet, kapasitet, eksamen eller frist. Nødvendig valg mellom retting, punkt uten varighet og utelatelse skal forklares. Ugyldige kalenderdeler skal ikke flyttes til oppdiktede datoer eller slette gyldige data; kildeavlysninger skal treffe riktig forekomst. Oppdatering og gjentatt import skal bevare tidligere identiteter og kreve valg ved reell konflikt.
+- **R-05/R-08:** Kalenderkopi skal vise faktisk eksportutvalg og forklare utelatelser før bekreftelse, bevare tid og opptattstatus og aldri endre originalen. Eksport som ikke kan representere lagret presisjon skal ikke runde lydløst eller hevde at en tom nedlasting lyktes. Sletting og Angre skal vise riktig endring og bekrefte først etter vellykket lagring.
+- **Q-01:** Neste handling skal være lett å finne på tom og fylt oversikt. Leveringspåminnelser skal bevare de separate tilstandene. Ved 1440/900/390 px, 200 % tekst og tastatur skal felt og Lagre/Avbryt være tilgjengelige uten overlapp; utkast, fokus og relevant rulling skal bevares. Vanlig tekst krever 4,5:1 kontrast, nødvendige kontrollgrenser/fokus 3:1; redusert bevegelse skal respekteres.
+- **Q-01/R-06:** Tolv emnefarger skal bruke ledige plasser før gjenbruk og følge samme emne ved navneendring, visning og omlasting. Tema og farger er lokale visningspreferanser; de loves ikke overført i sikkerhetskopier. Tekniske navn og dataformater beholdes ved navnet Ajour, jf. arkitekturens AD-14 og AD-15.
 
-### Lokal Ajour-oppfølging — 2026-10-26
+## Researchgrunnlag og lignende løsninger
 
-R-01/R-03/R-04/R-05/R-06 og Q-01–Q-03 presiseres innen samme V1: Ved 900 px skal neste-steg-etiketten ha naturlig bredde og tidsspørsmålet høre sammen med hurtigvalg/egendefinert tid. Fylte mobiloversikter skal ha kort intro og tidlig Start. Leveringspåminnelser skal være roligere enn Start og fortsatt skille forfalt, ferdig arbeid og bekreftet innlevering. Tom onboarding skal tydelig tilby oppgave med bare tittel; import er valgfri.
+Dette er en avgrenset kildeoversikt, ikke en markeds- eller studentundersøkelse. De tre produktveiledningene nedenfor er lest 2026-10-26; de øvrige radene gjenbruker daterte undersøkelser som allerede finnes i prosjektet.
 
-Ved 390 px/200 % tekst skal dialogenes Lagre/Avbryt være synlige, innholdet faktisk kunne rulles og alle felt nås med tastatur uten footeroverlapp. Utkast, verdier, fokusretur, åpne seksjoner og relevant rulling bevares. Q-02/Q-03 krever at begge NIH-personfiltre og relevante navn-/ID-/verdi-/lenke-/attributtfelt håndteres med bevart parserstruktur og selvstendige syntetiske negative prøver; én syntetisk etikett fritar ikke resten av dokumentet. Dekningen skal beskrives avgrenset.
+| Hva og når | Kilde og faktisk funn | Betydning for Ajour og begrensning |
+| --- | --- | --- |
+| Produktgrunnlag, 2026-10-06 | [Lærerfeedback](../../tilbakemelding-product-brief.md) vurderer problemet og hovedreisen som konkrete, men etterspør avgrenset V1, sjekkbare kriterier og sporbarhet. | Gir føringer for leveransen; er ikke dokumentasjon på studentbehov eller nytte. |
+| V1-kilder, 2026-09-26 og 2026-10-01 | [Importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) beskriver daterte HiMolde-/NTNU-prøver og offentlig transport. | Underbygger et navngitt kildeutvalg, ikke nasjonal dekning eller personlig gruppetilhørighet. Hele HiMolde-programgjentakelsen er uverifisert; ingen nye live-prøver er kjørt nå. |
+| Kalenderformat, 2026-10-23 | [TP CSV-formatgrunnlag](../implementation-artifacts/tp-csv-format-contract-2026-10-23.md) dokumenterer offentlig NTNU-veiledning, offisiell TP-klient og CSV-header. | Kildeinformasjon og tidsusikkerhet må bevares og forklares. Ingen private originaler er undersøkt; feltroller er ikke en full TP-spesifikasjon. |
+| Kalenderalternativ, lest 2026-10-26 | [Google Calendar: oppgaver](https://support.google.com/calendar/answer/9901136?co=GENIE.Platform%3DDesktop&hl=en) beskriver planlagt tid, frist, fullføring og omplanlegging. | Har overlappende planleggingsfunksjoner. Ajours sammenhengende arbeidsflyt er et designvalg, ikke dokumentert overlegenhet eller markedsunikhet. |
+| Læringsplattform, lest 2026-10-26 | [Canvas: studentkalender](https://community.instructure.com/en/kb/articles/662787-unknown) beskriver emne-/gruppekalender, oppgaver, egne gjøremål, kalenderfeed og innleveringsmarkering. | Ajour må skille lokal arbeidsstatus fra faktisk innlevering. Dette lover ingen generell Canvas-integrasjon; faktisk innlevering skjer fortsatt i lærestedets løsning. |
+| Oppgavelistealternativ, lest 2026-10-26 | [Microsoft To Do](https://support.microsoft.com/en-us/todo/add-due-dates-and-reminders-in-microsoft-to-do) beskriver forfallsdatoer, påminnelser, gjentakelse og planlagtlisten. | Et relevant alternativ til deler av flyten. Studentenes preferanser og eventuell fordel ved Ajour er ikke undersøkt. |
 
-[Resultater fra UI- og personvernoppfølgingen](../../studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) er teknisk evidens. R-07/SC-07 forblir en planlagt studentprøve. Ingen nye tilbydere, datamigrering eller kilde-/nytteløfter innføres.
+Ingen intervjuer, studentundersøkelser eller observerte brukerresultater inngår i dette grunnlaget. Antakelsen om at koblingen mellom arbeid, tid og justering gir bedre oversikt, gjenstår å undersøke. Den planlagte egenutprøvingen kan gi konkrete observasjoner fra prosjekteieren, men ikke dokumentere bedre læring eller generell studentnytte.
 
-### Ajour-grensesnitt og bevaring — 2026-10-25
+## Hva som er kontrollert, antatt og planlagt
 
-R-01–R-06/R-08 og Q-01–Q-03 videreføres i Ajour. Oversikten skal gi en tidlig, tydelig handling, korte utsnitt av kommende arbeid og omplanlegging, med lenker til fullstendige visninger. Desktop bruker sentrert innhold rundt 1160 px; mobil bruker én kolonne uten stor dekorasjon, og kalenderen kan være bredere. Tomme og ufullstendige data skal gi ærlige tilstander, uten oppdiktede tidsanslag eller påstand om at ukjent arbeid passer.
+| Kategori | Gjeldende status 2026-10-26 |
+| --- | --- |
+| Implementert og teknisk kontrollert | R-01–R-06/R-08 og Q-01–Q-03 har avgrenset evidens i [sporbarheten](TRACEABILITY.md) og [siste dokumenterte kandidatkontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26). [Temarunden](../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) har faktisk Node-/Docker-kontroll; eldre Docker-blokkeringer er historiske. Ingen tidligere kjøring blir ny ved denne dokumentrevisjonen. |
+| Antakelser om behov og nytte | Designscenarioet, ønsket om mindre planleggingsarbeid og nytten av ett neste forslag er ikke validert med brukerundersøkelser. Tekniske tester beviser ikke læring eller generell studentnytte. |
+| Planlagt egenutprøving | SC-07/R-07/S-07: **planlagt / ikke gjennomført**. Bare prosjekteieren utfører de sju manuelle scenariene i [prøveplanen](USER-TRIAL-PLAN.md). Observasjoner, feil og eventuell omprøving fylles først inn etter faktisk utførelse. |
 
-Samme visuelle tokens skal omfatte navigasjon, kalender, skjemaer, dialoger og feil. Ved 1440/900/390 px, forstørret tekst, tastatur og redusert bevegelse skal innhold, fokus og godkjenning være tilgjengelige. Tekstkontrast skal nå 4,5:1. Utkast, fokus, rulling og åpne seksjoner skal bevares ved oppdatering. Forhåndsvisning skal fortsatt skrive ingenting; ugyldige eller foreldede forslag skal avvises samlet.
+**Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. Dette erstatter den tidligere planlagte prøven med en ny student; den tidligere prøven ble ikke gjennomført eller bestått. Samme SC-07/R-07/S-07 beholdes. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner. Personlig refleksjon må fortsatt bygge på prosjekteierens egne erfaringer.
 
-Dette er en presentasjonsendring uten datamigrering: lagrings-/sesjonsnøkler, konvolutter, backupformat/-versjon, API, SQLite, ICS-identiteter og driftsnavn beholdes. [Arkitekturens AD-14](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-14--ajour-presentation-with-stable-data-contracts-2026-10-25) angir navneklassifiseringen. [Den daterte verifikasjonen](../../studieplanlegger/VERIFICATION.md#ajour-grensesnitt-og-databevaring--2026-10-25) oppgir faktisk status; R-07/SC-07 er fortsatt en planlagt studentprøve.
+## Reelle åpne spørsmål og diskusjonstemaer
 
-### Personvern og kalenderintegritet — 2026-10-25
+| Spørsmål | Ansvar og når det følges opp |
+| --- | --- |
+| Hvilke deler av hovedflyten, kalenderen og temavalget oppleves uklare eller arbeidskrevende i egen bruk? | Prosjekteieren registrerer dette under de sju scenariene. Status er planlagt; ingen svar er fylt inn. |
+| Er vedlikeholdet av oppgaver og anslag nyttig nok sammenlignet med egen kalender/Canvas/oppgaveliste? | Prosjekteieren kan beskrive konkrete erfaringer etter prøven. Svaret kan ikke generaliseres til målgruppen eller dokumentere bedre læring. |
+| Hva er faktisk bekreftet utover lokale importprøver? | Hele HiMolde-programgjentakelsen og ekstern Outlook-import er ikke bekreftet. Eventuell senere kontroll får egen dato og avgrensning; den er ikke en ny funksjonsbestilling. |
+| Hvilke øvrige vurderingsdokumenter gjelder? | Godkjent proposal og overordnet veiledning er fortsatt ikke identifisert. Prosjekteieren kan supplere med disse når de foreligger; den tilgjengelige sensorveiledningen identifiseres i planindeksen. |
 
-R-02/R-05/R-06 og Q-02/Q-03 omfatter den bestilte rettingen av personvernrester og de fire dokumenterte kalenderfeilene. Standarddefinerte symbolverdier skal tolkes uavhengig av bokstavstørrelse, uten å endre UID eller fritekst. Motstridende identiteter og ugyldige tidskombinasjoner skal gi en tydelig forklaring; delvis import skal ikke slette tidligere data. Testmaterialet skal bevare nødvendig parserstruktur, faginnhold og attribusjon, mens unødvendige personfelt fjernes eller nødvendige felt syntetiseres. [Gjeldende verifikasjon](../../studieplanlegger/VERIFICATION.md) oppgir faktisk kontrollert kandidat og resultat; dette utvider ikke V1 eller dokumenterer studentutprøving.
+## Framtidige ideer utenfor V1
 
-**Tidligere samordning, før Ajour 2026-10-25:** Krav-ID-ene og v1-avgrensningen er beholdt. Oppfølgingene nedenfor er daterte presiseringer av samme flyt, ikke nye institusjonsløfter. [Sporbarheten](TRACEABILITY.md) peker til kode/test; [publiseringskontrollen](../../studieplanlegger/VERIFICATION.md#publiseringskontroll--2026-10-25) oppgir kontrollert grunnlag og dato. Historiske resultater er ikke nye kandidatresultater. Studentprøven R-07/SC-07 er fortsatt ikke gjennomført. Sensorveiledning og godkjent proposal var utilgjengelige i de avtalte dokumentmappene i denne runden.
+Nasjonal dekning er en **visjon**, ikke et uoppfylt V1-krav. Offentlig hosting, kontoer, betaling, skysynk, generativ KI i appen, automatisk kontakt, oppmøtekontroll og automatisk innlevering/bekreftelse er utenfor V1. Eventuell framtidig research eller brainstorming om målgruppens ulike behov og flere kilder må vurderes separat. Det bestilles ingen nye funksjoner eller ekstern brukerrekruttering i denne revisjonen.
 
-### Consolidated import and calendar closure approved — 2026-10-24
+## Revisjonshistorikk og dokumentgrenser
 
-The subsequent approved correction applies R-02/R-03/R-05/R-06/R-08 and Q-01–Q-03 to one complete import journey. Recognize an unambiguous course token throughout a relevant title, separately from exam/deadline classification. Reuse only qualified file/plan identities; preserve manual links, explicit no-course choices and known institutions. Older empty links do not distinguish parser omission from a deliberate choice, so their repair requires one grouped decision per course, retained on unchanged reimport. New unique links belong in the collective confirmation without another question.
+| Dato | Betydning |
+| --- | --- |
+| 2026-10-16 | PRD og sporbare ID-er rekonstruert mot eksisterende kode, jf. [proveniens](README.md). |
+| 2026-10-18–24 | Avgrensede import-/kalenderrettinger presiserte eksisterende krav. Aksepteksemplene er bevart i stories; faktiske kjøringer og begrensninger i VERIFICATION. |
+| 2026-10-25–26 | Ajour-grensesnitt, personvernretting, emnefarger og tema innen samme V1. Historiske resultater beholdes med dato. |
+| 2026-10-26, denne revisjonen | Produkt/problem/målgruppe, research og åpne spørsmål gjort lettere å finne; egenutprøving innført etter prosjekteierens beslutning; korrigert uriktige dokumentpåstander. Ingen nye produktfunksjoner. |
 
-Equivalent UTC/TZID occurrence identities must support cancellation without replacing event IDs. Bound recurrence expansion while retaining explicit RDATE values within selected coverage and explaining limits. Source-published course terms take precedence over an activity's half-year; actual DURATION ends belong in automatic import periods. Personal CSV hints must not create incidental courses, and a supplied identifier choice must be honored or rejected explicitly. Imported origin remains visible after manual editing. Provisional code-only names must not be displayed twice.
-
-Stored precision is authoritative. Distinct instants in the repeated autumn hour need distinguishing offsets. Calendar export must identify selected items that cannot be represented by whole-second ICS, explain omissions before confirmation, and report actual exported counts; it must never mutate source data, invent duration, silently round or claim an empty download succeeded. Existing time choices, atomicity, revision guards and undo remain required. Final acceptance requires visible fresh/legacy journeys, direct SQLite checks, backup/restore, recreation and independent review on the same source/build hashes. These are requirements, not claims that verification has already passed. The sensor guide remains unavailable; the private calendar was not opened.
-
-### Avgrenset oppfølging bestilt 2026-10-18
-
-[Kalenderfil- og flytoppfølgingen](../../studieplanlegger/VERIFICATION.md#kalenderfil-og-sammenhengende-flyt--2026-10-18) konkretiserer R-02, R-05, R-06 og Q-01–Q-03: én ICS-fil skal kunne bekreftes samlet med flere nye/eksisterende emner og hendelser uten emne. Identitet, kildeavlysninger, lokale endringer, revisjonsvern og angre bevares. Filimport er ikke synkronisering. Program-/emnesøk, synlig redigering, prioritetsvalg og kompakte planforslag forbedres innen eksisterende v1; ingen institusjonsadaptere eller nasjonal dekning tilføyes. Observasjonene er rapportert av brukeren 18. oktober 2026, ikke ekstern studentutprøving. Nye kjøreresultater føres separat i sporbarhet og verifikasjon; historikken nedenfor beholdes.
-
-### Calendar form follow-up 2026-10-19
-
-Subsequent UI follow-up, **2026-10-19**: [bounded form correction](../../studieplanlegger/VERIFICATION.md#calendar-import-forms-final-follow-up-2026-10-19) applies the existing R-02/R-05/R-06 and Q-01 requirements to all calendar import entries. Automatic file periods must not depend on optional semester fields. Proposed courses and events require one atomic confirmation; code-only names require an explicit provisional-name choice. Snapshot links use the same clarification flow, while recurring-source agreements remain separate. Compact groups must expose uncertainty and individual exclusion. This is a correction of the reported main-flow blockers, not expanded institution or format coverage.
-
-### Course and source resolution follow-up 2026-10-19
-
-Further approved import correction, **2026-10-19**: the [resolution correction](../../studieplanlegger/VERIFICATION.md#course-resolution-source-changes-and-csv-clarification--2026-10-19) requires reuse of unambiguous saved/source/catalogue names before asking the user, with institution/period/source identity preserved. Missing names are pending clarification, not silently omitted courses. Selected activities must have valid explicitly chosen links. Only unresolved groups need expanded controls; one atomic confirmation remains. Source changes invalidate previous feedback and delayed responses. CSV supports controlled decoding/column clarification, and known TP course viewing links reuse existing adapters only. No national catalogue, new institutional adapter, private-source test or general spreadsheet/HTML support is implied. Final evidence must be recorded separately; the specific cause of the four reported omitted courses is not assumed.
-
-### Historisk dokumentasjonsstatus 2026-10-16
-
-[Stories](EPICS-CURRENT.md) konkretiserer Given/When/Then. [Sporbarhetsmatrisen](TRACEABILITY.md) viser nøyaktige tester og status per forventet resultat. R-01–R-06/R-08 er implementert med avgrenset teknisk evidens; ingen av dem innebærer universell kilde- eller feilfrihetsgaranti. R-07 er ikke utprøvd med student. Q-01 har teknisk evidens, ikke dokumentert studentforståelse; Q-02/Q-03 avgrenses av de faktiske kontrollene. Dokumentasjonsrunden 16. oktober kjørte ikke app-/Docker-aksepten på nytt.
-
-Sensorveiledningen for del 1 er lest og kontrollert 2026-10-16; se kildeidentifikasjon og resterende kilder i indeksen. Faktisk studentnytte, personlig refleksjon og betydningen av lærerens Claude Code-formulering er fortsatt åpne spørsmål. De hindrer ikke korrekt dokumentasjon av eksisterende kode og evidens.
-
-
-### Import continuation evidence - 2026-10-19
-
-Existing R-02/R-05/R-06 and Q-01 through Q-03 are corrected by [the bounded import continuation](../../studieplanlegger/VERIFICATION.md#final-blocked-import-continuation--2026-10-19): ask for missing institution context, preserve accepted names, offer grouped provisional/no-course decisions, discover exact public TP selections and map supported CSV calendar fields with strict decoding. This extends no institutional delivery promise. Focused synthetic checks: 177 unit tests and 17 visible browser cases; final production/live evidence remains separately recorded in VERIFICATION.
-
-Final acceptance evidence now covers the entire visible path to persisted calendars, not merely parsing or encoding clarification: 100 browser cases plus synthetic Node/SQLite and Docker journeys with recreation, exact reimport/undo, failed-write and revision-conflict atomicity. The 1450-test unit suite and production build supplement those journeys. Public V1 IBE160 name lookup and a public UiO TP selection were checked separately. See [VERIFICATION](../../studieplanlegger/VERIFICATION.md) for exact sources, results and limits. Original user files and the complete TP URL are still unavailable; these requirements are technically verified within the documented supported scope, without a national-catalogue or student-testing claim.
-
-### Import usability correction — 2026-10-21
-
-[The approved usability correction](../../studieplanlegger/VERIFICATION.md#import-usability-continuation--2026-10-21) refines R-02/R-05/R-06 and Q-01–Q-03 within the same adapters and formats: full institution choice with per-course exceptions, collective activity selection without guessed membership, retained exclusions, necessary example-based CSV questions, exact event timestamps and accurate file/link/user provenance. A registry choice does not promise automatic name lookup or national coverage. Campus codes do not confirm physical campuses. Generic short CSV intervals must not be reclassified as TP assessment markers without source evidence. Focused synthetic checks and later independent runtime acceptance are dated separately in [VERIFICATION](../../studieplanlegger/VERIFICATION.md); no student trial or private-input verification is claimed.
-
-The pre-review checkpoint on **2026-10-21** included six production-build storage journeys: first UiO via TP and CSV from a plan containing only NTNU/HiMolde, and equal-period TP/CSV comparison, each on isolated Node/SQLite and Docker/SQLite with recreation/fresh browsers. Eight ungrouped activities required two selection/save actions instead of nine; a published eight-member group also required two. The unit suite at that checkpoint passed 1473 tests. These results precede the independent review corrections and do not establish final acceptance of the revised code.
-
-The review corrections make the existing requirements explicit: R-02/R-05/R-06 preserve the qualified event identity when a student confirms a source cancellation, retain campus/source-object distinctions on explicit CSV courses, fill a missing course name from later consistent rows and require clarification for conflicting names. A file revision of a link snapshot keeps source/event identities while showing the current file origin and filename. R-03 also requires a point given an explicit valid end time to reserve capacity as an interval; explicit transparency or source information remains nonblocking. R-02/Q-01 require course context on otherwise identical group labels, separate start/end column questions with examples from the actual conflicting rows, and exact supported milliseconds through preview, calendar detail, editing and reload. Malformed assessment groups, retained-exclusion limits, equivalent calendar aliases and provisional-title provenance must retain their existing validation and uncertainty protections.
-
-Regression coverage is linked in [TRACEABILITY](TRACEABILITY.md), including [the review unit cases](../../studieplanlegger/tests/unit/import-usability-review.test.js), [the visible review journeys](../../studieplanlegger/tests/e2e/import-usability-review.spec.js) and the expanded [selection/editor journey](../../studieplanlegger/tests/e2e/import-resolution.spec.js). Post-review technical acceptance is complete within this bounded scope. [VERIFICATION](../../studieplanlegger/VERIFICATION.md) records the final passing unit/browser/build/runtime checks, resolved intermediate failures and the proxy, source-identity and original-input limitations. Large repeated imports also avoid redundant timestamp conversion and exclusion searches without changing validation or test limits. No student-usability or universal-file claim is implied.
-
-### Import reimport repair - 2026-10-21
-
-R-02/R-05/R-06 and Q-01-Q-03: the [approved repair](../../studieplanlegger/VERIFICATION.md#reimport-repair-final-verification---2026-10-21) keeps title choice separate from activity identity, preserves historical exclusions/deletions and manual conflicts, and groups restoration decisions. Repeated identical input must retain IDs without per-row matching. Genuine ambiguity still needs an informed choice. This addresses the teacher's bounded-scope, clear-main-flow and documented-quality priorities without expanding provider coverage. [VERIFICATION](../../studieplanlegger/VERIFICATION.md) separates synthetic technical acceptance from unverified private inputs/student usability; an importer field role is not an independently verified public TP CSV schema.
-
-
-### Source lifecycle continuation - 2026-10-21
-
-The user's subsequent failure reopens the existing R-02/R-05/R-06 and S-02/S-05/S-06/S-07 import journey. [The approved continuation](../../studieplanlegger/VERIFICATION.md#reopened-source-lifecycle-blocker---2026-10-21) requires A-to-B-to-A source revisions, deletion restore/omit and refreshed confirmation to reach storage with stable IDs; known per-course institutions must survive missing raw context, and deliberate corrections need explicit consent. New-file source selection and asynchronous drafts must remain isolated. Invalid previews explain their state rather than show zero completed totals. This applies the teacher's main-flow and documented-quality feedback within the same bounded providers/formats. [Dated verification](../../studieplanlegger/VERIFICATION.md) distinguishes proven synthetic failures, implementation checks and final runtime acceptance; earlier counts are not proof of this later blocker.
-
-### Recognized TP CSV main flow — 2026-10-23
-
-The [approved bounded repair](../../studieplanlegger/VERIFICATION.md#recognized-tp-csv-main-flow-repair--2026-10-23) refines R-02/R-05/R-06 and Q-01–Q-03 for the [verified TP field family](../implementation-artifacts/tp-csv-format-contract-2026-10-23.md). Normal file selection leads to a short preview and collective confirmation. Per-row source title fallback and clearly marked provisional course/activity names remove separate name-entry requirements. Stored code, actual course name and provisional status remain distinct; accepted names and qualified identities survive correction and reimport. This supersedes earlier individual provisional-name approval for this recognized CSV family only.
-
-Exact seconds must survive preview, editing and storage. An absent or invalid end does not establish a point; an unmarked equal interval remains uncertain. Users may explicitly omit a problematic row while retaining the rest. No duration, institution, topic or full course name is invented. Existing ICS/TP-link behavior and source/revision protections remain requirements. Public header/field evidence does not explain the original reported 11:00 row. Sensor PDF is unavailable in this task; teacher feedback guides bounded scope, understandable main flow and concrete verification.
-
-### One understandable import flow — 2026-10-23
-
-The [approved clarity correction](../../studieplanlegger/VERIFICATION.md#import-clarity-final-review--2026-10-23) refines R-02/R-05/R-06 and Q-01–Q-03 within the same bounded V1 formats/providers. One import entry leads to explicit preview, selected counts/dates, necessary clarifications and **Importer valgte**. Per-course affiliations remain visible; the mixed-institution section offers registry choices including unknown, and common choices affect unknowns only. Uniquely established source/UID context survives omitted affiliation metadata; contradictory or ambiguous identity is never guessed.
-
-Uncertain end times offer correction, explicit user-confirmed point or omission. User point provenance is retained separately from source semantics; valid start, zero busy duration, no inferred exam/deadline classification from a title and later interval editing remain required. Optional details start closed, while required warnings, keyboard focus, current drafts and newer asynchronous work remain available. The receipt reports omissions and provides calendar and guarded undo actions. [Dated verification](../../studieplanlegger/VERIFICATION.md) distinguishes synthetic local/browser/SQLite/Docker checks, historical public format evidence and unverified private originals/student usability. No institution adapter, service, national coverage promise or production update is added.
-
-### Bounded calendar corrections approved — 2026-10-24
-
-R-02/R-03/R-05/R-06/R-08 and Q-01–Q-03 now explicitly require deletion receipts to identify the newly deleted item, using a course code or a general message when necessary, and to appear only after successful persistence. Mixed-institution imports must preserve distinct qualified identities even when course codes coincide or later metadata is absent. Compact course choices and the shared unknown-only choice remain available; visible SQLite/reload/reimport and backup/restore checks are required in addition to model tests.
-
-A prior time decision applies to the source timing it resolved. Changed valid intervals must not inherit an obsolete point decision; changed uncertain timing requires a renewed, concise choice. Equal, missing and invalid end times remain distinct. The confirmation and ready/blocking summary must remain reachable without hiding required questions or adding mandatory steps. Invalid ICS dates must not normalize silently; affected components and omissions must be identifiable while unrelated valid content remains importable. Preserve existing valid calendar forms and export scope. Downloaded TRANSP must agree with actual capacity, including nonblocking points and deadlines.
-
-The user now reports that the private CSV row contains equal minute-only times. This is a supplied structural fact, not an inspection performed in this round or proof of the row's intended meaning. Private originals remain unopened. The teacher's bounded-scope, understandable-flow and traceability guidance applies; the sensor guide is unavailable in the agreed document folders. Actual final-code results and any gaps belong in [VERIFICATION](../../studieplanlegger/VERIFICATION.md), not in an assumption that these acceptance requirements have already passed.
+Implementasjonsvalg og kontrakter hører til arkitekturen. Detaljerte kjøreresultater hører til verifikasjonen. Denne PRD-en beskriver produktbehov, krav og grensen for hva dokumentasjonen kan underbygge.

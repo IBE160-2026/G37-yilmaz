@@ -122,7 +122,7 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
   fetchBytes.cacheKey = fetchBytesImpl; fetchBytes.signal = controller.signal
   const send = (status, data) => { if(res.destroyed || res.writableEnded)return; res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)) }
   if (!/^(?:127\.0\.0\.1|localhost|[a-z0-9.-]+\.localhost|\[::1\])(?::\d+)?$/i.test(req.headers.host || '')) return send(403, { error: 'Importtjenesten er bare tilgjengelig på denne datamaskinen.' })
-  if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}` && req.headers.origin !== `https://${req.headers.host}`) return send(403, { error: 'Henting må startes fra studieplanleggeren.' })
+  if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}` && req.headers.origin !== `https://${req.headers.host}`) return send(403, { error: 'Henting må startes fra Ajour.' })
   if (/^cross-site$/i.test(req.headers['sec-fetch-site'] || '')) return send(403, { error: 'Importtjenesten kan ikke startes fra et annet nettsted.' })
   ;(async () => {
     const provider = url.pathname.match(/^\/api\/import\/providers\/([a-z0-9-]+)\/(search|details|programs|program-cohorts|program-plan|teaching-search|teaching-calendar)$/)

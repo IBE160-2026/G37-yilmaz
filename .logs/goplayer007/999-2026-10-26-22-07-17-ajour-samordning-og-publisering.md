@@ -27,5 +27,5 @@ Sluttutvalget omfatter **744 filer**: 740 godkjente Ajour-filer, lærerens to in
 Ingen påvist teknisk publiseringsblokkering i det kontrollerte utvalget. Punktene er speilet i [issues](issues.md):
 
 - Eksisterende bundlevarsel over 500 kB består.
-- Godkjent proposal og overordnet sensorveiledning er ikke identifisert; lærerens omtale av Claude Code er fortsatt et avklaringspunkt. Det identifiserte sju-siders sensorvedlegget er lest med samsvarende kontrollsum.
-- Studentutprøving/SC-07, personlig refleksjon og faktisk Outlook-kontroll er separate, ikke gjennomførte aktiviteter.
+- Godkjent proposal og overordnet sensorveiledning er ikke identifisert. Det identifiserte sju-siders sensorvedlegget er lest med samsvarende kontrollsum.
+- SC-07, personlig refleksjon og faktisk Outlook-kontroll var ikke gjennomført ved denne publiseringen. Senere samme dato endret prosjekteieren SC-07 til [egenutprøving alene](../../.docs/planning-artifacts/USER-TRIAL-PLAN.md), fortsatt planlagt / ikke gjennomført. Den tidligere eksterne studentprøven ble ikke gjennomført.

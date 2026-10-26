@@ -131,7 +131,7 @@ export class StateDatabase {
   }
 
   seedEnvelope(value) {
-    if (!validEnvelope(value, { relations: true })) throw new Error('Seed data is not a valid Studieplan envelope.')
+    if (!validEnvelope(value, { relations: true })) throw new Error('Seed data is not a valid Ajour envelope.')
     this.save(value, 0, { snapshot: false })
   }
 

@@ -4,7 +4,7 @@
 
 Den fylte mobiloversikten har en kort introduksjon før Start. Tidsspørsmålet, hurtigvalgene og egendefinert tid er én samlet kontrollgruppe. Forfalt arbeid, ferdig arbeid og bekreftet innlevering beholder ulike handlinger, med rolige påminnelser etter hovedhandlingen. Tom onboarding tilbyr oppgave med bare tittel tydelig; import er valgfri. Dialoger skal ha synlige handlinger og faktisk intern rulling ved 200 % tekst, med alle felt tilgjengelige fra tastaturet og fokus tilbake ved lukking.
 
-[Gjeldende verifikasjon](../../studieplanlegger/VERIFICATION.md#gjeldende-lokal-oppfølging--2026-10-26) skiller nye kandidatkontroller fra historikken og oppgir Docker-blokkeringen. Dette er tekniske rettinger innen samme V1, ikke dokumentert studentnytte.
+[Siste dokumenterte kandidatkontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26) skiller nye kontroller fra gjenbrukt teknisk evidens. Docker-blokkeringen i de tidligere rundene er historisk; [temaoppfølgingen](../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) dokumenterer senere beståtte isolerte Docker-prøver. Ingen ny runtimekontroll er utført i denne dokumentrevisjonen. Dette er teknisk evidens innen samme V1, ikke dokumentert studentnytte.
 
 ## Ajour-grensesnitt — 2026-10-25
 
@@ -27,7 +27,7 @@ flowchart LR
   E --> C
 ```
 
-Tekniske beslutninger og sammenhengen med krav står i [arkitekturen](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). [Studentprøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) er framtidig. Denne dokumentasjonsrunden bruker Codex/BMAD. Sensorveiledningen for del 1 er kontrollert i sin helhet 2026-10-16; lærerens Claude Code-formulering er fortsatt et avklaringspunkt, se utviklingsprosessen.
+Tekniske beslutninger og sammenhengen med krav står i [arkitekturen](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). Etter prosjekteierens beslutning **2026-10-26** utføres [egenutprøvingen](../planning-artifacts/USER-TRIAL-PLAN.md) av prosjekteieren alene, med syntetiske data i et isolert miljø. Status er **planlagt / ikke gjennomført**. Den skal dokumentere prosjekteierens observasjoner, ikke ukjente brukeres forståelse eller studentgruppens nytte. Dokumentasjonsarbeidet bruker Codex/BMAD. Sensorveiledningen for del 1 ble dokumentert kontrollert i sin helhet 2026-10-16.
 
 Ajour er en lokal studieplanlegger skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet, som er dokumentert i [utviklingsprosessen](development-process.md). Dokumentet er ikke studentens personlige refleksjonsrapport.
 

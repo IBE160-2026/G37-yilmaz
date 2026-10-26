@@ -22,6 +22,8 @@ sources:
 
 # Technical plan: Ajour
 
+**Documentation revision, 2026-10-26:** R-07 now uses the project owner's planned manual self-trial with synthetic data, following the owner's decision on this date. It is not completed and establishes no result for unfamiliar users. The product scope and technical contracts are unchanged. The name audit corrected three runtime/error display strings to Ajour. Existing import transport identifiers (`Studieplanlegger/1.0` User-Agent and adapter-generated ICS `PRODID` values), package identity and the data/runtime names below remain compatibility exceptions; visible calendar exports already use Ajour.
+
 ## AD-15 — Local appearance preferences and course identity, 2026-10-26
 
 The existing layout and domain contracts remain. A synchronous same-origin [theme bootstrap](../../../../studieplanlegger/public/theme-init.js) establishes `data-theme`, native `color-scheme` and initial paint before styles/application loading. [Appearance controls](../../../../studieplanlegger/src/appearance.js) subscribe to it; switching variables does not rebuild views. System is the default; explicit light/dark overrides OS changes. The top button stores the opposite displayed theme. Storage failures leave an in-memory usable preference.
@@ -73,7 +75,7 @@ Production is a local Node API plus authoritative SQLite, with revision-checked,
 | R-03, R-05 | AD-9/AD-11 and acceptance hardening: shared capacity/dependency rules, fingerprinted proposals, atomic commit and history/undo. |
 | R-04, R-08 | AD-9/AD-12: actual work and remaining estimates independent; stable ordered steps, optional assessment/review, read-only calendar copy, controlled plan comparison. |
 | R-06, Q-02 | AD-10: SQLite authority, automatic transactional migrations, optimistic revisions, backup/recovery and same-volume persistence. |
-| R-07, Q-03 | [Student trial](../../USER-TRIAL-PLAN.md) is planned. Technical verification and human understanding remain separate. |
+| R-07, Q-03 | [Owner self-trial](../../USER-TRIAL-PLAN.md), revised 2026-10-26, is planned / not performed. Synthetic manual observations remain separate from technical verification and do not establish general student benefit. |
 
 **Reading the history:** AD-1–AD-8, the older screen description, stack snapshot and scaffold/setup instructions below are historical. Conflicting required task fields, browser-only storage, one-step/no-history exclusions and port-80 setup are superseded by AD-9–AD-12 and this map. Do not rerun scaffold/install instructions or use actual port-80 storage for verification. Use the current [README](../../../../README.md) for startup. Old decisions remain to show evolution, not as active contradictory instructions.
 
