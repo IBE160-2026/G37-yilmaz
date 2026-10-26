@@ -57,3 +57,29 @@ Sesjonsloggen og `issues.md` fullføres i en separat lokal loggcommit etter hove
 ### Åpne punkter
 
 Egenutprøving er fortsatt **planlagt / ikke gjennomført**; observasjonsfeltene er tomme. Personlig refleksjon, faktisk Outlook-kontroll og full HiMolde-programgjentakelse gjenstår. Bundlevarselet består som teknisk begrensning. Uidentifisert proposal og overordnet sensorveiledning er kildebegrensninger, ikke nye obligatoriske innleveringskrav. Alle punktene er bevart og gruppert i `issues.md`.
+
+## 2026-10-26 kl. 23:37 — GOplayer007
+
+### Oppgave
+
+Publisere de ferdige lokale Ajour-committene til GitHub med vanlig push, etter brukerens uttrykkelige autorisasjon. Oppdraget deler den kontrollerte revisjonen som følger opp lærerens krav om avgrensning, sporbarhet og sjekkbare kriterier.
+
+### Plan
+
+- Kontrollere repository, remote, `main`, arbeidskopi, indeks og de to angitte committene; hente oppdatert status med `git fetch origin`.
+- Kontrollere at push kan gjøres som fast-forward, gjenbruke dokumenterte tester ved uendret kode og fullføre kuratert logg før siste push.
+- Pushe `main` til `origin/main` og deretter sammenligne lokal HEAD direkte med `git ls-remote`.
+
+### Resultat
+
+Arbeidskopi og indeks var rene på `main`, HEAD `97a6fafbc04a5a8555a35bc6ca5ca614672ff607`. Både `ffcf0a3` og `97a6faf` inngår i lokal `main`. Fetch-/push-remote er `https://github.com/IBE160-2026/G37-yilmaz.git`. Etter vellykket `git fetch origin` var `origin/main` fortsatt `2d7be923853fed30173399df6c62765103a69ca5`: to lokale commits foran, ingen remote-commits bak. Ancestry-kontrollen bekrefter at disse kan publiseres med fast-forward.
+
+Uavhengig kontroll bekrefter at alle 707 versjonerte ikke-Markdown-appfiler er byteidentiske med begge manifestene fra den dokumenterte commitkontrollen. Tidligere 52 fokustester, 2278 enhetstester og produksjonsbygg gjenbrukes; ingen nye tester er kjørt. Utgående endringer er de tidligere kontrollerte 18 filene. Appen, testresultatene og driftscontaineren er uendret.
+
+Ny personvern-/formatkontroll av 323 dokument-/fixturefiler, inkludert 11 utfoldede ICS, fant ingen nye avvik. Den nye loggteksten er også kontrollert. Dokumentkontrollen fant ingen feil i 489 lokale lenker, 85 ankre eller krav-/storyreferansene; diff-/whitespacekontrollen bestod.
+
+Denne loggoppdateringen ferdigstilles og committes før den autoriserte pushen. Pushresultat, slutthash, direkte remote-sammenligning og endelig Git-status rapporteres etter utførelsen; de er ikke forhåndsregistrert som bestått her.
+
+### Åpne punkter
+
+Ingen nye. De dokumenterte aktivitetene, tekniske begrensningene og manglende vurderingskildene i [issues](issues.md) er uendret; egenutprøving er fortsatt **planlagt / ikke gjennomført**.
