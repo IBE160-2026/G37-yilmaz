@@ -22,6 +22,38 @@ const allKinds = () => ({
 const options = { includeTeaching: true, includePersonal: true }
 
 describe('RFC 5545 METHOD:PUBLISH creation timestamp', () => {
+  it('does not add a second identical course prefix to an imported title', () => {
+    const state = allKinds()
+    state.planner.courses.push({ id: 'synthetic-course', code: 'QA001' })
+    Object.assign(state.planner.events[0], { courseId: 'synthetic-course', title: '[QA001] STRESS syntetisk – æøå' })
+    const before = structuredClone(state)
+    const exportAt = time => read(generateCalendarIcs(state, { ...options, now: () => Date.parse(time) })).getAllSubcomponents('vevent').find(event => value(event, 'uid') === calendarUid('teaching', 'synthetic-teaching'))
+    const first = exportAt('2026-10-29T17:00:00Z')
+    expect(value(first, 'summary')).toBe('[QA001] STRESS syntetisk – æøå')
+    expect(state).toEqual(before)
+    state.planner.events[0].title = '[QA001] Endret syntetisk tittel'
+    const second = exportAt('2026-10-29T18:00:00Z')
+    expect(value(second, 'summary')).toBe('[QA001] Endret syntetisk tittel')
+    for (const property of ['uid', 'dtstart', 'dtend']) expect(value(second, property)).toBe(value(first, property))
+    expect(value(second, 'dtstamp')).toBe('2026-10-29T18:00:00Z')
+  })
+
+  it.each([
+    ['QA001', 'Syntetisk tittel', '[QA001] Syntetisk tittel'],
+    ['QA001', '[QA0010] Annet emne', '[QA001] [QA0010] Annet emne'],
+    ['QA001', 'Les [QA001] senere', '[QA001] Les [QA001] senere'],
+    ['QA001', '[QA001]suffix', '[QA001] [QA001]suffix'],
+    ['QA001', '[QA001]', '[QA001]'],
+    ['QA.1+', '[QA.1+] Tegn i kode', '[QA.1+] Tegn i kode'],
+    ['ØKO100', '[ØKO100] Norsk emne', '[ØKO100] Norsk emne'],
+  ])('preserves title content and exact code boundaries: %s / %s', (code, title, expected) => {
+    const state = allKinds()
+    state.planner.courses.push({ id: 'synthetic-course', code })
+    Object.assign(state.planner.events[0], { courseId: 'synthetic-course', title })
+    const event = read(generateCalendarIcs(state, { ...options, now: () => 1793293200000 })).getAllSubcomponents('vevent').find(item => value(item, 'uid') === calendarUid('teaching', 'synthetic-teaching'))
+    expect(value(event, 'summary')).toBe(expected)
+  })
+
   it('reads the injected clock once and stamps every event kind in UTC whole seconds', () => {
     const state = allKinds(), before = structuredClone(state)
     const now = vi.fn(() => new Date('2026-10-29T18:22:32.789+01:00'))
@@ -82,5 +114,13 @@ describe('RFC 5545 METHOD:PUBLISH creation timestamp', () => {
       expect(generateCalendarIcs(allKinds())).toContain('DTSTAMP:20261029T172232Z')
       expect(now).toHaveBeenCalledTimes(1)
     } finally { now.mockRestore() }
+  })
+
+  it('adds the study-session type after deduplicating the task course prefix', () => {
+    const state = allKinds()
+    Object.assign(state.tasks[0], { course: 'QA001', title: '[QA001] Les syntetisk pensum' })
+    const events = read(generateCalendarIcs(state, { now: () => 1793293200000 })).getAllSubcomponents('vevent')
+    expect(value(events.find(event => value(event, 'uid') === calendarUid('session', 'synthetic-winter')), 'summary')).toBe('[QA001] Studieøkt: Les syntetisk pensum')
+    expect(value(events.find(event => value(event, 'uid') === calendarUid('deadline', 'synthetic-timed')), 'summary')).toBe('[QA001] Frist: Les syntetisk pensum')
   })
 })

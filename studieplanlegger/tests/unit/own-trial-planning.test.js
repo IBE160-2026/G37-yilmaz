@@ -62,6 +62,13 @@ describe('owner-trial planning regressions', () => {
     expect(capacityNotice(task, [session], [], later, partial).text).toContain('gjenstår å planlegge')
   })
 
+  it('shows the actual blocker even when the work estimate is unknown', () => {
+    const waiting = { ...task, waitingReason: 'Avklaring', remainingMinutes: null, estimatedMinutes: null }
+    const planned = { state: 'blocked', reasons: ['Venter på: Avklaring'] }
+    expect(capacityNotice(waiting, [], [], now, planned)).toMatchObject({ text: 'Oppgaven er blokkert.', detail: 'Venter på: Avklaring' })
+    expect(capacityNotice({ ...waiting, completed: true }, [], [], now, planned)).toBeNull()
+  })
+
   it('does not describe theoretical legacy free-session capacity as a saved task reservation', () => {
     const { taskId, ...freeSession } = session
     const theoretical = deriveCapacity([task], [freeSession], now).tasks[0]

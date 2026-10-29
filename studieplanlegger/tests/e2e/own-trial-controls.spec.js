@@ -37,7 +37,7 @@ async function capture(page, dialog, radio, info, name) {
   await info.attach(name, { path, contentType: 'image/png' })
 }
 
-async function cancelWithKeyboard(page, dialog, name) {
+async function activateWithKeyboard(page, dialog, name) {
   const cancel = dialog.getByRole('button', { name, exact: true })
   // Start at the selected native radio. Traverse actual focus order, including
   // editable fields/disclosures, without programmatically focusing the footer.
@@ -83,7 +83,7 @@ for (const theme of ['light', 'dark']) for (const width of [390, 900, 1440]) for
     const more = outcome.getByRole('radio', { name: 'Trenger mer tid', exact: true })
     await expect(more).toBeChecked()
     await capture(page, outcome, more, info, `outcome-${theme}-${width}-${textSize}`)
-    await cancelWithKeyboard(page, outcome, 'Avbryt')
+    await activateWithKeyboard(page, outcome, 'Avbryt')
     expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)).toEqual(state)
     await openRowMenu(row)
     await row.getByRole('button', { name: 'Se planforslag', exact: false }).click()
@@ -96,8 +96,23 @@ for (const theme of ['light', 'dark']) for (const width of [390, 900, 1440]) for
     const evening = planning.getByRole('radio', { name: 'På kvelden i ukedagene', exact: false })
     await expect(evening).toBeChecked()
     await capture(page, planning, evening, info, `planning-${theme}-${width}-${textSize}`)
-    await cancelWithKeyboard(page, planning, 'Ikke nå')
+    await activateWithKeyboard(page, planning, 'Ikke nå')
     expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)).toEqual(state)
+    if (theme === 'dark' && width === 390 && textSize === 200) {
+      await openRowMenu(row)
+      await row.getByRole('button', { name: 'Registrer arbeid', exact: false }).click()
+      await outcome.getByRole('radio', { name: 'Trenger mer tid', exact: true }).check()
+      await outcome.locator('[name=actualMinutes]').fill('10')
+      await outcome.locator('[name=remainingChoice]').selectOption('exact')
+      await outcome.locator('[name=remainingMinutes]').fill('20')
+      await activateWithKeyboard(page, outcome, 'Lagre utfallet')
+      const persisted = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)
+      expect(persisted.tasks[0]).toMatchObject({ id: state.tasks[0].id, completed: false, remainingMinutes: 20 })
+      expect(persisted.workLogs).toHaveLength(1)
+      expect(persisted.workLogs[0]).toMatchObject({ taskId: state.tasks[0].id, actualMinutes: 10, outcome: 'more' })
+      await page.reload()
+      expect((await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)).workLogs).toEqual(persisted.workLogs)
+    }
     expect(errors).toEqual([])
   })
 }

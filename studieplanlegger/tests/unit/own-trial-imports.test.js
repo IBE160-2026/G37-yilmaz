@@ -25,7 +25,8 @@ describe('owner-trial import distinctions', () => {
   })
 
   it('retains an explicit campus fact and distinguishes student programme selection from course evidence', () => {
-    const html = '<div id="course-details" data-coursecode="TEST101"><h1 class="course-name">Synthetic course</h1><select id="selectedYear"><option value="2026" selected>2026</option></select><div class="course-fact"><span class="course-fact-label">Sted</span><span class="course-fact-value">Trondheim</span></div></div>'
+    // The public NTNU page nests the Sted label inside its value container.
+    const html = '<div id="course-details" data-coursecode="TEST101"><h1 class="course-name">Synthetic course</h1><select id="selectedYear"><option value="2026" selected>2026</option></select><div class="course-fact"><span class="course-fact-value"><span class="course-fact-label">Sted</span> Trondheim</span></div></div>'
     const { course } = parseNtnuPage(html, { code: 'TEST101', semester: 'autumn', year: 2026, sourceUrl: 'https://www.ntnu.no/studier/emner/TEST101/2026' })
     expect(course.campus).toBe('Trondheim')
     expect(courseCampusLabel(course)).toBe('Campus (emnekilden): Trondheim')
@@ -47,6 +48,9 @@ describe('owner-trial import distinctions', () => {
     expect(resolveImportedCourse(emptyPlanner(), bound)).toEqual(bound)
     expect(() => resolveImportedCourse(emptyPlanner(), { ...bound, programBinding: { campus: 'Oslo' } })).toThrow(/Valgt campus avviker/)
     expect(() => parseNtnuPage(html, { ...query, campus: 'Oslo' })).toThrow(/finnes ikke blant studiestedene/)
+    const joined = html.replace('<div>Gjøvik</div><div>Trondheim</div><div>Ålesund</div>', 'Trondheim og Gjøvik')
+    expect(parseNtnuPage(joined, query).course.campus).toBe('')
+    expect(parseNtnuPage(joined, { ...query, campus: 'Trondheim' }).course.campus).toBe('Trondheim')
   })
 
   it.each(['invalid', 'partial'])('preserves imported teaching, choices and last success during %s background refresh', async outcome => {

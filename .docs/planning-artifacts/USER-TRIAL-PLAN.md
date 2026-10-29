@@ -4,6 +4,8 @@
 
 ## Rapporterte funn og omprøving — 2026-10-29
 
+Den senere HTML-stresstestrapporten er **separat KI-assistert mengdetesting**, beskrevet med begrensninger i [verifikasjonen](../../studieplanlegger/VERIFICATION.md). Den fyller ikke ut eierens resultater nedenfor. Detaljrapportens NHH-forsøk feilet; NIH ga forhåndsvisning med advarsler. Etter retting skal import med mange hendelser og eksisterende emner, bytte av lærested/program under henting, ICS-titler, lenkehjelp og HVL-emnemetadata omprøves med syntetiske data. F03/F05/F06 er ikke ferdigmeldt.
+
 Prosjekteieren har sendt skjermbilder og egne funn fra Ajour. Opplysningene nedenfor er beholdt som **rapporterte observasjoner**, uten å gjøre tekniske kontroller eller en vedlagt KI-rapport til prosjekteierens resultater. Eksakt testcommit, nettleserprofil og full gjennomføring av de sju opprinnelige scenariene er ikke oppgitt. De opprinnelige observasjonsfeltene nedenfor fylles derfor ikke med antatte beståttresultater.
 
 | Grunnlag | Rapportert observasjon | Hva prosjekteieren skal prøve igjen |

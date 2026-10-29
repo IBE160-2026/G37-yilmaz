@@ -7,13 +7,14 @@ import { extendedSessionInterval } from './work-capacity.js';
 export function capacityNotice(task, sessions = [], events = [], now = new Date(), planned) {
   const range = getRemainingRange(task);
   const remaining = range?.maxMinutes;
+  if (Number.isFinite(remaining) && remaining <= 0 || task.completed || task.submittedAt) return null;
+  if (planned?.state === 'blocked') return { tone: 'planning', text: 'Oppgaven er blokkert.', detail: planned.reasons.join(' ') };
   if (!range) {
     return { tone: 'quiet', text: 'Legg til et tidsestimat for å sammenligne arbeid og tid.' };
   }
   if (!Number.isFinite(remaining)) {
     return { tone: 'quiet', text: `${formatEstimateRange(range)} arbeid er registrert, men øvre grense er ukjent. Kapasiteten kan ikke vurderes ennå.` };
   }
-  if (remaining <= 0 || task.completed || task.submittedAt) return null;
   const start = now.getTime();
   let deadline = NaN;
   try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal); } catch { /* Ambiguous deadlines do not prove a shortage. */ }
@@ -37,7 +38,6 @@ export function capacityNotice(task, sessions = [], events = [], now = new Date(
         detail: 'Selv hele tidsrommet fram til fristen, uten registrert undervisning, er kortere enn arbeidet. Søvn og andre avtaler er ikke trukket fra.' };
     }
   }
-  if (planned?.state === 'blocked') return { tone: 'planning', text: 'Oppgaven er blokkert.', detail: planned.reasons.join(' ') };
   if (planned?.state === 'planned') {
     return { tone: 'quiet', text: 'Arbeidet har reservert tid.', detail: 'Registrerte studieøkter dekker arbeidsanslaget. Oppdater gjenstående arbeid selv etter økten; reservert tid betyr ikke fullført arbeid.' };
   }

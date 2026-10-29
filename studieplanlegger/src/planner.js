@@ -1,6 +1,7 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { validProgramBinding } from './program-provenance.js'
 import { validPointProvenance } from './import-source-contract.js'
+import { hvlTimeEditMetadata, isHvlTimeEditSearchUrl } from './timeedit-metadata.js'
 
 export const emptyPlanner = () => ({ courses: [], events: [], sources: [] })
 export const OSLO = 'Europe/Oslo'
@@ -105,6 +106,22 @@ export const uncertainPersonalTiming = (event, now = new Date()) => {
 }
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const verifiedSource = course => !course.sourceBindingStale && ['sourceProvider', 'sourceRecordId', 'sourceVersion'].every(key => typeof course[key] === 'string' && course[key].trim())
+// An explicit import can repair the old HVL direct-search mapping. This is
+// never a storage migration, and only the unchanged original source label
+// for the identical public TimeEdit object may replace its bogus campus.
+const legacyHvlCampus = (previous, course) => {
+  if (previous.university !== 'HVL' || course.university !== 'HVL' || previous.programBinding || previous.sourceBindingStale ||
+    ['sourceProvider', 'sourceRecordId', 'sourceVersion'].some(key => previous[key]) ||
+    course.sourceProvider !== 'hvl-timeedit' || course.sourceRecordId !== course.sourceObjectId || course.sourceVersion !== `${course.year}:${course.semester}` ||
+    !/^\d{1,12}\.36$/.test(course.sourceObjectId || '') ||
+    ['sourceObjectId', 'code', 'year', 'semester', 'label'].some(key => previous[key] !== course[key]) ||
+    !previous.label || previous.campus !== previous.label || previous.sourceBase?.name !== previous.label) return false
+  // The same object may be found by code or name, or on a larger result page.
+  // Validate both complete search contracts instead of equating their URLs.
+  if (![previous, course].every(item => isHvlTimeEditSearchUrl(item.sourceUrl, item.year, item.semester))) return false
+  const metadata = hvlTimeEditMetadata(course.label, course.code, `${course.year} ${course.semester === 'spring' ? 'VÅR' : 'HØST'}`)
+  return metadata.name !== course.label && metadata.campus === course.campus && metadata.campusVerified === course.campusVerified
+}
 const sameOccurrence = (saved, incoming) => {
   if (!incoming.occurrenceInstant) return false
   if (saved.occurrenceInstant) return saved.occurrenceInstant === incoming.occurrenceInstant
@@ -126,6 +143,7 @@ export function mergeImport(planner, incoming, source, { course, authoritative =
     const previous = result.courses.find(c => c.id === course.id)
     if (!previous) result.courses.push({ ...course, sourceBase: { name: course.name, credits: course.credits, description: course.description } })
     else {
+      if (legacyHvlCampus(previous, course)) previous.campus = course.campus
       if (previous.sourceBindingStale && verifiedSource(course)) {
         previous.sourceBindingHistory = [...(previous.sourceBindingHistory || []), previous.sourceBindingStale]
         delete previous.sourceBindingStale
@@ -265,7 +283,7 @@ export function resolveImportedCourse(planner, course) {
   const sameUncodedCourse = candidate => verifiedSource(candidate) && verifiedSource(course) && candidate.sourceProvider === course.sourceProvider && candidate.sourceRecordId === course.sourceRecordId || legacyNhfhCourse(candidate) || normal(candidate.name) === normal(course.name)
   const candidates = planner.courses.filter(c => normal(c.code) === normal(course.code) && (normal(course.code) || sameUncodedCourse(c)) && normal(c.university) === normal(course.university) && (c.semester === course.semester && c.year === course.year || sameStudySpan(c) || legacySkrivekunstSpan(c)))
   const campuses = value => [value.campus, value.programBinding?.campus].map(normal).filter(Boolean)
-  const campusMatches = c => new Set([...campuses(c), ...campuses(course)]).size <= 1
+  const campusMatches = c => legacyHvlCampus(c, course) || new Set([...campuses(c), ...campuses(course)]).size <= 1
   if (new Set(campuses(course)).size > 1) throw new Error('Valgt campus avviker fra emnets kildeopplysninger. Ingen emner er slått sammen. Kontroller campusvalget først.')
   const exact = candidates.filter(c => verifiedSource(c) && verifiedSource(course) && (['sourceProvider', 'sourceRecordId', 'sourceVersion'].every(key => normal(c[key]) === normal(course[key])) || legacyPageRevision(c) || legacyNhfhCourse(c)))
   const compatible = exact.length ? exact.filter(campusMatches) : candidates.filter(c => campusMatches(c) && (c.sourceBindingStale ? verifiedSource(course) : ['sourceProvider', 'sourceRecordId', 'sourceVersion'].every(key => !c[key] || !course[key] || normal(c[key]) === normal(course[key]))))
