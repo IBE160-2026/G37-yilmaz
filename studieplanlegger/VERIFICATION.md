@@ -12,17 +12,57 @@ Avgrenset videreføring fra `0c8bd730f5115edd22926277c0f5fd9630ca4f1a`, på egen
 | Feiloppfølging | Automatisk etterkontroll bruker deploymentets commit, faktisk byggmarkør og syntetiske nettprøver. Faste feilkategorier bevares i CI-loggen; ingen private planer, kalendere eller sensitive URL-er logges. README forklarer bygg-/kjøretidslogger, delvis import og Hobby-loggenes korte levetid. |
 | Tilbakerulling og data | README skiller Hobby Instant Rollback av appkode fra backup/gjenoppretting og lokal SQLite. Fungerende produksjon er ikke rullet tilbake. Ingen ny database, innlogging, betalt tjeneste eller periodisk agentjobb. |
 
-Den rene, separate testkopien ble installert med `npm ci`: Node **24.19.0**, Vite **8.2.4**, Vitest **5.0.3**, Playwright **1.63.0**. `npm audit` fant **0 kjente sårbarheter**; ingen oppgraderinger var nødvendige. Første fulle kandidatkjøring bestod **2384/2384 enhetstester i 134 filer**, **145/145 releasetester** og produksjonsbygg. SQLite bestod **3/3** med egen midlertidig database/port, inkludert migrering, gjenoppretting, gjentakelse og Angre.
+Den rene, separate testkopien ble installert med `npm ci`: Node **24.19.0**, Vite **8.2.4**, Vitest **5.0.3**, Playwright **1.63.0**. `npm audit` fant **0 kjente sårbarheter**; ingen oppgraderinger var nødvendige. Endelig lokal kodekandidat `ce6d410` bestod **2411/2411 enhetstester i 136 filer**, **145/145 releasetester**, produksjonsbygg og **55/55 nettleserkontrakter mot ferdig bygg**. SQLite bestod **3/3** med egen midlertidig database/port, inkludert migrering, gjenoppretting, gjentakelse og Angre.
 
 Før produksjonsendring bestod en ny syntetisk profil **1/1** på produksjonsadressen: hovedflyt, backup til profil B, profilisolasjon og full Chromium-gjenåpning. Den samme profilen beholdes for kontroll etter publisering. Ingen eksisterende privat nettleserprofil ble åpnet.
 
 **Trygg lokal øvelse:** På en egen tilfeldig loopbackport bestod oppretting/backup/gjenåpning **1/1**, verifisering etter kandidatbygg **1/1** og verifisering etter tilbakekopiering av det tidligere statiske bygget **1/1**. Domenedata og preferansenøkler var eksakt bevart. Dette var en lokal kontroll av statiske filer og syntetiske data, ikke Vercel Instant Rollback eller full tilbakeføring av serverfunksjoner. Før- og kandidatbyggets klientfiler var uendret i denne første runden. SQLite-gjenopprettingen ovenfor er separat evidens.
 
-Mellomkjøring av nettleserutvalget ga **54/55**, med én `ENOENT` i sporingsfil fordi samtidige tester brukte samme resultatrot. Separat temakjøring ga **18/19** og avdekket at forsinkelsesprøven bare fanget utviklingsmodulen, ikke bygget bundle. Testen er presisert til faktisk entry-modul og krever at forsinkelsen traff; fravær av appinnhold før oppstart beholdes som krav. Ingen assertions er fjernet. Sluttkjøring og publiseringsbevis føres nedenfor når de foreligger.
+Mellomkjøring av nettleserutvalget ga **54/55**, med én `ENOENT` i sporingsfil fordi samtidige tester brukte samme resultatrot. Separat temakjøring ga **18/19** og avdekket at forsinkelsesprøven bare fanget utviklingsmodulen, ikke bygget bundle. Testen fanger nå faktisk entry-modul og krever at forsinkelsen traff. Det nye kjøreverktøyet eier server, tilfeldig port og egen resultatmappe. Første Linux-CI på `ce6d410` ga **54/55** fordi en native scroll-hendelse kunne lagres etter tematestens før-snapshot. `f6b38b4` venter uttrykkelig på korrekt lagret rulleposisjon før snapshot; alle etterassertions beholdes. **20/20** lokale repetisjoner med to workers bestod, og [ny full GitHub-kvalitetssjekk](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/40890626996) ble grønn. Ingen appatferd eller testkrav er svekket.
 
 Separat gjennomgang hadde to uavhengige, kontekstfrie lesninger og en verifikasjonslesning utført av sikkerhetsimplementøren på grunn av samtidig agentgrense. Den fant blant annet at oppgitt SHA alene ikke beviser nettstedets versjon, og at CI tidligere prøvde utviklingsserveren etter bygg. Disse kontrollfeilene rettes med en offentlig commitmarkør, negativ SHA-prøve og nettleserkjøring mot ferdig bygg. Gjennomgangen er teknisk kontroll, ikke prosjekteierens egenutprøving.
 
-**Restpunkter:** SC-07/egenutprøving, personlig refleksjon og faktisk Outlook-prøve er fortsatt ikke gjennomført. Bundlevarselet består. Full HiMolde-programgjentakelse får egen syntetisk evidens; direkte emneimport blir ikke omdefinert til programgjentakelse. Uidentifisert proposal/overordnet veiledning beholdes som kildebegrensning.
+### Bevis på håndhevet publiseringssperre
+
+Vercel-prosjektsjekk `chk_650e90c9-b8f1-4f54-89e0-24f3ade17c45` krever GitHub **Ajour quality**, blokkerer `deployment-alias` og gjelder **preview og production**, med 1800 s tidsgrense. Automatisk Git-deploy er fortsatt aktiv; domenet tildeles først ved bestått sjekk. GitHub `main` er ikke beskyttet, og det påstås ingen separat mergesperre. Vercels egne bygg-/releasetester kommer i tillegg til full CI.
+
+Den isolerte grenen `test/ajour-release-gate`, commit `cc8fae30de439efd339db72a15acaef572825e4e`, la til én bevisst feilende test uten å ødelegge appbygget. [GitHub-kjøring 40889286979](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/40889286979) ga **2411 bestått / én tilsiktet feil**. Vercel-deploy `dpl_AkU8pNJ2CuqLmjGcG3f3SqxETU5k` ble `READY`, mens sjekk `ckr_f65ab988-83e5-458d-b8a1-4c7431198ef6` fikk `failed`, `checks.deployment-alias.state=failed` og **`aliasAssigned=false`**. Produksjonen beholdt `0c8bd730` og svarte HTTP 200. Den ødelagte testgrenen skal aldri integreres. Et byggs unike testadresse kan fortsatt svare; det er domenetildeling som håndheves.
+
+Positiv kontroll: `f6b38b4c6c02ee15cc236b302e49e647897c783d`, deploy `dpl_HXwckKHmbR87Uu9bbCYg35QybgaX`, fikk **`succeeded` / `aliasAssigned=true`** etter grønn kvalitetssjekk. [Automatisk etterkontroll](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/40891202949) startet fra Vercels faktiske deployment-hendelse og bestod. Ingen Force Promote, administratoromgåelse eller godkjenning fra en annen person er brukt.
+
+### Faktisk preview og målinger
+
+Nettprøvene nedenfor brukte [den konkrete Vercel-previewen](https://ajour-klao1js30-ajour1.vercel.app), deploy `dpl_6Bysx41z6LtPg6Zf6PKxq8pb5XWb`, commit **`ce6d410a47581ace22577b167a6f4257cb634f0d`**, bekreftet både i deploymentmetadata og offentlig `/release.json`. Den senere `f6b38b4` endrer bare synkroniseringen i én test. GitHub, den lokale testkopien og Vercel bygger hver for seg; identiske byggeartefakter påstås ikke.
+
+| Kontroll | Resultat og avgrensning |
+| --- | --- |
+| Hovedflyt, bygde ressurser og feil | **36/36**, 2,4 min: 19 hovedflyt-/API-/PDF-prøver, seks visuelle scenarioer og elleve negative scenarioer. Oppgaver, økter, utfall, omplanlegging, Angre, filimport, backup, lagringsfeil og importfeil inngår. |
+| Visuell inspeksjon | **30/30 forskjellige PNG-er faktisk åpnet**: fem visninger × lyst/mørkt × 1440/900/390 px. Ingen blokkerende funn. Kalenderens interne siderulling beholdes. Dette er agentens tekniske inspeksjon. |
+| Hel HiMolde-programgjentakelse | **1/1**, 7,3 s, inngår i de 36: hele IBE110/IBE430/IBE160-flyten gjentas etter omlasting med syntetiske kilder. Stabile ID-er, aktivitetsvalg og eget notat beholdes; ingen duplikater eller lagring før godkjenning. [Presis avgrensning](IMPORT-COVERAGE.md#hel-himolde-programgjentakelse-med-syntetiske-kilder--2026-10-29). |
+| Faktisk HiMolde-/NTNU-transport | Første utvalg **5/6**. IBE430-søket fikk `socket hang up`; appen viste kildefeilen. Bare den feilede prøven ble gjentatt: **1/1**, 10,4 s, uten kodeendring. Alle seks navngitte scenarioer har dermed bestått, men første kjøring var ikke helgrønn. Dette er adskilt fra den syntetiske programgjentakelsen. |
+| Egen preview-profil | **1/1**, 14,6 s: UI-opprettet plan, gyldig ICS, backup/gjenoppretting til separat profil B, profilisolasjon og full lukking/gjenåpning av Chromium. Ingen privat profil ble åpnet. |
+
+Målemetode: tre nye, cachedeaktiverte Chromium-profiler per visning; servercache er ukontrollert. Desktop 1440×1000, mobil 390×844 med 4× CPU-brems, 150 ms nettverkslatens og 200 000 byte/s ned. Mobil er **emulering**, ikke fysisk telefon. Tid til klar UI inkluderer nettleserautomatisering; LCP er siste observerte verdi før interaksjon. Tre sekvensielle importmålinger gjelder bare HiMolde IBE160 høst 2026. Alle målinger var komplette, uten registrerte side-/konsoll-/nettverksfeil.
+
+| Måling, median (min–maks) | Før: produksjon `0c8bd730` | Preview `ce6d410` |
+| --- | --- | --- |
+| Desktop: klar UI | 322 ms (311–3089) | 377 ms (322–715) |
+| Emulert mobil: klar UI | 3922 ms (3828–3946) | 3943 ms (3839–4050) |
+| Emulert mobil: observert LCP | 3836 ms (3736–3852) | 3804 ms (3736–3892) |
+| Emulert mobil: navigasjon til malt UI | 153 ms (152–153) | 167 ms (163–253) |
+| Avgrenset undervisningssøk | 723 ms (590–2300) | 515 ms (509–1061) |
+
+Dette lille utvalget viser ventetid ved kald oppstart under mobilstruping, men beviser ingen ny kodeflaskehals eller statistisk ytelsesforbedring. Import-/UI-kode utenfor den påviste feilsaniteringen er derfor ikke bygget om. Hovedbundle **891,30 kB / 271,05 kB gzip** og eksisterende varsel over 500 kB består. Hobby-grenser, tidsfrister og enkel feilsøking står i [driftsbeskrivelsen](README.md#gratisbruk-og-målinger). Ingen belastningstest som bruker opp gratisressurser er utført.
+
+### Kontrollert produksjon etter PR-integrering
+
+[PR #4](https://github.com/IBE160-2026/G37-yilmaz/pull/4) ble integrert med vanlig merge etter grønn PR-/push-kvalitetssjekk, faktisk preview og separat gjennomgang. Produksjonscommit er **`e77620ad596c0a09066ec3d24d3dd72034a8609e`**, deploy **`dpl_GjdHds8q1dpDzTRHJbzDtQcbXGoE`**. Vercel viste først `READY / production`, `pending` og `aliasAssigned=false`. Etter [grønn main-kvalitetssjekk](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/40892129913) ble sjekken `succeeded` og aliaset tildelt. [Produksjonens `/release.json`](https://ajour-sooty.vercel.app/release.json) bekreftet eksakt mergecommit.
+
+På [produksjonsadressen](https://ajour-sooty.vercel.app) bestod **19/19 hovedflyt-/API-/PDF-prøver**, 1,4 min. Den samme syntetiske profilen som var opprettet på `0c8bd730` før endring, bestod verifisering **1/1**, 4,1 s: alle lagrede plan- og preferansenøkler var eksakt bevart etter ny deploy. [Automatisk etterkontroll](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/40892608749) bestod dessuten bygde nettprøver og avgrenset live-import på deploymentets unike adresse, med eksakt commitkontroll først.
+
+Siste CLI-tørrkontroll omfattet **188 filer**, uten miljøfiler, databaser, profiler, rålogger eller testresultater. Dette lastet ikke opp eller publiserte noe. Dokument-/loggoppfølging endrer ingen appkode og går gjennom samme CI-/Vercel-sperre; den siste publiserte dokumentcommiten kan leses fra commitmarkøren og GitHub/Vercel-historikken. Denne seksjonens funksjonstester gjelder uttrykkelig produksjonscommit ovenfor, ikke et påstått identisk senere byggeartefakt.
+
+**Restpunkter:** SC-07/egenutprøving, personlig refleksjon og faktisk Outlook-prøve er fortsatt ikke gjennomført. Bundlevarselet består. Det tekniske restpunktet for full HiMolde-programgjentakelse er lukket med syntetisk evidens; faktisk kildetransport gjennom hele gjentakelsen påstås ikke. Uidentifisert proposal/overordnet veiledning beholdes som kildebegrensning.
 
 ## Vercel-nettleserutgave — 2026-10-29
 

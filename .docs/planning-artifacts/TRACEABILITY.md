@@ -1,6 +1,14 @@
 # Ajour: sporbarhet fra løfte til evidens
 
-**Revidert 2026-10-26; rekonstruksjonsdato 2026-10-16 beholdes.** SC-07/R-07/S-07 gjelder nå prosjekteierens egenutprøving etter beslutningen 26. oktober. Ingen andre testpersoner rekrutteres, og den tidligere studentprøven ble ikke gjennomført eller bestått. Status: **planlagt / ikke gjennomført**. Tekniske tester er separat evidens og fyller ikke de manuelle observasjonsfeltene. [Nyeste dokumenterte kandidatkontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26) og [egenutprøvingsplan](USER-TRIAL-PLAN.md).
+**Revidert 2026-10-26, teknisk evidens supplert 2026-10-29; rekonstruksjonsdato 2026-10-16 beholdes.** SC-07/R-07/S-07 gjelder prosjekteierens egenutprøving etter beslutningen 26. oktober. Ingen andre testpersoner rekrutteres, og den tidligere studentprøven ble ikke gjennomført eller bestått. Status: **planlagt / ikke gjennomført**. Tekniske tester er separat evidens og fyller ikke de manuelle observasjonsfeltene. [Nyeste tekniske kontroll](../../studieplanlegger/VERIFICATION.md#teknisk-sluttkontroll-og-publiseringssperrer--2026-10-29) og [egenutprøvingsplan](USER-TRIAL-PLAN.md).
+
+## Hel HiMolde-programgjentakelse — 2026-10-29
+
+**SC-02; R-02/R-05/R-06; S-02/S-05/S-06:** [program-import-view.js](../../studieplanlegger/src/program-import-view.js) og [planner.js](../../studieplanlegger/src/planner.js) skal bevare identiteter, egne notater og bekreftede aktivitetsvalg når hele programflyten gjentas etter omlasting. [himolde-program-repeat.spec.js](../../studieplanlegger/tests/e2e/himolde-program-repeat.spec.js), `synthetic full HiMolde programme repeat preserves identities, choices and local edits after reload`, kontrollerer hele IBE110/IBE430/IBE160-utvalget to ganger, tre undervisningskilder, ingen skriving før godkjenning og én samlet skriving per bekreftelse.
+
+Prøven bestod **1/1, 7,3 s**, gjennom appens bygde grensesnitt på faktisk Vercel-preview for `ce6d410a47581ace22577b167a6f4257cb634f0d`. [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md#hel-himolde-programgjentakelse-med-syntetiske-kilder--2026-10-29) angir adresse og avgrensning. Kildesvarene er syntetiske fixturer; dette dokumenterer ikke hel programgjentakelse med faktisk kildetransport. Det tekniske restpunktet er lukket med denne avgrensningen. Eldre tabellers utsagn om uverifisert programgjentakelse beskriver statusen ved deres daterte kontroller.
+
+SC-07/egenutprøving, personlig refleksjon og faktisk Outlook-prøve er fortsatt ikke gjennomført. Ingen nye institusjoner, programkrav eller brukerobservasjoner er lagt til.
 
 ## Emnepalett og mørk modus — 2026-10-26
 
