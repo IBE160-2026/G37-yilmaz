@@ -13,6 +13,9 @@ Gjeldende åpne punkter etter [teknisk sluttkontroll og verifisert Vercel-publis
 
 ## Kjente tekniske begrensninger
 
+- [ ] 2026-10-29 [KI-assistert mengdetesting](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md) ? F03 (fri tekst uten kjent importformat), F05 (NHH/FHS/Samisk kildevalg) og F06 (uverifiserte AHO-semester?r) st?r ?pne; ingen generell st?tte for alle 25 l?resteder er bekreftet.
+- [ ] 2026-10-29 [Importbegrensninger](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md) ? UiTs H-2025-emnetabell er et bilde og krever alternativ import. BI st?tter ikke automatisk undervisningshenting; kalenderlenker utenfor eksisterende kildevern forblir avvist med filalternativ.
+
 - [ ] 2026-10-26 [Ajour-samordning og publisering](999-2026-10-26-22-07-17-ajour-samordning-og-publisering.md) — Eksisterende bundlevarsel over 500 kB består.
 
 ## Vurderingskilder som ikke er identifisert
