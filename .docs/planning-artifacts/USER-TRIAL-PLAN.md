@@ -1,6 +1,6 @@
 # Plan for egenutprøving av Ajour
 
-**Opprettet 2026-10-16; revidert 2026-10-26. Status: planlagt / ikke gjennomført.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser.
+**Opprettet 2026-10-16; revidert 2026-10-29. Status: planlagt / ikke gjennomført.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser. Revisjonen 29. oktober legger bare til foreslåtte brukbarhetsobservasjoner; de sju scenariene og beståttkriteriene er uendret.
 
 **Beslutning 2026-10-26:** Prosjekteieren gjennomfører egenutprøvingen selv. Ingen andre testpersoner skal rekrutteres. Dette erstatter den tidligere planlagte prøven med en ny student; den ble ikke gjennomført eller bestått. Produktets målgruppe er uendret. Prøven dokumenterer bare prosjekteierens bruk og observasjoner, ikke ukjente brukeres forståelse eller generell studentnytte.
 
@@ -39,6 +39,19 @@ Utfør i rekkefølge. «—» betyr ikke registrert, aldri bestått. Ved avvik n
 | 5. Fullfør steget, deretter oppgavens arbeid, og til slutt bekreft den syntetiske innleveringen separat. Noter status etter hvert trinn. | Fullført steg fullfører ikke oppgaven. Ferdig arbeid betyr fortsatt ikke levert. Bare den separate bekreftelsen markerer innlevering; ingen handling sendes til Canvas/lærestedet. | — | — | — |
 | 6. Opprett TEST102 – Annet eksempelfag og den ufullførte oppgaven «Les neste syntetiske eksempel» med 30 minutter gjenstående. Godkjenn en fortsatt framtidig økt D+2 kl. 11:00–11:30; ikke registrer utfall på denne. Åpne kalenderen, bytt visning/dato og sammenlign emnene i kalender og oppgaveliste. Endre navnet på TEST101 til «Endret eksempelfag». Prøv System, Lyst, Mørkt og temaknappen; kontroller et åpent utkast. | Den nye økten vises med riktig tidspunkt og emne; det første oppgaveutfallet ligger i arbeidshistorikken. Farge supplerer navn/kode og status. Samme emne beholder farge ved navigasjon og navneendring. Temabytte bevarer kalenderdato, oppgaver og utkast uten å lagre eller endre domenedata. | — | — | — |
 | 7. Avbryt eventuelt åpent utkast. Noter begge syntetiske emner og oppgaver, den fortsatt planlagte økten fra 6 og første oppgaves utfall/fullførings-/leveringsstatus. Last siden på nytt. Eksporter sikkerhetskopi fra prøven og gjenopprett den via appens kontroll/bekreftelse i en annen ny isolert testinstans. Last også denne på nytt. | Omlasting og gjenoppretting bevarer opplysninger og koblinger uten tap eller duplikater, inkludert både planlagt økt og registrert arbeidshistorikk. Samme nettleser beholder lagrede visningsvalg ved omlasting. Tema-/fargepreferanser er nettleserlokale og loves ikke overført i sikkerhetskopien; en ny profil kan få standardvalg. | — | — | — |
+
+## Foreslåtte brukbarhetsobservasjoner
+
+**Forslag til senere beslutning av prosjekteieren, 2026-10-29.** Observasjonene nedenfor kan supplere de eksisterende scenariene. De er ikke nye godkjente krav, terskler eller beståttkriterier, og ingen resultater er fylt inn.
+
+| Kobling til scenario | Hva som foreslås registrert | Start og slutt |
+| --- | --- | --- |
+| 1: første oppgave | Tidsbruk og antall handlinger; uklarheter rundt hva som er obligatorisk. | Fra tom planlegger til oppgaven med bare tittel er lagret. Tilleggsoppsettet med emne/steg/frist registreres separat. |
+| 2: første godkjente økt | Tidsbruk og antall handlinger; feilvalg eller behov for hjelp til tid og bekreftelse. | Fra start på øktplanlegging til økten er godkjent. Oppsett av arbeidsvinduer/opptatt tid og det pålagte avbruddet registreres separat. |
+| 4: omplanlegging og Angre | Tidsbruk og antall handlinger; hva som var uklart om endringen før godkjenning. | Fra åpnet omplanlegging til godkjenning, deretter separat fra godkjenning til Angre er utført. |
+| 1–7, særlig 5–7 | Konkrete uklare ord/valg, tilbakeganger, feilvalg og hjelpebehov, blant annet ferdig/levert, kalender/tema og sikkerhetskopi. | Knytt hver merknad til scenario og handling; beskriv både forventning og det som faktisk skjedde. |
+
+Foreslått tellemetode: tell aktivering av knapper/lenker og valg i kontroller som handlinger, uavhengig av mus eller tastatur. Registrer utfylte felt separat, ikke hvert tastetrykk. Ta med feilvalg og tilbakeganger i totalen og noter dem særskilt. Noter pauser, venting og avbrudd slik at aktiv tidsbruk kan skilles fra samlet tid; ventetiden mellom scenario 2 og 3 er ikke betjeningstid. Bruk samme metode og oppgi eventuell tidligere kjennskap ved omprøving. Ingen tidsgrense eller maksimalt antall handlinger foreslås som besluttet mål.
 
 ## Vurdering og oppfølging
 

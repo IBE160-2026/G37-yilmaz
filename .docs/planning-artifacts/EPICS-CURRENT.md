@@ -1,6 +1,6 @@
 # Epics og stories for Ajour
 
-**Rekonstruert 2026-10-16; revidert 2026-10-26.** Produktomfang og S-01–S-08 er beholdt. Etter prosjekteierens beslutning 26. oktober gjelder S-07 egenutprøving, **planlagt / ikke gjennomført**, uten andre testpersoner. Tidligere plan om ekstern studentprøve ble ikke gjennomført eller bestått. Daterte tekniske oppfølginger nedenfor er historikk, ikke resultater fra egenutprøvingen. [Siste tekniske kontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26).
+**Rekonstruert 2026-10-16; revidert 2026-10-29.** Produktomfang og S-01–S-08 er beholdt; S-02 og S-06 følger også den godkjente driftsutvidelsen 2026-10-29. Etter prosjekteierens beslutning 26. oktober gjelder S-07 egenutprøving, **planlagt / ikke gjennomført**, uten andre testpersoner. Tidligere plan om ekstern studentprøve ble ikke gjennomført eller bestått. [Daterte Vercel-kontroller](../../studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) og eldre tekniske oppfølginger er separat evidens, ikke resultater fra egenutprøvingen eller nye kjøringer i denne dokumentrevisjonen.
 
 ## Lokal Ajour-oppfølging — 2026-10-26
 
@@ -80,6 +80,14 @@ Status: implementert; automatisert teknisk onboarding finnes. Prosjekteierens eg
 
 Som student vil jeg se kildens informasjon og usikkerhet før jeg bekrefter den.
 
+**Nettleserdrift, godkjent 2026-10-29 (R-02/R-05, Q-02):**
+
+- **Given** nettutgaven og en gjenkjent offentlig kilde innen det avgrensede HiMolde-/NTNU-løftet, **When** importen hentes og forhåndsvises, **Then** studenten kontrollerer kilde, periode, utvalg og usikkerhet før lokal lagring; importfunksjonen lagrer ingen studentplan eller sikkerhetskopi på serveren.
+- **Given** en vilkårlig eller ikke godkjent kalenderadresse, **When** nettutgaven forsøker å hente den, **Then** adressen avvises med veiledning til filimport. Eksisterende lokale importmuligheter og adaptere utvider ikke nettutgavens løfte.
+- **Given** et åpent importutkast og tidligere lagrede data, **When** kildehenting eller svarvalidering feiler, **Then** feilen forklares, utkastet og tidligere data beholdes, og ingen vellykket import påstås.
+
+Testgrunnlaget er [offentlig importgrense](../../studieplanlegger/tests/unit/hosted-import.test.js), [nettets API-/hovedflytprøver](../../studieplanlegger/tests/remote/core.spec.js), [injiserte feil](../../studieplanlegger/tests/remote/failures.spec.js) og [avgrensede live-prøver](../../studieplanlegger/tests/remote/live.spec.js). [Sporbarheten](TRACEABILITY.md#vercel-nettleserdrift--2026-10-29) skiller testkode fra tidligere resultater; ingen ny live-kjøring utføres i denne dokumentrevisjonen.
+
 Bounded correction **2026-10-19**, see [correction](../../studieplanlegger/VERIFICATION.md#ics-point-markers-and-period-correction--2026-10-19): given a mixed calendar with intervals, date-only events and timed events without an end, when imported, then valid point markers remain editable without invented duration or busy time. Given a new file after an earlier period choice, then automatic file dates apply until an explicit filter is chosen; included, filtered and rejected source entries must be explained separately from generated course proposals and recurrence occurrences.
 
 Tillegg bestilt **2026-10-18**, jf. [datert oppfølging](../../studieplanlegger/VERIFICATION.md#kalenderfil-og-sammenhengende-flyt--2026-10-18):
@@ -138,14 +146,21 @@ Status: implementert med tekniske tester; denne samordningen endrer ikke produkt
 
 ## Epic E-03: Bevare og etterprøve
 
-### S-06 — Varig lokal leveranse (R-06, Q-02; SC-06)
+### S-06 — Databevaring i begge driftsformer (R-06, Q-02; SC-06)
 
-Som student vil jeg bevare planen uten konto og kunne følge dokumentert lokal oppstart.
+Som student vil jeg bevare planen uten konto i valgt driftsform og kunne flytte den med sikkerhetskopi.
 
 - **Given** lagrede emner, oppgaver og økter, **When** produksjonsserveren/containeren starter på nytt med samme datavolum, **Then** identiteter og relasjoner beholdes.
 - **Given** ugyldig eller foreldet tilstand, **When** lagring forsøkes, **Then** ingen del av kandidaten erstatter gyldige data.
 
-Status: implementert; datert Node/SQLite- og Docker-evidens. Ingen ny Docker-kjøring 2026-10-16.
+**Nettleserdrift, godkjent 2026-10-29 (R-06, Q-02):**
+
+- **Given** gyldige lagrede emner, oppgaver, steg, økter og utfall, **When** nettutgaven lastes på nytt, nettleseren lukkes/gjenåpnes eller en ny versjon publiseres på samme adresse, **Then** samme nettleserprofil beholder identiteter og relasjoner. Her betyr adresse samme origin (protokoll, vertsnavn og port), ikke en bestemt sidesti. Datavolumkravet ovenfor gjelder lokal Node-/Docker-drift med SQLite.
+- **Given** ulike nettleserprofiler eller ulike adresser for localhost, preview og produksjon, **When** en plan lagres i ett miljø, **Then** de andre forblir adskilt. Appen forklarer at sletting av nettleserdata kan slette planen, og at ingen enhetssynkronisering skjer.
+- **Given** en eksportert sikkerhetskopi og et annet isolert målmiljø, **When** studenten forhåndsviser og bekrefter gjenoppretting, **Then** domenedata og relasjoner bevares også etter omlasting. Forhåndsvisning alene skriver ikke; tema-/fargepreferanser loves ikke overført i sikkerhetskopien.
+- **Given** ugyldig lagret innhold, ugyldig sikkerhetskopi eller nektet/full lagring, **When** lesing, lagring eller gjenoppretting forsøkes, **Then** feilen vises uten automatisk nullstilling eller falsk suksess. Eksisterende lagring og åpne utkast beholdes; ny prøve er mulig når feilen er rettet.
+
+Status: implementert med [datert Node/SQLite-/Docker- og Vercel-evidens](../../studieplanlegger/VERIFICATION.md). [Profil-/gjenåpnings-/backupprøven](../../studieplanlegger/tests/remote/persistence.spec.js) og [lagringsfeilprøvene](../../studieplanlegger/tests/remote/failures.spec.js) finnes; ny publisering må dokumenteres separat fra selve bevaringsasserten. [Sporbarhetsmatrisen](TRACEABILITY.md#vercel-nettleserdrift--2026-10-29) angir tidligere kjøringer og avgrensninger. Ingen nye nettleser- eller Docker-kjøringer inngår i denne dokumentrevisjonen.
 
 ### S-07 — Gjennomføre og dokumentere egenutprøving (R-07, Q-01; SC-07)
 
