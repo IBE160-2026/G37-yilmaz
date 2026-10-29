@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test'
 import { navigate, openCourseImport, openImportMethod, key } from './helpers.js'
 
-test.describe.configure({ mode: 'serial' })
+// Deployed acceptance runs independent cases with one worker; an unavailable
+// public source must not suppress the remaining bounded checks.
+if (!process.env.AJOUR_REMOTE_URL) test.describe.configure({ mode: 'serial' })
 
 // These are explicit choices made by the isolated test student. They do not
 // infer a real student's campus, group, programme, or teaching term.
@@ -45,10 +47,14 @@ for (const [institution, code, objectLabel, width, expectedSourceObjectId] of sa
     await page.getByRole('button', { name: 'Søk offentlig undervisning', exact: true }).click()
     const options = page.getByRole('combobox', { name: 'Publisert timeplanvalg', exact: true })
     await expect(options).toBeVisible({ timeout: 45000 })
-    await expect(options).toHaveValue('')
     const items = await options.locator('option').evaluateAll(nodes => nodes.map(node => ({ value: node.value, label: node.textContent })))
-    const selected = items.find(item => item.value !== '' && item.label.includes(code) && objectLabel.test(item.label))
+    // The current name-first UI omits source term prose for HiMolde. The
+    // response assertion below still pins the exact sourceObjectId (code¤1).
+    const selected = items.find(item => item.value !== '' && item.label.includes(code) && (institution === 'himolde' || objectLabel.test(item.label)))
     expect(selected, JSON.stringify(items)).toBeTruthy()
+    // An exact code match may be proposed by the UI, but import still requires
+    // this explicit source selection, activity selection and confirmation.
+    expect(['', selected.value]).toContain(await options.inputValue())
     selectedLabel = selected.label
     await options.selectOption(selected.value)
     const calendarResponse = expectedSourceObjectId ? page.waitForResponse(response => response.url().includes(`/api/import/providers/${institution}/teaching-calendar?`)) : null
