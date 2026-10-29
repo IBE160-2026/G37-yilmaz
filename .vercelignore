@@ -2,7 +2,6 @@
 /*
 !/studieplanlegger
 /studieplanlegger/*
-!/studieplanlegger/.vercelignore
 !/studieplanlegger/package.json
 !/studieplanlegger/package-lock.json
 !/studieplanlegger/index.html
