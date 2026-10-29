@@ -10,7 +10,7 @@ Ajour hjelper studenten gjennom **oppgave → valgfritt arbeidssteg → godkjent
 
 ## Nettleserutgave — 2026-10-29
 
-En uttrykkelig godkjent utvidelse legger til nettleserdrift i **ett gratis Vercel-prosjekt**. Hele Ajour-flyten beholdes; lokal Node-/Docker-drift er fortsatt tilgjengelig. Publiseringens faktiske adresse og testresultater registreres i [verifikasjonen](studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) etter kontroll av forhåndsvisning og produksjon. Klargjort kode er ikke i seg selv en verifisert nettpublisering.
+**Åpne [Ajour på nett](https://ajour-sooty.vercel.app).** Produksjonsadressen er kontrollert 2026-10-29 etter faktiske preview-prøver og integrering via [PR #1](https://github.com/IBE160-2026/G37-yilmaz/pull/1). Appen bruker **ett gratis Vercel-prosjekt**, `ajour`. Hele Ajour-flyten beholdes; lokal Node-/Docker-drift er fortsatt tilgjengelig. [Verifikasjonen](studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) oppgir testet produksjonscommit og faktiske resultater.
 
 I nettutgaven lagres planen bare i den aktuelle nettleserprofilen på den nøyaktige nettadressen. Localhost, Vercel-forhåndsvisninger og produksjonsadressen har separate data. Sletting av nettleserdata kan slette planen; eksporter sikkerhetskopi for trygg oppbevaring eller flytting mellom adresser/enheter. Det finnes ingen konto eller enhetssynkronisering. [Oppsett og fjernkontroll](studieplanlegger/README.md#nettleserdrift-med-vercel--2026-10-29) beskriver den nye driftsformen uten å endre V1-importløftet eller statusen for egenutprøving.
 
@@ -28,7 +28,7 @@ Planleggingen støtter gjenbrukbare studietidsmønstre, usikre arbeidsanslag, da
 
 **Dokumentasjonen er samordnet 26. oktober 2026.** Start med [planindeksen](.docs/planning-artifacts/README.md) for krav og kode-/testsporbarhet, og [VERIFICATION.md](studieplanlegger/VERIFICATION.md) for nyeste kandidatresultater, personvernkontroll og kjente begrensninger. Eldre kontroller er datert historikk. Etter prosjekteierens beslutning 26. oktober er [egenutprøvingen](.docs/planning-artifacts/USER-TRIAL-PLAN.md) en manuell prøve utført av prosjekteieren alene, med syntetiske data i et isolert miljø. Status er **planlagt / ikke gjennomført**. Tekniske tester er ikke prosjekteierens manuelle observasjoner, og egenutprøvingen vil ikke dokumentere nytten for studentgruppen generelt.
 
-## Kjør den komplette leveransen
+## Kjør den komplette lokale leveransen
 
 Du trenger Docker med **Compose v2** (`docker compose version`). Ingen konto, nøkler eller `.env` er nødvendig med standardoppsettet. Fra repository-roten:
 

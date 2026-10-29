@@ -20,7 +20,7 @@ En syntetisk hovedflyt er å opprette oppgaven «Les eksempelkapittel» med bare
 
 ## Nettleserdrift med Vercel — 2026-10-29
 
-Den godkjente driftsutvidelsen bruker **ett gratis Vercel-prosjekt** for den eksisterende appen. Gjenbruk prosjektet når det finnes; opprett ikke separate prosjekter for forhåndsvisning og produksjon. [Faktisk publiseringsstatus](VERIFICATION.md#vercel-nettleserutgave--2026-10-29) dokumenterer URL, commit og kjørte kontroller etter verifisering.
+**Produksjon: [Ajour på nett](https://ajour-sooty.vercel.app)**, kontrollert 2026-10-29. Den godkjente driftsutvidelsen bruker det eksisterende prosjektet **`ajour` i Hobby-teamet `ajour1`**. Gjenbruk dette ene gratisprosjektet; opprett ikke separate prosjekter for forhåndsvisning og produksjon. Eieren godkjente offentlig tilgang til eksisterende og framtidige preview-adresser etter kontroll av deployenes kildegrunnlag. Automatisk domenetildeling for `main` er aktivert. [Faktisk publiseringsstatus](VERIFICATION.md#vercel-nettleserutgave--2026-10-29) dokumenterer commit og kjørte kontroller.
 
 Prosjektinnstillingene er repository `IBE160-2026/G37-yilmaz`, rotmappe `studieplanlegger`, rammeverk **Vite**, installasjon `npm ci`, bygg `npm run build`, utmappe `dist` og **Node.js 24.x**. `main` er produksjonsgren. [vercel.json](vercel.json) styrer API-ruting og appens inngang; `api/` eksponerer bare avgrenset, tilstandsløs import. `server/app.js` skal fortsatt bare starte den lokale Node-/SQLite-tjenesten. Nettutgaven krever ingen database, miljøhemmeligheter, konto eller betalt tjeneste.
 
