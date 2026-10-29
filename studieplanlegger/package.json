@@ -17,6 +17,8 @@
     "test:e2e:deployment": "node scripts/deployment-smoke.mjs",
     "test:e2e:remote": "playwright test --config tests/playwright.remote.config.js --project remote-core --project remote-visual --project remote-failures",
     "test:e2e:remote:live": "playwright test --config tests/playwright.remote.config.js --project remote-live",
+    "test:e2e:remote:trial": "playwright test --config tests/playwright.remote.config.js --project remote-trial",
+    "test:e2e:remote:trial:live": "playwright test --config tests/playwright.remote.config.js --project remote-trial-live",
     "test:e2e:remote:persistence": "playwright test --config tests/playwright.remote.config.js --project remote-persistence",
     "test:e2e:database": "node tests/run-database-e2e.mjs",
     "test:e2e:docker": "playwright test --config=playwright.docker.config.js",

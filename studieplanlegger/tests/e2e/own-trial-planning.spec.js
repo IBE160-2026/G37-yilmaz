@@ -1,0 +1,112 @@
+import { test, expect } from '@playwright/test'
+import { freeze, key, navigate } from './helpers.js'
+import { validatePersonalActivity } from '../../src/planner.js'
+
+// All records and browser profiles are synthetic and isolated by Playwright.
+const task = { id: 'synthetic-own-trial-task', title: 'Syntetisk innlevering', course: '', deadlineLocal: '2026-10-31T20:59', estimatedMinutes: null, remainingMinutes: 30, completed: false }
+const session = { id: 'synthetic-own-trial-session', taskId: task.id, dateLocal: '2026-10-29', startTime: '18:00', endTime: '18:30' }
+const stored = page => page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)
+async function seed(page, state) {
+  await freeze(page, '2026-10-29T17:48:00+01:00')
+  await page.goto('/')
+  await page.evaluate(({ key, state }) => localStorage.setItem(key, JSON.stringify({ schemaVersion: 1, ...state })), { key, state })
+  await page.reload()
+}
+const planDialog = page => page.getByRole('dialog', { name: 'Planforslag for oppgaven', exact: true })
+
+test('waiting is explained with explicit correction and no automatic mutation', async ({ page }) => {
+  await seed(page, {
+    tasks: [{ ...task, remainingMinutes: null, waitingReason: 'Lesing' }], onboarding: { dismissed: false, completed: false },
+    planner: { courses: [], sources: [], events: [validatePersonalActivity({ id: 'synthetic-uncertain-activity', title: 'Syntetisk avtale', dateLocal: '2026-10-30' })] },
+  })
+  const before = await stored(page)
+  await page.locator('#connected-onboarding').getByRole('button', { name: 'Se planforslag', exact: true }).click()
+  const dialog = planDialog(page)
+  await expect(dialog).toContainText('Venter på: Lesing')
+  await expect(dialog).toContainText('ukjent tidspunkt eller varighet')
+  await expect(dialog).toContainText('Å legge til mer tilgjengelig tid fjerner ikke hindringen')
+  await expect(dialog).not.toContainText('Ingen passende tidspunkt ble funnet')
+  await expect(dialog).not.toContainText('En kort startøkt er foreslått')
+  await expect(dialog.getByRole('button', { name: 'Bruk planen', exact: true })).toBeDisabled()
+  expect(await stored(page)).toEqual(before)
+  await dialog.getByRole('button', { name: `Avklar «${task.title}»`, exact: true }).click()
+  const waiting = page.locator('#task-form [name=waitingReason]')
+  await expect(waiting).toHaveValue('Lesing'); await expect(waiting).toBeVisible(); await expect(waiting).toBeFocused()
+  await expect(page.locator('#waitingReason-help')).toContainText('Arbeid du selv skal gjøre, som lesing')
+  await page.locator('#task-form').getByRole('button', { name: 'Avbryt', exact: true }).click()
+  expect(await stored(page)).toEqual(before)
+  await page.locator('#connected-onboarding').getByRole('button', { name: 'Se planforslag', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Avklar tidspunkt for «Syntetisk avtale»', exact: true }).click()
+  const activity = page.locator('#subject-editor')
+  await expect(activity).toBeVisible()
+  await expect(activity.getByLabel('Start (valgfri)', { exact: true })).toHaveValue('')
+  await expect(activity.getByLabel('Slutt (valgfri)', { exact: true })).toHaveValue('')
+  await activity.getByRole('button', { name: 'Avbryt', exact: true }).click()
+  expect(await stored(page)).toEqual(before)
+})
+
+for (const entry of ['Detaljert tilgjengelighet', 'Tilpass selv']) {
+  test(`${entry} saves confirmed time and ready work produces a persistent plan`, async ({ page }) => {
+    await seed(page, { tasks: [task], onboarding: { dismissed: false, completed: false } })
+    if (entry === 'Tilpass selv') {
+      await page.locator('#connected-onboarding').getByRole('button', { name: 'Se planforslag', exact: true }).click()
+      await planDialog(page).getByRole('button', { name: entry, exact: true }).click()
+    } else await page.locator('#connected-onboarding').getByRole('button', { name: entry, exact: true }).click()
+    const form = page.locator('.work-window-form')
+    await expect(form).toBeVisible(); await expect(form.locator('[name=startLocal]')).toBeFocused()
+    await form.locator('[name=startLocal]').fill('2026-10-30T10:00')
+    await form.locator('[name=endLocal]').fill('2026-10-30T09:00')
+    const before = await stored(page)
+    await form.getByRole('button', { name: 'Lagre tidsrom', exact: true }).click()
+    await expect(form.locator('[role=alert]')).toContainText('Slutt må være senere')
+    expect(await stored(page)).toEqual(before)
+    await form.locator('[name=endLocal]').fill('2026-10-30T12:00')
+    await form.getByRole('button', { name: 'Lagre tidsrom', exact: true }).click()
+    const saved = await stored(page)
+    expect(saved.workWindows).toHaveLength(1)
+    expect(saved.workWindows[0]).toMatchObject({ start: '2026-10-30T09:00:00Z', end: '2026-10-30T11:00:00Z' })
+    await page.reload()
+    expect((await stored(page)).workWindows).toEqual(saved.workWindows)
+    await page.locator('#connected-onboarding').getByRole('button', { name: 'Se planforslag', exact: true }).click()
+    const dialog = planDialog(page)
+    await expect(dialog.locator('.proposed-session-time')).toContainText('10:00–10:30')
+    expect((await stored(page)).sessions || []).toEqual([])
+    await dialog.getByRole('button', { name: 'Bruk planen', exact: true }).click()
+    const planned = await stored(page)
+    expect(planned.sessions).toHaveLength(1)
+    expect(planned.sessions[0]).toMatchObject({ taskId: task.id, dateLocal: '2026-10-30', startTime: '10:00', endTime: '10:30' })
+    expect(planned.tasks).toEqual(saved.tasks)
+    await page.reload(); expect((await stored(page)).sessions).toEqual(planned.sessions)
+  })
+}
+
+test('upcoming session, planned status and contextual undo agree and survive reload', async ({ page }) => {
+  await seed(page, { tasks: [task], sessions: [session], onboarding: { dismissed: true, completed: true } })
+  const next = page.locator('#next-plan')
+  await expect(next.getByRole('heading', { name: 'Kommende aktiviteter', exact: true })).toBeVisible()
+  const upcoming = next.locator(`[data-daily-row="session:${session.id}"]`)
+  await expect(upcoming).toContainText('18:00–18:30')
+  await expect(upcoming).toContainText('Neste aktivitet')
+  await expect(next.locator('.daily-task-copy')).not.toContainText('18:00–18:30')
+  await expect(page.locator('#dashboard-suggestions .capacity-explanation summary').first()).toHaveText('Arbeidet har reservert tid.')
+  await navigate(page, 'capacity')
+  await expect(page.locator(`[data-capacity-task="${task.id}"]`)).toContainText('Planlagt.')
+  await navigate(page, 'overview')
+  await upcoming.getByRole('button', { name: /Åpne/ }).click()
+  const form = page.locator('#session-form')
+  await form.locator('[name=startTime]').fill('18:30')
+  await form.locator('[name=endTime]').fill('19:00')
+  await form.getByRole('button', { name: 'Lagre studieøkt', exact: true }).click()
+  await expect(page.locator('.contextual-undo')).toBeVisible()
+  expect((await stored(page)).sessions[0]).toMatchObject({ id: session.id, startTime: '18:30', endTime: '19:00' })
+  await page.locator('.contextual-undo').getByRole('button', { name: 'Angre siste endring', exact: true }).click()
+  expect((await stored(page)).sessions).toEqual([session])
+  await page.reload()
+  expect((await stored(page)).sessions).toEqual([session])
+  await expect(next.locator(`[data-daily-row="session:${session.id}"]`)).toContainText('18:00–18:30')
+  await page.clock.setFixedTime(new Date('2026-10-29T18:01:00+01:00'))
+  await navigate(page, 'capacity'); await navigate(page, 'overview')
+  await expect(upcoming).toContainText('Pågår nå')
+  await expect(upcoming).not.toContainText('Neste aktivitet')
+  await expect(next.locator('.daily-task-copy')).not.toContainText('18:00–18:30')
+})

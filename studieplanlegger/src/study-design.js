@@ -150,7 +150,7 @@ export function createStudyDesign(actions) {
         warning.before(details); details.append(warning)
       }
       const task = model.tasks?.find(item => item.id === card.dataset.taskId)
-      const notice = task ? capacityNotice(task, model.sessions || [], model.planner?.events || [], model.now) : null
+      const notice = task ? capacityNotice(task, model.sessions || [], model.planner?.events || [], model.now, model.capacity?.tasks.find(entry => entry.taskId === task.id)) : null
       details.hidden = !notice || (warning.hidden && !['danger', 'warning'].includes(notice.tone))
       if (notice) {
         details.dataset.tone = notice.tone; text(details.querySelector('summary'), notice.text)

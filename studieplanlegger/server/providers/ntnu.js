@@ -21,6 +21,12 @@ export async function searchNtnu(query, fetchText) {
   }
   if(more)warnings.push('Kildeutvalget er ufullstendig. Hentingen følger publiserte sider innen grensen på 20 sider / 10 000 emner; avgrens søket.')
   const term = query.q.toLocaleLowerCase('nb-NO')
-  const results = [...courses.values()].filter(c => `${c.courseCode} ${c.courseName}`.toLocaleLowerCase('nb-NO').includes(term) && (!query.campus || c.location?.includes(query.campus))).map(c => ({ code: c.courseCode, name: c.courseName, campus: c.location || '', university: 'NTNU', semester: query.semester, year: Number(query.year), sourceUrl: c.courseUrl }))
+  // The public search joins several published locations with commas. Offer
+  // each location as an explicit choice; the details page still validates it.
+  // Passing the joined label as one campus would reject valid multi-campus courses.
+  const results = [...courses.values()].filter(c => `${c.courseCode} ${c.courseName}`.toLocaleLowerCase('nb-NO').includes(term)).flatMap(c => {
+    const places = [...new Set(String(c.location || '').split(',').map(place => place.trim()))]
+    return places.filter(place => !query.campus || place === query.campus).map(campus => ({ code: c.courseCode, name: c.courseName, campus, university: 'NTNU', semester: query.semester, year: Number(query.year), sourceUrl: c.courseUrl }))
+  })
   return { status: results.length ? 'ok' : 'no-matching-results', results, sourceUrl, error: results.length ? undefined : 'Ingen treff i det valgte semester-/campusfilteret. Dette bekrefter ikke at emnet ikke finnes. Prøv et annet semester, fjern campusfilteret eller åpne NTNUs emnesøk.', truncated: more, completeness:{complete:!more,pages,returned:courses.size}, warnings }
 }
