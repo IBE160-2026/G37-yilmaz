@@ -29,6 +29,8 @@ export default defineConfig({
     { name: 'remote-core', testMatch: 'core.spec.js' },
     { name: 'remote-visual', testMatch: 'visual.spec.js' },
     { name: 'remote-failures', testMatch: 'failures.spec.js' },
+    { name: 'remote-trial', testDir: './e2e', testMatch: 'own-trial-*.spec.js' },
+    { name: 'remote-trial-live', testMatch: 'own-trial-imports-live.spec.js' },
     { name: 'remote-live', testMatch: 'live.spec.js', grep: /live HiMolde IT|live public teaching for saved course: himolde|live NTNU course and teaching/ },
     { name: 'remote-persistence', testMatch: 'persistence.spec.js' },
   ],

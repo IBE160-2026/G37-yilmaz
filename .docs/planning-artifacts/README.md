@@ -2,7 +2,7 @@
 
 **Revidert 2026-10-26.** Den eksisterende PRD-en er samordnet med lærerens tilbakemelding og PRD-forberedelsene gjengitt i prosjekteierens oppdrag: produkt, problem, målgruppe/behov, krav, research/alternativer og reelle åpne spørsmål er samlet i [PRD](PRD.md). V1 og krav-/story-ID-er er uendret. Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**.
 
-**Egenutprøving:** Etter prosjekteierens beslutning 2026-10-26 gjelder SC-07/R-07/S-07 bare egenutprøving. Ingen andre testpersoner rekrutteres. Status er **planlagt / ikke gjennomført**; den tidligere studentprøven ble ikke gjennomført eller bestått. Målgruppen er fortsatt studenter, og egenutprøving gir ikke bevis for ukjente brukeres forståelse eller generell studentnytte. Personlig refleksjon må bygge på egne erfaringer.
+**Egenutprøving:** Etter prosjekteierens beslutning 2026-10-26 gjelder SC-07/R-07/S-07 bare egenutprøving. Ingen andre testpersoner rekrutteres. Prosjekteieren rapporterte avvik 2026-10-29: status er nå **påbegynt med avvik; omprøving gjenstår**, jf. [rapporterte funn](USER-TRIAL-PLAN.md#rapporterte-funn-og-omprøving--2026-10-29). Den tidligere studentprøven ble ikke gjennomført eller bestått. Målgruppen er fortsatt studenter, og egenutprøving gir ikke bevis for ukjente brukeres forståelse eller generell studentnytte. Personlig refleksjon må bygge på egne erfaringer. Eldre daterte statusutsagn nedenfor er historikk.
 
 Planene ble **rekonstruert 2026-10-16** mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae00268`. De er ikke opprinnelige planer for allerede skrevet kode. Revisjonen følger opp lærerens krav om avgrenset V1, sjekkbare kriterier, tekniske detaljer i arkitekturen og synlig kontroll av KI-generert arbeid.
 
@@ -17,7 +17,7 @@ Sensorvedleggets sju sider er lest på nytt 2026-10-26, med samme SHA-256 som id
 3. [Gjeldende epics og stories](EPICS-CURRENT.md): S-01–S-08 med Given/When/Then.
 4. [Arkitektur](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md): gjeldende beslutninger og tydelig merket historikk.
 5. [Sporbarhet](TRACEABILITY.md): forventet resultat, metode, kode, test og faktisk evidensstatus.
-6. [Plan for egenutprøving](USER-TRIAL-PLAN.md): sju manuelle scenarier for prosjekteieren med syntetiske data; **planlagt / ikke gjennomført**.
+6. [Plan for egenutprøving](USER-TRIAL-PLAN.md): sju manuelle scenarier for prosjekteieren med syntetiske data; **påbegynt med avvik; omprøving gjenstår**.
 7. [Importavtale og brukerflyt](../../studieplanlegger/IMPORT.md): forhåndsvisning, identiteter, emnevalg, tidspunkt og kildenes grenser.
 8. [Kuratert TP CSV-formatkontrakt, 2026-10-23](../implementation-artifacts/tp-csv-format-contract-2026-10-23.md): offentlig formatgrunnlag og avgrensning mot private originalfiler.
 9. [Daterte kontrollresultater](../../studieplanlegger/VERIFICATION.md): konkrete feil, rettelser, tester og begrensninger. Testkode er lenket fra sporbarheten; interne arbeidsspesifikasjoner beholdes lokalt og er ikke del av den offentlige dokumentkjeden.

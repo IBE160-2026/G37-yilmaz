@@ -7,6 +7,10 @@ import { calendarInstantLabel } from './calendar-model.js'
 const encoder = new TextEncoder()
 const utcStamp = value => new Date(value).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')
 const escapeText = value => String(value ?? '').replace(/\\/g, '\\\\').replace(/\r\n|\r|\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;')
+const withoutCoursePrefix = (value, course) => {
+  const title = String(value ?? ''), prefix = course ? `[${course}]` : ''
+  return prefix && title.startsWith(prefix) && (title.length === prefix.length || /\s/.test(title[prefix.length])) ? title.slice(prefix.length).trimStart() : title
+}
 const stableHash = input => {
   const bytes = encoder.encode(input), mask = (1n << 64n) - 1n
   const fnv64 = seed => {
@@ -57,7 +61,7 @@ function calendarExportCandidates(state, { from, to, includeSessions = true, inc
       if (!overlapsRange(interval.start, interval.end, from, to)) continue
       const task = state.tasks?.find(item => item.id === session.taskId)
       const topic = state.topics?.find(item => item.id === session.reviewTopicId)
-      const title = task ? `Studieøkt: ${task.title}` : session.reviewTopicId
+      const title = task ? `Studieøkt: ${withoutCoursePrefix(task.title, task.course)}` : session.reviewTopicId
         ? topic?.title?.trim() ? `Repetisjon: ${topic.title}` : 'Repetisjon (tema ikke tilgjengelig)'
         : 'Studieøkt'
       items.push({ kind: 'session', id: session.id, title, start: interval.start, end: interval.end, course: task?.course })
@@ -137,12 +141,18 @@ export function calendarExportOmissions(state, options = {}) {
 }
 
 export function generateCalendarIcs(state, options = {}) {
+  // With METHOD:PUBLISH, RFC 5545 §3.8.7.2 dates this exported object,
+  // not the source event. Read the clock once so every component agrees.
+  const stamp = `DTSTAMP:${utcStamp((options.now || Date.now)())}`
   const lines = ['BEGIN:VCALENDAR', 'PRODID:-//Ajour//Lokal eksport//NO', 'VERSION:2.0', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Ajour']
   for (const item of calendarExportItems(state, options)) {
-    const summary = [item.course ? `[${item.course}]` : '', item.kind === 'deadline' ? 'Frist:' : '', item.title].filter(Boolean).join(' ')
-    if (item.kind === 'deadline') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.due.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.due)}`, `SUMMARY:${escapeText(summary)}`, 'TRANSP:TRANSPARENT', 'END:VEVENT')
-    else if (item.kind === 'personal') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.endDate ? [`DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}`] : item.end !== undefined && !item.allDay ? [`DTEND:${utcStamp(item.end)}`] : []), `SUMMARY:${escapeText(`Egen aktivitet: ${item.title}`)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, 'END:VEVENT')
-    else lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.point ? [] : [item.allDay ? `DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}` : `DTEND:${utcStamp(item.end)}`]), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, `SUMMARY:${escapeText(summary)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), 'END:VEVENT')
+    const prefix = item.course ? `[${item.course}]` : ''
+    // Imported titles may already carry this exact course prefix. Keep other
+    // codes and occurrences inside the title; only avoid adding it twice.
+    const summary = [prefix, item.kind === 'deadline' ? 'Frist:' : '', withoutCoursePrefix(item.title, item.course)].filter(Boolean).join(' ')
+    if (item.kind === 'deadline') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, stamp, item.allDay ? `DTSTART;VALUE=DATE:${item.due.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.due)}`, `SUMMARY:${escapeText(summary)}`, 'TRANSP:TRANSPARENT', 'END:VEVENT')
+    else if (item.kind === 'personal') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, stamp, item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.endDate ? [`DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}`] : item.end !== undefined && !item.allDay ? [`DTEND:${utcStamp(item.end)}`] : []), `SUMMARY:${escapeText(`Egen aktivitet: ${item.title}`)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, 'END:VEVENT')
+    else lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, stamp, item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.point ? [] : [item.allDay ? `DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}` : `DTEND:${utcStamp(item.end)}`]), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, `SUMMARY:${escapeText(summary)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), 'END:VEVENT')
   }
   lines.push('END:VCALENDAR')
   return lines.map(foldIcsLine).join('\r\n') + '\r\n'

@@ -9,7 +9,7 @@ try {
   await loading.destroy(); loading = null
   parentPort.postMessage({ publicPdf: true, ok: true, pages })
 } catch (error) {
-  parentPort.postMessage({ publicPdf: true, ok: false, status: error.status || 'source-changed', error: error.status ? error.message : 'PDF-kilden kunne ikke leses lokalt. Bruk dokumentimport eller tekstutdrag.' })
+  parentPort.postMessage({ publicPdf: true, ok: false, status: error.status || 'source-changed', error: error.status ? error.message : 'PDF-kilden kunne ikke behandles av importtjenesten. Bruk dokumentimport eller tekstutdrag.' })
 } finally {
   await loading?.destroy()
 }

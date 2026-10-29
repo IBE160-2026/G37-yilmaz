@@ -58,7 +58,16 @@ function choice(parent, label, options, value, onChange) {
   wrapper.append(caption, input); parent.append(wrapper); return input
 }
 const typeNames = { course: 'Emne', task: 'Oppgave / frist', event: 'Fast undervisning / aktivitet' }
-const courseGroupKey = row => JSON.stringify([row.courseHint || '', Number(row.year) || '', row.semester || '', documentInstitution(row.university), row.sourceObjectId || '', row.campus || '', row.campusCode || ''])
+const courseGroupKeys = new WeakMap()
+const courseGroupKey = row => {
+  const parts = [row.courseHint || '', Number(row.year) || '', row.semester || '', row.university || '', row.sourceObjectId || '', row.campus || '', row.campusCode || '']
+  const identity = JSON.stringify(parts), cached = courseGroupKeys.get(row)
+  if (cached?.identity === identity) return cached.key
+  // Repeated row/group counts must not normalize the same institution for
+  // every pair of rows. Every editable identity field invalidates this cache.
+  parts[3] = documentInstitution(row.university)
+  const key = JSON.stringify(parts); courseGroupKeys.set(row, { identity, key }); return key
+}
 const courseGroupLabel = row => [row.courseHint || 'Uten emne', row.university, row.semester === 'spring' ? 'Vår' : row.semester === 'autumn' ? 'Høst' : '', row.year, row.campus ? `Campus: ${row.campus}` : ''].filter(Boolean).join(' · ')
 const courseSourceContext = row => [row.sourceObjectId ? `Kildevalg: ${row.sourceObjectId}` : '', row.campusCode ? `Campuskode: ${row.campusCode}` : ''].filter(Boolean).join(' · ')
 const rowIdentity = row => row.key || String(row.index)
@@ -128,13 +137,14 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
   const needsChoice = row => !row.selected && referenced(row) || row.kind !== 'course' && !row.title || row.courseTarget === '?' || row.kind !== 'course' && row.courseChoice === '?' || row.matchChoice === '?' || row.deadlineMode === '?' || row.statusNeedsChoice && row.statusChoice !== 'open' || row.deletedLocally && !row.recreate || row.typeChanged && row.typeChangeChoice !== 'replace' || row.estimateIssue && !row.estimateResolved || row.conflicts.some(conflict => !row.conflictChoices[conflict.field]) || row.kind === 'course' && !row.courseTarget && (!row.title && !provisionalCourse(row) || !row.year || !row.semester) || unresolvedTime(row)
   const updateSummary = () => {
     cancelPreviewSummary(container)
+    const currentState = getState()
     foundSummary.textContent = `${preview.rows.filter(row => row.kind === 'course').length} emner · ${preview.rows.filter(row => row.kind === 'event' && !row.point).length} aktiviteter · ${preview.rows.filter(row => row.kind === 'event' && row.point).length} punkter · ${preview.rows.filter(row => row.kind === 'task').length} oppgaver fra ${preview.displayName || preview.name}. Velg det du vil lagre, og avklar manglende opplysninger. Ingenting lagres før du bekrefter.`
     const selected = preview.rows.filter(row => row.selected), existing = selected.filter(row => row.matchEntryKey || row.courseTarget && row.courseTarget !== '?')
-    const changed = existing.filter(row => documentSourceChanged(row, preview, getState()))
+    const changed = existing.filter(row => documentSourceChanged(row, preview, currentState))
     const newRows = selected.filter(row => !existing.includes(row))
     // Compute outcomes through the same atomic proposal builder as confirmation.
     // The clone keeps transient conflict/consent bookkeeping out of the draft.
-    const proposed = buildDocumentImportCommit(getState(), structuredClone(preview))
+    const proposed = buildDocumentImportCommit(currentState, structuredClone(preview))
     const counts = proposed.counts || { added: 0, updated: 0, unchanged: 0 }
     const unresolved = new Set([...preview.rows.filter(row => (row.selected || referenced(row)) && needsChoice(row) || row.selectionUncertain && !row.groupChoiceResolved).map(row => row.index), ...(proposed.errors || []).map(error => error.index)])
     const pendingQuestions = new Set()
@@ -208,6 +218,11 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
   const groups = el('section', undefined, 'document-course-groups'); form.append(groups)
   groups.before(sourceDetails)
   const rows = el('div', undefined, 'document-preview-rows'); form.append(rows)
+  // Large files keep every row in the review and in the atomic proposal, but
+  // construct an individual editor only when it is opened. Shared course
+  // decisions belong to the group controls, not hundreds of hidden selects.
+  const deferRowEditors = preview.rows.length > 100
+  if (deferRowEditors) rows.before(el('p', 'Avklar emne én gang under «Emner i filen». Alle oppføringene er med i gjennomgangen; åpne en oppføring når du vil kontrollere eller endre den enkeltvis.', 'form-hint'))
   const pendingNames = () => preview.rows.filter(row => row.kind === 'course' && row.selected && !row.title && !provisionalCourse(row) && (!row.courseTarget || row.courseTarget === '?'))
   if (preview.rows.some(row => provisionalCourse(row) || row.titleStatus === 'provisional')) form.insertBefore(el('p', 'Navn som mangler i kilden vises tydelig som foreløpige. Bekreftelsen godtar disse sammen med de valgte aktivitetene; du kan rette navn senere. Ukjent lærested forblir ukjent.', 'form-hint'), groups)
   const affiliationRows = () => preview.rows.filter(row => row.kind === 'course')
@@ -307,6 +322,7 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
       if (!grouped.has(key)) grouped.set(key, [])
       grouped.get(key).push(row)
     }
+    const availableCourses = courseOptions()
     for (const members of grouped.values()) {
       const first = members[0], choices = new Set(members.map(row => row.courseChoice))
       const label = `${groupLabel(first)} · ${members.length} oppføringer`
@@ -314,12 +330,12 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
       const groupControls = el('details'); groupControls.dataset.groupControl = courseGroupKey(first); groupControls.dataset.detail = `group:${courseGroupKey(first)}`; groupControls.append(el('summary', label)); groupControls.open = open.has(courseGroupKey(first)) || !first.courseHint || choices.has('?'); groups.append(groupControls)
       if (courseSourceContext(first)) groupControls.append(el('p', courseSourceContext(first), 'form-hint'))
       if (members.some(row => row.legacyCourseChoice)) groupControls.append(el('p', `Tidligere lagring viser ikke om manglende emnekobling var et eget valg. Velg ett emne eller «Uten emne» for disse ${members.length} oppføringene. Valget beholdes ved uendret import.`, 'form-hint'))
-      choice(groupControls, `Emne for ${label}${courseSourceContext(first) ? ` · ${courseSourceContext(first)}` : ''}`, courseOptions(), choices.size === 1 ? first.courseChoice : '?', value => { chooseDocumentCourse(preview, members, value); renderRows(); renderGroups(); renderInstitutions(); updateSummary() }).dataset.control = `course-choice:${courseGroupKey(first)}`
+      choice(groupControls, `Emne for ${label}${courseSourceContext(first) ? ` · ${courseSourceContext(first)}` : ''}`, availableCourses, choices.size === 1 ? first.courseChoice : '?', value => { chooseDocumentCourse(preview, members, value); clearCourseValidation(members); renderRows(); renderGroups(); renderInstitutions(); updateSummary() }).dataset.control = `course-choice:${courseGroupKey(first)}`
       const newCourse = el('button', `Opprett nytt emne for ${first.courseHint || 'gruppen uten emne'}`); newCourse.type = 'button'
       newCourse.addEventListener('click', () => {
         try {
-          const row = addDocumentCourseDraft(getState(), preview, members); renderRows(); renderGroups(); renderInstitutions(); updateSummary()
-          const section = rows.querySelector(`[data-row-index="${row.index}"]`); section.open = true; section.querySelector('[data-field=title]').focus()
+          const row = addDocumentCourseDraft(getState(), preview, members); clearCourseValidation(members); renderRows(); renderGroups(); renderInstitutions(); updateSummary()
+          const section = rows.querySelector(`[data-row-index="${row.index}"]`); section.open = true; section.renderEditor?.(); section.querySelector('[data-field=title]').focus()
         } catch (failure) { error.replaceChildren(el('p', failure.message)) }
       }); groupControls.append(newCourse)
       const events = members.filter(row => row.kind === 'event')
@@ -340,6 +356,7 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
     }
     groups.hidden = !grouped.size
     identifyButtons(groups)
+    showValidationErrors()
     if (focus) [...groups.querySelectorAll('[data-control]')].find(node => node.dataset.control === focus)?.focus({ preventScroll: true })
     window.scrollTo({ top: scroll })
   }
@@ -371,6 +388,19 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
     form.insertBefore(recovery, groups)
   }
   let validationErrors = []
+  const sharedErrorGroups = item => {
+    if (!deferRowEditors) return []
+    const row = preview.rows[item.index]
+    if (row.kind !== 'course') return item.field === 'courseChoice' ? [courseGroupKey(row)] : []
+    return item.field === 'courseTarget' ? [...new Set(preview.rows.filter(member => member.kind !== 'course' && member.selected && member.courseChoice === `row:${row.index}`).map(courseGroupKey))] : []
+  }
+  const clearCourseValidation = members => {
+    validationErrors = validationErrors.filter(item => {
+      const row = preview.rows[item.index]
+      return !(item.field === 'courseChoice' && members.includes(row) || row.kind === 'course' && !row.selected && !referenced(row))
+    })
+    error.replaceChildren(...validationErrors.filter(item => !sharedErrorGroups(item).length).map(item => el('p', item.message)))
+  }
   const updateCourseLabels = row => {
     for (const option of form.querySelectorAll(`option[value="row:${row.index}"]`)) option.textContent = `${rowCourseLabel(row)} (fra dokumentet)`
     const name = affiliationChoices.querySelector(`[data-affiliation-row="${row.index}"] .document-affiliation-name`)
@@ -379,23 +409,41 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
   const clearTitleError = row => {
     if (row.selected && !row.title.trim() && (!row.courseTarget || row.courseTarget === '?')) return
     validationErrors = validationErrors.filter(item => item.index !== row.index || item.field !== 'title')
-    error.replaceChildren(...validationErrors.map(item => el('p', item.message)))
+    error.replaceChildren(...validationErrors.filter(item => !sharedErrorGroups(item).length).map(item => el('p', item.message)))
     showValidationErrors()
   }
   const showValidationErrors = ({ focusError = false } = {}) => {
-    for (const input of rows.querySelectorAll('[aria-invalid]')) { input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby') }
-    for (const message of rows.querySelectorAll('.document-field-error')) message.remove()
+    for (const root of [rows, groups]) {
+      for (const input of root.querySelectorAll('[aria-invalid]')) { input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby') }
+      for (const message of root.querySelectorAll('.document-field-error')) message.remove()
+    }
+    const sharedErrors = new Set()
     for (const [index, item] of validationErrors.entries()) {
+      const shared = sharedErrorGroups(item)
+      if (shared.length) {
+        for (const key of shared) {
+          if (sharedErrors.has(key)) continue
+          sharedErrors.add(key)
+          const section = [...groups.querySelectorAll('[data-group-control]')].find(node => node.dataset.groupControl === key)
+          const input = section?.querySelector('[data-control^="course-choice:"]')
+          if (!input) continue
+          section.open = true
+          const message = el('p', 'Avklar emnet én gang for disse oppføringene. Velg et lagret emne, opprett et nytt eller velg «Uten emne».', 'document-field-error'); message.id = `document-group-error-${index}-${sharedErrors.size}`
+          input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', message.id); section.append(message)
+        }
+        continue
+      }
       const section = [...rows.querySelectorAll('.document-preview-row')].find(section => Number(section.dataset.rowIndex) === item.index)
       if (!section) continue
       section.open = true
+      section.renderEditor?.()
       if (section.parentElement.classList.contains('document-preview-group')) section.parentElement.open = true
       const inputs = [...section.querySelectorAll('[data-field]')], input = inputs.find(input => input.dataset.field === item.field) || inputs.find(input => input.dataset.field === 'selected')
       for (let ancestor = input.parentElement; ancestor && ancestor !== rows; ancestor = ancestor.parentElement) if (ancestor.tagName === 'DETAILS') ancestor.open = true
       const message = el('p', item.message, 'document-field-error'); message.id = `document-error-${item.index}-${index}`
       input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', [input.getAttribute('aria-describedby'), message.id].filter(Boolean).join(' ')); section.append(message)
     }
-    if (focusError) { const input = rows.querySelector('[aria-invalid=true]'); input?.focus(); input?.scrollIntoView({ block: 'nearest' }) }
+    if (focusError) { const input = groups.querySelector('[aria-invalid=true]') || rows.querySelector('[aria-invalid=true]'); input?.focus(); input?.scrollIntoView({ block: 'nearest' }) }
   }
   const renderRows = ({ focusError = false } = {}) => {
     const rowScroll = window.scrollY
@@ -409,11 +457,12 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
     refreshDocumentConflicts(getState(), preview); rows.replaceChildren()
     const rowGroups = new Map()
     for (const row of [...preview.rows].sort((a, b) => Number(b.kind === 'course' && needsChoice(b)) - Number(a.kind === 'course' && needsChoice(a)))) {
-      const rowErrors = validationErrors.filter(error => error.index === row.index)
+      const rowErrors = validationErrors.filter(error => error.index === row.index && !sharedErrorGroups(error).length)
       const pending = (row.selected || referenced(row)) && needsChoice(row)
       const hasNativeInput = [...retainedNativeInputs.keys()].some(key => JSON.parse(key)[0] === rowIdentity(row))
       const newlyResolved = row.kind === 'course' && pendingRows.has(row.index) && !pending && active?.rowKey !== rowIdentity(row) && !hasNativeInput
-      const section = el('details', undefined, 'document-preview-row'); section.dataset.rowIndex = row.index; section.dataset.rowKey = rowIdentity(row); section.dataset.pending = String(Boolean(pending)); section.open = rowErrors.length > 0 || !newlyResolved && (openRows.has(row.index) || firstRender && (preview.rows.length === 1 || pending || row.requiresGroupChoice && !row.groupChoiceResolved))
+      const individualPending = pending && (!deferRowEditors || row.kind === 'course' || needsChoice({ ...row, courseChoice: '' }))
+      const section = el('details', undefined, 'document-preview-row'); section.dataset.rowIndex = row.index; section.dataset.rowKey = rowIdentity(row); section.dataset.pending = String(Boolean(pending)); section.open = rowErrors.length > 0 || !newlyResolved && (openRows.has(row.index) || firstRender && (preview.rows.length === 1 || individualPending || !deferRowEditors && row.requiresGroupChoice && !row.groupChoiceResolved))
       const savedCourse = row.kind === 'course' && linkedCourse(row)
       const proposedCourse = row.courseChoice?.startsWith('row:') ? preview.rows[Number(row.courseChoice.slice(4))] : null
       applyCourseColor(section, row.kind === 'course' ? row.courseTarget || row.targetId : proposedCourse ? proposedCourse.courseTarget || proposedCourse.targetId : row.courseChoice)
@@ -427,6 +476,10 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
       const summary = el('summary'); section.append(summary)
       const updateRowSummary = () => { const linked = row.kind === 'course' && linkedCourse(row); section.dataset.pending = String(Boolean((row.selected || referenced(row)) && needsChoice(row))); summary.textContent = `${row.index + 1}. ${rowTypeName(row)} · ${(row.kind === 'course' ? rowCourseLabel(row) : rowDisplayName(row)) || (row.draftCourse && !row.selected ? 'Ubrukt emneforslag' : 'Mangler navn')}${row.kind === 'course' ? ` · Lærested: ${(linked ? linked.university : row.university) || 'Ukjent / velg senere'}` : ''}${row.kind === 'event' && row.startLocal ? ` · ${row.originalStart && row.startLocal === osloLocal(row.originalStart) ? calendarInstantLabel(row.originalStart, { includeDate: true }) : row.startLocal.replace('T', ' ')}` : ''}${row.kind === 'event' && row.point ? ` · Punkt uten varighet – ${row.pointProvenance === 'user' ? 'ditt valg' : 'fra kilden'}` : ''}${row.resolutionNote === 'Emnekoden er godkjent som foreløpig navn.' && row.title === row.code ? ' · foreløpig navn' : ''}${row.kind === 'course' && row.sourceObjectId ? ` · Kildevalg: ${row.sourceObjectId}` : ''}${row.kind === 'course' && row.campus ? ` · Campus: ${row.campus}` : ''}${row.selected ? ' · valgt' : ' · utelatt'}` }
       updateRowSummary()
+      let editorRendered = false
+      section.renderEditor = () => {
+      if (editorRendered) return
+      editorRendered = true
       const selectedLabel = el('label', 'Ta med i planen'), selected = mark('selected', el('input')); selected.type = 'checkbox'; selected.checked = row.selected; selected.addEventListener('change', () => { chooseDocumentSelection(row, selected.checked); renderRows(); renderGroups(); updateSummary() }); selectedLabel.prepend(selected); section.append(selectedLabel)
       const resolutionNote = el('p', row.resolutionNote || ''); resolutionNote.hidden = !row.resolutionNote; section.append(resolutionNote)
       if (row.kind === 'course') {
@@ -608,6 +661,11 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
         const group = el('div', undefined, 'document-conflict'); group.append(el('p', `Både du og kilden har endret ${fieldNames[conflict.field] || conflict.field}.`), el('p', `Tidligere kilde: ${conflict.base ?? 'ukjent'} · Din verdi: ${conflict.local ?? 'ukjent'} · Ny kilde: ${conflict.incoming ?? 'ukjent'}`))
         rowChoice(`conflict:${conflict.field}`, group, `Behold verdi for ${fieldNames[conflict.field] || conflict.field}`, [['', 'Velg verdi'], ['local', 'Behold min verdi'], ['incoming', 'Bruk ny kilde / avklaring']], row.conflictChoices[conflict.field] || '', value => { row.conflictChoices[conflict.field] = value }); section.append(group)
       }
+      for (const node of section.querySelectorAll('details[data-detail]')) if (openDetails.has(node.dataset.detail)) node.open = true
+      identifyButtons(section)
+      }
+      if (!deferRowEditors || section.open || hasNativeInput) section.renderEditor()
+      section.addEventListener('toggle', () => { if (section.open && section.isConnected) section.renderEditor() })
       if (row.kind === 'course' || preview.rows.length < 12) rows.append(section)
       else {
         const key = courseGroupKey(row)
@@ -638,9 +696,11 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
       const prior = priorRows.get(node.dataset.rowIndex), row = preview.rows[Number(node.dataset.rowIndex)]
       const newlyResolved = row.kind === 'course' && prior.pending && node.dataset.pending !== 'true' && priorFocus?.rowKey !== node.dataset.rowKey && ![...node.querySelectorAll('input')].some(input => input.validity.badInput)
       node.open = newlyResolved ? false : prior.open
+      if (node.open) node.renderEditor?.()
     }
     for (const node of rows.querySelectorAll('.document-preview-group')) if (priorGroups.has(node.dataset.group)) node.open ||= priorGroups.get(node.dataset.group)
     for (const node of rows.querySelectorAll('.document-course-metadata')) if (priorMetadata.has(node.closest('[data-row-index]').dataset.rowIndex)) node.open = priorMetadata.get(node.closest('[data-row-index]').dataset.rowIndex)
+    for (const node of rows.querySelectorAll('details[data-detail]')) if (priorDetails.has(node.dataset.detail)) node.open = priorDetails.get(node.dataset.detail)
     const focus = priorFocus?.field && [...rows.querySelectorAll('[data-field]')].find(node => node.dataset.field === priorFocus.field && node.closest('[data-row-key]')?.dataset.rowKey === priorFocus.rowKey)
     if (priorFocus) { heading.tabIndex = -1; (focus || heading).focus({ preventScroll: true }) }
   }
@@ -661,7 +721,7 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
       // exposing value="". It must not become an intentional unknown estimate.
       const badInputs = [...rows.querySelectorAll('input[data-field]')].filter(input => input.validity.badInput && preview.rows[Number(input.closest('.document-preview-row').dataset.rowIndex)]?.selected).map(input => ({ index: Number(input.closest('.document-preview-row').dataset.rowIndex), field: input.dataset.field, message: `Rad ${Number(input.closest('.document-preview-row').dataset.rowIndex) + 1}: Feltet har en ufullstendig eller ugyldig verdi. Rett verdien, eller tøm feltet hvis det er valgfritt.` }))
       const result = badInputs.length ? { ok: false, error: 'Avklar de markerte oppføringene. Ingen del av planen er lagret.', errors: badInputs } : buildDocumentImportCommit(getState(), preview)
-      if (!result.ok) { error.append(el('p', result.error)); for (const item of result.errors || []) error.append(el('p', item.message)); validationErrors = result.errors || []; showValidationErrors({ focusError: true }); if (!validationErrors.length) { error.tabIndex = -1; error.focus() } return }
+      if (!result.ok) { error.append(el('p', result.error)); validationErrors = result.errors || []; for (const item of validationErrors.filter(item => !sharedErrorGroups(item).length)) error.append(el('p', item.message)); showValidationErrors({ focusError: true }); if (!validationErrors.length) { error.tabIndex = -1; error.focus() } return }
       const saved = await onConfirm(result.candidate, result)
       if (!saved?.ok) error.append(el('p', saved?.error || 'Planen kunne ikke lagres. Forhåndsvisningen er beholdt; prøv igjen.'))
     } catch { error.append(el('p', 'Planen kunne ikke lagres. Forhåndsvisningen er beholdt.')) }

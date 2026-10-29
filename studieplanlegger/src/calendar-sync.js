@@ -1,7 +1,7 @@
 import { parseCalendar } from './calendar-import.js'
 import { mergeImport, semesterWindow } from './planner.js'
 import { sourceCoverage, disappearancePolicy, UNKNOWN_COVERAGE_WARNING } from './source-coverage.js'
-import { checkedTeaching, teachingOutcome } from './teaching-check.js'
+import { checkedTeaching, teachingOutcome, teachingCalendarResult } from './teaching-check.js'
 
 export const REFRESH_INTERVAL = 30 * 60 * 1000
 export const MAX_BACKOFF = 24 * 60 * 60 * 1000
@@ -33,15 +33,15 @@ export function createCalendarSync({ getState, commit, isEditing, visible = () =
         if (!eligibleSource(original, course, now) || now - (attempted.get(original.id) || 0) < REFRESH_INTERVAL) continue
         attempted.set(original.id, now)
         const stamp = new Date(now).toISOString()
-        let parsed, error
-        try { parsed = parseCalendar(await fetchText(original.url), { ...course, courseId: course.id }) } catch (failure) { error = failure }
+        let parsed, outcome, error
+        try { parsed = parseCalendar(await fetchText(original.url), { ...course, courseId: course.id }); outcome = teachingCalendarResult(parsed) } catch (failure) { error = failure }
         if (isEditing() || !visible()) continue
         const state = getState(), current = state.planner?.sources.find(s => s.id === original.id)
         if (!current || JSON.stringify(current) !== JSON.stringify(original) || JSON.stringify(state.planner.courses.find(c => c.id === course.id)) !== JSON.stringify(course)) continue
         if (error) {
           const planner = structuredClone(state.planner), source = planner.sources.find(s => s.id === original.id)
           Object.assign(source, { lastAttempt: stamp, lastError: error.message, failures: (source.failures || 0) + 1 })
-          const target=planner.courses.find(item=>item.id===course.id);Object.assign(target,checkedTeaching(target,teachingOutcome(error),{now:new Date(now),source:'calendar-refresh'}))
+          const target=planner.courses.find(item=>item.id===course.id);Object.assign(target,checkedTeaching(target,teachingOutcome(error),{now:new Date(now),source:'calendar-refresh',detail:error.message}))
           commit(planner); continue
         }
         const allGroups = [...new Set(parsed.events.map(e => e.group))]
@@ -54,7 +54,7 @@ export function createCalendarSync({ getState, commit, isEditing, visible = () =
         source.coverage = sourceCoverage(source, course)
         if (source.coverage.kind === 'unknown') source.syncWarnings = [...source.syncWarnings, UNKNOWN_COVERAGE_WARNING]
         const policy = disappearancePolicy(source, course, parsed)
-        const checked=checkedTeaching(course,parsed.events.length?'success':'empty',{now:new Date(now),eventCount:parsed.events.length,source:'calendar-refresh'})
+        const checked=checkedTeaching(course,outcome.status,{now:new Date(now),eventCount:parsed.events.length,source:'calendar-refresh',detail:outcome.detail})
         const result = mergeImport(state.planner, parsed.events, source, { ...policy, authoritative: policy.authoritative && !newGroups, selection:{groups:source.groups,excludedKeys:source.excludedKeys||[]} })
         const target=result.planner.courses.find(item=>item.id===course.id);Object.assign(target,checked)
         commit(result.planner)

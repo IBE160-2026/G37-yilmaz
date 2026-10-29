@@ -27,10 +27,17 @@ export const teachingStatusLabel = status => ({
   ready: 'Undervisning klar for import',
   'selection-required': 'Undervisning funnet – velg aktiviteter',
   unavailable: 'Ingen samsvarende timeplan funnet',
-  empty: 'Ingen undervisning funnet',
+  empty: 'Ingen økter i valgt offentlig kalender',
+  unsupported: 'Automatisk undervisningshenting støttes ikke',
   failed: 'Kunne ikke hentes',
   'access-required': 'Krever tilgang',
 }[status] || 'Ikke hentet')
+
+export function courseCampusLabel(course) {
+  if (course.campus) return `Campus (emnekilden): ${course.campus}`
+  if (course.programBinding?.campus) return `Campus valgt i studieplan: ${course.programBinding.campus}`
+  return 'Campus: Ikke oppgitt'
+}
 
 const normalCode = value => String(value || '').trim().toLocaleUpperCase('nb-NO')
 export function exactTeachingObject(results, courseCode) {

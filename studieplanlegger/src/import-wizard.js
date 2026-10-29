@@ -41,7 +41,7 @@ export function createImportWizard({ form, previewHost, api, onCourse, feedback,
     if (busy) return; busy = true; const version = selectionVersion
     try {
       let data
-      if (university.value === 'hvl') data = { course: { ...item, id: `hvl:${item.sourceObjectId}:${item.year}:${item.semester}`, name: item.label, credits: null, notes: '', description: '' }, warnings: ['Navnet er en TimeEdit-etikett. Studiepoeng og emnebeskrivelse mangler. Ingen økter er hentet ennå.'], entryUrl: item.entryUrl }
+      if (university.value === 'hvl') data = { course: { ...item, id: `hvl:${item.sourceObjectId}:${item.year}:${item.semester}`, sourceProvider: 'hvl-timeedit', sourceRecordId: item.sourceObjectId, sourceVersion: `${item.year}:${item.semester}`, name: item.name || item.label, credits: null, notes: '', description: '' }, warnings: ['Opplysningene kommer fra valgt TimeEdit-emnepost. Studiepoeng og emnebeskrivelse er ikke hentet. Ingen økter er hentet ennå.'], entryUrl: item.entryUrl }
       else {
         try { data = await api(`/api/import/providers/${university.value}/details?${new URLSearchParams({ code: item.code, semester: item.semester, year: item.year, ...(item.sourceUrl ? { sourceUrl: item.sourceUrl } : {}), ...(item.sourceRecordId ? { sourceRecordId: item.sourceRecordId } : {}), ...(item.campus ? { campus: item.campus } : {}) })}`) }
         catch (error) { if (university.value !== 'nmbu') throw error; data = { status: 'transport-error', error: error.message } }
@@ -66,7 +66,7 @@ export function createImportWizard({ form, previewHost, api, onCourse, feedback,
       if (version !== selectionVersion) return
       if (data.status !== 'ok') throw new Error(`${{ 'not-found': 'Ingen emner funnet', 'no-matching-results': 'Ingen treff med valgte filtre', 'semester-unavailable': 'Semesteret er ikke tilgjengelig', 'access-required': 'Krever tilgang', 'schema-verification-required': 'Krever autentisert skjemakontroll', 'transport-error': 'Kilden kunne ikke nås' }[data.status] || data.status}. ${data.error || 'Prøv et annet søk.'}`)
       results = sortByVisibleName(data.results); step = 3; resultsHost.replaceChildren(); resultsHost.hidden = false
-      for (const item of results) resultsHost.append(button(nameFirstLabel(item, [item.campus || 'Campus mangler']), () => choose(item)))
+      for (const item of results) resultsHost.append(button(nameFirstLabel(item, [item.variant || item.campus || 'Campus mangler']), () => choose(item)))
       for (const warning of data.warnings || []) resultsHost.append(el('p', warning))
       if (!results.length) resultsHost.append(el('p', 'Ingen treff i valgt periode. Gå tilbake og endre søket, eller registrer emnet manuelt.'))
       feedback(`${results.length} treff. Velg riktig semester-/campusvariant.`); render(); (resultsHost.querySelector('button') || controls.querySelector('button'))?.focus()
