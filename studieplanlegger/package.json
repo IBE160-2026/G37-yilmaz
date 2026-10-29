@@ -3,12 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 80 --strictPort",
     "dev:legacy": "vite --host localhost --port 5173 --strictPort",
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
+    "test:e2e:remote": "playwright test --config tests/playwright.remote.config.js --project remote-core --project remote-visual --project remote-failures",
+    "test:e2e:remote:live": "playwright test --config tests/playwright.remote.config.js --project remote-live",
+    "test:e2e:remote:persistence": "playwright test --config tests/playwright.remote.config.js --project remote-persistence",
     "test:e2e:database": "node tests/run-database-e2e.mjs",
     "test:e2e:docker": "playwright test --config=playwright.docker.config.js",
     "verify:teaching": "node scripts/verify-teaching.mjs",

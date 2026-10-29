@@ -18,6 +18,50 @@ Tema (`ajour:appearance:v1`) og ID→fargeplass (`ajour.course-colors.v1`) er se
 
 En syntetisk hovedflyt er å opprette oppgaven «Les eksempelkapittel» med bare tittel, eventuelt legge til emne og steg, godkjenne en ledig økt, registrere faktisk arbeid og nytt gjenstående anslag, og godkjenne eller forkaste en justering. Fullført steg, ferdig arbeid og bekreftet innlevering er separate handlinger. Se [løsningsguiden](../.docs/implementation-artifacts/solution-guide.md) og [planen for egenutprøving](../.docs/planning-artifacts/USER-TRIAL-PLAN.md). Etter prosjekteierens beslutning 26. oktober utfører prosjekteieren prøven alene med syntetiske data i et isolert miljø. Status er **planlagt / ikke gjennomført**; automatiske tester fyller ikke ut de manuelle observasjonene.
 
+## Nettleserdrift med Vercel — 2026-10-29
+
+Den godkjente driftsutvidelsen bruker **ett gratis Vercel-prosjekt** for den eksisterende appen. Gjenbruk prosjektet når det finnes; opprett ikke separate prosjekter for forhåndsvisning og produksjon. [Faktisk publiseringsstatus](VERIFICATION.md#vercel-nettleserutgave--2026-10-29) dokumenterer URL, commit og kjørte kontroller etter verifisering.
+
+Prosjektinnstillingene er repository `IBE160-2026/G37-yilmaz`, rotmappe `studieplanlegger`, rammeverk **Vite**, installasjon `npm ci`, bygg `npm run build`, utmappe `dist` og **Node.js 24.x**. `main` er produksjonsgren. [vercel.json](vercel.json) styrer API-ruting og appens inngang; `api/` eksponerer bare avgrenset, tilstandsløs import. `server/app.js` skal fortsatt bare starte den lokale Node-/SQLite-tjenesten. Nettutgaven krever ingen database, miljøhemmeligheter, konto eller betalt tjeneste.
+
+Konfigurasjonen setter den offentlige runtimeinnstillingen `NODEJS_HELPERS=0`, slik at funksjonen kan kontrollere rå forespørselsbytes før JSON-parsing. Dette er ingen hemmelighet. Handleren støtter også plattformer som allerede har tolket JSON, men rå bytegrense er den foretrukne Vercel-banen. Importfunksjonen har 60 sekunders plattformgrense og avslutter selv forespørselen etter 50 sekunder.
+
+Ved eventuell CLI-publisering kjøres Vercel fra **repository-roten**, siden prosjektets rotmappe allerede er `studieplanlegger`. `.vercelignore` begrenser opplastingen til bygg- og kjøretidskilder; `.gitignore` alene er ikke Vercels opplastingsfilter. Kontroller filutvalget med `vercel deploy --dry --json` før opplasting. Et nytt prosjekt kan få sin aller første deploy klassifisert som produksjon selv med eksplisitt preview. [Vercels egen forklaring](https://github.com/vercel/vercel/pull/17206) og [publisering uten domenetildeling](https://vercel.com/docs/cli/deploying-from-cli#deploying-a-staged-production-build) beskriver dette. Kontroller faktisk `target`, alias og tilgang etter opprettelsen; et grønt bygg eller en ønsket preview-etikett er ikke publiseringsgodkjenning.
+
+Hele planen lagres i den aktuelle nettleserprofilen på den **nøyaktige nettadressen**. Omlasting, gjenåpning og et nytt bygg på samme adresse bruker samme lagring. En annen forhåndsvisningsadresse, localhost, produksjonsadressen, en annen profil eller en annen enhet har separate data. Privat nettlesermodus kan slette planen når vinduet lukkes; sletting av nettstedets data kan også slette planen. Bruk **Innstillinger → Eksporter sikkerhetskopi**, oppbevar filen utenfor kildekoden, og importer den med forhåndsvisning og bekreftelse på den nye adressen. Ingen automatisk enhetssynkronisering eller felles studentdatabase finnes. Tema og emnefargepreferanser er fortsatt separate nettleserpreferanser og inngår ikke i backupformatet.
+
+Gjenkjente kildeintegrasjoner beholdes med sine eksisterende begrensninger. Den offentlige importfunksjonen avviser vilkårlige kalenderverter og utrygge adresser/videresendinger. Last da ned kalenderens `.ics`-fil og velg filimport; feil ved en kilde skal ikke fjerne tidligere data. Importløftet er fortsatt de navngitte HiMolde-/NTNU-prøvene, ikke nasjonal dekning.
+
+Kjør den separate fjernkonfigurasjonen mot en faktisk, offentlig tilgjengelig forhåndsvisnings- eller produksjonsadresse. Den starter ingen lokal appserver og bruker egne syntetiske profiler. Sett adressen til det konkrete prosjektets kontrollerte URL:
+
+```powershell
+$env:AJOUR_REMOTE_URL = 'https://<faktisk-forhaandsvisningsadresse>'
+npm.cmd run test:e2e:remote
+$env:RUN_LIVE_TEACHING = '1'
+npm.cmd run test:e2e:remote:live
+```
+
+Standardutvalget kontrollerer hovedflyt, lagring, direkte innlasting og injiserte feil, og tar tretti skjermbilder fordelt på fem visninger, to temaer og tre bredder. Bildene må åpnes og vurderes; genererte PNG-filer er ikke automatisk visuell godkjenning. **Kjør også `test:e2e:remote:persistence` nedenfor:** dette separate prosjektet kontrollerer UI-opprettet tilstand, gjenåpning, adskilte profiler, sikkerhetskopi/gjenoppretting og gyldig ICS, med ny verifiseringsfase etter publisering på samme adresse. Begge kommandoene kreves for komplett fjernkontroll. Live-kildetransport rapporteres separat. Lokale tester eller emulering er ikke Vercel-evidens. Behold kontroll med `npm.cmd run test:e2e:database` for lokal Node-/SQLite-drift.
+
+For å kontrollere gjenåpning og samme-adresse-persistens bruker du en ny prøve-ID. Testen oppretter selv en syntetisk Chromium-profil under ignorerte `artifacts/remote-persistence/`; angi aldri en personlig nettleserprofil. Før ny publisering:
+
+```powershell
+$env:AJOUR_REMOTE_PROFILE = 'preview-20261029'
+$env:AJOUR_REMOTE_PHASE = 'create'
+$env:AJOUR_REMOTE_DEPLOYMENT = '<kontrollert-forrige-deploy-eller-commit>'
+npm.cmd run test:e2e:remote:persistence
+```
+
+Etter en faktisk ny publisering på **samme** `AJOUR_REMOTE_URL` og med samme prøve-ID:
+
+```powershell
+$env:AJOUR_REMOTE_PHASE = 'verify'
+$env:AJOUR_REMOTE_DEPLOYMENT = '<kontrollert-ny-deploy-eller-commit>'
+npm.cmd run test:e2e:remote:persistence
+```
+
+Prøven sammenligner lagrede opplysninger etter ny nettleserstart. Deployetiketten er bare en referanse; selve publiseringen må dokumenteres separat. Produksjon har en annen adresse og krever sin egen prøve-ID og tilsvarende kontroll.
+
 ## Import files and calendar links
 
 Open **Mine emner → Importer**, choose a file or **Fra kalenderlenke**, and select **Vis forhåndsvisning**. Check the selected counts, dates and warnings, make any necessary clarifications, then select **Importer valgte** for one atomic save. The receipt shows saved and omitted counts and offers **Åpne kalenderen** and **Angre importen** when the import changed stored data. Optional source/period settings stay under **Kilde og kalenderperiode**; automatic file dates apply until a manual semester/year filter is selected.
@@ -80,7 +124,7 @@ En ny database starter tomt. Valgfri seed er av som standard og gjelder bare en 
 
 Ved første åpning kan en tom database finne gyldige browserdata fra samme opprinnelse. Appen viser en opptelling og ber om eksplisitt bekreftelse før den importerer en kopi. Serveren arkiverer eksakt råtekst og et fingeravtrykk; gjentakelse er en no-op, og originalen i nettleseren slettes eller omskrives aldri. Ved bytte fra en annen opprinnelse brukes eksisterende portabel eksport/gjenoppretting. Private kalenderlegitimasjoner er fortsatt utelatt og må kobles til igjen.
 
-Docker-/produksjonsleveransen bruker SQLite som autoritativ lagring. Hver sammensatt endring valideres som en komplett envelope på serveren, sammenlignes med forventet revisjon og skrives i én transaksjon før nettleserminnet oppdateres. Domeneobjekter har relasjonelle identitets-/koblingskolonner og tapsfri JSON for valgfrie leverandørfelt. Vite-kommandoene nedenfor beholder browserlagring for rask utvikling og den etablerte isolerte UI-regresjonen; de er ikke den komplette databaseleveransen.
+Den lokale Node-/Docker-leveransen bruker SQLite som autoritativ lagring. Hver sammensatt endring valideres som en komplett envelope på serveren, sammenlignes med forventet revisjon og skrives i én transaksjon før nettleserminnet oppdateres. Domeneobjekter har relasjonelle identitets-/koblingskolonner og tapsfri JSON for valgfrie leverandørfelt. Vite-utvikling og Vercel-utgaven bruker den komplette nettleserlagringen og har ingen autoritativ serverdatabase.
 
 ### Avgrensede arbeidsflytrettinger — 2026-10-02
 
@@ -186,13 +230,13 @@ Importerte eksamener beholder et strukturert aktivitetsmerke gjennom oppdatering
 
 Kalenderens ukevisning kan vise hele uken eller arbeidsuken. På mobil er dagvisningen standard. Dato, kalenderfiltre, ukemodus og rulleposisjon bevares gjennom navigasjon og sikkerhetskopi. Korte eller overlappende hendelser beholder faktisk varighet og har lesbare detaljkontroller; lange titler kan åpnes i sin helhet. Dagsoversikten samler økter og frist for samme oppgave.
 
-Appen bruker fortsatt `studieplanlegger:v1` med valgfrie nye felt. Støttede eldre sikkerhetskopier kan åpnes. Oppstart skriver ikke om gammel lagring; uleselige data sperrer endring og gir gjenopprettingsvalg. Vite-utviklingsmodusen bruker browserlagring og bør ha én redigerende fane. Docker-/produksjonsmodusen bruker Node/SQLite med revisjonskontroll: en foreldet skriving avvises som konflikt og krever ny innlesing, slik at nyere serverdata ikke overskrives stille.
+Appen bruker fortsatt `studieplanlegger:v1` med valgfrie nye felt. Støttede eldre sikkerhetskopier kan åpnes. Oppstart skriver ikke om gammel lagring; uleselige data sperrer endring og gir gjenopprettingsvalg. Vite-utvikling og Vercel-utgaven bruker nettleserlagring og bør ha én redigerende fane. Lokal Node-/Docker-modus bruker SQLite med revisjonskontroll: en foreldet skriving avvises som konflikt og krever ny innlesing, slik at nyere serverdata ikke overskrives stille.
 
 Eksport/gjenoppretting, angre og papirkurv finnes i innstillingene. Portabel sikkerhetskopi bevarer opplysninger og relasjoner, men utelater kalenderforbindelser og kjente tilgangsnøkler. Kildene må kobles til igjen etter gjenoppretting. En gjenoppretting viser innholdet før bekreftelse og beholder en lokal gjenopprettingskopi av forrige tilstand.
 
 Frister lagres som lokale datoer/klokkeslett, og importert undervisning vises i norsk tid. Bruk samme lokale tidssone; flytting mellom tidssoner er ikke fullstendig støttet. Ikke-eksisterende eller tvetydige klokkeslett ved tidsskifte må avklares. Studieøkter kan krysse midnatt med eksplisitt sluttdato.
 
-I Vite-utviklingsmodusen kan sletting av nettleserdata slette planen fordi denne modusen bruker `localStorage`. I Docker-/produksjonsmodusen er SQLite autoritativ; sletting av browserdata sletter ikke databasen, men kan fjerne en uimportert nettleseroriginal. Oppbevar uansett egne sikkerhetskopier utenfor kildekoden eller i `local-backups/`. Private dokumenter og arbeidsfiler hører hjemme utenfor delbar kode; relevante lokale mapper og genererte rapporter er ignorert.
+I Vite-utvikling og Vercel-utgaven kan sletting av nettleserdata slette planen fordi disse bruker `localStorage`. I lokal Node-/Docker-modus er SQLite autoritativ; sletting av nettleserdata sletter ikke databasen, men kan fjerne en uimportert nettleseroriginal. Oppbevar uansett egne sikkerhetskopier utenfor kildekoden eller i `local-backups/`. Private dokumenter og arbeidsfiler hører hjemme utenfor delbar kode; relevante lokale mapper og genererte rapporter er ignorert.
 
 ## Tester og bygg
 

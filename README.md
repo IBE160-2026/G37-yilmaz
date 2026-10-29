@@ -8,6 +8,12 @@ Ajour hjelper studenten gjennom **oppgave → valgfritt arbeidssteg → godkjent
 
 **Avgrensning 2026-10-16:** [Brief → PRD → stories → kode/test](.docs/planning-artifacts/README.md) er nå dokumentert som en datert rekonstruksjon etter faglærertilbakemeldingen. V1-import gjelder HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152; undervisning bare IBE110/IBE430/IBE160 høst 2026. NTNU omfatter ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026, uten komplett programløfte. Full nasjonal dekning er visjon. Ingen full eksamensdekning eller personlig gruppetilhørighet loves. Historiske kontroller beholder sine datoer; teknisk testing dokumenterer ikke studentnytte.
 
+## Nettleserutgave — 2026-10-29
+
+En uttrykkelig godkjent utvidelse legger til nettleserdrift i **ett gratis Vercel-prosjekt**. Hele Ajour-flyten beholdes; lokal Node-/Docker-drift er fortsatt tilgjengelig. Publiseringens faktiske adresse og testresultater registreres i [verifikasjonen](studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) etter kontroll av forhåndsvisning og produksjon. Klargjort kode er ikke i seg selv en verifisert nettpublisering.
+
+I nettutgaven lagres planen bare i den aktuelle nettleserprofilen på den nøyaktige nettadressen. Localhost, Vercel-forhåndsvisninger og produksjonsadressen har separate data. Sletting av nettleserdata kan slette planen; eksporter sikkerhetskopi for trygg oppbevaring eller flytting mellom adresser/enheter. Det finnes ingen konto eller enhetssynkronisering. [Oppsett og fjernkontroll](studieplanlegger/README.md#nettleserdrift-med-vercel--2026-10-29) beskriver den nye driftsformen uten å endre V1-importløftet eller statusen for egenutprøving.
+
 ## Medlemmer
 
 - Elias Hemsett Yilmaz
@@ -61,7 +67,7 @@ På en ren Linux-maskin kan Playwrights systembiblioteker også mangle. Bruk da 
 
 `studieplanlegger/src/` inneholder klient og domeneregler, `studieplanlegger/server/` API/database og kildeadaptere, og `studieplanlegger/tests/` enhets-, nettleser- og produksjonstester. `.docs/planning-artifacts/` samler gjeldende krav og sporbarhet; `.docs/implementation-artifacts/` inneholder kuratert prosess, løsningsbeskrivelse og CSV-formatkontrakt. [Sporbarhetsmatrisen](.docs/planning-artifacts/TRACEABILITY.md#sensorveiledningens-sju-områder) bevarer den daterte vurderingsgjennomgangen fra 16. oktober. Sensorveiledning og godkjent proposal var ikke tilgjengelige i den tidligere dokumentasjonsrunden 25. oktober. I Ajour-oppfølgingen samme dag ble alle sju sider av sensorveiledningen lest på nytt; kilde og sjekksum står i planindeksen. Godkjent proposal er fortsatt ikke identifisert.
 
-Løsningen består av en Vite-klient i vanlig JavaScript, et lokalt Node-API og SQLite. Produksjons-/Docker-modusen bruker SQLite som autoritativ lagring. Klienten sender komplette, validerte tilstandsendringer med forventet revisjon; serveren skriver dem transaksjonelt. Compose binder vertsporten til `127.0.0.1` og beholder databasen i volumet `studieplan-data`.
+Løsningen består av en Vite-klient i vanlig JavaScript, kildeadaptere og to tydelige driftsformer. Lokal Node-/Docker-produksjon bruker SQLite som autoritativ lagring: klienten sender komplette, validerte tilstandsendringer med forventet revisjon, og serveren skriver transaksjonelt. Compose binder vertsporten til `127.0.0.1` og beholder databasen i volumet `studieplan-data`. Vercel-utgaven bruker den eksisterende nettleserlagringen; serverfunksjonene gir bare avgrenset importforhåndsvisning og har ingen delt studenttilstand.
 
 Dokumentasjonen nedenfor beskriver løsningen, utviklingsprosessen med KI/BMAD og gjennomførte kontroller.
 
