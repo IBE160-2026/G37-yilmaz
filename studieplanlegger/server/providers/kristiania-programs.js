@@ -1,4 +1,5 @@
 import { load, clean, fail, cachedText, restrictedUrl, MAX_PAGES, MAX_RESULTS } from './program-source.js'
+import { safeSourceError } from './source-error.js'
 
 const origin='https://www.kristiania.no',catalogue=`${origin}/studieportal/`
 const pagePath=/^\/studieportal\/[^/]+\/(?:bachelorniva|masterniva|doktorgradsniva)\/[^/]+\/[^/]+\/?$/
@@ -64,7 +65,13 @@ export async function kristianiaPrograms(institution,action,query,{fetchText}){
     const results=new Map(),warnings=[];let skip=0,pages=0,total=null,complete=true
     while(pages<MAX_PAGES&&skip<MAX_RESULTS){
       const url=new URL(endpoint);url.searchParams.set('types','Program');if(clean(query.q))url.searchParams.set('phrase',clean(query.q));url.searchParams.set('skip',skip);url.searchParams.set('take','10')
-      let data;try{data=JSON.parse(await exactText(fetchText,url))}catch(error){if(!pages||error.name==='AbortError')throw error;complete=false;warnings.push(`Neste resultatside kunne ikke leses: ${error.message}`);break}
+      let data
+      try { data = JSON.parse(await exactText(fetchText, url)) } catch (error) {
+        if (error.name === 'AbortError') throw error
+        error = safeSourceError(error)
+        if (!pages) throw error
+        complete = false; warnings.push(`Neste resultatside kunne ikke leses: ${error.message}`); break
+      }
       if(!Array.isArray(data.items)||!Number.isInteger(data.totalCount)||data.totalCount<0)fail('source-changed','Kristianias resultatliste eller antall har endret format.')
       if(total!==null&&total!==data.totalCount){complete=false;warnings.push('Kildens totaltall endret seg under henting. Søk igjen for et oppdatert utvalg.')}
       total=data.totalCount;pages++

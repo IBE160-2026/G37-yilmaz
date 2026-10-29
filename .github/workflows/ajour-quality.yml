@@ -1,0 +1,48 @@
+name: Ajour quality
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+
+# Vercel reads the check result; this workflow never deploys or changes Git.
+permissions:
+  contents: read
+
+concurrency:
+  group: ajour-quality-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    # Keep this name aligned with the project's Vercel Deployment Check.
+    name: Ajour quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: studieplanlegger
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.x'
+          cache: npm
+          cache-dependency-path: studieplanlegger/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Full unit suite
+        run: npm run test:unit
+      - name: Production build
+        run: npm run build
+      - name: Install Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Deterministic browser contracts against built dist
+        run: npm run test:e2e:ci
+      - name: Isolated SQLite migration, recovery and repeat
+        run: npm run test:e2e:database

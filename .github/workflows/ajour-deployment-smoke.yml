@@ -1,0 +1,52 @@
+name: Ajour deployment smoke
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      deployment_url:
+        description: Exact Ajour Vercel deployment origin
+        required: true
+        type: string
+      commit_sha:
+        description: Full deployed Git commit SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    # The pre-publication gate is Ajour quality. This checks the deployed runtime
+    # after Vercel reports success, without creating a circular promotion gate.
+    name: Ajour deployment smoke
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.creator.login == 'vercel[bot]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: studieplanlegger
+    env:
+      CI: 'true'
+      AJOUR_REMOTE_URL: ${{ github.event.deployment_status.environment_url || inputs.deployment_url }}
+      AJOUR_DEPLOYMENT_SHA: ${{ github.event.deployment.sha || inputs.commit_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.deployment.sha || inputs.commit_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.x'
+          cache: npm
+          cache-dependency-path: studieplanlegger/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Check exact deployment with synthetic browser data
+        run: npm run test:e2e:deployment
