@@ -85,10 +85,16 @@ test('synchronous bootstrap paints explicit dark before a deliberately delayed a
   await page.emulateMedia({ colorScheme: 'light' })
   await page.addInitScript(key => localStorage.setItem(key, JSON.stringify({ version: 1, theme: 'dark' })), preferenceKey)
   let release
+  let intercepted = false
   const hold = new Promise(resolve => { release = resolve })
-  await page.route('**/src/main.js*', async route => { await hold; await route.continue() })
+  await page.route(url => url.pathname === '/src/main.js' || /^\/assets\/index-[^/]+\.js$/.test(url.pathname), async route => {
+    intercepted = true
+    await hold
+    await route.continue()
+  })
   await page.goto('/', { waitUntil: 'commit' })
   try {
+    await expect.poll(() => intercepted).toBe(true)
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(33, 29, 36)')
     await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
@@ -147,6 +153,10 @@ test('real OS changes retain modal draft, focus, open disclosure, scroll and cal
   const viewport = page.locator('.full-calendar-viewport')
   await viewport.evaluate(node => { node.scrollTop = 420; node.scrollLeft = 120; node.focus() })
   await page.clock.runFor(300)
+  // Advancing the fake clock does not flush native scroll events. Wait for the
+  // actual scroll save before taking the baseline for the theme-only change.
+  await expect.poll(async () => (await saved(page)).calendarPreferences?.scroll?.['week:2026-10-27'])
+    .toEqual({ top: 420, left: 120 })
   const calendarBefore = await saved(page), writesBefore = await writes(page)
   const scroll = await viewport.evaluate(node => ({ top: node.scrollTop, left: node.scrollLeft, page: scrollY }))
   const current = await viewport.elementHandle()

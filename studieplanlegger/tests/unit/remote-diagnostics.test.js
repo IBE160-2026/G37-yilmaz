@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { observe } from '../remote/diagnostics.js'
 
 // Invented marker deliberately appears in source payloads and every URL part.
@@ -8,8 +8,28 @@ const source = `https://${marker}.example.test/${marker}?token=${marker}#${marke
 const message = (text, url = source) => ({ type: () => 'error', text: () => text, location: () => ({ url, lineNumber: 7, columnNumber: 3 }) })
 const request = (url, errorText) => ({ url: () => url, failure: () => ({ errorText }) })
 const info = () => { const attachments = []; return { attachments, attach: async (_name, value) => attachments.push(value.body) } }
+afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks() })
 
 describe('remote evidence minimization', () => {
+  it('prints only fixed-category evidence to CI on unexpected failures', async () => {
+    vi.stubEnv('CI', 'true')
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const page = new EventEmitter(), observed = observe(page), report = info()
+    page.emit('console', message(`${marker}: ${source}`))
+    await expect(observed.finish(report)).rejects.toThrow()
+    expect(log).toHaveBeenCalledOnce()
+    expect(log.mock.calls[0][0]).not.toContain(marker)
+    expect(JSON.parse(log.mock.calls[0][0])).toEqual(JSON.parse(report.attachments[0]))
+  })
+  it('keeps passing CI checks quiet and preserves evidence for an unrelated test failure', async () => {
+    vi.stubEnv('CI', 'true')
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+    await observe(new EventEmitter()).finish({ ...info(), status: 'passed', expectedStatus: 'passed' })
+    expect(log).not.toHaveBeenCalled()
+    await observe(new EventEmitter()).finish({ ...info(), status: 'failed', expectedStatus: 'passed' })
+    expect(log).toHaveBeenCalledOnce()
+    expect(JSON.parse(log.mock.calls[0][0])).toEqual({ pageErrors: [], consoleErrors: [], failedRequests: [], httpErrors: [], stateRequests: [] })
+  })
   it('never attaches source payload, error messages, stacks or URL values and still fails unexpected errors', async () => {
     const page = new EventEmitter(), result = observe(page), report = info()
     page.emit('pageerror', Object.assign(new Error(marker), { name: marker, stack: `${marker} at ${source}` }))
