@@ -1,4 +1,5 @@
-# CLI uploads from the repository root contain only the build/runtime sources.
+# CLI uploads contain runtime sources and the small release-test closure.
+# Full fixture/browser suites stay in GitHub CI, outside the deployment upload.
 /*
 !/studieplanlegger
 /studieplanlegger/*
@@ -6,11 +7,26 @@
 !/studieplanlegger/package-lock.json
 !/studieplanlegger/index.html
 !/studieplanlegger/vite.config.js
+!/studieplanlegger/vitest.config.js
 !/studieplanlegger/vercel.json
 !/studieplanlegger/api
 !/studieplanlegger/server
 !/studieplanlegger/src
 !/studieplanlegger/public
+!/studieplanlegger/tests
+/studieplanlegger/tests/*
+!/studieplanlegger/tests/unit
+/studieplanlegger/tests/unit/*
+!/studieplanlegger/tests/unit/hosted-import.test.js
+!/studieplanlegger/tests/unit/storage.test.js
+!/studieplanlegger/tests/unit/ajour-compatibility.test.js
+!/studieplanlegger/tests/unit/theme-init.test.js
+!/studieplanlegger/tests/unit/fhs-programs.test.js
+!/studieplanlegger/tests/fixtures
+/studieplanlegger/tests/fixtures/*
+!/studieplanlegger/tests/fixtures/public-programs
+/studieplanlegger/tests/fixtures/public-programs/*
+!/studieplanlegger/tests/fixtures/public-programs/fhs-master.html
 **/.env*
 **/.memlog.md*
 **/*.sqlite*

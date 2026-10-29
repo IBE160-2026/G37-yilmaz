@@ -85,10 +85,16 @@ test('synchronous bootstrap paints explicit dark before a deliberately delayed a
   await page.emulateMedia({ colorScheme: 'light' })
   await page.addInitScript(key => localStorage.setItem(key, JSON.stringify({ version: 1, theme: 'dark' })), preferenceKey)
   let release
+  let intercepted = false
   const hold = new Promise(resolve => { release = resolve })
-  await page.route('**/src/main.js*', async route => { await hold; await route.continue() })
+  await page.route(url => url.pathname === '/src/main.js' || /^\/assets\/index-[^/]+\.js$/.test(url.pathname), async route => {
+    intercepted = true
+    await hold
+    await route.continue()
+  })
   await page.goto('/', { waitUntil: 'commit' })
   try {
+    await expect.poll(() => intercepted).toBe(true)
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(33, 29, 36)')
     await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')

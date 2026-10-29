@@ -17,6 +17,21 @@ const calendarUrl = 'https://tp.educloud.no/ntnu/timeplan/ical.php?sem=26h&type=
 const calendar = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n'
 const ntnuHtml = '<div id="course-details" data-coursecode="SYN729"><h1 class="course-name">Synthetic course</h1><select id="selectedYear"><option selected value="2026">2026/2027</option></select></div>'
 
+// Published catalogue shapes with invented records; only the second page fails.
+function partialProgramTransport(institution, secondPage) {
+  return vi.fn(async input => {
+    const url = new URL(input)
+    if (institution === 'fhs') {
+      if (url.pathname === '/utdanning/utdanninger') return `<script data-part-id="synthetic" type="application/json">${JSON.stringify({ serviceUrl: '/utdanning/utdanninger/_/service/no.bouvet.forsvaret/list-education-service', perPage: 1 })}</script>`
+      if (url.searchParams.get('start') === '0') return JSON.stringify({ hits: [{ _id: 'synthetic-729', url: '/utdanning/utdanninger/synthetic', title: 'Synthetic programme', data: { type: 'Bachelor' } }], total: 2 })
+    } else {
+      if (url.pathname === '/studieportal/') return `<script>(window.__reactProps = window.__reactProps || {})['synthetic-json'] = ${JSON.stringify({ searchUrl: '/api/search/syllabus', facets: [{ id: 'types', options: [{ id: 'Program' }] }] })};</script>`
+      if (url.searchParams.get('skip') === '0') return JSON.stringify({ items: [{ name: 'Synthetic programme', url: '/studieportal/synthetic/bachelorniva/SYN729/synthetic/', locations: [] }], totalCount: 2 })
+    }
+    return secondPage()
+  })
+}
+
 async function request({ path = '/api/import/calendar', method = 'POST', body = { url: calendarUrl }, chunks, headers = {}, dependencies = {}, local = false } = {}) {
   const req = chunks ? Readable.from(chunks) : new EventEmitter()
   Object.assign(req, { method, url: path, headers: { host, origin: `https://${host}`, 'content-type': 'application/json', ...headers } })
@@ -221,6 +236,35 @@ describe('recognized sources and all outgoing fetches', () => {
     expect(fetchTextImpl).toHaveBeenCalledTimes(2)
     expect(result.body.warnings.join(' ')).toContain('Prøv filimport eller manuell registrering.')
     expect(JSON.stringify(result)).not.toContain(syntheticSecret)
+  })
+
+  it.each(['fhs', 'kristiania'])('keeps malformed second-page content out of %s partial-result diagnostics', async institution => {
+    const syntheticSecret = 'SYNTHETIC_SECRET'
+    const fetchTextImpl = partialProgramTransport(institution, () => syntheticSecret)
+    const result = await request({ path: `/api/import/providers/${institution}/programs`, method: 'GET', dependencies: { fetchTextImpl } })
+    expect(result).toMatchObject({ status: 200, body: { status: 'ok', results: [{ name: 'Synthetic programme' }], completeness: { complete: false, pages: 1 } } })
+    expect(fetchTextImpl).toHaveBeenCalledTimes(3)
+    expect(result.body.warnings.join(' ')).toContain('Prøv filimport eller manuell registrering.')
+    expect(JSON.stringify(result)).not.toContain(syntheticSecret)
+    expect(JSON.stringify(result)).not.toContain('Unexpected token')
+  })
+
+  it.each(['fhs', 'kristiania'])('preserves expected second-page guidance for %s', async institution => {
+    const guidance = 'Kilden svarte med HTTP 503. Prøv filimport eller manuell registrering.'
+    const fetchTextImpl = partialProgramTransport(institution, () => { throw new Error(guidance) })
+    const result = await request({ path: `/api/import/providers/${institution}/programs`, method: 'GET', dependencies: { fetchTextImpl } })
+    expect(result).toMatchObject({ status: 200, body: { status: 'ok', results: [{ name: 'Synthetic programme' }], completeness: { complete: false, pages: 1 } } })
+    expect(result.body.warnings.join(' ')).toContain(guidance)
+    expect(fetchTextImpl).toHaveBeenCalledTimes(3)
+  })
+
+  it.each(['fhs', 'kristiania'])('does not turn a cancelled %s second page into partial success', async institution => {
+    const fetchTextImpl = partialProgramTransport(institution, () => { throw new DOMException('Synthetic cancellation', 'AbortError') })
+    const result = await request({ path: `/api/import/providers/${institution}/programs`, method: 'GET', dependencies: { fetchTextImpl } })
+    expect(result).toMatchObject({ status: 200, body: { status: 'transport-error', error: 'Synthetic cancellation' } })
+    expect(result.body.results).toBeUndefined()
+    expect(result.body.warnings).toBeUndefined()
+    expect(fetchTextImpl).toHaveBeenCalledTimes(3)
   })
 
   it('sanitizes unexpected provider runtime errors while retaining expected domain guidance', async () => {
