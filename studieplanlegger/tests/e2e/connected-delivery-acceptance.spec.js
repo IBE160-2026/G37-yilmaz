@@ -14,9 +14,9 @@ async function boot(page, state, width, size) {
   await page.addStyleTag({ content: `html { font-size: ${size}px !important; }` })
 }
 
-test('A05/A06 DOCX, CSV and VTODO go through local workers and actual app confirmation', async ({ page }) => {
+test('A05/A06 DOCX, CSV and VTODO go through local workers and actual app confirmation', async ({ page, baseURL }) => {
   const external = []
-  page.on('request', request => { if (new URL(request.url()).hostname !== '127.0.0.1') external.push(request.url()) })
+  page.on('request', request => { if (new URL(request.url()).origin !== new URL(baseURL).origin) external.push(request.url()) })
   await boot(page, null, 1280, 16)
   const files = [
     { name: 'semester.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', buffer: await readFile(new URL('../fixtures/connected-semester.docx', import.meta.url)), title: 'Innlevering lokal test, frist 2026-09-16 kl. 14:00' },
