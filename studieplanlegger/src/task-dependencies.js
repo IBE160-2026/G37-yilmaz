@@ -32,7 +32,7 @@ export function taskBlockers(task, tasks) {
     const prerequisite = tasks.find(item => item.id === id)
     return prerequisite?.completed || prerequisite?.submitted ? [] : [{ id, missing: !prerequisite, reason: prerequisite ? `Venter på «${prerequisite.title}».` : `Forutsetningen ${id} er slettet eller mangler. Gjenopprett eller fjern koblingen selv.` }]
   })
-  if (task.waitingReason?.trim()) blockers.push({ waiting: true, reason: task.waitingReason })
+  if (task.waitingReason?.trim()) blockers.push({ waiting: true, reason: `Venter på: ${task.waitingReason.trim()}. Oppgaven er ikke startklar.` })
   return blockers
 }
 

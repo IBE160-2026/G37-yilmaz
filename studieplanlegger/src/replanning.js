@@ -63,7 +63,7 @@ function retainedWork(task, kept, state, { floor, after, limit, windows, busy, b
 }
 
 export function createReplan(state, { now = new Date(), rules = state.planningPreferences || DEFAULT_PLANNING_RULES, exploratory = {}, availability, taskIds, priorityTaskIds = [] } = {}) {
-  const problems = [], proposed = [], changes = [], deficits = {}, deficitRanges = {}
+  const problems = [], proposed = [], changes = [], deficits = {}, deficitRanges = {}, blockedTasks = []
   const uncertainPersonal = (state.planner?.events || []).filter(event => uncertainPersonalTiming(event, now)).length
   if (uncertainPersonal) problems.push(`${uncertainPersonal} ${uncertainPersonal === 1 ? 'egen aktivitet har' : 'egne aktiviteter har'} ukjent tidspunkt eller varighet. Forslaget kan ikke garantere at denne tiden er ledig.`)
   if (!validPlanningRules(rules)) return { ok: false, error: 'Kontroller lengde og pauser for øktene.' }
@@ -86,7 +86,10 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
     let limit
     try { limit = deadline(task) } catch { problems.push(`«${task.title}»: fristen er tvetydig ved tidsskifte. Presiser den.`); continue }
     const blockers = taskBlockers(task, state.tasks)
-    if (blockers.some(item => item.waiting || item.missing || !doneAt.has(item.id))) { problems.push(`«${task.title}»: ${blockers.map(item => item.reason).join(' ')} Ingen startklar tid foreslås.`); continue }
+    if (blockers.some(item => item.waiting || item.missing || !doneAt.has(item.id))) {
+      blockedTasks.push({ taskId: task.id, title: task.title, waiting: blockers.some(item => item.waiting) })
+      problems.push(`«${task.title}»: ${blockers.map(item => item.reason).join(' ')} Ingen startklar tid foreslås før hindringen er avklart.`); continue
+    }
     let after = Math.max(floor, ...(task.dependencyIds || []).map(id => doneAt.get(id) || floor))
     const remainingRange = getRemainingRange(task), remaining = remainingRange?.maxMinutes ?? null, exploration = exploratory[task.id]
     if (remaining === null && !(Number.isSafeInteger(exploration) && exploration >= rules.minimumMinutes && exploration <= rules.maximumMinutes)) { problems.push(`«${task.title}»: gjenstående arbeid er ukjent. Velg en utforskende økt eller oppgi et estimat; fullføring kan ikke beregnes.`); continue }
@@ -154,7 +157,7 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
   const totalMissingMinutes = Object.values(deficits).reduce((sum, value) => sum + value, 0)
   const openMissing = Object.values(deficitRanges).some(value => value.maxMinutes === null)
   return { ok: true, baseline: planningFingerprint(state), createdAt: now.toISOString(), rules: { ...rules }, exploratory: { ...exploratory }, allocatedMinutes, deficits, deficitRanges,
-    totalMissingMinutes, totalMissingMinMinutes, totalMissingMaxMinutes: openMissing ? null : totalMissingMinutes, proposed, removedIds: movable.map(item => item.id), changes, problems,
+    totalMissingMinutes, totalMissingMinMinutes, totalMissingMaxMinutes: openMissing ? null : totalMissingMinutes, proposed, removedIds: movable.map(item => item.id), changes, problems, blockedTasks,
     known: availability?.kind === 'confirmed' || !availability && Boolean(state.workWindows?.length), availability: availability ? structuredClone(availability) : { kind: 'confirmed', label: 'Registrert tilgjengelig tid', conditional: false, windows: structuredClone(sourceWindows), preferenceAction: 'keep' }, taskIds: scope ? [...scope] : null }
 }
 

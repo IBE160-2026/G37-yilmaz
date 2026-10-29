@@ -31,6 +31,10 @@ export function createTaskForm(form) {
   form.querySelector('#remainingMinutes-help').textContent = 'Et anslag på arbeidet som gjenstår. Vet ikke bevarer usikkerheten. 0 markerer ikke oppgaven som ferdig.'
   const relations = document.createElement('div'); relations.className = 'field field-wide'; relations.innerHTML = '<label>Forutsetninger<select name="dependencyIds" multiple size="4" aria-describedby="dependencyIds-help"></select></label><p id="dependencyIds-help" class="muted">Velg oppgavene som må gjøres først. Ctrl/⌘ velger flere.</p><p id="dependencyIds-error" class="field-error"></p><label>Venter på (valgfritt)<input name="waitingReason" placeholder="For eksempel tilbakemelding fra veileder"></label><label>Oppgavetype (valgfritt)<input name="taskType" placeholder="For eksempel lesing eller oppgaveskriving"></label><label class="check-label"><input name="splittable" type="checkbox" checked>Kan deles i flere økter</label>'
   detailGrid.append(relations)
+  const waitingHelp = document.createElement('p'); waitingHelp.id = 'waitingReason-help'; waitingHelp.className = 'muted'
+  waitingHelp.textContent = 'Bruk «Venter på» når noe må avklares før du kan starte, for eksempel tilbakemelding. Oppgaven får ingen startklar økt mens feltet er fylt ut. Arbeid du selv skal gjøre, som lesing, legges til som et arbeidssteg etter lagring. Fjern ventingen selv når hindringen er avklart.'
+  form.elements.waitingReason.setAttribute('aria-describedby', waitingHelp.id)
+  form.elements.waitingReason.closest('label').after(waitingHelp)
   form.elements.dependencyIds.setAttribute('aria-label', 'Forutsetninger')
   const estimate = document.createElement('details'); estimate.className = 'personal-estimate'; estimate.innerHTML = '<summary>Forslag fra lokal arbeidshistorikk</summary><p></p><button type="button" class="secondary" hidden>Bruk som gjenstående estimat</button>'; form.elements.remainingMinutes.closest('.field').append(estimate)
   let courses = [], pending, selectedLabel, signature = '', model, editingTask, remainingTouched = false

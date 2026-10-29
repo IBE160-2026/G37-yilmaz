@@ -105,7 +105,7 @@ export function createDataTools(actions) {
   notice.append(noticeText, contextUndo, button('Lukk melding', () => { notifiedId = null; undoConfirmed = false; notice.hidden = true }))
   return { isOpen: () => dialog.open,
     changed(entry) {
-      notifiedId = entry && (entry.label === 'Ny samlet studieplan' || entry.changes.some(c => c.before && (!c.after || !c.before.deleted && c.after.deleted || c.path === 'tasks' && (c.before.completed !== c.after.completed || c.before.submitted !== c.after.submitted)))) ? entry.id : null
+      notifiedId = entry && (entry.label === 'Ny samlet studieplan' || entry.changes.some(c => c.before && (!c.after || !c.before.deleted && c.after.deleted || c.path === 'sessions' || c.path === 'tasks' && (c.before.completed !== c.after.completed || c.before.submitted !== c.after.submitted)))) ? entry.id : null
       if (notifiedId) { undoConfirmed = false; noticeText.textContent = `${entry.label}. Endringen er lagret og kan angres.`; contextUndo.hidden = false }
       signature = ''
     }, render(model) {

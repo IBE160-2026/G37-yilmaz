@@ -4,7 +4,7 @@ import { extendedSessionInterval } from './work-capacity.js';
 
 // A missing allocation is not evidence that the student's whole day is full.
 // Only the hard deadline window can establish a definite time shortage.
-export function capacityNotice(task, sessions = [], events = [], now = new Date()) {
+export function capacityNotice(task, sessions = [], events = [], now = new Date(), planned) {
   const range = getRemainingRange(task);
   const remaining = range?.maxMinutes;
   if (!range) {
@@ -37,9 +37,14 @@ export function capacityNotice(task, sessions = [], events = [], now = new Date(
         detail: 'Selv hele tidsrommet fram til fristen, uten registrert undervisning, er kortere enn arbeidet. Søvn og andre avtaler er ikke trukket fra.' };
     }
   }
-  if (!sessions.length) return { tone: 'quiet', text: 'Ingen studieøkt planlagt ennå.' };
-  const futureSessions = sessions.filter(session => { try { return extendedSessionInterval(session).end > start; } catch { return false; } });
+  if (planned?.state === 'blocked') return { tone: 'planning', text: 'Oppgaven er blokkert.', detail: planned.reasons.join(' ') };
+  if (planned?.state === 'planned') {
+    return { tone: 'quiet', text: 'Arbeidet har reservert tid.', detail: 'Registrerte studieøkter dekker arbeidsanslaget. Oppdater gjenstående arbeid selv etter økten; reservert tid betyr ikke fullført arbeid.' };
+  }
+  const relevantSessions = sessions.filter(session => !session.taskId || session.taskId === task.id);
+  if (!relevantSessions.length) return { tone: 'quiet', text: 'Ingen studieøkt planlagt ennå.' };
+  const futureSessions = relevantSessions.filter(session => { try { return extendedSessionInterval(session).end > start; } catch { return false; } });
   if (!futureSessions.length) return { tone: 'quiet', text: 'Ingen kommende studieøkt planlagt.' };
-  return { tone: 'planning', text: 'Arbeid gjenstår å planlegge i studieøktene.',
-    detail: 'Beregningen gjelder bare registrerte studieøkter. Den sier ikke at all annen tid er opptatt.' };
+  return { tone: 'planning', text: planned ? 'Arbeid gjenstår å planlegge i studieøktene.' : 'Kommende studieøkter er registrert.',
+    detail: planned?.reasons?.join(' ') || 'Kontroller gjenstående arbeid mot registrerte studieøkter under Planlegg uken. Tid utenfor øktene kan også være tilgjengelig.' };
 }

@@ -7,6 +7,8 @@ updated: 2026-10-29
 
 # Product brief: Ajour
 
+**Egenutprøving, oppfølging 2026-10-29:** Prosjekteieren har rapportert egne avvik. SC-07 er påbegynt med avvik og trenger omprøving; den er ikke ferdig eller bestått. [Prøveplanen](.docs/planning-artifacts/USER-TRIAL-PLAN.md#rapporterte-funn-og-omprøving--2026-10-29) skiller egne funn fra den separate KI-rapporten. Tidligere daterte utsagn om uutført prøve beskriver tilstanden før denne rapporten.
+
 Ajour hjelper studenten å gjøre oppgaver og tilgjengelig tid om til en gjennomførbar plan, registrere hva som faktisk skjedde og godkjenne nødvendige endringer. Appen kan kjøres lokalt eller som nettleserutgave uten konto eller betalte tjenester. Studenten beholder kontroll over import, arbeidsanslag og planvalg.
 
 **Godkjent driftsutvidelse, 2026-10-29:** Nettleserutgaven er publisert og teknisk kontrollert på [Ajour](https://ajour-sooty.vercel.app), i ett gratis Vercel-prosjekt med samme hovedflyt, utseende og avgrensede importløfte. Planen tilhører nettleserprofilen og den nøyaktige nettadressen; den synkroniseres ikke mellom enheter. Sletting av nettleserdata kan slette planen. Sikkerhetskopi brukes til oppbevaring og flytting mellom lokal drift, forhåndsvisning og publisert adresse. Lokal Node-/Docker-drift beholdes. [Verifikasjonen](studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) skiller implementert støtte fra faktisk kontrollert publisering. Tidligere avgrensning mot offentlig hosting beskriver omfanget før denne beslutningen.
@@ -45,7 +47,7 @@ Hver rad har krav, story, kode, test/metode og evidensstatus i [sporbarhetsmatri
 | SC-04 | Registrering av faktisk tid endrer ikke automatisk gjenstående anslag; steg, arbeid og innlevering fullføres separat. |
 | SC-05 | Et forslag skriver ingen økter før godkjenning; godkjente endringer kan angres samlet. |
 | SC-06 | Emner, oppgaver, økter og relasjoner overlever omstart/gjenskaping med samme lokale datavolum. |
-| SC-07 | Prosjekteieren gjennomfører sju manuelle scenarier med syntetiske data i isolert testmiljø og dokumenterer forventet mot faktisk resultat, feil og eventuell omprøving. **Planlagt / ikke gjennomført.** |
+| SC-07 | Prosjekteieren gjennomfører sju manuelle scenarier med syntetiske data i isolert testmiljø og dokumenterer forventet mot faktisk resultat, feil og eventuell omprøving. **Påbegynt med rapporterte avvik; omprøving gjenstår.** |
 
 **Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. SC-07 beholder ID-en og følger [prøveplanen](.docs/planning-artifacts/USER-TRIAL-PLAN.md). Den tidligere planlagte studentprøven ble ikke gjennomført eller bestått. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner; målgruppen er uendret.
 

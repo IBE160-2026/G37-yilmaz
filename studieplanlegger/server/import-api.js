@@ -79,32 +79,49 @@ export async function fetchPublicBytes(input, redirects = 0, validateUrl, { sign
 export async function fetchPublicText(input, redirects = 0, validateUrl, options = {}) {
   return (await fetchPublicBytes(input, redirects, validateUrl, { ...options, maxBytes: 2_000_000 })).toString('utf8')
 }
-export function parseNtnuPage(html, { code, semester, year, sourceUrl }) {
+export function parseNtnuPage(html, { code, semester, year, sourceUrl, campus: selectedCampus = '' }) {
   const $ = load(html), clean = selector => $(selector).first().text().replace(/\s+/g, ' ').trim()
   if ($('#course-details').attr('data-coursecode') !== code || !clean('.course-name')) throw new Error('Fant ikke emnet hos NTNU. Kontroller emnekoden eller registrer emnet manuelt.')
   const academicYear = semester === 'spring' ? Number(year) - 1 : Number(year)
   if (Number($('#selectedYear option[selected]').val()) !== academicYear) throw new Error('NTNU har ikke returnert emneinformasjon for valgt studieår. Velg et annet år eller registrer emnet manuelt.')
-  let credits = null, teachingStart = ''
+  let credits = null, teachingStart = '', campus = '', campusNote = ''
+  const campusFacts = []
   $('.course-fact').each((_i, node) => {
     const label = $(node).find('.course-fact-label').text().trim(), value = $(node).find('.course-fact-value').text().replace(/\s+/g, ' ').trim()
     if (label === 'Studiepoeng' && /^\d+(,\d+)?$/.test(value)) credits = Number(value.replace(',', '.'))
     if (label === 'Undervisningsstart') teachingStart = value
+    if (label === 'Sted') campusFacts.push(value)
   })
+  if (campusFacts.length) {
+    // NTNU can publish several places in the same fact. They are evidence of
+    // available campuses, not a single course identity or student affiliation.
+    const value = campusFacts.join(', '), known = value.match(/Trondheim|Gjøvik|Ålesund/gi)
+    const places = [...new Set(known && /^[\s,;/|·]*$/.test(value.replace(/Trondheim|Gjøvik|Ålesund/gi, '')) ? known : campusFacts)]
+    if (places.length > 1) {
+      campusNote = `Emnekilden oppgir flere studiesteder: ${places.join(', ')}.`
+      if (selectedCampus) {
+        campus = places.find(place => place.toLocaleLowerCase('nb') === String(selectedCampus).trim().toLocaleLowerCase('nb')) || ''
+        if (!campus) throw new Error('Valgt campus finnes ikke blant studiestedene i NTNUs emnekilde. Kontroller campusvalget først.')
+        campusNote += ` Valgt publisert campus: ${campus}.`
+      }
+    } else campus = places[0]
+  }
   let calendarUrl = null
   const href = $('a.ical').attr('href')
   if (href) {
     const url = new URL(href, sourceUrl)
     if (url.origin === 'https://tp.educloud.no' && url.pathname === '/ntnu/timeplan/ical.php') { url.searchParams.set('sem', `${String(year).slice(-2)}${semester === 'spring' ? 'v' : 'h'}`); calendarUrl = url.href }
   }
-  const course = { id: `ntnu:${code}:${year}:${semester}`, code, name: clean('.course-name'), university: 'NTNU', semester, year: Number(year), credits, description: clean('.content-course-content'), notes: '', sourceUrl, teachingStart }
+  const course = { id: `ntnu:${code}:${year}:${semester}`, code, name: clean('.course-name'), university: 'NTNU', semester, year: Number(year), credits, campus, description: clean('.content-course-content'), notes: campusNote, sourceUrl, teachingStart }
   const warnings = ['Emneinformasjon og undervisning hentes separat. Ingen innleveringsoppgaver opprettes fra emnebeskrivelsen.']
+  if (campusNote) warnings.push(campusNote)
   if (credits === null) warnings.push('Studiepoeng mangler i kilden.')
   if (!course.description) warnings.push('Beskrivelse mangler i kilden.')
   if (teachingStart && !teachingStart.includes(`${semester === 'spring' ? 'Vår' : 'Høst'} ${year}`)) warnings.push(`Kilden oppgir undervisningsstart «${teachingStart}». Kontroller at valgt semester er riktig.`)
   return { course, calendarUrl, warnings }
 }
 export const universityProviders = {
-  ntnu: async ({ code, semester, year }, { fetchText = fetchPublicText } = {}) => {
+  ntnu: async ({ code, semester, year, campus }, { fetchText = fetchPublicText } = {}) => {
     code = String(code || '').trim().toUpperCase()
     if (!/^[A-ZÆØÅ]{2,10}\d{3,6}[A-Z]?$/.test(code)) throw new Error('Skriv en gyldig NTNU-emnekode, for eksempel TDT4110.')
     if (!['spring', 'autumn'].includes(semester) || !/^\d{4}$/.test(String(year)) || Number(year) < 1900 || Number(year) > 2200) throw new Error('Velg gyldig semester og år.')
@@ -112,7 +129,7 @@ export const universityProviders = {
     const validate = input => {
       if (new URL(input).href !== sourceUrl) throw new Error('NTNU videresendte til et annet emne eller studieår. Bruk emnets offentlige side eller manuell registrering.')
     }
-    return parseNtnuPage(await fetchText(sourceUrl, 0, validate), { code, semester, year, sourceUrl })
+    return parseNtnuPage(await fetchText(sourceUrl, 0, validate), { code, semester, year, sourceUrl, campus })
   },
 }
 export async function readImportBody(req, { maxBytes = 8192, signal } = {}) {

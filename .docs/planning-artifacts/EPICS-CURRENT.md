@@ -1,5 +1,7 @@
 # Epics og stories for Ajour
 
+**Oppfølging 2026-10-29:** S-07 er [påbegynt med rapporterte egne avvik](USER-TRIAL-PLAN.md#rapporterte-funn-og-omprøving--2026-10-29); omprøving gjenstår. Tidligere daterte statusutsagn nedenfor er historikk. Teknisk etterprøving av den separate KI-rapporten er ikke prosjekteierens observasjoner eller bestått S-07.
+
 **Rekonstruert 2026-10-16; revidert 2026-10-26.** Produktomfang og S-01–S-08 er beholdt. Etter prosjekteierens beslutning 26. oktober gjelder S-07 egenutprøving, **planlagt / ikke gjennomført**, uten andre testpersoner. Tidligere plan om ekstern studentprøve ble ikke gjennomført eller bestått. Daterte tekniske oppfølginger nedenfor er historikk, ikke resultater fra egenutprøvingen. [Siste tekniske kontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26).
 
 ## Lokal Ajour-oppfølging — 2026-10-26
@@ -156,7 +158,7 @@ Som prosjekteier vil jeg gjennomføre en manuell prøve med syntetiske data og d
 - **Given** syntetisk kalender og lagrede oppgaver, **When** jeg prøver emnefarger, temabytte, omlasting og isolert sikkerhetskopi/gjenoppretting, **Then** registrerer jeg hva som faktisk bevares og eventuelle avvik. Lokale visningspreferanser loves ikke overført i sikkerhetskopien.
 - **Given** tekniske tester eller tomme observasjonsfelt, **When** status oppsummeres, **Then** teller de ikke som mine manuelle erfaringer eller som bevis for ukjente brukeres forståelse.
 
-**Status: planlagt / ikke gjennomført.** Endret til egenutprøving etter prosjekteierens beslutning **2026-10-26**; ingen andre testpersoner rekrutteres. Den tidligere studentprøven ble ikke gjennomført eller bestått. Personlig refleksjon skrives fra prosjekteierens faktiske erfaringer.
+**Status 2026-10-29: påbegynt med rapporterte avvik; omprøving og fullstendige scenarioresultater gjenstår.** Endret til egenutprøving etter prosjekteierens beslutning **2026-10-26**; ingen andre testpersoner rekrutteres. Den tidligere studentprøven ble ikke gjennomført eller bestått. Personlig refleksjon skrives fra prosjekteierens faktiske erfaringer.
 
 ### S-08 — Bevare eksisterende tillegg (R-08; støtter SC-04/SC-05)
 

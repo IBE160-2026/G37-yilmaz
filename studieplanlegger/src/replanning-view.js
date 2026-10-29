@@ -5,6 +5,7 @@ import { STUDY_TIME_PRESETS, availabilityFor } from './study-time.js'
 import { extendedSessionInterval } from './work-capacity.js'
 import { comparePlans, applyComparedPlan } from './plan-comparison.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
+import { uncertainPersonalTiming } from './planner.js'
 
 const el = (tag, text, className = '') => { const node = document.createElement(tag); if (text) node.textContent = text; if (className) node.className = className; return node }
 const duration = session => {
@@ -137,11 +138,26 @@ export function createReplanningView(actions) {
     const moved = preview.changes.filter(change => change.original && change.proposed && !sameTime(change)).length
     const removed = preview.changes.filter(change => change.original && !change.proposed).length
     host.append(el('p', `${created} økter legges til, ${moved} flyttes og ${removed} fjernes. Øvrige økter beholdes.`))
-    if (Object.keys(preview.exploratory || {}).length) host.append(el('p', 'En kort startøkt er foreslått for ukjent arbeidsmengde. Den er ikke et estimat for hele oppgaven og viser ikke at arbeidet rekker fristen.', 'assumption-note'))
+    if (preview.changes.some(change => change.proposed && change.exploratory)) host.append(el('p', 'En kort startøkt er foreslått for ukjent arbeidsmengde. Den er ikke et estimat for hele oppgaven og viser ikke at arbeidet rekker fristen.', 'assumption-note'))
     for (const problem of preview.problems) host.append(el('p', problem, 'plan-problem'))
-    if (!preview.changes.length) host.append(el('p', actions.state().tasks.some(task => !task.completed)
-      ? 'Ingen passende tidspunkt ble funnet før fristen med disse reglene. Endre studietid eller bruk detaljert tilgjengelighet.'
-      : 'Du har ingen åpne oppgaver å lage planforslag for. Legg til en oppgave først.'))
+    const uncertainActivities = (actions.state().planner?.events || []).filter(event => uncertainPersonalTiming(event, new Date(preview.createdAt)))
+    if (uncertainActivities.length) host.append(el('p', 'Åpne egen aktivitet og oppgi start og slutt når du kjenner dem. Uten disse opplysningene forblir tiden usikker.'))
+    for (const activity of uncertainActivities) {
+      const edit = el('button', `Avklar tidspunkt for «${activity.title}»`, 'secondary'); edit.type = 'button'
+      edit.onclick = () => { close(); actions.editActivity?.(activity.id) }; host.append(edit)
+    }
+    for (const blocked of preview.blockedTasks || []) {
+      if (blocked.waiting) host.append(el('p', '«Venter på» beskriver en hindring, ikke et arbeidssteg. Hvis dette er arbeid du selv skal gjøre, kan du legge det til som arbeidssteg og selv rette ventefeltet. Ingen opplysninger endres automatisk.'))
+      const edit = el('button', `Avklar «${blocked.title}»`, 'secondary'); edit.type = 'button'
+      edit.onclick = () => { close(); actions.editTask?.(blocked.taskId, blocked.waiting ? 'waitingReason' : 'dependencyIds') }
+      host.append(edit)
+    }
+    if (!preview.changes.length) {
+      const active = actions.state().tasks.filter(task => !task.completed && !task.submitted && (!taskId || task.id === taskId))
+      host.append(el('p', !active.length ? 'Du har ingen åpne oppgaver å lage planforslag for. Legg til en oppgave først.'
+        : preview.blockedTasks?.length === active.length ? 'Oppgavene venter på en avklaring. Å legge til mer tilgjengelig tid fjerner ikke hindringen. Åpne oppgaven med Avklar for å kontrollere det som blokkerer.'
+          : 'Ingen nye økter foreslås. Kontroller forklaringene over, studietid og frister. Bruk detaljert tilgjengelighet for å registrere eller endre ledig tid.'))
+    }
     for (const change of preview.changes) {
       const row = el('article', '', 'replan-row'); row.dataset.sessionId = change.proposed?.id || change.original?.id || ''
       applyCourseColor(row, resolvedCourseId(actions.state().tasks.find(task => task.id === (change.proposed?.taskId || change.original?.taskId))))

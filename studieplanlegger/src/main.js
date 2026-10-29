@@ -567,6 +567,13 @@ dataTools = createDataTools({
 workView = createWorkLogView({ state: snapshot, commit: commitState, onClose: refresh,
   offerTime: () => { ui.message('Arbeidet er registrert. Bruk «Jeg ligger etter» for å finne ny tid.'); refresh() } })
 replanView = createReplanningView({ state: snapshot, commit: commitState, onClose: refresh,
+  editActivity(id) { if (canEdit()) subjects?.openEvent(id) },
+  editTask(id, field) {
+    const task = tasks.find(item => item.id === id)
+    if (!task || !canEdit()) return
+    draftId = id; editing = true; ui.open(task)
+    queueMicrotask(() => document.querySelector(`#task-form [name="${field}"]`)?.focus())
+  },
   advanced() { view = 'capacity'; refresh(); document.querySelector('.work-window-form input[name=startLocal]')?.focus() } })
 studySessionView = createStudySessionView({ onClose: refresh, finish(taskId, plannedMinutes, stepOnly) { workView.open(taskId, undefined, 'done', { plannedMinutes, stepOnly }); refresh() } })
 workStepsView = createWorkStepsView({ state: snapshot, commit: commitState, onClose: refresh })
