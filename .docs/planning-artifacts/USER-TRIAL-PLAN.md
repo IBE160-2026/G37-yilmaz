@@ -16,6 +16,16 @@ Prosjekteieren har sendt skjermbilder og egne funn fra Ajour. Opplysningene nede
 | Rapportert kalenderfil | Prosjekteieren oppgir 24 hendelser, alle med epoch-DTSTAMP, og METHOD:PUBLISH. | Last ned en ny kalenderkopi, gjenta eksporten og endre én syntetisk hendelse før ny eksport. Kontroller faktisk import i Outlook separat, inkludert tidssoner, heldag, duplikater og oppdateringsatferd. Filanalyse er ikke Outlook-prøve. |
 | Separat KI-rapport / scenario 2, 4 og 6 | KI rapporterer en manglende kommende økt, motstridende «Arbeid gjenstår å planlegge»/«Planlagt» og manglende synlig Angre ved direkte øktredigering. Dette er **ikke prosjekteierens egne observasjoner**. | Sammenlign en framtidig økt i oversikt/kalender med gjenstående og reservert tid. Flytt økten direkte og prøv umiddelbar Angre; last på nytt og kontroller identitet/tid. |
 
+Tilleggsprøvene nedenfor følger den separate KI-assisterte mengderapporten. Bruk bare syntetiske data; før dine egne resultater separat.
+
+| Funn | Konkret omprøving |
+| --- | --- |
+| F01 | Importer 500 syntetiske hendelser med eksisterende emner. Velg riktig emne i fellesvalgene, rediger én hendelse og kontroller at manglende kobling stopper lagring. Fullfør koblingene, lagre, last på nytt og importer samme fil igjen: riktig emne/tid og ingen nye dubletter. Endre én hendelse med samme UID og kontroller at bare den oppdateres. |
+| F02 | Bytt lærested og deretter program mens en henting pågår. Status, semester og campus skal tilhøre det nye valget; et sent gammelt svar eller en feil skal ikke erstatte visningen. |
+| F04 | Les lenkehjelpen før henting. En HTML-timeplanside eller en kilde utenfor støtten skal gi forståelig forklaring og vei til filimport; kontroller at en støttet kalender fortsatt kan forhåndsvises. |
+| F07/F08 | Eksporter en vanlig hendelse og en studieøkt der tittelen allerede begynner med emnekoden. Kontroller ett kodeprefiks, nytt UTC-tidsstempel ved ny eksport og uendrede UID-er/tider. Den faktiske Outlook-prøven utføres og registreres separat. |
+| F09 | Søk HVL DAT100 høst 2026 både med kode og navn. Kontroller emnenavn, publisert campus og variant før lagring. Gjenimport av samme eldre prøveemne skal etter bekreftelse bevare egne navn/notater og oppgave-/hendelseskoblinger, uten dublett. Ukjente felt skal fortsatt være uavklart. |
+
 Nye tekniske resultater føres i [verifikasjonen](../../studieplanlegger/VERIFICATION.md). Ingen rad over betyr at omprøvingen er gjennomført. Samlet egenutprøving, Outlook-prøve og personlig refleksjon er fortsatt ikke ferdige.
 
 **Beslutning 2026-10-26:** Prosjekteieren gjennomfører egenutprøvingen selv. Ingen andre testpersoner skal rekrutteres. Dette erstatter den tidligere planlagte prøven med en ny student; den ble ikke gjennomført eller bestått. Produktets målgruppe er uendret. Prøven dokumenterer bare prosjekteierens bruk og observasjoner, ikke ukjente brukeres forståelse eller generell studentnytte.
