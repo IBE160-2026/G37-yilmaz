@@ -38,7 +38,7 @@ test('live HiMolde IT 2026 programme hands IBE110, IBE430 and IBE160 to teaching
   await host.locator('[name=programQuery]').fill('it')
   await host.locator('[name=catalogueYear]').fill('2026')
   await host.getByRole('button', { name: 'Hent studieprogram', exact: true }).click()
-  await choose(host.locator('[name=program]'), label => /^it\s*·/i.test(label))
+  await choose(host.locator('[name=program]'), label => /^(?:årsstudium i )?it\s*·/i.test(label))
   await choose(host.locator('[name=cohort]'), label => /2026/.test(label))
   await host.getByRole('button', { name: 'Hent studieplan', exact: true }).click()
   await choose(host.locator('[name=model]'), () => true)
