@@ -1,5 +1,7 @@
 import { load } from 'cheerio'
 import { cachedText, restrictedUrl } from './program-source.js'
+import { hvlTimeEditMetadata } from '../../src/timeedit-metadata.js'
+export { hvlTimeEditMetadata } from '../../src/timeedit-metadata.js'
 export const courseCodePattern = /(?<![A-ZÆØÅ0-9-])[A-ZÆØÅ]{2,10}(?:-[A-ZÆØÅ]{2,10})*\d{2,6}[A-Z]?(?![A-ZÆØÅ0-9-])/i
 const settings = {
   nmbu: { base: 'https://cloud.timeedit.net/nmbu/web/student/', entry: 'ri1Q7.html', sid: '3', types: '5', name: 'NMBU' },
@@ -21,7 +23,11 @@ export async function searchTimeEdit(institution, query, fetchText) {
   }
   const season = `${query.year} ${query.semester === 'spring' ? 'VÅR' : 'HØST'}`
   const period = all.filter(item => item.label.includes(season))
-  const results = period.filter(item => !query.campus || institution === 'nmbu' || item.label.toLowerCase().includes(query.campus.toLowerCase())).map(item => ({ ...item, code: item.label.match(courseCodePattern)?.[0]?.toUpperCase() || query.q, name: item.label, university: config.name, campus: institution === 'hvl' ? item.label : '', campusVerified: institution === 'hvl', semester: query.semester, year: Number(query.year), sourceUrl, entryUrl: `${config.base}${config.entry}` }))
+  const results = period.filter(item => !query.campus || institution === 'nmbu' || item.label.toLowerCase().includes(query.campus.toLowerCase())).map(item => {
+    const code = item.label.match(courseCodePattern)?.[0]?.toUpperCase() || query.q
+    const metadata = institution === 'hvl' ? hvlTimeEditMetadata(item.label, code, season) : { name: item.label, campus: '', campusVerified: false }
+    return { ...item, code, ...metadata, university: config.name, semester: query.semester, year: Number(query.year), sourceUrl, entryUrl: `${config.base}${config.entry}` }
+  })
   return { status: results.length ? 'ok' : all.length && !period.length ? 'semester-unavailable' : 'not-found', results, sourceUrl, warnings: ['Offentlig TimeEdit-søk er kontrollert. Emnenavn og gruppenummer kan mangle i kalenderfilen. Velg abonnement i den offentlige timeplanen og importer fil eller lenke.',...extraWarnings,...(!complete?['Kildeutvalget er ufullstendig. Høyst 5000 treff hentes; avgrens søket.']:[])], truncated: !complete, completeness:{complete,pages,returned:all.length} }
 }
 export async function nmbuDetails(query, fetchText) {

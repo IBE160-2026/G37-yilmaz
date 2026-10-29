@@ -6,6 +6,24 @@ import { load } from 'cheerio'
 const pdf = 'https://uit.no/Content/931776/cache=20261310132856/Studieplan%20Bachelor%20i%20geovitenskap%20H-2025.pdf'
 const headers = () => ({ Origin: new URL(process.env.AJOUR_REMOTE_URL).origin })
 
+test('live HVL DAT100 autumn 2026 separates published title and campus from the raw TimeEdit choice', async ({ request }, info) => {
+  const response = await request.get('/api/import/providers/hvl/search?q=DAT100&code=DAT100&year=2026&semester=autumn', { headers: headers(), timeout: 60000 })
+  expect(response.status()).toBe(200)
+  const data = await response.json()
+  expect(data.status).toBe('ok')
+  const selected = data.results.find(item => item.variant === 'Bergen - Dataingeniør')
+  expect(selected).toMatchObject({ code: 'DAT100', name: 'Grunnleggende programmering', campus: 'Bergen', campusVerified: true, semester: 'autumn', year: 2026 })
+  expect(selected.label).toContain('DAT100 Bergen - Dataingeniør')
+  expect(selected.sourceObjectId).toBeTruthy()
+  expect(selected.sourceUrl).toMatch(/^https:\/\/cloud\.timeedit\.net\/hvl\//)
+  const source = await request.get(selected.sourceUrl)
+  expect(source.status()).toBe(200)
+  const html = await source.text()
+  expect(html).toContain(selected.sourceObjectId)
+  expect(html).toContain('DAT100 Bergen - Dataingeniør')
+  await info.attach('public-source-result', { body: JSON.stringify({ code: selected.code, source: selected.sourceUrl, sourceObjectId: selected.sourceObjectId, campus: selected.campus, name: selected.name, variants: data.results.length }), contentType: 'application/json' })
+})
+
 test('live UiT H-2025 PDF is read by hosted runtime and reports the image-only table', async ({ request }, info) => {
   const source = await request.get(pdf)
   expect(source.status()).toBe(200)

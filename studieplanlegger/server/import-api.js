@@ -87,7 +87,11 @@ export function parseNtnuPage(html, { code, semester, year, sourceUrl, campus: s
   let credits = null, teachingStart = '', campus = '', campusNote = ''
   const campusFacts = []
   $('.course-fact').each((_i, node) => {
-    const label = $(node).find('.course-fact-label').text().trim(), value = $(node).find('.course-fact-value').text().replace(/\s+/g, ' ').trim()
+    const label = $(node).find('.course-fact-label').text().trim()
+    // Some facts place their label inside the value (not beside it).
+    const valueNode = $(node).find('.course-fact-value').clone()
+    valueNode.find('.course-fact-label').remove()
+    const value = valueNode.text().replace(/\s+/g, ' ').trim()
     if (label === 'Studiepoeng' && /^\d+(,\d+)?$/.test(value)) credits = Number(value.replace(',', '.'))
     if (label === 'Undervisningsstart') teachingStart = value
     if (label === 'Sted') campusFacts.push(value)
@@ -96,7 +100,7 @@ export function parseNtnuPage(html, { code, semester, year, sourceUrl, campus: s
     // NTNU can publish several places in the same fact. They are evidence of
     // available campuses, not a single course identity or student affiliation.
     const value = campusFacts.join(', '), known = value.match(/Trondheim|Gjøvik|Ålesund/gi)
-    const places = [...new Set(known && /^[\s,;/|·]*$/.test(value.replace(/Trondheim|Gjøvik|Ålesund/gi, '')) ? known : campusFacts)]
+    const places = [...new Set(known && /^[\s,;/|·&]*$/.test(value.replace(/Trondheim|Gjøvik|Ålesund/gi, '').replace(/\bog\b/gi, '')) ? known : campusFacts)]
     if (places.length > 1) {
       campusNote = `Emnekilden oppgir flere studiesteder: ${places.join(', ')}.`
       if (selectedCampus) {

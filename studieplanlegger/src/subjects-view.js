@@ -243,7 +243,12 @@ export function createSubjectsView(actions) {
   calendarFilePanel.append(el('summary', 'Kalenderlenke'), calendarForm); calendarPanel.append(calendarFilePanel)
   const updateCalendarMode = () => { const subscription = calendarForm.elements.importMode.value === 'subscription'; calendarForm.elements.courseId.disabled = !subscription; calendarForm.elements.courseId.required = subscription; calendarForm.elements.courseId.parentElement.hidden = !subscription; calendarForm.querySelector('button[type=submit]').textContent = subscription ? 'Hent kalenderlenke' : 'Vis forhåndsvisning'; if (calendarHelp) calendarHelp.hidden = !subscription }
   calendarForm.elements.importMode.addEventListener('change', updateCalendarMode); updateCalendarMode()
-  calendarForm.append(el('p', 'Øyeblikksbilder kan inneholde flere nye emner eller aktiviteter uten emne. Bruk en direkte ICS-lenke eller en støttet TP-lenke; vanlige visningssider må eksporteres til ICS først.', 'form-hint'))
+  const linkHelp = el('p', 'I nettversjonen hentes bare gjenkjente offentlige studiekilder: blant annet støttede TP-lenker på tp.educloud.no, bestemte TimeEdit-kalenderlenker på cloud.timeedit.net og offentlige Plandisc-kalendere. Et støttet domene alene er ikke nok; lenketypen og lærestedet må også støttes. Andre offentlige ICS-lenker kan derfor bli avvist.', 'form-hint wide-field')
+  linkHelp.id = 'calendar-link-help'
+  const linkTypeHelp = el('p', 'En kalenderfil (.ics) inneholder hendelser. En vanlig timeplanside er en nettside; finn kalenderens eksport- eller abonnementslenke der først. Enkelte gjenkjente TP-visninger kan åpnes direkte. For andre kilder: last ned .ics-filen og velg filimport. Øyeblikksbilder kan inneholde flere emner eller aktiviteter uten emne.', 'form-hint wide-field')
+  calendarForm.prepend(linkHelp, linkTypeHelp)
+  calendarForm.elements.url.setAttribute('aria-describedby', linkHelp.id)
+  calendarForm.querySelector('button[type=submit]').before(button('Bruk filimport i stedet', () => choose('document')))
   if (calendarHelp?.classList.contains('muted')) calendarFilePanel.append(calendarHelp)
   const institutionalCalendar=mountInstitutionalCalendar(calendarPanel,{getState:actions.getState,onCommit:candidate=>actions.commit(candidate,'Institusjonskalender importert'),api})
   const publicTeaching=mountPublicTeaching(calendarPanel,{getPlanner:state,api,onCheck:async course=>{const next=structuredClone(state()),index=next.courses.findIndex(item=>item.id===course.id);if(index<0)return false;next.courses[index]=course;const result=actions.commit({...actions.getState(),planner:next},'Undervisningskontroll');return result?.ok!==false},onPreview:async(data,course,selected)=>{await prepareCalendar(data.calendar,course,{kind:'url',name:`${course.university} · ${selected.label}`,url:data.calendarUrl,groups:[]});preview.explicitSelection=true;preview.warnings.push(...(data.warnings||[]));showPreview()}})
@@ -330,6 +335,7 @@ export function createSubjectsView(actions) {
     if (priorBinding && !course.sourceBindingStale) previewHost.append(el('p', `Bekreft ny kildebinding for ${semesterLabel(course.semester, course.year)}. Tidligere kilde fra ${semesterLabel(priorBinding.semester, priorBinding.year)} beholdes i historikken. Oppgaver, undervisningsdatoer og kalenderkilder flyttes ikke.`, 'import-warning'))
     previewHost.append(el('h4', `${course.code} ${course.name}`), el('p', `${course.university} · ${semesterLabel(course.semester, course.year)} · ${course.credits == null ? 'Studiepoeng mangler' : `${course.credits} studiepoeng`}`))
     previewHost.append(el('p', `${courseCampusLabel(course)}${course.sourceRecordId ? ` · Emnepost: ${course.sourceRecordId}` : ''}${course.sourceVersion ? ` · Bekreftet versjon: ${course.sourceVersion}` : ''}`))
+    if (course.university === 'HVL' && course.sourceObjectId && course.label) { const details = el('details'); details.append(el('summary', 'Valgt emnepost i TimeEdit'), el('p', course.label)); previewHost.append(details) }
     if (course.sourceUrl) previewHost.append(sourceLink(course.sourceUrl, 'Offisiell emnekilde'))
     if (preview.entryUrl) previewHost.append(sourceLink(preview.entryUrl, 'Åpne offisiell timeplan'), el('p', 'Dette er en timeplanside. Last ned en publisert kalenderfil eller finn en kalenderlenke der for separat import.'))
     if (source) previewHost.append(el('p', `Kalenderkilde: ${source.kind === 'file' ? `${source.name} (engangsimport)` : new URL(source.url).hostname} · ${source.kind === 'url' ? 'Oppdateres når appen er åpen; grupper velges her' : 'Last opp filen igjen for å oppdatere'}`))
@@ -472,6 +478,7 @@ export function createSubjectsView(actions) {
         }
         if (course.sourceBindingStale) card.append(el('p', `Kildebindingen er utdatert. Kildeopplysningene gjelder ${semesterLabel(course.sourceBindingStale.semester, course.sourceBindingStale.year)}, ikke den manuelt valgte perioden. Hent emnet på nytt og bekreft forhåndsvisningen. Tidligere kildeopplysninger beholdes.`, 'import-warning source-binding-warning'))
         for (const [url, label] of [[course.sourceUrl, 'Offisiell emnekilde'], [course.entryUrl, 'Offisiell timeplan']]) if (url) card.append(sourceLink(url, label))
+        if (course.university === 'HVL' && course.sourceObjectId && course.label) { const details = el('details'); details.append(el('summary', 'Valgt emnepost i TimeEdit'), el('p', course.label)); card.append(details) }
         if (course.description) { const details = el('details'); details.append(el('summary', 'Emnebeskrivelse'), el('p', course.description)); card.append(details) }
         if (course.notes && course.notes !== course.programBinding?.sourceNotes) card.append(el('p', course.notes))
         if (course.conflict) card.append(el('p', course.conflict, 'import-warning'))

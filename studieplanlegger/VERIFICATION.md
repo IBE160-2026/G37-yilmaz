@@ -1,5 +1,37 @@
 # Verifisering av Ajour
 
+## Separat KI-assistert mengdetesting — 2026-10-29
+
+Prosjekteieren sendte HTML-rapporten «Ajour stresstest 2026-10-29» som tillegg etter første rettingscommit `618357b`. Rapporten er et separat KI-assistert testgrunnlag, ikke prosjekteierens egenutprøving eller nye kontroller utført her. Rårapporten og prøveprofilen publiseres ikke. Arbeidet fortsetter på samme branch og innen eksisterende importstøtte.
+
+Rapportert omfang: 25 læresteder undersøkt, 21 programlister med til sammen 3525 rader og 45 emneforhåndsvisninger. 2278 kildeforekomster er verken unike hendelser eller lagrede hendelser. Bare NTNU-eksemplet ble faktisk lagret i institusjonsutvalget: fem emner og 28 valgte undervisningshendelser. Det syntetiske filutvalget ga 628 hendelser; profilen endte med 73 emner og 658 aktiviteter inkludert tidligere data. Detaljrapporten sier **NHH feilet**, mens **NIH ga forhåndsvisning med advarsler**.
+
+500 hendelser med nye emnekoder ble lagret, mens varianten med eksisterende emner ble avbrutt i en tung forhåndsvisning med 1656 select-elementer og 44866 option-elementer. Gjentatt identisk ICS-import og endret hendelse med samme UID ga rapportert korrekt dubletthåndtering. Eksporten hadde 412 unike UID-er, men 396 doble emnekodeprefiks og epoketid i DTSTAMP. Dette er rapporterte resultater; de nye regresjonene bruker egne syntetiske data.
+
+Oppfølgingen prioriterer F01 (mengdeforhåndsvisning), F02 (foreldet importstatus/sene svar), F07 (kodeprefiks), F04 (kalenderlenkens støtte) og F09 (HVL-metadata), samordnet med F08/DTSTAMP-rettingen. F03 er en avgrensning ved fri tekst uten kjent importformat. F05 (NHH/FHS/Samisk kildevalg) og F06 (AHO-semesterår) er fortsatt åpne kildefunn; AHO-årstallene er ikke verifisert mot offisiell studieplan. Ingen av disse punktene gir grunnlag for å love støtte for alle 25 læresteder.
+
+Rapporten er ingen samtidig belastningsprøve, sikkerhetsrevisjon eller måling av representative svartider. PDF/DOCX-filvelgeren stoppet i testautomatiseringen og viser ikke en bekreftet appfeil. Omlasting ble kontrollert i samme profil; full nettleseromstart og gjenoppretting i en annen profil ble ikke prøvd der. Smalt vindu, full tilgjengelighet, Outlook, full oppgave-/Angre-flyt og personlig refleksjon var heller ikke fullført. Avvist gov.uk-kalender og UiB-timeplanside skal forklares innen eksisterende kildevern, ikke løses ved å fjerne det.
+
+Nye syntetiske regresjoner gjenskapte de prioriterte funnene før retting:
+
+| Funn | Avgrenset oppfølging |
+| --- | --- |
+| F01 | 500 hendelser med 25 eksisterende emner har felles emnevalg og individuelle felt som opprettes ved åpning. Valideringsfeil hører til fellesvalget; avvist lagring skal ikke åpne 500 redigeringsrader. Eksakt kobling, redigering, nytt emne, lagring, omlasting og gjentatt import kontrolleres. |
+| F02 | Tre statusprøver feilet på `618357b` før retting. Bytte av lærested/program nullstiller nå avledet status og valg. Ti kontrollerte nettleserprøver dekker også sene svar og feil fra eldre forespørsler; de eksisterende forespørselsvernene beholdes. |
+| F04 | Hjelp før henting skiller støttede studiekalendere fra HTML-timeplansider og andre domener, med en konkret vei til filimport. De rapporterte lenkene er fortsatt avvist etter eksisterende kildevern. |
+| F07/F08 | Identisk innledende emnekode legges ikke til to ganger, heller ikke foran generert «Studieøkt». Andre koder og intern titteltekst bevares. Faktisk nettlesernedlasting, kontrollerbar UTC-klokke, UID-er og hendelsestider inngår. |
+| F09 | HVL DAT100 høst 2026 skiller emnenavn, publisert campus og variant fra råetiketten. Ukjente felt og flere campusnavn forblir uavklart. Gjenimport av samme eldre TimeEdit-objekt reparerer feil campus først ved bekreftelse og bevarer ID, egne navn/notater og hendelses-/oppgavelenker. Søket kan være kode eller navn; kildekontrakten og objektidentiteten valideres fortsatt strengt. |
+
+En ny separat gjennomgang fant blant annet validering som åpnet alle radene, manglende fokus ved nytt emne, gjenoppretting av åpne underfelt, eldre HVL-råmetadata og blokkering ved ukjent tidsanslag. Disse ble tatt inn i rettingen. Første mengdeutvalg mot låst bygg var **12/14**, og neste målrettede utvalg **16/18**; de feilede kjøringene er ikke beståttresultater. Oppfølgingskontrollen omfatter de konkrete feilene før ny helkjøring.
+
+F01 ble også profilert lokalt med 500 syntetiske hendelser og 25 eksisterende emner. Første gjenskaping hadde **1626 select / 34150 option / 52505 DOM-elementer**; den kompakte visningen hadde **126 / 4650 / 7006** før enkeltredigering. Det er et annet datasett enn rapportens profil. Profilering av den resterende tregheten viste gjentatt normalisering av institusjon ved gruppering. En cache med alle sju identitetsfeltene som ugyldiggjøringsgrunnlag reduserte to målte emnevalg fra **5888/5525 ms til 362/386 ms** i samme lokale komponentoppsett. Gjenimportens oppsummering tar nå én kopi av lagret plan per beregning, og emnealternativene bygges én gang per gruppevisning. Dette er få diagnostiske målinger, ikke en svartidsgaranti eller samtidig belastningsprøve.
+
+Første preview `618357b` bestod **Ajour quality**, men automatisk etterkontroll feilet i to NTNU-prøver. Den faktiske emnesiden hadde en nestet «Sted»-etikett som ble med i campusverdien. Parseren fjerner nå etiketten, og skiller også tvetydige campus med «og»/«&». Den faktiske UiT-PDF-prøven på samme preview bestod og viste den forventede bildetabellbegrensningen. CI- og Vercel-sperrene er uendret; en ny grønn etterkontroll kreves før integrering.
+
+Etter oppfølgingsrettingene bestod begge F01-prøvene mot låst produksjonsbygg: **2/2**, med 500-hendelsesforløpet på **58,2 s** og nytt emne/fokus på **4,8 s**. Samme 120-sekunders testgrense ble beholdt. Den siste fullstendige enhetssuiten bestod **2451/2451 i 142 filer** (75,46 s), og isolert Node/SQLite bestod **3/3** med normal avslutning. Produksjonsbygget bestod; eksisterende bundlevarsel består (**902,60 kB / 274,68 kB gzip**). Dette er teknisk regresjon, ikke prosjekteierens omprøving.
+
+Siste samlede nettleserkjøring mot ferdig bygg bestod **95/95** (6,0 min), med normal avslutning. Alle **24 nye dialogbilder** ble faktisk åpnet og vurdert uten konkrete visuelle funn: to dialoger × lyst/mørkt × 390/900/1440 px × 100/200 % tekst. Fokus, klikkbare etiketter, tastaturavbrudd og en representativ lagring ved 390 px/mørkt/200 % inngår. Personvernkontrollen omfattet **763 tekstfiler og 11 utfoldede ICS-filer**, uten funn; Markdown-kontrollen omfattet **38 dokumenter, 534 lokale lenker og 110 ankre**, uten feil. To runder med tre uavhengige gjennomganger er fullført, med avgrensede oppfølgingslesninger av rettingene.
+
 ## Retting etter rapportert egenutprøving — 2026-10-29
 
 Utgangspunkt `b9abc268e9b6881d61b0b09a2afdfb8d0695a95a`, egen branch `fix/ajour-own-trial-20261029`. Brukerens observasjoner og den separate KI-rapporten er bevart i [prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md). Berørte punkter trenger omprøving; SC-07, Outlook og personlig refleksjon er ikke ferdigmeldt. Den identifiserte syvsiders sensorveiledningen ble lest på nytt, med samme SHA-256 som i planindeksen. Lærerfiler er urørt.
