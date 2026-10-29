@@ -153,6 +153,10 @@ test('real OS changes retain modal draft, focus, open disclosure, scroll and cal
   const viewport = page.locator('.full-calendar-viewport')
   await viewport.evaluate(node => { node.scrollTop = 420; node.scrollLeft = 120; node.focus() })
   await page.clock.runFor(300)
+  // Advancing the fake clock does not flush native scroll events. Wait for the
+  // actual scroll save before taking the baseline for the theme-only change.
+  await expect.poll(async () => (await saved(page)).calendarPreferences?.scroll?.['week:2026-10-27'])
+    .toEqual({ top: 420, left: 120 })
   const calendarBefore = await saved(page), writesBefore = await writes(page)
   const scroll = await viewport.evaluate(node => ({ top: node.scrollTop, left: node.scrollLeft, page: scrollY }))
   const current = await viewport.elementHandle()
