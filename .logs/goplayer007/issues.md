@@ -10,6 +10,7 @@ Gjeldende åpne punkter etter verifisert Vercel-publisering 2026-10-29. Egenutpr
 - [ ] 2026-10-26 [Ajour-samordning og publisering](999-2026-10-26-22-07-17-ajour-samordning-og-publisering.md) — Personlig refleksjon må bygge på studentens egne erfaringer og er ikke ferdigstilt her.
 - [ ] 2026-10-26 [Ajour-samordning og publisering](999-2026-10-26-22-07-17-ajour-samordning-og-publisering.md) — Faktisk Outlook-kontroll er ikke gjennomført.
 - [ ] 2026-10-26 [PRD og egenutprøving](998-2026-10-26-23-09-41-ajour-prd-og-egenutproving.md) — Gjentakelse av hele HiMolde-programflyten er ikke verifisert; importløftet er fortsatt avgrenset.
+- [ ] 2026-10-29 [Produktdokumentasjon og driftsformer](996-2026-10-29-15-14-19-ajour-produktdokumentasjon.md) — Prosjekteieren tar senere stilling til foreslåtte brukbarhetsobservasjoner, eventuell nettleserstøttematrise og mål for responstid/datamengde. Forslagene er ikke godkjente krav eller oppnådde resultater.
 
 ## Kjente tekniske begrensninger
 
