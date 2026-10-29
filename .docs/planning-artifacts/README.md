@@ -6,7 +6,7 @@
 
 Planene ble **rekonstruert 2026-10-16** mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae00268`. De er ikke opprinnelige planer for allerede skrevet kode. Revisjonen følger opp lærerens krav om avgrenset V1, sjekkbare kriterier, tekniske detaljer i arkitekturen og synlig kontroll av KI-generert arbeid.
 
-[Nyeste dokumenterte kandidatkontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26) samler faktiske resultater og begrensninger. [Temaoppfølgingen](../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) har den senere Node-/Docker-kontrollen. Eldre Docker-blokkeringer og testtall gjelder sine daterte runder; nye enhetstester og bygg etter tre navnerettelser er ført separat. Ingen ny manuell prøve eller runtime-/Docker-kontroll er utført.
+[Lokal kandidatkontroll 2026-10-26](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26) samler den rundens resultater og begrensninger. [Temaoppfølgingen](../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) har Node-/Docker-kontrollen fra samme dato. Eldre Docker-blokkeringer og testtall gjelder sine daterte runder. Ny nett-/runtimekontroll 2026-10-29 står under driftsutvidelsen nedenfor; ingen ny manuell egenutprøving er utført.
 
 ## Gjeldende dokumenter
 
@@ -25,6 +25,8 @@ Sensorvedleggets sju sider er lest på nytt 2026-10-26, med samme SHA-256 som id
 [Oppstart](../../README.md), [løsningsguide](../implementation-artifacts/solution-guide.md), [utviklingsprosess](../implementation-artifacts/development-process.md), [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) supplerer planen. [Faglærertilbakemeldingen](../../tilbakemelding-product-brief.md) og hele sensorveiledningen er kontrollert ved publiseringsoppfølgingen 2026-10-16.
 
 ## Godkjent driftsutvidelse — 2026-10-29
+
+[Teknisk sluttkontroll samme dato](../../studieplanlegger/VERIFICATION.md#teknisk-sluttkontroll-og-publiseringssperrer--2026-10-29) dokumenterer ny CI, faktisk håndhevet domenesperre, sikkerhetsretting, preview, målinger og isolert gjenopprettingsøvelse. [Hel HiMolde-programgjentakelse](TRACEABILITY.md#hel-himolde-programgjentakelse--2026-10-29) er kontrollert med syntetiske kilder; egenutprøving, refleksjon og Outlook er fortsatt åpne.
 
 [Briefen](../../brief.md), [PRD-en](PRD.md) og [AD-16](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-16--browser-deployment-with-bounded-stateless-imports-2026-10-29) beskriver den uttrykkelig godkjente nettleserutgaven i ett gratis Vercel-prosjekt. Hele hovedflyten og lokale Node-/Docker-valg beholdes. Nettutgaven har nettleser-/adresselokal lagring og avgrensede importfunksjoner, uten konto, skydatabase eller synkronisering. Historiske lokalavgrensninger er datert; importløftet, krav-ID-ene og uutført SC-07/refleksjon endres ikke. [Ny verifikasjonsseksjon](../../studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) dokumenterer bestått kontroll av [produksjonsadressen](https://ajour-sooty.vercel.app), adskilt fra tidligere klargjøring og lokale prøver.
 
