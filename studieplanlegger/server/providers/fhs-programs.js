@@ -1,4 +1,5 @@
 import { load, clean, fail, cachedText, restrictedUrl, asCredits, MAX_PAGES, MAX_RESULTS } from './program-source.js'
+import { safeSourceError } from './source-error.js'
 
 const origin = 'https://www.forsvaret.no', catalogue = `${origin}/utdanning/utdanninger`
 const programPath = /^\/utdanning\/utdanninger\/([^/]+)(?:\/([^/]+))?\/?$/
@@ -37,7 +38,12 @@ async function catalogueData(fetchText) {
   while (pages < MAX_PAGES && seen.size < MAX_RESULTS) {
     const url = new URL(endpoint); url.searchParams.set('start', String(start)); url.searchParams.set('count', String(config.perPage))
     let data
-    try { data = JSON.parse(await cachedText(fetchText, url.href, serviceUrl)) } catch (error) { if (!pages || error.name === 'AbortError') throw error; complete = false; warnings.push(`Neste katalogside kunne ikke hentes: ${error.message}`); break }
+    try { data = JSON.parse(await cachedText(fetchText, url.href, serviceUrl)) } catch (error) {
+      if (error.name === 'AbortError') throw error
+      error = safeSourceError(error)
+      if (!pages) throw error
+      complete = false; warnings.push(`Neste katalogside kunne ikke hentes: ${error.message}`); break
+    }
     if (!Array.isArray(data.hits) || !Number.isInteger(data.total) || data.total < 0) fail('source-changed', 'Katalogsvaret mangler resultater eller totalt antall.')
     pages++; total = data.total
     const before = seen.size

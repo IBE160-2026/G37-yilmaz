@@ -11,7 +11,10 @@
     "dev:legacy": "vite --host localhost --port 5173 --strictPort",
     "test": "vitest run",
     "test:unit": "vitest run",
+    "test:release": "vitest run tests/unit/hosted-import.test.js tests/unit/storage.test.js tests/unit/ajour-compatibility.test.js tests/unit/theme-init.test.js tests/unit/fhs-programs.test.js",
     "test:e2e": "playwright test",
+    "test:e2e:ci": "node tests/run-built-e2e.mjs",
+    "test:e2e:deployment": "node scripts/deployment-smoke.mjs",
     "test:e2e:remote": "playwright test --config tests/playwright.remote.config.js --project remote-core --project remote-visual --project remote-failures",
     "test:e2e:remote:live": "playwright test --config tests/playwright.remote.config.js --project remote-live",
     "test:e2e:remote:persistence": "playwright test --config tests/playwright.remote.config.js --project remote-persistence",
@@ -20,6 +23,7 @@
     "verify:teaching": "node scripts/verify-teaching.mjs",
     "verify:teaching:live": "node scripts/verify-teaching.mjs --live",
     "build": "vite build",
+    "build:release": "npm run test:release && npm run build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "start": "node server/app.js"
   },

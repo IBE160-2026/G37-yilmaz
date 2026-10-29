@@ -1,5 +1,29 @@
 # Verifisering av Ajour
 
+## Teknisk sluttkontroll og publiseringssperrer — 2026-10-29
+
+Avgrenset videreføring fra `0c8bd730f5115edd22926277c0f5fd9630ca4f1a`, på egen branch `fix/ajour-release-gates`. Lærerens punkter om kvalitetssikring, sporbarhet, kontrollerbart KI-arbeid og kjørbarhet følges opp uten nye produktkrav. Sensorvedlegget identifisert i planindeksen ble ikke funnet i denne økten; tidligere lesing gjøres ikke til en ny kildekontroll.
+
+| Område | Førkontroll og tiltak |
+| --- | --- |
+| Eksisterende funksjoner og sikkerhet | Komplett nettleserlagring, backup, tolv emnefarger, tema, isolerte profiler og avgrenset importvern var allerede implementert. HTTPS-/kilde-/redirect-/DNS-kontroller, importfrister og størrelsesgrenser beholdes. Ingen nye bekreftede SSRF-/XSS-funn i det undersøkte utvalget. |
+| CI og publisering | Repositoryet hadde ingen Actions-workflows; `main` var ubeskyttet og siste sjekk var bare Vercel bygg. Kontoen har push, ikke admin. Ny **Ajour quality** kjører låsefilinstallasjon, full enhetssuite, bygg, nettleserkontrakter mot bygget og isolert SQLite. Vercel-sjekken krever dette navnet før domenetildeling i preview/production. Ingen krav om en annen persons godkjenning eller endringer i organisasjonsregler. |
+| Dokumentert importfeil | FHS og Kristiania kunne returnere fragmenter av ugyldig JSON i advarsler etter en vellykket første katalogside. Reprodusert via hosted handler med oppdiktede data. Begge bruker nå eksisterende feilsanitering, beholder forventet veiledning og lar avbrudd forbli avbrudd. Seks regresjonsprøver dekker begge adapterne. |
+| Feiloppfølging | Automatisk etterkontroll bruker deploymentets commit, faktisk byggmarkør og syntetiske nettprøver. Faste feilkategorier bevares i CI-loggen; ingen private planer, kalendere eller sensitive URL-er logges. README forklarer bygg-/kjøretidslogger, delvis import og Hobby-loggenes korte levetid. |
+| Tilbakerulling og data | README skiller Hobby Instant Rollback av appkode fra backup/gjenoppretting og lokal SQLite. Fungerende produksjon er ikke rullet tilbake. Ingen ny database, innlogging, betalt tjeneste eller periodisk agentjobb. |
+
+Den rene, separate testkopien ble installert med `npm ci`: Node **24.19.0**, Vite **8.2.4**, Vitest **5.0.3**, Playwright **1.63.0**. `npm audit` fant **0 kjente sårbarheter**; ingen oppgraderinger var nødvendige. Første fulle kandidatkjøring bestod **2384/2384 enhetstester i 134 filer**, **145/145 releasetester** og produksjonsbygg. SQLite bestod **3/3** med egen midlertidig database/port, inkludert migrering, gjenoppretting, gjentakelse og Angre.
+
+Før produksjonsendring bestod en ny syntetisk profil **1/1** på produksjonsadressen: hovedflyt, backup til profil B, profilisolasjon og full Chromium-gjenåpning. Den samme profilen beholdes for kontroll etter publisering. Ingen eksisterende privat nettleserprofil ble åpnet.
+
+**Trygg lokal øvelse:** På en egen tilfeldig loopbackport bestod oppretting/backup/gjenåpning **1/1**, verifisering etter kandidatbygg **1/1** og verifisering etter tilbakekopiering av det tidligere statiske bygget **1/1**. Domenedata og preferansenøkler var eksakt bevart. Dette var en lokal kontroll av statiske filer og syntetiske data, ikke Vercel Instant Rollback eller full tilbakeføring av serverfunksjoner. Før- og kandidatbyggets klientfiler var uendret i denne første runden. SQLite-gjenopprettingen ovenfor er separat evidens.
+
+Mellomkjøring av nettleserutvalget ga **54/55**, med én `ENOENT` i sporingsfil fordi samtidige tester brukte samme resultatrot. Separat temakjøring ga **18/19** og avdekket at forsinkelsesprøven bare fanget utviklingsmodulen, ikke bygget bundle. Testen er presisert til faktisk entry-modul og krever at forsinkelsen traff; fravær av appinnhold før oppstart beholdes som krav. Ingen assertions er fjernet. Sluttkjøring og publiseringsbevis føres nedenfor når de foreligger.
+
+Separat gjennomgang hadde to uavhengige, kontekstfrie lesninger og en verifikasjonslesning utført av sikkerhetsimplementøren på grunn av samtidig agentgrense. Den fant blant annet at oppgitt SHA alene ikke beviser nettstedets versjon, og at CI tidligere prøvde utviklingsserveren etter bygg. Disse kontrollfeilene rettes med en offentlig commitmarkør, negativ SHA-prøve og nettleserkjøring mot ferdig bygg. Gjennomgangen er teknisk kontroll, ikke prosjekteierens egenutprøving.
+
+**Restpunkter:** SC-07/egenutprøving, personlig refleksjon og faktisk Outlook-prøve er fortsatt ikke gjennomført. Bundlevarselet består. Full HiMolde-programgjentakelse får egen syntetisk evidens; direkte emneimport blir ikke omdefinert til programgjentakelse. Uidentifisert proposal/overordnet veiledning beholdes som kildebegrensning.
+
 ## Vercel-nettleserutgave — 2026-10-29
 
 **Publisert og funksjonskontrollert: [Ajour](https://ajour-sooty.vercel.app).** [PR #1](https://github.com/IBE160-2026/G37-yilmaz/pull/1) ble integrert med vanlig merge etter beståtte faktiske preview-kontroller. Produksjonsgrunnlaget er `491b8442f53b38af275b1b60dda5943f0236f4aa`, deploy `dpl_FDEYDKxy7Fd1nJTcrgFPFP5EopXT`, **READY / production**. Domenet ga HTTP 200 etter promotering. Senere dokument-/loggcommits endrer ikke appgrunnlaget; siste publiserte Git-hash kan også kontrolleres i Vercel/GitHub.

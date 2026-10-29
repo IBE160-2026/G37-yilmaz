@@ -51,6 +51,13 @@ export function observe(page, { expectedHttpErrors = [], expectedFailedRequests 
     async finish(info) {
       for (const [event, listener] of Object.entries(listeners)) page.off(event, listener)
       await info.attach('browser-and-network-observations', { contentType: 'application/json', body: JSON.stringify(evidence, null, 2) })
+      const countMismatch = counts.http.some((count, index) => count !== expectedHttpErrors[index].count) ||
+        counts.network.some((count, index) => count !== expectedFailedRequests[index].count) ||
+        counts.console.some((count, index) => count !== expectedConsoleErrors[index].count)
+      const unexpected = evidence.pageErrors.length || evidence.stateRequests.length || countMismatch ||
+        ['failedRequests', 'httpErrors', 'consoleErrors'].some(kind => evidence[kind].some(entry => !entry.expected)) ||
+        (info.status && info.status !== 'skipped' && info.status !== info.expectedStatus)
+      if (process.env.CI && unexpected) console.error(JSON.stringify(evidence))
       expect(evidence.pageErrors, 'Uncaught browser errors').toEqual([])
       expect(evidence.failedRequests.filter(entry => !entry.expected), 'Unexpected failed browser requests').toEqual([])
       expect(evidence.httpErrors.filter(entry => !entry.expected), 'Unexpected HTTP errors').toEqual([])
