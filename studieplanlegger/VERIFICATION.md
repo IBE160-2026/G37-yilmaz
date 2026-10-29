@@ -1,5 +1,36 @@
 # Verifisering av Ajour
 
+## Vercel-nettleserutgave — 2026-10-29
+
+**Status: implementering og publiseringskontroll pågår.** Uttrykkelig godkjent driftsutvidelse fra grunnlaget `288f2bd95ac43cc62117fb19a65e00cd0ce957f9` på `feat/ajour-vercel`. Faktisk Vercel-adresse, publisert commit og resultater fra forhåndsvisning/produksjon er ikke registrert ennå. Klargjort kode, lokal emulering og eldre beståtte tester er ikke bevis for en fungerende Vercel-publisering.
+
+Endringen gjenbruker den komplette nettleserlagringen og bevarer layout, merkevare, tolv emnefarger, temaer, data-/backupformat og hovedflyten. Bare avgrensede importfunksjoner publiseres; ingen studenttilstand, sikkerhetskopier eller SQLite tilbys gjennom et offentlig API. Lokal Node/Docker beholder SQLite. Nettleserlagringens profil-/adressegrenser, slettingsrisiko, sikkerhetskopi og manglende enhetssynkronisering forklares i appen og README.
+
+Før integrering skal den faktiske forhåndsvisningen kontrolleres med syntetisk hovedflyt, profiler som er adskilt, eksport/gjenoppretting, ICS, tretti skjermbilder og feilmeldinger. Persistens etter gjenåpning og ny publisering på samme adresse må kontrolleres med en dedikert syntetisk profil. Live-import fra de avgrensede HiMolde-/NTNU-prøvene rapporteres separat fra simulerte kildefeil. Produksjon skal deretter kontrolleres og få faktisk URL/commit. Isolerte lokale enhets-, bygg- og Node/SQLite-prøver er en egen kontrollkategori.
+
+Oppfølgingen gjelder faglærerens krav om avgrenset omfang, sjekkbare kriterier, sporbarhet og kontrollerbart KI-arbeid. **SC-07 og personlig refleksjon er fortsatt ikke gjennomført.** Historiske resultater nedenfor beholder dato og avgrensning.
+
+**Samlet lokal kontroll etter uavhengig gjennomgang:** En ren kandidat uten private/ignorerte filer ble installert med `npm ci` fra låsefilen, med Node **24.19.0**, npm **11.17.0**, Vite **8.2.4**, Vitest **5.0.3** og Playwright **1.63.0**. Tre uavhengige gjennomganger fant blant annet at samlet importgrense ikke stoppet senere oppslag dersom en adapter fanget feilen. Dette er rettet med terminal avbrytelse, sammen med skjerming av parserinnhold og minimert nettleserdiagnostikk. Ingen dataformat eller layout er endret.
+
+| Kontrollert kandidat etter rettingene | Faktisk resultat |
+| --- | --- |
+| Full enhetssuite | **2378/2378 i 134 filer**, exit 0, **54,50 s**. Dekker også grense 250/251 kildeoppslag, samlet datagrense, syntetiske personvernmarkører og siste sanitering av direkte kalenderfeil. |
+| Produksjonsbygg og lokal SQLite | Siste bygg **87 moduler**, exit 0, **1,23 s**. **3/3** isolerte SQLite-prøver, **10,9 s**, kjørt før den siste hosted-only kalenderfeilsaniteringen; migrering, revisjonskonflikt, recovery/purge og gjentatt programimport/Angre. Lokal catch-oppførsel er særskilt kontrollert i den endelige enhetssuiten. Eksisterende bundlevarsel over 500 kB består. |
+| Lokal nettmodus | **35/35**, **1,6 min**: 18 hovedflyt-/ruting-/PDF-prøver, 6 visuelle scenarioer med 30 PNG-er, 11 negative scenarioer. Sistnevnte dekker blant annet oppstarts-/skrivefeil, ugyldig backup, avbrutt forbindelse og ugyldige kildesvar uten tap av tidligere data/utkast. Testharness på egen loopback-port; dette er ikke Vercel-evidens. |
+| Lokal profil og eksport | **1/1**, **13,3 s**, egen syntetisk profil opprettet gjennom UI, backup/gjenoppretting til adskilt profil, parsbar ICS og lukking/gjenåpning av Chromium med eksakt bevart lagring. Ingen faktisk ny Vercel-deploy inngår i dette lokale resultatet. |
+| Dokumenter og opplasting | **35 dokumenter, 496 lenker, 93 ankre**, ingen manglende mål. **323 dokument-/fixturefiler**, herunder **11 utfoldede ICS**, uten nye uavklarte mønstertreff. CLI-tørrkjøring etter `.vercelignore`: **181 bygg-/kjøretidsfiler**, ingen databaser, testartefakter eller miljøfiler. Rålogger, profiler og skjermbilder holdes utenfor Git. |
+
+De lokale skjermbildene er åpnet for et utvalg av visninger/bredder; dette erstatter ikke den påkrevde gjennomgangen av alle tretti bilder fra faktisk Vercel-preview. Første prøveopplastinger ble uventet merket som produksjon av Vercel og ble fjernet; ingen av dem regnes som publiseringsgodkjenning. Videre klargjøring bruker deaktivert automatisk domenetildeling og beskyttet staging. Ekte Preview, live-import, samme-adresse-redeploy og produksjonsprøve må fortsatt dokumenteres før integrering.
+
+**Faktisk Vercel-bygg, fortsatt tilgangsblokkert:** Prosjektet `ajour` i Hobby-teamet `ajour1` ble opprettet først etter at prosjektlisten var kontrollert tom. Det er koblet til dette offentlige GitHub-repositoryet, med riktig rotmappe, Node-versjon og bygginnstillinger. En beskyttet førstegangs-staging ble etterfulgt av [ekte Preview](https://ajour-g01j3tpyw-ajour1.vercel.app), deploy `dpl_CfVRvAoUJtjZ29B1c5Q9PjddYueu`: API-et bekreftet **READY** og `target: null` (Preview). Anonym forespørsel gir **302 til Vercel-innlogging**, ikke appen. Beskyttelsen er ikke slått av. Automatisk domenetildeling er satt av under kontrollene; den tidligere produksjonsadressen returnerte **404**. Det finnes derfor ennå ingen verifisert offentlig produksjonslenke. Previewens funksjoner, live-kilder, alle skjermbilder, samme-adresse-redeploy og produksjon er **ikke bestått** av det grønne bygget. PR skal ikke integreres før disse kontrollene er utført.
+
+| Implementeringskontroll, 2026-10-29 | Faktisk resultat og avgrensning |
+| --- | --- |
+| Lagring/kompatibilitet/backup | **29/29 i 3 filer**, Vitest **5.0.0**, **1,35 s**: `ajour-compatibility`, `connected-backup-privacy`, `storage` under `tests/unit` (alle `.test.js`). Eksisterende lokal installasjon; ikke den isolerte låsefilkandidaten. |
+| Offentlig importgrense | **144/144 i 5 filer**, Vitest **5.0.0**, **16,78 s**: `hosted-import`, `import-routing-matrix`, `import-middleware-program-plan`, `import-recommendations`, `final-review-followup` under `tests/unit` (alle `.test.js`). De 89 nye hosted-tilfellene omfatter strøm/tolket JSON, størrelse, tid, Origin/metoder, vilkårlige kilder/private nett, redirect-grenser, injisert NTNU-henting og alle 48 eksisterende programruter. Dette er lokale kontrakt-/transporttester med syntetisk eller injisert nettverk, ikke live-kildetilgjengelighet. |
+
+Rutings-/headerkonfigurasjonen er JSON-kontrollert, og arbeidsdiffens whitespace-kontroll bestod. Faktisk Vercel-ruting, statiske responshoder og videresendt sti må fortsatt kontrolleres på publisert forhåndsvisning. Resultatene ovenfor erstatter ikke ny låst installasjon, fullsuite, SQLite, faktisk nettleserkontroll eller release-evidens.
+
 ## Lokal commitkontroll — 2026-10-26
 
 Avgrenset sluttkontroll av dokumentrevisjonen nedenfor og de tre navnetekstene, fra `main` på `2d7be923853fed30173399df6c62765103a69ca5`, med tom indeks ved start. Begge dokumentrollene er beholdt: briefen er produktgrunnlaget, PRD-en utdyper behov, krav og aksept. V1, stabile ID-er og rekonstruksjonshistorikk er uendret. Egenutprøving er fortsatt **planlagt / ikke gjennomført**, observasjonsfeltene er tomme, og personlig refleksjon er ikke fylt ut.

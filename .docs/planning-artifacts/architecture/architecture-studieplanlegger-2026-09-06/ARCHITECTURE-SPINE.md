@@ -7,7 +7,7 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-10-26
+updated: 2026-10-29
 binds: [R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, Q-01, Q-02, Q-03]
 historical_binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
@@ -23,6 +23,20 @@ sources:
 # Technical plan: Ajour
 
 **Documentation revision, 2026-10-26:** R-07 now uses the project owner's planned manual self-trial with synthetic data, following the owner's decision on this date. It is not completed and establishes no result for unfamiliar users. The product scope and technical contracts are unchanged. The name audit corrected three runtime/error display strings to Ajour. Existing import transport identifiers (`Studieplanlegger/1.0` User-Agent and adapter-generated ICS `PRODID` values), package identity and the data/runtime names below remain compatibility exceptions; visible calendar exports already use Ajour.
+
+## AD-16 — Browser deployment with bounded stateless imports, 2026-10-29
+
+The explicitly approved deployment extension adds exactly one free Vercel project to the existing local Node/Docker delivery. The app root is `studieplanlegger`; Vite builds `dist` and Node 24.x runs only the import function. [Vercel configuration](../../../../studieplanlegger/vercel.json) gives API routing priority over the page fallback. Unknown API routes return JSON 404 and unsupported methods are rejected. `server/app.js`, database/state/recovery endpoints and SQLite are not deployed as public functions.
+
+[createStorage](../../../../studieplanlegger/src/storage.js) already selects the complete browser adapter unless `__STUDIEPLAN_API__ === true`; only the local Node server injects that flag. The hosted app therefore keeps the same schema, keys, relational validation, revision/conflict checks, recovery, purge and backup contracts. No new persistence adapter, cloud database or in-memory server authority is introduced. Browser data belongs to one profile and exact origin; deployment to the same origin retains it, while localhost, preview origins, production and other profiles remain separate. Clearing site data can erase the plan. The existing reviewed portable backup is the transfer mechanism; there is no device synchronization. Appearance preferences retain AD-15's separate origin-local behavior.
+
+The hosted import handler reuses the provider registry and existing parsers but adds a separate public boundary: recognized provider sources only, provider-specific validation at every outbound fetch and redirect, public DNS/IP pinning, bounded body sizes and request duration, and same-origin browser request checks. The NTNU details path must use the injected guarded fetch as well. Both streamed requests and platform-parsed bodies are validated. Arbitrary calendar URLs receive actionable file-import guidance. Request-local import processing exposes previews only; it neither reads nor stores student state and does not log request bodies or source secrets. Local loopback guards and supported local import behavior remain intact.
+
+The same-origin check trusts Vercel's routing of the HTTP Host to this project, then requires any Origin header to equal its HTTPS origin and rejects cross-site/same-site fetch metadata. Forwarded host headers are not trusted. This permits the project's production and preview aliases without a client-controlled external origin allowlist; it is not authentication or rate limiting. `NODEJS_HELPERS=0` keeps request bodies raw for the 8192-byte preparse limit, while parsed-body compatibility remains tested. The function has a 60-second platform limit and a 50-second overall import deadline.
+
+The release checks distinguish isolated local emulation from actual Vercel preview and production. Remote acceptance covers the synthetic domain workflow, isolation, backup/ICS, storage failure preservation, direct loads, browser/network errors and thirty view/theme/width screenshots. A dedicated synthetic persistent profile is created before and reopened after a deployment to the same origin. Live HiMolde/NTNU transport runs separately from injected failures. Local Node/SQLite tests remain required. [Dated verification](../../../../studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) records actual outcomes and the verified URL; it does not turn technical checks into SC-07 or personal reflection.
+
+The earlier local-only production statements in AD-10 and the dated 2026-10-16 map below remain accurate history. AD-16 adds this browser deployment option; it does not replace local SQLite authority or expand the bounded source promise.
 
 ## AD-15 — Local appearance preferences and course identity, 2026-10-26
 
@@ -66,7 +80,7 @@ R-03/R-08 keep capacity and the exported copy consistent. [calendar-export.js](.
 
 This section is a retrospective alignment, not an original implementation plan. The [current PRD](../../PRD.md), [stories](../../EPICS-CURRENT.md) and [traceability](../../TRACEABILITY.md) replace the original FR/NFR delivery baseline where they conflict. The [root brief](../../../../brief.md) owns the product promise: bounded HiMolde IT 2026–27 programme choices, teaching only IBE110/IBE430/IBE160 autumn 2026, and NTNU ARK1001/EXPH0100 course metadata/linked teaching autumn 2026. National coverage is vision. No complete NTNU programme, exams or personal group membership is promised. Existing integrations remain available with dated limitations.
 
-Production is a local Node API plus authoritative SQLite, with revision-checked, validated transactional state writes. Docker binds to loopback and persists the database in a named volume. Vite/localStorage is an isolated development/test path and an explicitly confirmed migration source, not production authority. This separation supports reproducible local use without hosted infrastructure or accounts. Rules derive suggestions from registered data; no generative-AI service is required at runtime.
+At this 2026-10-16 decision, production is a local Node API plus authoritative SQLite, with revision-checked, validated transactional state writes. Docker binds to loopback and persists the database in a named volume. Vite/localStorage was an isolated development/test path and an explicitly confirmed migration source, not the local production authority. AD-16 adds a separate hosted browser deployment on 2026-10-29. Local use still needs no hosted infrastructure or accounts. Rules derive suggestions from registered data; no generative-AI service is required at runtime.
 
 | Current requirements | Decisions and implementation boundaries |
 | --- | --- |

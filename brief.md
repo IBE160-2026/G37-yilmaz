@@ -2,12 +2,14 @@
 title: "Product Brief: Ajour"
 status: bounded-delivery-documented
 created: 2026-09-06
-updated: 2026-10-26
+updated: 2026-10-29
 ---
 
 # Product brief: Ajour
 
-Ajour hjelper studenten å gjøre oppgaver og tilgjengelig tid om til en gjennomførbar plan, registrere hva som faktisk skjedde og godkjenne nødvendige endringer. Appen kjører lokalt uten konto eller betalte tjenester. Studenten beholder kontroll over import, arbeidsanslag og planvalg.
+Ajour hjelper studenten å gjøre oppgaver og tilgjengelig tid om til en gjennomførbar plan, registrere hva som faktisk skjedde og godkjenne nødvendige endringer. Appen kan kjøres lokalt eller som nettleserutgave uten konto eller betalte tjenester. Studenten beholder kontroll over import, arbeidsanslag og planvalg.
+
+**Godkjent driftsutvidelse, 2026-10-29:** Nettleserutgaven kan publiseres på én gratis Vercel-adresse med samme hovedflyt, utseende og avgrensede importløfte. Planen tilhører nettleserprofilen og den nøyaktige nettadressen; den synkroniseres ikke mellom enheter. Sletting av nettleserdata kan slette planen. Sikkerhetskopi brukes til oppbevaring og flytting mellom lokal drift, forhåndsvisning og publisert adresse. Lokal Node-/Docker-drift beholdes. [Verifikasjonen](studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) skiller implementert støtte fra faktisk kontrollert publisering. Tidligere avgrensning mot offentlig hosting beskriver omfanget før denne beslutningen.
 
 **Utseende, 2026-10-26:** Tolv stabile emnefarger og System/Lyst/Mørkt viderefører dagens layout og hovedreise. Tema er en lokal visningspreferanse; dette endrer ikke V1, importdekning eller dataløfter. [Temarundens tekniske kontroll](studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) er ikke dokumentasjon på studentnytte.
 
@@ -49,4 +51,4 @@ Hver rad har krav, story, kode, test/metode og evidensstatus i [sporbarhetsmatri
 
 ## Utenfor v1 og videre visjon
 
-Offentlig hosting, kontoer, betaling, skysynk, generativ KI i appen, automatisk kontakt, oppmøtekontroll og automatisk innlevering/bekreftelse er utenfor. Full nasjonal dekning er **framtidsvisjon**, ikke et uoppfylt v1-krav. Eksisterende adaptere beholdes med sine dokumenterte begrensninger. Før mer funksjonalitet prioriteres kvalitet, sporbarhet og planlagt egenutprøving. Teknisk arkitektur og daterte kjøreresultater finnes via [planindeksen](.docs/planning-artifacts/README.md); de beviser ikke studentnytte.
+Kontoer, betaling, skysynk, generativ KI i appen, automatisk kontakt, oppmøtekontroll og automatisk innlevering/bekreftelse er utenfor. Offentlig hosting var utenfor fram til den uttrykkelig godkjente nettleserutvidelsen 2026-10-29; denne omfatter bare ett gratis Vercel-prosjekt uten delt studentlagring. Full nasjonal dekning er **framtidsvisjon**, ikke et uoppfylt v1-krav. Eksisterende adaptere beholdes med sine dokumenterte begrensninger. Før mer funksjonalitet prioriteres kvalitet, sporbarhet og planlagt egenutprøving. Teknisk arkitektur og daterte kjøreresultater finnes via [planindeksen](.docs/planning-artifacts/README.md); de beviser ikke studentnytte.

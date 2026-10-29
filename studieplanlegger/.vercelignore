@@ -1,0 +1,16 @@
+# Also constrain uploads when invoking the CLI from the app directory.
+/*
+!/package.json
+!/package-lock.json
+!/index.html
+!/vite.config.js
+!/vercel.json
+!/api
+!/server
+!/src
+!/public
+**/.env*
+**/.memlog.md*
+**/*.sqlite*
+**/*.db*
+**/*.log

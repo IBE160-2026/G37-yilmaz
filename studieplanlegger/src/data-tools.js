@@ -13,6 +13,12 @@ export function displayTimestamp(value) {
   } catch { return 'Tidspunkt kunne ikke vises. Opplysningene i sikkerhetskopien er uendret' }
 }
 export function createDataTools(actions) {
+  const serverStorage = globalThis.__STUDIEPLAN_API__ === true
+  const location = document.querySelector('#storage-location'), summary = document.querySelector('#storage-summary')
+  if (serverStorage) {
+    if (location) location.textContent = 'Lagret på denne enheten'
+    if (summary) summary.textContent = 'Skalering, kalender og oppgaveforslag bygger på lokal data.'
+  }
   const host = node('section'); host.id = 'settings-panel'; host.className = 'data-tools settings-panel panel'; host.setAttribute('aria-label', 'Innstillinger')
   document.querySelector('#workspace').before(host)
   const notice = node('section'); notice.className = 'contextual-undo'; notice.hidden = true; host.before(notice)
@@ -76,7 +82,9 @@ export function createDataTools(actions) {
   const menu = node('details'); menu.className = 'data-menu'; menu.append(node('summary', 'Data og sikkerhetskopi'))
   const panel = node('div'); panel.append(trash, save, restore, recovery, input); menu.append(panel)
   menu.open = true
-  host.append(node('h2', 'Innstillinger'), node('p', 'Sikkerhetskopi, angre og papirkurv. Dataene lagres på denne enheten.'), undo, menu, feedback)
+  host.append(node('h2', 'Innstillinger'), node('p', serverStorage
+    ? 'Sikkerhetskopi, angre og papirkurv. Dataene lagres på denne enheten.'
+    : 'Dataene lagres bare i denne nettleserprofilen på denne nettadressen. Sletting av nettleserdata kan slette planen. Localhost, forhåndsvisning og publisert adresse har hver sin lagring. Eksporter sikkerhetskopi for å flytte data; enheter synkroniseres ikke.'), undo, menu, feedback)
   host.querySelector('h2').after(createAppearanceSettings())
   const planning = node('details'); planning.className = 'data-menu planning-settings'; planning.open = true; planning.append(node('summary', 'Planlegging'))
   const personalization = node('section'); personalization.className = 'personalization-settings'; personalization.append(node('h3', 'Personalisering'))

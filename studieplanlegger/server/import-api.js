@@ -2,6 +2,7 @@ import https from 'node:https'
 import { lookup } from 'node:dns/promises'
 import { load } from 'cheerio'
 import { providerRequest } from './providers/index.js'
+import { safeSourceError } from './providers/source-error.js'
 import { gunzip, inflate, brotliDecompress } from 'node:zlib'
 import { isPublicPlandiscUrl, fetchPlandiscCalendar } from './providers/plandisc-calendar.js'
 import { hfyCalendarSources, fetchHfyCalendar } from './providers/hfy-calendar.js'
@@ -103,49 +104,108 @@ export function parseNtnuPage(html, { code, semester, year, sourceUrl }) {
   return { course, calendarUrl, warnings }
 }
 export const universityProviders = {
-  ntnu: async ({ code, semester, year }) => {
+  ntnu: async ({ code, semester, year }, { fetchText = fetchPublicText } = {}) => {
     code = String(code || '').trim().toUpperCase()
     if (!/^[A-ZÆØÅ]{2,10}\d{3,6}[A-Z]?$/.test(code)) throw new Error('Skriv en gyldig NTNU-emnekode, for eksempel TDT4110.')
     if (!['spring', 'autumn'].includes(semester) || !/^\d{4}$/.test(String(year)) || Number(year) < 1900 || Number(year) > 2200) throw new Error('Velg gyldig semester og år.')
     const sourceUrl = `https://www.ntnu.no/studier/emner/${encodeURIComponent(code)}/${semester === 'spring' ? Number(year) - 1 : year}`
-    return parseNtnuPage(await fetchPublicText(sourceUrl), { code, semester, year, sourceUrl })
+    const validate = input => {
+      if (new URL(input).href !== sourceUrl) throw new Error('NTNU videresendte til et annet emne eller studieår. Bruk emnets offentlige side eller manuell registrering.')
+    }
+    return parseNtnuPage(await fetchText(sourceUrl, 0, validate), { code, semester, year, sourceUrl })
   },
 }
-export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicText, fetchBytesImpl = fetchPublicBytes, providerRequestImpl = providerRequest } = {}) {
+export async function readImportBody(req, { maxBytes = 8192, signal } = {}) {
+  const tooLarge = () => Object.assign(new Error('Kalenderlenken er for lang.'), { httpStatus: 413 })
+  const length = req.headers['content-length']
+  if (length !== undefined && (!/^\d+$/.test(String(length)) || Number(length) > maxBytes)) throw tooLarge()
+  let raw
+  try { raw = req.body } catch { throw new Error('Ugyldig JSON i forespørselen.') }
+  if (raw === undefined) {
+    let size = 0
+    const chunks = []
+    for await (const chunk of req) {
+      signal?.throwIfAborted()
+      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+      size += bytes.length
+      if (size > maxBytes) throw tooLarge()
+      chunks.push(bytes)
+    }
+    raw = Buffer.concat(chunks)
+  }
+  if (typeof raw !== 'string' && !Buffer.isBuffer(raw)) {
+    try { raw = JSON.stringify(raw) } catch { throw new Error('Ugyldig JSON i forespørselen.') }
+  }
+  if (raw === undefined) throw new Error('Ugyldig JSON i forespørselen.')
+  if (Buffer.byteLength(raw) > maxBytes) throw tooLarge()
+  let body
+  try { body = JSON.parse(raw.toString('utf8')) } catch { throw new Error('Ugyldig JSON i forespørselen.') }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('Oppgi en kalenderlenke.')
+  return body
+}
+export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicText, fetchBytesImpl = fetchPublicBytes, providerRequestImpl = providerRequest, hostedPolicy } = {}) {
   const url = new URL(req.url, 'http://localhost')
   if (!url.pathname.startsWith('/api/import/')) return next()
   const controller = new AbortController()
-  res.on('close', () => { if (!res.writableEnded) controller.abort() })
-  const fetchText = (input,redirects,validate,options = {}) => fetchTextImpl(input,redirects,validate,{...options,signal:controller.signal})
-  fetchText.cacheKey = fetchTextImpl; fetchText.signal = controller.signal
-  const fetchBytes = (input,redirects,validate,options = {}) => fetchBytesImpl(input,redirects,validate,{...options,signal:controller.signal})
-  fetchBytes.cacheKey = fetchBytesImpl; fetchBytes.signal = controller.signal
-  const send = (status, data) => { if(res.destroyed || res.writableEnded)return; res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)) }
-  if (!/^(?:127\.0\.0\.1|localhost|[a-z0-9.-]+\.localhost|\[::1\])(?::\d+)?$/i.test(req.headers.host || '')) return send(403, { error: 'Importtjenesten er bare tilgjengelig på denne datamaskinen.' })
-  if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}` && req.headers.origin !== `https://${req.headers.host}`) return send(403, { error: 'Henting må startes fra Ajour.' })
-  if (/^cross-site$/i.test(req.headers['sec-fetch-site'] || '')) return send(403, { error: 'Importtjenesten kan ikke startes fra et annet nettsted.' })
-  ;(async () => {
+  let timer, fetches = 0, totalBytes = 0, finishDeadline, limitError
+  const deadline = new Promise(resolve => { finishDeadline = resolve })
+  res.on('close', () => { clearTimeout(timer); if (!res.writableEnded) { controller.abort(); finishDeadline() } })
+  const exhaustImport = message => {
+    limitError ||= Object.assign(new Error(message), { status: 'import-limit', httpStatus: 400 })
+    controller.abort(limitError)
+    // Adapters may catch individual source failures and return partial success.
+    // A request-wide limit is terminal even when an adapter catches the error.
+    send(limitError.httpStatus, { status: limitError.status, error: limitError.message })
+    finishDeadline()
+    throw limitError
+  }
+  const wrapFetch = impl => async (input, redirects, validate, options = {}) => {
+    if (limitError) throw limitError
+    controller.signal.throwIfAborted()
+    const guard = hostedPolicy ? hostedPolicy.sourceGuard(input, validate) : validate
+    guard?.(new URL(String(input).replace(/^webcal:/i, 'https:')))
+    if (hostedPolicy && ++fetches > 250) exhaustImport('Importen krever for mange kildeoppslag. Bruk et mindre kildeutvalg eller filimport.')
+    const data = await impl(input, redirects, guard, { ...options, signal: controller.signal })
+    controller.signal.throwIfAborted()
+    if (hostedPolicy && (totalBytes += Buffer.byteLength(data)) > 30_000_000) exhaustImport('Importen er for stor. Bruk et mindre kildeutvalg eller filimport.')
+    return data
+  }
+  const fetchText = wrapFetch(fetchTextImpl), fetchBytes = wrapFetch(fetchBytesImpl)
+  fetchText.cacheKey = hostedPolicy ? fetchText : fetchTextImpl; fetchText.signal = controller.signal
+  fetchBytes.cacheKey = hostedPolicy ? fetchBytes : fetchBytesImpl; fetchBytes.signal = controller.signal
+  const ntnuDetails = query => universityProviders.ntnu(query, { fetchText })
+  const send = (status, data, headers = {}) => {
+    clearTimeout(timer)
+    if (res.destroyed || res.writableEnded) return
+    let body = JSON.stringify(data)
+    if (hostedPolicy && Buffer.byteLength(body) > 3_000_000) { status = 502; body = JSON.stringify({ error: 'Kildeutvalget er for stort. Velg færre emner eller bruk filimport.' }) }
+    res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers }); res.end(body)
+  }
+  if (hostedPolicy) {
+    try { hostedPolicy.authorize(req) } catch (error) { return send(403, { error: error.message }) }
+    if (Buffer.byteLength(req.url) > 8192) return send(414, { error: 'Kildevalget er for langt.' })
+    timer = setTimeout(() => { controller.abort(); send(504, { status: 'timeout', error: 'Importen tok for lang tid. Prøv et mindre kildeutvalg, filimport eller manuell registrering.' }); finishDeadline() }, hostedPolicy.deadlineMs)
+  } else {
+    if (!/^(?:127\.0\.0\.1|localhost|[a-z0-9.-]+\.localhost|\[::1\])(?::\d+)?$/i.test(req.headers.host || '')) return send(403, { error: 'Importtjenesten er bare tilgjengelig på denne datamaskinen.' })
+    if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}` && req.headers.origin !== `https://${req.headers.host}`) return send(403, { error: 'Henting må startes fra Ajour.' })
+    if (/^cross-site$/i.test(req.headers['sec-fetch-site'] || '')) return send(403, { error: 'Importtjenesten kan ikke startes fra et annet nettsted.' })
+  }
+  const operation = (async () => {
     const provider = url.pathname.match(/^\/api\/import\/providers\/([a-z0-9-]+)\/(search|details|programs|program-cohorts|program-plan|teaching-search|teaching-calendar)$/)
-    if (provider && req.method === 'GET') return send(200, await providerRequestImpl(provider[1], provider[2], Object.fromEntries(url.searchParams), { fetchText, fetchBytes, ntnuDetails: universityProviders.ntnu }))
-    if (url.pathname === '/api/import/ntnu' && req.method === 'GET') return send(200, await universityProviders.ntnu(Object.fromEntries(url.searchParams)))
+    const method = url.pathname === '/api/import/calendar' ? 'POST' : provider || /^\/api\/import\/(?:ntnu|calendar-sources\/(?:hfy|gestalt|phs|ansgar|fih))$/.test(url.pathname) ? 'GET' : null
+    if (hostedPolicy && method && req.method !== method) return send(405, { error: 'HTTP-metoden støttes ikke for denne importen.' }, { Allow: method })
+    if (provider && req.method === 'GET') return send(200, await providerRequestImpl(provider[1], provider[2], Object.fromEntries(url.searchParams), { fetchText, fetchBytes, ntnuDetails }))
+    if (url.pathname === '/api/import/ntnu' && req.method === 'GET') return send(200, await ntnuDetails(Object.fromEntries(url.searchParams)))
     if (url.pathname === '/api/import/calendar-sources/hfy' && req.method === 'GET') return send(200, await hfyCalendarSources({ fetchText }))
     if (url.pathname === '/api/import/calendar-sources/gestalt' && req.method === 'GET') return send(200, await gestaltCalendarSources({ fetchText, fetchBytes }))
     if (url.pathname === '/api/import/calendar-sources/phs' && req.method === 'GET') return send(200, phsExamSources())
     if (url.pathname === '/api/import/calendar-sources/ansgar' && req.method === 'GET') return send(200, await ansgarCalendarSources({ fetchText }))
     if (url.pathname === '/api/import/calendar-sources/fih' && req.method === 'GET') return send(200, await fihCalendarSources({ fetchText, fetchBytes }))
     if (url.pathname === '/api/import/calendar' && req.method === 'POST') {
-      if (!req.headers['content-type']?.startsWith('application/json')) return send(415, { error: 'Ugyldig forespørsel.' })
-      let size = 0
-      const chunks = []
-      for await (const chunk of req) {
-        const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
-        size += bytes.length
-        if (size > 8192) throw new Error('Kalenderlenken er for lang.')
-        chunks.push(bytes)
-      }
-      const body = Buffer.concat(chunks).toString('utf8')
-      const { url: calendarUrl, sourceObjectId } = JSON.parse(body)
+      if (!/^application\/json(?:\s*;|\s*$)/i.test(req.headers['content-type'] || '')) return send(415, { error: 'Ugyldig forespørsel. Bruk JSON.' })
+      const { url: calendarUrl, sourceObjectId } = await readImportBody(req, { signal: controller.signal })
       if (typeof calendarUrl !== 'string') throw new Error('Oppgi en kalenderlenke.')
+      hostedPolicy?.calendarSource(calendarUrl)
       if (publicTpViewSelection(calendarUrl)) return send(200, await fetchPublicTpView(calendarUrl, { fetchText }))
       if (new URL(calendarUrl).origin === 'https://tp.educloud.no' && /\/app\/schedule\/?$/.test(new URL(calendarUrl).pathname)) throw new Error('TP-visningen må velge ett offentlig emne med semester og undervisningstermin. Bruk TP-eksport til ICS for andre visninger.')
       if (isPublicTpCalendarUrl(calendarUrl) && new URL(calendarUrl).searchParams.get('type') === 'course') return send(200, await fetchPublicTpCalendar(calendarUrl, { fetchText }))
@@ -161,5 +221,9 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
       return send(200, { calendar })
     }
     send(404, { error: 'Denne importkilden støttes ikke.' })
-  })().catch(error => send(400, { error: error.message || 'Kunne ikke hente informasjon. Prøv filimport eller manuell registrering.', ...(typeof error.status === 'string' ? { status: error.status } : {}) }))
+  })().catch(error => {
+    if (hostedPolicy) error = safeSourceError(error)
+    return send(hostedPolicy ? error.httpStatus || 400 : 400, { error: error.message || 'Kunne ikke hente informasjon. Prøv filimport eller manuell registrering.', ...(typeof error.status === 'string' ? { status: error.status } : {}) })
+  })
+  return hostedPolicy ? Promise.race([operation, deadline]) : operation
 }
