@@ -26,7 +26,7 @@ Sensorvedleggets sju sider er lest på nytt 2026-10-26, med samme SHA-256 som id
 
 ## Godkjent driftsutvidelse — 2026-10-29
 
-[Briefen](../../brief.md), [PRD-en](PRD.md) og [AD-16](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-16--browser-deployment-with-bounded-stateless-imports-2026-10-29) beskriver den uttrykkelig godkjente nettleserutgaven i ett gratis Vercel-prosjekt. Hele hovedflyten og lokale Node-/Docker-valg beholdes. Nettutgaven har nettleser-/adresselokal lagring og avgrensede importfunksjoner, uten konto, skydatabase eller synkronisering. Historiske lokalavgrensninger er datert; importløftet, krav-ID-ene og uutført SC-07/refleksjon endres ikke. [Ny verifikasjonsseksjon](../../studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) skiller klargjøring fra faktiske publiseringsresultater.
+[Briefen](../../brief.md), [PRD-en](PRD.md) og [AD-16](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-16--browser-deployment-with-bounded-stateless-imports-2026-10-29) beskriver den uttrykkelig godkjente nettleserutgaven i ett gratis Vercel-prosjekt. Hele hovedflyten og lokale Node-/Docker-valg beholdes. Nettutgaven har nettleser-/adresselokal lagring og avgrensede importfunksjoner, uten konto, skydatabase eller synkronisering. Historiske lokalavgrensninger er datert; importløftet, krav-ID-ene og uutført SC-07/refleksjon endres ikke. [Ny verifikasjonsseksjon](../../studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) dokumenterer bestått kontroll av [produksjonsadressen](https://ajour-sooty.vercel.app), adskilt fra tidligere klargjøring og lokale prøver.
 
 ## Vurderingsgrunnlag kontrollert 2026-10-16
 
