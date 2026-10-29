@@ -1,0 +1,18 @@
+# CLI uploads from the repository root contain only the build/runtime sources.
+/*
+!/studieplanlegger
+/studieplanlegger/*
+!/studieplanlegger/package.json
+!/studieplanlegger/package-lock.json
+!/studieplanlegger/index.html
+!/studieplanlegger/vite.config.js
+!/studieplanlegger/vercel.json
+!/studieplanlegger/api
+!/studieplanlegger/server
+!/studieplanlegger/src
+!/studieplanlegger/public
+**/.env*
+**/.memlog.md*
+**/*.sqlite*
+**/*.db*
+**/*.log

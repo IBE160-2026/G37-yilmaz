@@ -11,6 +11,7 @@ import { khioDetails } from './khio-programs.js'
 import { searchNmh, nmhDetails } from './nmh-programs.js'
 import { phsDetails } from './phs-programs.js'
 import { searchSamas, samasDetails } from './samas-programs.js'
+import { safeSourceError } from './source-error.js'
 export async function providerRequest(institution, action, query, { fetchText, fetchBytes, ntnuDetails }) {
   const provider = institutionById(institution)
   if (!provider) return { status: 'not-found', error: 'Institusjonen finnes ikke i den lokale NOKUT-oversikten.' }
@@ -41,6 +42,7 @@ export async function providerRequest(institution, action, query, { fetchText, f
     if (action === 'details' && institution === 'uit') return await uitDetails(query, fetchText)
     return { status: 'not-supported', error: 'Detaljert emnekatalog er ikke verifisert. Behold det valgte TimeEdit-emnet og fyll inn manglende emneinformasjon manuelt.' }
   } catch (error) {
+    error = safeSourceError(error)
     return { status: error.status || (/HTTP (404|410)/.test(error.message) ? 'not-found' : /studieår/.test(error.message) ? 'semester-unavailable' : /Fant ikke emnet/.test(error.message) ? 'not-found' : 'transport-error'), error: error.message }
   }
 }

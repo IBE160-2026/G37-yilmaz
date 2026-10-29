@@ -2,7 +2,7 @@
 title: "PRD: Ajour"
 status: final
 created: 2026-10-16
-updated: 2026-10-26
+updated: 2026-10-29
 ---
 
 # PRD: avgrenset Ajour-leveranse
@@ -11,7 +11,7 @@ updated: 2026-10-26
 
 ## Hva vi skal lage og hvilket problem det skal løse
 
-Ajour er en lokal studieplanlegger som knytter oppgaver til tilgjengelig tid, foreslår neste handling og lar studenten justere planen etter faktisk arbeid. Emneinformasjon, undervisning, oppgavetekster og egne notater ligger ofte hver for seg. En kalender eller fristliste alene svarer ikke nødvendigvis på hva studenten kan gjøre nå når tiden er knapp eller et anslag har endret seg. Dette er prosjektets problemforståelse, ikke et resultat fra studentintervjuer.
+Ajour er en studieplanlegger med lokale data som knytter oppgaver til tilgjengelig tid, foreslår neste handling og lar studenten justere planen etter faktisk arbeid. Emneinformasjon, undervisning, oppgavetekster og egne notater ligger ofte hver for seg. En kalender eller fristliste alene svarer ikke nødvendigvis på hva studenten kan gjøre nå når tiden er knapp eller et anslag har endret seg. Dette er prosjektets problemforståelse, ikke et resultat fra studentintervjuer.
 
 Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**. Bare oppgavetittel er obligatorisk. Studenten kan legge til emne, frist, steg og arbeidsanslag senere, kontrollere en foreslått økt, registrere faktisk arbeid og velge om planen skal endres. Forslag bygger på lokale regler og opplysninger studenten har registrert. Ukjent tid forblir ukjent, og ingen planendring lagres uten godkjenning.
 
@@ -32,6 +32,10 @@ Importløftet er fortsatt **«HiMolde IT 2026–27 og NTNU emneutvalg høst 2026
 - [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) avgrenser lokale kontrakttester, historisk offentlig transport og teknisk UI-kontroll. Hele HiMolde-programflytens gjentakelse er fortsatt ikke verifisert. Eksisterende adaptere utvider ikke leveranseløftet.
 
 ## Krav og akseptansekriterier
+
+**Godkjent driftsutvidelse 2026-10-29:** Den komplette nettleserflyten kan publiseres i ett gratis Vercel-prosjekt uten konto, skydatabase eller delte studentdata. Lokal Node-/Docker-drift beholdes. R-01–R-06/R-08 gjelder også nettleserutgaven: emner, oppgaver, økter, utfall, justering/Angre og sikkerhetskopier skal beholde identiteter og relasjoner ved omlasting og gjenåpning på samme adresse. R-06s lokale datavolumkrav gjelder fortsatt Node/Docker; i nettutgaven er nettleserprofil og nøyaktig nettadresse lagringsgrensen. En ny publisering på samme adresse skal bevare gyldige data. Uavhengige profiler og adresser skal være adskilt. Ugyldig eller mislykket lagring/gjenoppretting skal beholde lagrede data og åpne utkast.
+
+Nettutgaven skal forklare at sletting av nettleserdata kan slette planen, at localhost/forhåndsvisning/produksjon har separate data, og at flytting skjer med sikkerhetskopi uten enhetssynkronisering. Offentlig import bruker bare gjenkjente kildeintegrasjoner og studentens kontroll før lagring; vilkårlige kalenderadresser avvises med veiledning til filimport. Importløftet utvides ikke. Faktisk forhåndsvisning skal kontrolleres før integrering, og publisert adresse, commit og produksjonskontroll skal dokumenteres etterpå. [Datert verifikasjon](../../studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) skiller tekniske prøver, live-transport og visuell inspeksjon fra SC-07, som fortsatt ikke er gjennomført.
 
 ID-ene er stabile. [Stories](EPICS-CURRENT.md) utdyper Given/When/Then, og [sporbarheten](TRACEABILITY.md) kobler hvert krav til kode, test/metode og datert evidens.
 
@@ -95,7 +99,7 @@ Ingen intervjuer, studentundersøkelser eller observerte brukerresultater inngå
 
 ## Framtidige ideer utenfor V1
 
-Nasjonal dekning er en **visjon**, ikke et uoppfylt V1-krav. Offentlig hosting, kontoer, betaling, skysynk, generativ KI i appen, automatisk kontakt, oppmøtekontroll og automatisk innlevering/bekreftelse er utenfor V1. Eventuell framtidig research eller brainstorming om målgruppens ulike behov og flere kilder må vurderes separat. Det bestilles ingen nye funksjoner eller ekstern brukerrekruttering i denne revisjonen.
+Nasjonal dekning er en **visjon**, ikke et uoppfylt V1-krav. Kontoer, betaling, skysynk, generativ KI i appen, automatisk kontakt, oppmøtekontroll og automatisk innlevering/bekreftelse er utenfor V1. Offentlig hosting var utenfor før 2026-10-29; den daterte driftsutvidelsen tillater bare ett gratis Vercel-prosjekt med nettleserlokale studentdata. Eventuell framtidig research eller brainstorming om målgruppens ulike behov og flere kilder må vurderes separat. Ekstern brukerrekruttering bestilles ikke.
 
 ## Revisjonshistorikk og dokumentgrenser
 
@@ -105,5 +109,6 @@ Nasjonal dekning er en **visjon**, ikke et uoppfylt V1-krav. Offentlig hosting, 
 | 2026-10-18–24 | Avgrensede import-/kalenderrettinger presiserte eksisterende krav. Aksepteksemplene er bevart i stories; faktiske kjøringer og begrensninger i VERIFICATION. |
 | 2026-10-25–26 | Ajour-grensesnitt, personvernretting, emnefarger og tema innen samme V1. Historiske resultater beholdes med dato. |
 | 2026-10-26, denne revisjonen | Produkt/problem/målgruppe, research og åpne spørsmål gjort lettere å finne; egenutprøving innført etter prosjekteierens beslutning; korrigert uriktige dokumentpåstander. Ingen nye produktfunksjoner. |
+| 2026-10-29 | Uttrykkelig godkjent Vercel-nettleserdrift med komplett hovedflyt, lokale data og avgrenset import. Eldre lokalavgrensning beholdes som historikk; SC-07 og personlig refleksjon er fortsatt uutført. |
 
 Implementasjonsvalg og kontrakter hører til arkitekturen. Detaljerte kjøreresultater hører til verifikasjonen. Denne PRD-en beskriver produktbehov, krav og grensen for hva dokumentasjonen kan underbygge.
