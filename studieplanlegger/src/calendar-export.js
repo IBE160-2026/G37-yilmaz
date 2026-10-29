@@ -137,12 +137,15 @@ export function calendarExportOmissions(state, options = {}) {
 }
 
 export function generateCalendarIcs(state, options = {}) {
+  // With METHOD:PUBLISH, RFC 5545 §3.8.7.2 dates this exported object,
+  // not the source event. Read the clock once so every component agrees.
+  const stamp = `DTSTAMP:${utcStamp((options.now || Date.now)())}`
   const lines = ['BEGIN:VCALENDAR', 'PRODID:-//Ajour//Lokal eksport//NO', 'VERSION:2.0', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Ajour']
   for (const item of calendarExportItems(state, options)) {
     const summary = [item.course ? `[${item.course}]` : '', item.kind === 'deadline' ? 'Frist:' : '', item.title].filter(Boolean).join(' ')
-    if (item.kind === 'deadline') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.due.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.due)}`, `SUMMARY:${escapeText(summary)}`, 'TRANSP:TRANSPARENT', 'END:VEVENT')
-    else if (item.kind === 'personal') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.endDate ? [`DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}`] : item.end !== undefined && !item.allDay ? [`DTEND:${utcStamp(item.end)}`] : []), `SUMMARY:${escapeText(`Egen aktivitet: ${item.title}`)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, 'END:VEVENT')
-    else lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, 'DTSTAMP:19700101T000000Z', item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.point ? [] : [item.allDay ? `DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}` : `DTEND:${utcStamp(item.end)}`]), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, `SUMMARY:${escapeText(summary)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), 'END:VEVENT')
+    if (item.kind === 'deadline') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, stamp, item.allDay ? `DTSTART;VALUE=DATE:${item.due.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.due)}`, `SUMMARY:${escapeText(summary)}`, 'TRANSP:TRANSPARENT', 'END:VEVENT')
+    else if (item.kind === 'personal') lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, stamp, item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.endDate ? [`DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}`] : item.end !== undefined && !item.allDay ? [`DTEND:${utcStamp(item.end)}`] : []), `SUMMARY:${escapeText(`Egen aktivitet: ${item.title}`)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, 'END:VEVENT')
+    else lines.push('BEGIN:VEVENT', `UID:${calendarUid(item.kind, item.id)}`, stamp, item.allDay ? `DTSTART;VALUE=DATE:${item.date.replaceAll('-', '')}` : `DTSTART:${utcStamp(item.start)}`, ...(item.point ? [] : [item.allDay ? `DTEND;VALUE=DATE:${item.endDate.replaceAll('-', '')}` : `DTEND:${utcStamp(item.end)}`]), `TRANSP:${item.transparent ? 'TRANSPARENT' : 'OPAQUE'}`, `SUMMARY:${escapeText(summary)}`, ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []), 'END:VEVENT')
   }
   lines.push('END:VCALENDAR')
   return lines.map(foldIcsLine).join('\r\n') + '\r\n'

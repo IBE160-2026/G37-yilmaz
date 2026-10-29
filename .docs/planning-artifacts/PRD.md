@@ -7,6 +7,8 @@ updated: 2026-10-29
 
 # PRD: avgrenset Ajour-leveranse
 
+**Oppfølging 2026-10-29:** [Rapporterte egne funn](USER-TRIAL-PLAN.md#rapporterte-funn-og-omprøving--2026-10-29) gjør R-07/SC-07 påbegynt med avvik; omprøving gjenstår. Den separate KI-rapporten er ikke prosjekteierens resultat. Tidligere daterte statusutsagn nedenfor beskriver historikk; verken samlet egenutprøving, Outlook-prøve eller refleksjon er ferdig.
+
 **Rekonstruert 2026-10-16, revidert 2026-10-26.** Dette er den eksisterende PRD-en, oppdatert etter [lærerens tilbakemelding](../../tilbakemelding-product-brief.md) og PRD-forberedelsene gjengitt i prosjekteierens oppdrag. Den beskriver allerede utviklet funksjonalitet og planlagt egenutprøving; den er ikke en opprinnelig plan for koden. [Briefen](../../brief.md) eier produktløftet, og [planindeksen](README.md) dokumenterer proveniens.
 
 ## Hva vi skal lage og hvilket problem det skal løse
@@ -86,7 +88,7 @@ Ingen intervjuer, studentundersøkelser eller observerte brukerresultater inngå
 | --- | --- |
 | Implementert og teknisk kontrollert | R-01–R-06/R-08 og Q-01–Q-03 har avgrenset evidens i [sporbarheten](TRACEABILITY.md) og [siste dokumenterte kandidatkontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26). [Temarunden](../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) har faktisk Node-/Docker-kontroll; eldre Docker-blokkeringer er historiske. Ingen tidligere kjøring blir ny ved denne dokumentrevisjonen. |
 | Antakelser om behov og nytte | Designscenarioet, ønsket om mindre planleggingsarbeid og nytten av ett neste forslag er ikke validert med brukerundersøkelser. Tekniske tester beviser ikke læring eller generell studentnytte. |
-| Planlagt egenutprøving | SC-07/R-07/S-07: **planlagt / ikke gjennomført**. Bare prosjekteieren utfører de sju manuelle scenariene i [prøveplanen](USER-TRIAL-PLAN.md). Observasjoner, feil og eventuell omprøving fylles først inn etter faktisk utførelse. |
+| Egenutprøving | SC-07/R-07/S-07: **2026-10-29 påbegynt med rapporterte avvik; omprøving gjenstår**. Bare prosjekteieren utfører de sju manuelle scenariene i [prøveplanen](USER-TRIAL-PLAN.md). Rapporterte funn beholdes; resterende observasjoner og omprøving fylles inn etter faktisk utførelse. |
 
 **Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. Dette erstatter den tidligere planlagte prøven med en ny student; den tidligere prøven ble ikke gjennomført eller bestått. Samme SC-07/R-07/S-07 beholdes. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner. Personlig refleksjon må fortsatt bygge på prosjekteierens egne erfaringer.
 

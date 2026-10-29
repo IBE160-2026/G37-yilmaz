@@ -1,6 +1,20 @@
 # Plan for egenutprøving av Ajour
 
-**Opprettet 2026-10-16; revidert 2026-10-26. Status: planlagt / ikke gjennomført.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser.
+**Opprettet 2026-10-16; revidert 2026-10-29. Status: påbegynt med rapporterte avvik; omprøving gjenstår.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser.
+
+## Rapporterte funn og omprøving — 2026-10-29
+
+Prosjekteieren har sendt skjermbilder og egne funn fra Ajour. Opplysningene nedenfor er beholdt som **rapporterte observasjoner**, uten å gjøre tekniske kontroller eller en vedlagt KI-rapport til prosjekteierens resultater. Eksakt testcommit, nettleserprofil og full gjennomføring av de sju opprinnelige scenariene er ikke oppgitt. De opprinnelige observasjonsfeltene nedenfor fylles derfor ikke med antatte beståttresultater.
+
+| Grunnlag | Rapportert observasjon | Hva prosjekteieren skal prøve igjen |
+| --- | --- | --- |
+| Egne skjermbilder / scenario 3 og 6 | Store radioknapper langt fra etikettene i «Hva skjedde?», og fokusellipse over dialogen. Planleggingsdialogen er også berørt. | Åpne begge dialogene, klikk etikettene og bruk Tab/piltaster i lyst/mørkt tema, smalt/bredt vindu og større tekst. Kontroller synlig, avgrenset fokus og tilgjengelige Lagre/Avbryt-knapper. |
+| Egne skjermbilder / scenario 1–2 | «Lesing» står i «Venter på». Planforslaget har null økter, uklar blokkering og en aktivitet med ukjent tid/varighet. | Kontroller forklaringen og rett bare egne syntetiske prøveopplysninger uttrykkelig: bruk arbeidssteg for eget arbeid; behold «Venter på» for en reell hindring. Prøv både «Tilpass selv» og «Detaljert tilgjengelighet», lagre ledig tid før fristen, last på nytt og prøv en startklar oppgave. Ventende arbeid skal fortsatt ikke planlegges. |
+| Egne importfunn | UiT UIT-279541/H-2025 ga «PDF-kilden kunne ikke leses lokalt». BI lagret fire emner uten undervisning. NTNU HMS0004/AAR4619/AAR4711 høst 2026 ga tomme resultater. Varsler gjentas og campus er motstridende. | Gjenta disse tre kildevalgene og kontroller kildebegrensning før henting, tydelig skille mellom lagrede emner og undervisning, kilde-/campusforklaring og bevarte tidligere data. Tom offentlig kalender er ikke bevis for ingen undervisning. |
+| Rapportert kalenderfil | Prosjekteieren oppgir 24 hendelser, alle med epoch-DTSTAMP, og METHOD:PUBLISH. | Last ned en ny kalenderkopi, gjenta eksporten og endre én syntetisk hendelse før ny eksport. Kontroller faktisk import i Outlook separat, inkludert tidssoner, heldag, duplikater og oppdateringsatferd. Filanalyse er ikke Outlook-prøve. |
+| Separat KI-rapport / scenario 2, 4 og 6 | KI rapporterer en manglende kommende økt, motstridende «Arbeid gjenstår å planlegge»/«Planlagt» og manglende synlig Angre ved direkte øktredigering. Dette er **ikke prosjekteierens egne observasjoner**. | Sammenlign en framtidig økt i oversikt/kalender med gjenstående og reservert tid. Flytt økten direkte og prøv umiddelbar Angre; last på nytt og kontroller identitet/tid. |
+
+Nye tekniske resultater føres i [verifikasjonen](../../studieplanlegger/VERIFICATION.md). Ingen rad over betyr at omprøvingen er gjennomført. Samlet egenutprøving, Outlook-prøve og personlig refleksjon er fortsatt ikke ferdige.
 
 **Beslutning 2026-10-26:** Prosjekteieren gjennomfører egenutprøvingen selv. Ingen andre testpersoner skal rekrutteres. Dette erstatter den tidligere planlagte prøven med en ny student; den ble ikke gjennomført eller bestått. Produktets målgruppe er uendret. Prøven dokumenterer bare prosjekteierens bruk og observasjoner, ikke ukjente brukeres forståelse eller generell studentnytte.
 
@@ -44,12 +58,12 @@ Utfør i rekkefølge. «—» betyr ikke registrert, aldri bestått. Ved avvik n
 
 For hvert scenario registreres senere **ikke forsøkt**, **bestått**, **avvik** eller **avbrutt**, med konkret observasjon. Et scenario er bestått når alle forventede resultater er observert. Hele SC-07 er oppnådd for denne prøven først når alle sju er utført og bestått, eventuelt etter dokumentert omprøving. Feil og avbrudd er gyldige funn og skal beholdes. En utført prøve med avvik er ikke en bestått prøve.
 
-Inntil prosjekteieren faktisk har gjennomført prøven og oppgitt resultatene, beholdes samlet status **planlagt / ikke gjennomført** i brief, PRD, stories, sporbarhet, verifikasjon og åpne punkter. Resultatet føres med reell dato, versjon og begrensning; det gir ingen representativ vurdering av studentgruppen.
+Prosjekteierens rapporterte avvik 2026-10-29 viser at egenutprøvingen er påbegynt. Samlet status er **påbegynt med avvik; omprøving gjenstår**, uten å erklære de sju scenariene bestått. Nye resultater føres med reell dato, versjon og begrensning; de gir ingen representativ vurdering av studentgruppen. Eldre daterte statusutsagn beskriver tilstanden før denne rapporten.
 
 | Scenario | Status nå |
 | --- | --- |
-| 1–7 | Planlagt / ikke gjennomført |
-| Samlet resultat | Planlagt / ikke gjennomført |
+| 1–7 | Rapporterte avvik ovenfor; fullstendige resultater per scenario og omprøving mangler |
+| Samlet resultat | Påbegynt med avvik; ikke ferdig eller bestått |
 
 Etter prøven kan prosjekteieren med egne ord beskrive hva som var lett eller uklart, og om vedlikehold av oppgaver og anslag var nyttig sammenlignet med egen kalender, Canvas eller oppgaveliste. Dette er åpne refleksjonsspørsmål, ikke forhåndsskrevne svar eller påstand om bedre læring. Personlige rånotater forblir lokale; et kort, anonymisert sammendrag kan senere knyttes til SC-07.
 

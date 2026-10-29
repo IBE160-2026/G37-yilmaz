@@ -81,9 +81,11 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .danger-button { color: var(--danger); background: var(--surface); }
 .danger-button:hover:not(:disabled) { color: var(--danger); background: var(--danger-wash); }
 :is(button, a, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; box-shadow: 0 0 0 2px var(--surface); }
-input, select, textarea { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); color: var(--ink); font-size: .9375rem; font-weight: 400; }
+input:where(:not([type='radio']):not([type='checkbox'])), select, textarea { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); color: var(--ink); font-size: .9375rem; font-weight: 400; }
 textarea { resize: vertical; min-height: 90px; }
-input[type='checkbox'] { width: 18px; min-height: 18px; accent-color: var(--accent); flex: 0 0 18px; }
+/* Native choice controls keep a square box; their labels provide the hit area. */
+input:is([type='radio'], [type='checkbox']) { width: 20px; height: 20px; min-width: 20px; min-height: 20px; padding: 0; margin: 0; accent-color: var(--accent); flex: 0 0 20px; }
+input[type='radio'] { border-radius: 50%; }
 .program-import { width: min(100%, 1000px); margin-inline: auto; text-align: left; }
 .program-import input:is([type='radio'], [type='checkbox']) { width: 18px; height: 18px; min-width: 18px; min-height: 18px; padding: 0; margin: 2px 0 0; border: 0; accent-color: var(--accent); flex: 0 0 18px; }
 .program-import input[type='radio'] { border-radius: 50%; }
@@ -132,7 +134,9 @@ body:is([data-design-view='subjects'], [data-design-view='capacity']) .workspace
 .planning-rules summary { cursor: pointer; min-height: 44px; padding: 12px 0; }
 .connected-form, .replanning-preview, .personalization-settings { display: grid; gap: 14px; }
 .connected-form label, .replan-row label, .task-optional-details label { display: grid; gap: 6px; min-width: 0; }
-.connected-form input, .connected-form select, .replan-row input, .task-optional-details input, .task-optional-details select { max-width: 100%; width: 100%; min-width: 0; }
+.connected-form input:where(:not([type='radio']):not([type='checkbox'])), .connected-form select, .replan-row input:where(:not([type='radio']):not([type='checkbox'])), .task-optional-details input:where(:not([type='radio']):not([type='checkbox'])), .task-optional-details select { max-width: 100%; width: 100%; min-width: 0; }
+.connected-form .choice-label { grid-template-columns: 20px minmax(0, 1fr); align-items: center; gap: 10px; min-height: 44px; padding-block: 6px; cursor: pointer; }
+.connected-form fieldset:has(.choice-label) { min-width: 0; border: 1px solid var(--line); border-radius: 12px; }
 .check-label { display: flex !important; align-items: flex-start; gap: 10px; }
 .check-label input, .personalization-settings input[type=checkbox] { width: 20px; height: 20px; flex: 0 0 20px; }
 .task-optional-details, .personal-estimate { margin: 14px 0; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }

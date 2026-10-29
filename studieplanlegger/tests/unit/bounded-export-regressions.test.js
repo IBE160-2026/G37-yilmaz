@@ -9,13 +9,14 @@ describe('bounded calendar export regressions', () => {
   it('exports the actual taskless review topic with escaping, stable UID and Oslo winter time', () => {
     const title = 'Ærlig, tema; med \\ tegn\nog ny linje ' + 'Ø'.repeat(70)
     const state = { tasks: [], topics: [{ id: 'topic', title }], sessions: [session('review', { reviewTopicId: 'topic' })] }
-    const before = structuredClone(state), source = generateCalendarIcs(state), [event] = events(source)
+    const options = { now: () => Date.parse('2026-10-29T17:30:00Z') }
+    const before = structuredClone(state), source = generateCalendarIcs(state, options), [event] = events(source)
     expect(event.getFirstPropertyValue('summary')).toBe(`Repetisjon: ${title}`)
     expect(event.getFirstPropertyValue('uid')).toBe(calendarUid('session', 'review'))
     expect(event.getFirstPropertyValue('dtstart').toString()).toBe('2026-10-25T09:00:00Z')
     expect(event.getFirstPropertyValue('dtend').toString()).toBe('2026-10-25T09:30:00Z')
     expect(source.split('\r\n').every(line => Buffer.byteLength(line) <= 75)).toBe(true)
-    expect(generateCalendarIcs(state)).toBe(source)
+    expect(generateCalendarIcs(state, options)).toBe(source)
     expect(state).toEqual(before)
   })
 

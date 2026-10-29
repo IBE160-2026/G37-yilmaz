@@ -2,8 +2,8 @@ import { institutions, institutionById } from './institutions.js'
 import { emptyPlanner, mergeCourseOnly, mergeImport, resolveImportedCourse, validPlanner, semesterLabel, osloYear, sourceHref } from './planner.js'
 import { parseCalendar } from './calendar-import.js'
 import { disappearancePolicy, sourceCoverage, UNKNOWN_COVERAGE_WARNING } from './source-coverage.js'
-import { exactTeachingObject, isProgrammeAdditionInScope, programmeAdditionScope, suggestedCommonSeries, teachingStatusLabel, validateProgrammeSelection } from './program-import-model.js'
-import { checkedTeaching, teachingOutcome, teachingCheckText } from './teaching-check.js'
+import { exactTeachingObject, isProgrammeAdditionInScope, programmeAdditionScope, suggestedCommonSeries, teachingStatusLabel, validateProgrammeSelection, courseCampusLabel } from './program-import-model.js'
+import { checkedTeaching, teachingOutcome, teachingCheckText, teachingCalendarResult } from './teaching-check.js'
 import { nameFirstLabel, sortByVisibleName } from './name-sort.js'
 
 const PROGRAM_DRAFT_KEY='studieplanlegger:program-import-draft:v1'
@@ -85,11 +85,13 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
   const selectionSnapshot = ()=>JSON.stringify([institution.value,q.value,year.value,programSelect.value,cohortSelect.value,studentCohort.value,modelSelect.value,periodSelect.value,calendarSelect.value,campusSelect.value,clarifiedYear.value,clarifiedStudySemester.value,clarifiedSemester.value,[...selectedCourseIds()].sort()])
   const teachingQuery = candidate=>candidate.teachingInput?.value ?? candidate.teachingQuery ?? (institution.value==='khio'?candidate.course.programBinding?.programCode:candidate.course.code) ?? ''
   const teachingSnapshot = candidate=>JSON.stringify([institution.value,candidate.course.year,candidate.course.semester,candidate.calendarUrl,teachingQuery(candidate),candidate.teachingChoice?.value ?? null,candidate.teachingChoice?.value === '' ? null : candidate.teachingResults?.[Number(candidate.teachingChoice?.value)]?.sourceObjectId ?? null,candidate.teachingObject?.sourceObjectId ?? null])
-  const status = text=>{message.textContent=text;feedback(text)}
+  const supportsTeaching = ()=>institutionById(institution.value)?.capabilities.publicTimetable !== 'not-verified'
+  const unsupportedTeaching = 'Automatisk undervisningshenting støttes ikke for dette lærestedet. Du kan lagre emnene og importere undervisning fra fil eller kalenderlenke, eller registrere den manuelt.'
+  const status = text=>{message.textContent=text;feedback('')}
   function draftRecoveryUnavailable() {
     clearDraftStorage()
     const text='Utkastet kunne ikke lagres for gjenoppretting etter omlasting. Skjemaet du arbeider i er beholdt i denne visningen.'
-    message.textContent=text;feedback(text,true)
+    message.textContent=text;feedback('')
   }
   function writeDraft() {
     let raw
@@ -118,7 +120,7 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     const focusKey=section.contains(document.activeElement)?document.activeElement.dataset.importKey:null
     busy=true;controller=new AbortController();const operation=++version;setBusy()
     activeLocalStatus=localStatus;if(localStatus){actionStatus.hidden=false;actionStatus.classList.remove('is-error');actionStatus.textContent=startText}
-    try {await work(operation)} catch(error) {if(operation===version && error.name!=='AbortError') {const text=`${error.message} Lagrede data er beholdt.`;if(localStatus){feedback('');actionStatus.textContent=text;actionStatus.classList.add('is-error');actionStatus.focus()}else {message.textContent=text;feedback(text,true)}}}
+    try {await work(operation)} catch(error) {if(operation===version && error.name!=='AbortError') {const text=`${error.message} Lagrede data er beholdt.`;feedback('');if(localStatus){actionStatus.textContent=text;actionStatus.classList.add('is-error');actionStatus.focus()}else {message.textContent=text;const source=selectedCohort()?.sourceUrl;if(source&&/\.pdf(?:[?#]|$)/i.test(source))message.append(document.createTextNode(' '),link(source,'Åpne valgt PDF-kilde'));message.tabIndex=-1;message.focus()}}}
     finally {if(operation===version){busy=false;activeLocalStatus=false;controller=null;setBusy();if(pendingFocus){pendingFocus.focus();pendingFocus=null}else if(actionStatus.classList.contains('is-error'))actionStatus.focus();else if(focusKey){const restored=previewHost.querySelector(`[data-import-key="${CSS.escape(focusKey)}"]`);const continuation=focusKey==='retry-failed'?previewHost.querySelector('[data-import-key="confirm-program"]'):null;(restored||continuation)?.focus()}onSettled()}}
   }
   function stopPending(){version++;controller?.abort();controller=null;busy=false;activeLocalStatus=false;setBusy()}
@@ -128,6 +130,7 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
   function showChoices(){controls.hidden=false;results.hidden=false;choices.hidden=false;sources.hidden=false}
   function coverage() {
     sources.replaceChildren();const item=institutionById(institution.value);if(!item)return
+    if(!supportsTeaching())sources.append(el('p',unsupportedTeaching))
     const details=el('details');details.append(el('summary','Kilder og importdekning for institusjonen'))
     if(item.datatypes) for(const evidence of Object.values(item.datatypes)) {const line=el('p',`${evidence.label}: ${evidence.status}. ${evidence.scope} Kontrollert ${evidence.checkedAt || 'ikke datert'}.`);if(evidence.url)line.append(document.createTextNode(' '),link(evidence.url,'Kilde'));details.append(line)}
     else details.append(el('p','Se IMPORT-COVERAGE.md for daterte datatypebegrensninger. Institusjonslisten er ikke bevis på integrasjon.'))
@@ -207,7 +210,7 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     for(const rows of visibleGroups.values())for(const course of sortByVisibleName(rows)){const check=el('input');check.type='checkbox';check.dataset.courseId=course.id;check.checked=selectedIds.has(course.id)||requiredIds.has(course.id)||(course.choice==='O'&&!course.requiresSemesterChoice);check.onchange=()=>{clearPreview();updatePreviewLabel()};const kind=course.studentAdded?(course.manualUnverified?'Uverifisert, manuelt lagt til':'Lagt til fra emnesøk – ikke programbevis'):requiredIds.has(course.id)?'Påkrevd i kilden':course.choice==='O'?'Obligatorisk':course.choice==='V'?'Valgemne':'Type ikke entydig – velg selv';courseChoices.append(field(`${nameFirstLabel(course)} · ${kind}${course.requiresSemesterChoice?' · Bekreft plassering i valgt semester':''} · ${course.credits??'Ukjente'} studiepoeng`,check));if(course.courseGroup)courseChoices.append(el('p',course.courseGroup));if(course.notes){const excerpt=el('details');excerpt.className='programme-source-excerpt';excerpt.append(el('summary','Vis kilde'),el('p',course.notes));courseChoices.append(excerpt)}}
     updatePreviewLabel()
   }
-  function updatePreviewLabel(){const count=selectedCourseIds().size;previewButton.textContent=count?`Forbered og kontroller undervisning for ${count} emner`:'Velg emner';previewButton.setAttribute('aria-label','Forhåndsvis valgte emner')}
+  function updatePreviewLabel(){const count=selectedCourseIds().size;previewButton.textContent=count?(supportsTeaching()?`Forbered og kontroller undervisning for ${count} emner`:`Forhåndsvis ${count} emner uten undervisningshenting`):'Velg emner';previewButton.setAttribute('aria-label','Forhåndsvis valgte emner')}
   async function prepare(operation) {
     const publishedPeriod=selectedPeriod(),model=selectedModel();if(!publishedPeriod||!campusSelect.value)throw new Error('Velg studiemodell, studiesemester, kalendersemester og campus eller ukjent campus.')
     const studySemesterFromStudent=Boolean(publishedPeriod.requiresStudentStudySemester)
@@ -250,7 +253,8 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     const saved=state().sources.find(source=>source.courseId===candidate.course.id&&source.kind==='url'&&source.url===data.calendarUrl)
     const existing=saved||(candidate.source?.kind==='url'&&candidate.source.url===data.calendarUrl?candidate.source:null)
     const allGroups=[...new Set(parsed.events.map(event=>event.group))],suggested=suggestedCommonSeries(parsed.events,data),known=existing?.allGroups||suggested,now=new Date().toISOString()
-    candidate.course=checkedTeaching(candidate.course,parsed.events.length?'success':'empty',{eventCount:Number.isSafeInteger(data.eventCount)?data.eventCount:parsed.events.length,source:data.sourceKind||`${institution.value}-public-teaching`})
+    const outcome=teachingCalendarResult(parsed)
+    candidate.course=checkedTeaching(candidate.course,outcome.status,{eventCount:parsed.events.length,detail:outcome.detail,source:data.sourceKind||`${institution.value}-public-teaching`})
     candidate.parsed=parsed
     candidate.source={...existing,id:existing?.id||`program-timeedit:${candidate.course.id}:${selected.sourceObjectId}`,kind:'url',name:`${candidate.course.university} · ${selected.label}`,url:data.calendarUrl,courseId:candidate.course.id,groups:[...(existing?.groups||suggested)],excludedKeys:[...(existing?.excludedKeys||[])],allGroups:[...new Set([...(existing?.allGroups||[]),...allGroups])],commonGroups:[...(data.commonGroups||existing?.commonGroups||[])],pendingGroups:[...new Set([...(existing?.pendingGroups||[]),...allGroups.filter(group=>!known.includes(group))])],lastAttempt:now,lastUpdated:now,lastSuccess:now,identityMode:parsed.identityMode,autoRefresh:true}
     candidate.teachingStatus=parsed.events.length?'selection-required':'empty'
@@ -259,13 +263,15 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     const current=preview;if(!current)return
     const pending=current.candidates.filter(item=>!item.parsed&&(!failedOnly||['failed','access-required'].includes(item.teachingStatus)))
     await Promise.all(pending.map(async candidate=>{
+      if(!candidate.calendarUrl&&!supportsTeaching()){candidate.teachingStatus='unsupported';candidate.teachingError='';return}
       if(failedOnly)current.warnings=current.warnings.filter(warning=>!warning.startsWith(`${candidate.course.code}: undervisning kunne ikke hentes (`))
       const snapshot=teachingSnapshot(candidate)
       candidate.teachingStatus='searching';candidate.teachingError=''
       try {
         if(candidate.calendarUrl){const data=await boundedApi('/api/import/calendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:candidate.calendarUrl})});if(operation!==version||preview!==current||snapshot!==teachingSnapshot(candidate)||current.selection!==selectionSnapshot())return
           const parsed=parseCalendar(data.calendar,{courseId:candidate.course.id,semester:candidate.course.semester,year:candidate.course.year}),existing=state().sources.find(s=>s.courseId===candidate.course.id&&s.kind==='url'&&s.url===candidate.calendarUrl),allGroups=[...new Set(parsed.events.map(event=>event.group))],suggested=suggestedCommonSeries(parsed.events,data),known=existing?.allGroups||suggested,now=new Date().toISOString()
-          candidate.course=checkedTeaching(candidate.course,parsed.events.length?'success':'empty',{eventCount:Number.isSafeInteger(data.eventCount)?data.eventCount:parsed.events.length,source:data.sourceKind||'calendar'})
+          const outcome=teachingCalendarResult(parsed)
+          candidate.course=checkedTeaching(candidate.course,outcome.status,{eventCount:parsed.events.length,detail:outcome.detail,source:data.sourceKind||'calendar'})
           candidate.parsed=parsed;candidate.teachingSnapshot=snapshot;candidate.source={...existing,id:existing?.id||`program-tp:${candidate.course.id}`,kind:'url',name:`${candidate.course.university} TP`,url:candidate.calendarUrl,courseId:candidate.course.id,groups:[...(existing?.groups||suggested)],excludedKeys:[...(existing?.excludedKeys||[])],allGroups:[...new Set([...(existing?.allGroups||[]),...allGroups])],commonGroups:[...(data.commonGroups||existing?.commonGroups||[])],pendingGroups:[...new Set([...(existing?.pendingGroups||[]),...allGroups.filter(group=>!known.includes(group))])],lastAttempt:now,lastUpdated:now,lastSuccess:now,identityMode:parsed.identityMode,autoRefresh:true};candidate.teachingStatus=parsed.events.length?'selection-required':'empty';current.warnings.push(...parsed.warnings)
           if(sourceCoverage(candidate.source,candidate.course).kind==='unknown')current.warnings.push(UNKNOWN_COVERAGE_WARNING)
         }else{
@@ -275,9 +281,9 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
           const selected=exactTeachingObject(candidate.teachingResults,candidate.course.code)
           if(selected){candidate.teachingObject=selected;const calendar=await request('teaching-calendar',{q:query,sourceObjectId:selected.sourceObjectId,year:String(candidate.course.year),semester:candidate.course.semester});if(operation!==version||preview!==current||current.selection!==selectionSnapshot())return;const parsed=parseCalendar(calendar.calendar,{courseId:candidate.course.id,semester:candidate.course.semester,year:candidate.course.year});applyTeachingCalendar(candidate,selected,calendar,parsed);candidate.teachingSnapshot=teachingSnapshot(candidate);current.warnings.push(...(calendar.warnings||[]),...parsed.warnings)}
         }
-      } catch(error){if(operation!==version)return;const outcome=teachingOutcome(error);candidate.course=checkedTeaching(candidate.course,outcome,{source:candidate.calendarUrl?'calendar':`${institution.value}-public-teaching`});candidate.teachingStatus=outcome==='access-required'?'access-required':'failed';candidate.teachingError=error.message;current.warnings.push(`${candidate.course.code}: undervisning kunne ikke hentes (${error.message}). Emnet kan fortsatt lagres.`)}
+      } catch(error){if(operation!==version)return;const outcome=teachingOutcome(error);candidate.course=checkedTeaching(candidate.course,outcome,{source:candidate.calendarUrl?'calendar':`${institution.value}-public-teaching`});candidate.teachingStatus=['access-required','unsupported'].includes(outcome)?outcome:'failed';candidate.teachingError=error.message}
     }))
-    if(operation===version&&preview===current){renderPreview();const text='Undervisning er kontrollert per emne. Velg eventuelle timeplanobjekter og grupper; emnene kan lagres selv om undervisning er tom eller feilet.';message.textContent='';actionStatus.hidden=false;actionStatus.classList.remove('is-error');actionStatus.textContent=text}
+    if(operation===version&&preview===current){renderPreview();const text=current.candidates.every(item=>item.teachingStatus==='unsupported')?'Emnene er klare for kontroll. Ingen undervisning er hentet; automatisk undervisningshenting støttes ikke.':'Resultatet fra undervisningskilden vises per emne. Velg eventuelle timeplanobjekter og grupper; emnene kan lagres selv om uttrekket er tomt eller henting feilet.';message.textContent='';actionStatus.hidden=false;actionStatus.classList.remove('is-error');actionStatus.textContent=text}
   }
   async function searchTeaching(candidate, operation) {
     const current = preview
@@ -303,20 +309,27 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     if(candidate.teachingChoice)candidate.teachingObject=candidate.teachingChoice.value===''?null:candidate.teachingResults?.[Number(candidate.teachingChoice.value)]
     const selected = candidate.teachingObject,snapshot=teachingSnapshot(candidate)
     if (!current || !selected) throw new Error('Velg et publisert timeplanobjekt først.')
-    let data
-    try{data = await request('teaching-calendar', { q: query, sourceObjectId: selected.sourceObjectId, year: String(candidate.course.year), semester: candidate.course.semester })}
-    catch(error){if(operation===version&&preview===current&&snapshot===teachingSnapshot(candidate)&&current.selection===selectionSnapshot()){const outcome=teachingOutcome(error);candidate.course=checkedTeaching(candidate.course,outcome,{source:`${institution.value}-public-teaching`});candidate.teachingStatus=outcome==='access-required'?'access-required':'failed';candidate.teachingError=error.message;renderPreview()}throw error}
-    if (operation !== version || preview !== current || snapshot !== teachingSnapshot(candidate) || current.selection!==selectionSnapshot()) return
-    const parsed = parseCalendar(data.calendar, { courseId: candidate.course.id, semester: candidate.course.semester, year: candidate.course.year })
-    applyTeachingCalendar(candidate,selected,data,parsed)
-    candidate.teachingSnapshot = teachingSnapshot(candidate)
-    current.warnings.push(...(data.warnings || []), ...parsed.warnings, UNKNOWN_COVERAGE_WARNING)
-    renderPreview()
-    status('Timeplanen er hentet. Velg aktivitetene og eventuelle oppgitte grupper før samlet bekreftelse.')
+    try {
+      const data = await request('teaching-calendar', { q: query, sourceObjectId: selected.sourceObjectId, year: String(candidate.course.year), semester: candidate.course.semester })
+      if (operation !== version || preview !== current || snapshot !== teachingSnapshot(candidate) || current.selection!==selectionSnapshot()) return
+      const parsed = parseCalendar(data.calendar, { courseId: candidate.course.id, semester: candidate.course.semester, year: candidate.course.year })
+      applyTeachingCalendar(candidate,selected,data,parsed)
+      candidate.teachingSnapshot = teachingSnapshot(candidate)
+      current.warnings.push(...(data.warnings || []), ...parsed.warnings, UNKNOWN_COVERAGE_WARNING)
+      renderPreview()
+      status('Timeplanen er hentet. Velg aktivitetene og eventuelle oppgitte grupper før samlet bekreftelse.')
+    } catch(error) {
+      if(operation!==version||preview!==current||snapshot!==teachingSnapshot(candidate)||current.selection!==selectionSnapshot())return
+      const outcome=teachingOutcome(error)
+      candidate.parsed=null;candidate.source=null;candidate.teachingSnapshot=null
+      candidate.course=checkedTeaching(candidate.course,outcome,{source:`${institution.value}-public-teaching`,detail:error.message})
+      candidate.teachingStatus=['access-required','unsupported'].includes(outcome)?outcome:'failed';candidate.teachingError=error.message
+      renderPreview();throw error
+    }
   }
   const selectedTeachingEvents=(parsed,source)=>parsed?.events.filter(event=>source?.groups.includes(event.group)&&!source.excludedKeys.includes(event.sourceKey))||[]
   function teachingChoices(card, course, parsed, source, candidate) {
-    if(!parsed.events.length){const notice=el('div');notice.setAttribute('role','status');notice.className='import-warning';notice.append(el('p','Ingen gyldige undervisningsøkter i valgt semester. Emnet kan lagres. Kontroller kilden eller registrer undervisning manuelt.'));for(const warning of parsed.warnings)notice.append(el('p',warning));card.append(notice);return}
+    if(!parsed.events.length)return
     const missingGroups=parsed.events.some(event=>event.groupMissing),groups=[...new Set([...source.groups,...parsed.events.map(event=>event.group)])]
     const label=missingGroups?`Aktivitetsutvalg for ${course.code}`:`Undervisningsgrupper for ${course.code}`
     const details=el('details'),summary=el('summary'),groupChecks=new Map(),eventChecks=new Map();details.dataset.importKey=`groups:${course.id}`
@@ -343,15 +356,16 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
       for (const conflict of preview.refreshConflicts || []) previewHost.append(el('p', conflict))
     }
     for(const candidate of preview.candidates) {
-      const {course,parsed,source}=candidate,card=el('article');card.className='course-card';card.dataset.courseCode=course.code;card.append(el('h4',`${course.code} ${course.name}`),el('p',`${semesterLabel(course.semester,course.year)} · ${course.credits??'Ukjente'} studiepoeng`),el('p',`${course.programBinding.programName} · Kull ${course.programBinding.cohort} · ${course.programBinding.modelName} · ${course.programBinding.studySemester}. studiesemester · Campus: ${course.programBinding.campus||'Ikke oppgitt'}`),course.studentAdded?el('p',course.manualUnverified?'Uverifisert manuelt emne. Ikke dokumentert av programkilden.':'Lagt til fra separat emnesøk. Ikke dokumentert av programkilden.'):link(course.sourceUrl,'Publisert kilde'))
+      const {course,parsed,source}=candidate,card=el('article');card.className='course-card';card.dataset.courseCode=course.code;card.append(el('h4',`${course.code} ${course.name}`),el('p',`${semesterLabel(course.semester,course.year)} · ${course.credits??'Ukjente'} studiepoeng`),el('p',`${course.programBinding.programName} · Kull ${course.programBinding.cohort} · ${course.programBinding.modelName} · ${course.programBinding.studySemester}. studiesemester · ${courseCampusLabel(course)}`),course.studentAdded?el('p',course.manualUnverified?'Uverifisert manuelt emne. Ikke dokumentert av programkilden.':'Lagt til fra separat emnesøk. Ikke dokumentert av programkilden.'):link(course.sourceUrl,'Publisert kilde'))
       if(course.studentAdded&&!course.manualUnverified&&course.sourceUrl)card.append(link(course.sourceUrl,'Kilde for emnet'))
       if(course.description){const more=el('details');more.append(el('summary','Emnebeskrivelse'),el('p',course.description));card.append(more)}
       if(course.programBinding.sourceNotes){const excerpt=el('details');excerpt.className='programme-source-excerpt';excerpt.append(el('summary','Vis kilde'),el('p',course.programBinding.sourceNotes));card.append(excerpt)}
-      const teachingHost=el('div');candidate.teachingHost=teachingHost;const teachingState=el('p',`${teachingStatusLabel(candidate.teachingStatus)}${candidate.teachingError?` (${candidate.teachingError})`:''}`);candidate.teachingStateNode=teachingState;teachingState.className=`teaching-status teaching-status-${candidate.teachingStatus||'idle'}`;card.append(teachingState,teachingHost)
+      const teachingHost=el('div');candidate.teachingHost=teachingHost;const teachingState=el('p',`${teachingStatusLabel(candidate.teachingStatus)}${candidate.teachingError?` (${candidate.teachingError})`:''}`);candidate.teachingStateNode=teachingState;teachingState.className=`teaching-status teaching-status-${candidate.teachingStatus||'idle'}`;teachingState.hidden=Boolean(course.teachingCheck&&['empty','failed','access-required'].includes(candidate.teachingStatus));card.append(teachingState,teachingHost)
+      if(candidate.calendarUrl)card.append(link(candidate.calendarUrl,'Valgt offentlig kalenderkilde'))
       if(course.teachingCheck)card.append(el('p',teachingCheckText(course.teachingCheck),['success','empty'].includes(course.teachingCheck.status)?'muted':'import-warning'))
       if(parsed) {
         teachingChoices(teachingHost,course,parsed,source,candidate)
-      } else teachingHost.append(el('p',candidate.calendarUrl?'Undervisning er tilgjengelig for separat henting før bekreftelse.':'Undervisning er ikke hentet fra denne programkilden. Kalenderfil eller lenke kan importeres senere.'))
+      } else teachingHost.append(el('p',candidate.teachingStatus==='unsupported'?unsupportedTeaching:candidate.teachingError||'Undervisning er ikke hentet. Emnet kan lagres; bruk kalenderfil, lenke eller manuell registrering ved behov.'))
       if (['nmbu','hvl','usn','mf','nhh','nmh','khio','samas','ldh','steiner','hivolda','uit','uib','oslomet','nord','inn','uis','uio','uia','himolde','hiof','kristiania','nih'].includes(institution.value)) {
         const timetable = el('details');timetable.dataset.importKey=`timetable:${course.id}`; timetable.append(el('summary', `Offentlig timeplan for ${course.code}`))
         const query = el('input'); query.value = candidate.teachingQuery ?? (institution.value==='khio'?course.programBinding?.programCode:course.code) ?? ''; query.maxLength = 120;candidate.teachingInput=query;candidate.teachingChoice=null
@@ -377,7 +391,7 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
       previewHost.append(card)
     }
     const warnings=el('details');warnings.append(el('summary','Kildeopplysninger og mangler'));for(const warning of [...new Set(preview.warnings)])warnings.append(el('p',warning));previewHost.append(warnings)
-    if(preview.candidates.some(item=>!item.parsed&&!['empty','failed','access-required'].includes(item.teachingStatus))){const teachingButton=button('Kontroller tilgjengelig undervisning på nytt',()=>run(operation=>teaching(operation,false),{localStatus:true,startText:'Kontrollerer undervisning …'}));teachingButton.className='secondary';previewHost.append(teachingButton)}
+    if(preview.candidates.some(item=>!item.parsed&&!['empty','failed','access-required','unsupported'].includes(item.teachingStatus))){const teachingButton=button('Kontroller tilgjengelig undervisning på nytt',()=>run(operation=>teaching(operation,false),{localStatus:true,startText:'Kontrollerer undervisning …'}));teachingButton.className='secondary';previewHost.append(teachingButton)}
     if(preview.candidates.some(item=>['failed','access-required'].includes(item.teachingStatus))){const retryButton=button('Prøv mislykkede undervisningskilder på nytt',()=>run(operation=>teaching(operation,true),{localStatus:true,startText:'Prøver mislykkede undervisningskilder på nytt …'}));retryButton.className='secondary';retryButton.dataset.importKey='retry-failed';previewHost.append(retryButton)}
     const confirmButton=button(`Legg til ${preview.candidates.length} emner`,()=>run(commit,{localStatus:true,startText:'Lagrer valgte emner og undervisning …'}));confirmButton.setAttribute('aria-label','Bekreft programimport')
     const backButton=button('Tilbake til emnevalg',()=>{preview=null;previewHost.hidden=true;showChoices();periodSelect.focus()});backButton.className='secondary'
@@ -399,7 +413,8 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     const count=preview.candidates.length,teachingReady=preview.candidates.filter(item=>selectedTeachingEvents(item.parsed,item.source).length).length,teachingEvents=preview.candidates.reduce((total,item)=>total+selectedTeachingEvents(item.parsed,item.source).length,0),teachingUnavailable=count-teachingReady, saved=await commitPlanner(next)
     if(saved===false || saved?.ok===false)throw new Error(saved?.error || 'Lagringen ble avvist. Forhåndsvisningen er beholdt.')
     const courseWord=count===1?'emne':'emner', eventWord=teachingEvents===1?'undervisningshendelse':'undervisningshendelser', sourceCourseWord=teachingReady===1?'emne':'emner', unavailableCourseWord=teachingUnavailable===1?'emne':'emner'
-    const receipt=`${count} ${courseWord} er lagret samlet. ${teachingEvents} ${eventWord} ble importert fra ${teachingReady} ${sourceCourseWord}; ${teachingUnavailable} ${unavailableCourseWord} har ingen importert undervisning. Tidligere emne-ID-er, notater og oppgavelenker er beholdt.`
+    const unsupported=preview.candidates.filter(item=>item.teachingStatus==='unsupported').length
+    const receipt=`${count} ${courseWord} er lagret samlet. ${teachingEvents} ${eventWord} ble importert fra ${teachingReady} ${sourceCourseWord}; ${teachingUnavailable} ${unavailableCourseWord} har ingen importert undervisning.${unsupported?` Automatisk undervisningshenting støttes ikke for ${unsupported} av emnene; bruk fil, kalenderlenke eller manuell registrering.`:''} Tidligere emne-ID-er, notater og oppgavelenker er beholdt.`
     preview=null;touched=false;clearDraftStorage();previewHost.hidden=true;showChoices();feedback('');actionStatus.hidden=false;actionStatus.classList.remove('is-error');actionStatus.textContent=receipt;actionStatus.tabIndex=-1;actionStatus.focus()
   }
   function refreshPreview() {

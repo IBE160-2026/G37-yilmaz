@@ -29,7 +29,7 @@ async function parseInWorker(bytes, { maxPages, signal, milliseconds, workerFact
     worker.on('message', message => {
       if (message?.publicPdf !== true) return
       if (message.ok && Array.isArray(message.pages)) finish(null, message.pages)
-      else finish(Object.assign(new Error(message.error || 'PDF-kilden kunne ikke leses lokalt.'), { status: message.status || 'source-changed' }))
+      else finish(Object.assign(new Error(message.error || 'PDF-kilden kunne ikke behandles av importtjenesten.'), { status: message.status || 'source-changed' }))
     })
     worker.on('error', error => finish(error))
     worker.on('exit', () => { if (!settled) finish(new Error('PDF-leseren stoppet før dokumentet var ferdig lest.')) })
@@ -62,6 +62,6 @@ export async function readPublicPdfItems(fetchBytes, url, validateUrl, { maxPage
     return pages
   } catch (error) {
     if (error.status || error.name === 'AbortError') throw error
-    fail('source-changed', 'PDF-kilden kunne ikke leses lokalt. Bruk dokumentimport eller tekstutdrag.')
+    fail('source-changed', 'PDF-kilden kunne ikke behandles av importtjenesten. Bruk dokumentimport eller tekstutdrag.')
   }
 }

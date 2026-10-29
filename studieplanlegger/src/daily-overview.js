@@ -62,8 +62,8 @@ export function createDailyOverview(actions) {
     planHost.replaceChildren(el('h2', 'Neste på planen'))
     const visibleRows = data.rows.slice(0, 3), firstToday = data.rows.find(row => data.today.some(task => task.id === row.task.id))
     if (firstToday && !visibleRows.includes(firstToday)) visibleRows[Math.max(0, visibleRows.length - 1)] = firstToday
-    const rowSessionKeys = new Set(visibleRows.flatMap(row => row.sessions.map(session => session.key)))
-    const upcoming = entries.filter(entry => !entry.cancelled && ['teaching', 'personal', 'session'].includes(entry.kind) && (entry.end > +model.now || entry.point && (entry.start >= +model.now || entry.kind === 'personal' && entry.dateLocal >= date)) && !rowSessionKeys.has(entry.key)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 3)
+    const upcoming = entries.filter(entry => !entry.cancelled && ['teaching', 'personal', 'session'].includes(entry.kind) && (entry.end > +model.now || entry.point && (entry.start >= +model.now || entry.kind === 'personal' && entry.dateLocal >= date))).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 3)
+    const upcomingKeys = new Set(upcoming.map(entry => entry.key))
     if (upcoming.length) {
       planHost.append(el('h3', 'Kommende aktiviteter'))
       for (const entry of upcoming) {
@@ -71,8 +71,9 @@ export function createDailyOverview(actions) {
         applyCourseColor(row, resolvedCourseId(entry))
         const course = model.planner?.courses?.find(item => item.id === entry.courseId)
         const context = [course ? [course.code, course.name].filter(Boolean).join(' ') : entry.courseCode || entry.course, entry.location].filter(Boolean)
+        const sessionStatus = entry.kind === 'session' ? entry.start <= +model.now ? 'Pågår nå · ' : entry.key === data.activity?.key ? 'Neste aktivitet · ' : '' : ''
         const open = button('Åpne', `${entry.key}:open`, () => entry.kind === 'session' ? actions.editSession(entry.id) : actions.editEvent(entry.id)); open.setAttribute('aria-label', `Åpne ${entry.title} · ${compactTime(entry, date)}`)
-        row.append(el('p', `${entry.kind === 'personal' ? 'Egen aktivitet · ' : entry.isExam ? '📝 Eksamen · ' : ''}${entry.title} · ${compactTime(entry, date)}${context.length ? ` · ${context.join(' · ')}` : ''}`), open); planHost.append(row)
+        row.append(el('p', `${sessionStatus}${entry.kind === 'personal' ? 'Egen aktivitet · ' : entry.isExam ? '📝 Eksamen · ' : ''}${entry.title} · ${compactTime(entry, date)}${context.length ? ` · ${context.join(' · ')}` : ''}`), open); planHost.append(row)
       }
     } else if (!data.activity) planHost.append(el('p', 'Ingen kommende aktivitet er registrert.'))
     if (visibleRows.length) planHost.append(el('h3', 'Oppgaver å følge opp'))
@@ -88,6 +89,7 @@ export function createDailyOverview(actions) {
         copy.append(el('p', `${deadlineStatus} ${deadlineLabel}${deadline.warning ? ` · ${deadline.warning}` : ''}`))
       }
       for (const session of sessions) {
+        if (upcomingKeys.has(session.key)) continue
         const sessionStatus = session.end <= +model.now ? 'Avsluttet studieøkt' : session.start <= +model.now ? 'Pågår nå' : session.key === data.activity?.key ? 'Neste aktivitet' : 'Studieøkt'
         copy.append(el('p', `${sessionStatus}: ${compactTime(session, date)}`))
       }
