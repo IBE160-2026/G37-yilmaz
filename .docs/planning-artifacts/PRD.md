@@ -29,7 +29,7 @@ Importløftet er fortsatt **«HiMolde IT 2026–27 og NTNU emneutvalg høst 2026
 
 - HiMolde-programprøven har IBE110 og IBE430, samt valget **IBE160 eller IBE102 + IBE152**. Undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026.
 - NTNU-prøvene gjelder emnemetadata og emnelenket undervisning for **ARK1001 og EXPH0100 høsten 2026**. Det loves ikke komplett NTNU-program, full eksamensdekning eller personlig gruppetilhørighet.
-- [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) avgrenser lokale kontrakttester, historisk offentlig transport og teknisk UI-kontroll. Hele HiMolde-programflytens gjentakelse er fortsatt ikke verifisert. Eksisterende adaptere utvider ikke leveranseløftet.
+- [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) avgrenser lokale kontrakttester, offentlig transport og teknisk UI-kontroll. **2026-10-29:** Hele HiMolde-programflytens gjentakelse med IBE110/IBE430/IBE160 er [teknisk kontrollert med syntetiske kilder på faktisk Vercel-preview](../../studieplanlegger/IMPORT-COVERAGE.md#hel-himolde-programgjentakelse-med-syntetiske-kilder--2026-10-29). Dette er ikke gjentakelse med faktisk kildetransport. Eksisterende adaptere utvider ikke leveranseløftet.
 
 ## Krav og akseptansekriterier
 
@@ -72,7 +72,7 @@ Dette er en avgrenset kildeoversikt, ikke en markeds- eller studentundersøkelse
 | Hva og når | Kilde og faktisk funn | Betydning for Ajour og begrensning |
 | --- | --- | --- |
 | Produktgrunnlag, 2026-10-06 | [Lærerfeedback](../../tilbakemelding-product-brief.md) vurderer problemet og hovedreisen som konkrete, men etterspør avgrenset V1, sjekkbare kriterier og sporbarhet. | Gir føringer for leveransen; er ikke dokumentasjon på studentbehov eller nytte. |
-| V1-kilder, 2026-09-26 og 2026-10-01 | [Importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) beskriver daterte HiMolde-/NTNU-prøver og offentlig transport. | Underbygger et navngitt kildeutvalg, ikke nasjonal dekning eller personlig gruppetilhørighet. Hele HiMolde-programgjentakelsen er uverifisert; ingen nye live-prøver er kjørt nå. |
+| V1-kilder, 2026-09-26 og 2026-10-01 | [Importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) beskriver daterte HiMolde-/NTNU-prøver og offentlig transport. | Underbygger et navngitt kildeutvalg, ikke nasjonal dekning eller personlig gruppetilhørighet. Hele HiMolde-programgjentakelsen var ikke verifisert i disse kildeprøvene; den senere syntetiske kontrollen er datert separat ovenfor. |
 | Kalenderformat, 2026-10-23 | [TP CSV-formatgrunnlag](../implementation-artifacts/tp-csv-format-contract-2026-10-23.md) dokumenterer offentlig NTNU-veiledning, offisiell TP-klient og CSV-header. | Kildeinformasjon og tidsusikkerhet må bevares og forklares. Ingen private originaler er undersøkt; feltroller er ikke en full TP-spesifikasjon. |
 | Kalenderalternativ, lest 2026-10-26 | [Google Calendar: oppgaver](https://support.google.com/calendar/answer/9901136?co=GENIE.Platform%3DDesktop&hl=en) beskriver planlagt tid, frist, fullføring og omplanlegging. | Har overlappende planleggingsfunksjoner. Ajours sammenhengende arbeidsflyt er et designvalg, ikke dokumentert overlegenhet eller markedsunikhet. |
 | Læringsplattform, lest 2026-10-26 | [Canvas: studentkalender](https://community.instructure.com/en/kb/articles/662787-unknown) beskriver emne-/gruppekalender, oppgaver, egne gjøremål, kalenderfeed og innleveringsmarkering. | Ajour må skille lokal arbeidsstatus fra faktisk innlevering. Dette lover ingen generell Canvas-integrasjon; faktisk innlevering skjer fortsatt i lærestedets løsning. |
@@ -96,7 +96,7 @@ Ingen intervjuer, studentundersøkelser eller observerte brukerresultater inngå
 | --- | --- |
 | Hvilke deler av hovedflyten, kalenderen og temavalget oppleves uklare eller arbeidskrevende i egen bruk? | Prosjekteieren registrerer dette under de sju scenariene. Status er planlagt; ingen svar er fylt inn. |
 | Er vedlikeholdet av oppgaver og anslag nyttig nok sammenlignet med egen kalender/Canvas/oppgaveliste? | Prosjekteieren kan beskrive konkrete erfaringer etter prøven. Svaret kan ikke generaliseres til målgruppen eller dokumentere bedre læring. |
-| Hva er faktisk bekreftet utover lokale importprøver? | Hele HiMolde-programgjentakelsen og ekstern Outlook-import er ikke bekreftet. Eventuell senere kontroll får egen dato og avgrensning; den er ikke en ny funksjonsbestilling. |
+| Hva er faktisk bekreftet utover lokale importprøver? | Hel HiMolde-programgjentakelse med syntetiske kilder er teknisk kontrollert på faktisk Vercel-preview 2026-10-29. Hel gjentakelse med faktisk kildetransport er ikke dokumentert. Ekstern Outlook-import er fortsatt ikke prøvd; eventuell senere kontroll får egen dato og avgrensning og er ikke en ny funksjonsbestilling. |
 | Hvilke øvrige vurderingsdokumenter gjelder? | Godkjent proposal og overordnet veiledning er fortsatt ikke identifisert. Prosjekteieren kan supplere med disse når de foreligger; den tilgjengelige sensorveiledningen identifiseres i planindeksen. |
 
 ## Framtidige ideer utenfor V1

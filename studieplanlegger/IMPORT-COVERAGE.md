@@ -2,6 +2,14 @@
 
 **Samordnet 2026-10-25:** Import støtter den lokale oppgave-/planleggingsflyten. Kalender- og personvernrettingene utvider ikke kildeutvalget. [Importavtalen](IMPORT.md) beskriver atferden, mens [nyeste verifikasjon](VERIFICATION.md) oppgir den kontrollerte kandidaten og skiller syntetiske prøver fra historisk kildetransport. Personvernminimerte kildefixturer bevarer parserkontraktene; de dokumenterer ikke ny live-tilgang, personlig gruppedekning eller studentnytte.
 
+## Hel HiMolde-programgjentakelse med syntetiske kilder — 2026-10-29
+
+Det tekniske restpunktet for hel HiMolde-programgjentakelse er kontrollert med syntetiske kilder: [himolde-program-repeat.spec.js](tests/e2e/himolde-program-repeat.spec.js) bestod **1/1, 7,3 s** på [faktisk Vercel-preview](https://ajour-klao1js30-ajour1.vercel.app), commit `ce6d410a47581ace22577b167a6f4257cb634f0d`. Appens bygde grensesnitt kjøres fra denne deployen; program- og undervisningssvar erstattes av tydelig syntetiske fixturer basert på den avgrensede HiMolde IT 2026-valgkontrakten.
+
+Prøven velger IBE110/IBE430 og alternativet IBE160, kontrollerer undervisning for alle tre, bekrefter, legger til et eget syntetisk emnenotat, laster om og gjentar hele programflyten. Begge forløp bevarer tre emner, tre kilder og tre hendelser uten duplikater. Emne-/kilde-/hendelses-ID-er, emnenotatet, valgt forelesning og fravalgt seminar beholdes. Ingen lagring skjer før godkjenning; hver bekreftelse gir én samlet skriving, og omlasting beholder eksakt tilstand.
+
+Dette lukker den **syntetiske tekniske gjentakelseskontrollen**. Hel programgjentakelse med faktisk kildetransport er fortsatt ikke dokumentert; de daterte live-prøvene nedenfor har sin egen avgrensning. V1 og importløftet utvides ikke. Egenutprøving/SC-07, personlig refleksjon og faktisk Outlook-prøve er fortsatt ikke gjennomført. [Sporbarheten](../.docs/planning-artifacts/TRACEABILITY.md#hel-himolde-programgjentakelse--2026-10-29) kobler denne kontrollen til eksisterende krav; øvrige kjøringer føres i [verifikasjonen](VERIFICATION.md).
+
 ## Gjeldende v1 og historisk dekning — 2026-10-16
 
 V1 er avgrenset i [briefen](../brief.md) og [PRD](../.docs/planning-artifacts/PRD.md): HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, og NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Nasjonal dekning og tidligere «T3/restkrav» er framtidsvisjon, ikke åpne v1-leveransekrav. Andre adaptere beholdes med sine begrensninger.
