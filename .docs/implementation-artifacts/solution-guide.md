@@ -33,11 +33,15 @@ Ajour er en lokal studieplanlegger skrevet med vanlig JavaScript, HTML og CSS. R
 
 **Samordning 2026-10-25:** [Importavtalen](../../studieplanlegger/IMPORT.md) beskriver felles forhåndsvisning, avklaring av emner/tid, gjentatt import og kildegrenser. [Nyeste verifikasjon](../../studieplanlegger/VERIFICATION.md) skiller kandidatkontrollene fra historiske resultater. Sensorveiledning og godkjent proposal manglet i publiseringsrunden før Ajour 25. oktober. Alle sju sensorsider ble senere lest i Ajour-runden samme dag; godkjent proposal er fortsatt ikke identifisert.
 
+## Nettleserutgave — 2026-10-29
+
+[Ajour på nett](https://ajour-sooty.vercel.app) bruker den samme hovedflyten med planen i nettleserprofilens `localStorage` og avgrensede Vercel-funksjoner for offentlig import. Profiler og nøyaktige nettadresser har separate data; localhost, preview og produksjon deler ikke automatisk plan. Sikkerhetskopi brukes til flytting og oppbevaring. Ingen konto, skydatabase eller enhetssynkronisering er innført. [Faktisk publiseringskontroll](../../studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) dokumenterer tekniske resultater; egenutprøving og personlig refleksjon er fortsatt uutført. Den tidligere lokale avgrensningen og de to lokale kjøremåtene nedenfor beholdes.
+
 ## To lokale kjøremåter
 
 | Kjøremåte | Autoritativ lagring | Bruksområde |
 | --- | --- | --- |
-| Docker/produksjon | Node-API og SQLite | Den komplette leveransen. Node serverer den bygde Vite-klienten, validerer alle endringer og skriver databasen transaksjonelt. Compose publiserer bare på `127.0.0.1` og beholder databasen i et navngitt volum. |
+| Docker/produksjon | Node-API og SQLite | Den komplette lokale leveransen. Node serverer den bygde Vite-klienten, validerer alle endringer og skriver databasen transaksjonelt. Compose publiserer bare på `127.0.0.1` og beholder databasen i et navngitt volum. |
 | Vite-utvikling | Nettleserens `localStorage` | Rask lokal UI-utvikling og den vanlige nettlesertestsuiten. Denne modusen bruker ikke SQLite og er derfor ikke bevis for produksjonslagringen. |
 
 Ved første produksjonsstart kan en tom database tilby å kopiere gyldige eksisterende nettleserdata. Originalen i nettleseren beholdes. Flyttingen bruker fingeravtrykk og arkivkvittering, slik at samme datasett ikke importeres flere ganger. Eksport og validert gjenoppretting kan brukes når appen åpnes på en annen lokal adresse.
