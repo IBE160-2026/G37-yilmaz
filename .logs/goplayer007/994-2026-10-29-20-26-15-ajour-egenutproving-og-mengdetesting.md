@@ -95,3 +95,35 @@ Begge GitHub-kvalitetssjekkene og faktisk Vercel-preview bestod. [Previewkontrol
 - Personlig omprøving og refleksjon forblir åpne. Tidligere verktøyblokkerte sikkerhetsprøver er ikke gjennomført; ingen generell sikkerhetskonklusjon gis.
 - NTNUs tomme programkatalog, UiTs konkrete termin-/ECTS-tabell og tidligere F03/F05-/importbegrensninger er dokumenterte begrensninger. F06-årshoppet er nå kildebekreftet og semesteretikettene rettet.
 - Nettleserlagring er fortsatt begrenset; rettingen lover ikke ubegrenset plass eller transaksjoner mellom faner. Bruk én redigerende fane. Eksisterende bundlevarsel og tidligere åpne vurderingskilder beholdes.
+
+## 2026-11-01 kl. 19:23 — GOplayer007
+
+### Oppgave
+
+Ferdigstille dokumentasjon og leveringsoversikt etter prosjekteierens bekreftede egenutprøving, avgrenset til dokumentasjon, leveringskontroll og publisering. Prosjekteieren autoriserte commit, push og PR-integrering etter nødvendige kontroller, med bevarte CI-/Vercel-sperrer og uten nye funksjoner eller unødvendig gjentakelse av beståtte prøver.
+
+### Plan
+
+- Lese prosjektinstruksjoner, lærerfeedback, alle sju sider av identifisert sensorveiledning og de faktiske vedleggene som kildemateriale.
+- Samordne eksisterende krav-/prøve-/leveringsdokumenter, føre eierens egne resultater korrekt, bevare teknisk historikk og beskrive gjenværende grenser.
+- Kontrollere dokumentlenker, filutvalg og påkrevde tester; bruke eksisterende PR-/publiseringsløp og dokumentere faktisk sluttversjon i [PR #10](https://github.com/IBE160-2026/G37-yilmaz/pull/10).
+
+### Resultat
+
+`eb72b2d` oppdaterer elleve eksisterende Markdown-dokumenter: README-ene, brief, PRD, planindeks, stories, sporbarhet, prøveplan, verifikasjon, løsningsguide og utviklingsprosess. `e908fab` lenker verifikasjonen til publiseringsbeviset i PR #10. Appkode, tester, avhengigheter, data og arbeidsflyter er uendret; annen åpen PR og andre arbeidskopier er bevart.
+
+De sju oppgitte omprøvingsresultatene føres som **egenutprøving utført av prosjekteier**: identisk 500-import med 525 uendrede, 28 Angre-oppføringer/0 byte vekst, faktisk 6,62 MB-erstatning fra 7 til 6 oppgaver, bevart datasett/historikk/papirkurv/ID-er etter omlasting, tre norske tidsfeilmeldinger, én kapasitetsforklaring og AHO 2031-semester 10/11. SC-07/1200–30 og Outlook 30. oktober beholder bestått. Disse konkrete restpunktene er lukket i `issues.md`; personlig refleksjon er fortsatt åpen.
+
+Den faktiske HTML-filen finnes uten `(1)`. Rapportens tidligere «agentutført»-merking er uttrykkelig avklart mot prosjekteierens nyere bekreftelse. Original HTML/JPG er ikke endret eller committet; sjekksummene står i verifikasjonen. De fem underliggende eksportfilene er ikke lest. Opprinnelige tekniske rapporter og mislykkede forsøk beholdes som før/etter-bevis. Ingen slutning om produksjonscommit, interne skriverier eller full sikkerhet trekkes fra funksjonsprøvene.
+
+Den tilgjengelige sensorveiledningen er kontrollert med samme SHA-256 som planindeksen. Brief/PRD beskriver produktmål og krav; detaljresultater ligger i prøve-/verifikasjonsdokumentasjonen. README gir én samlet begrensningsoversikt med V1-betydning og oppfølging. Utviklingsprosessen har en kort refleksjonsdisposisjon med spørsmål, uten oppdiktede personlige erfaringer. Dette følger lærerens punkter om avgrenset V1, sporbarhet, testbevis og styring av KI.
+
+Lokal påkrevd enhetskjøring ga først 2528/2529 med ett 5000 ms-tidsavbrudd i den eksisterende 500-hendelsesprøven. Uendret fullsuite med to arbeidere bestod **2529/2529, 147 filer, 161,63 s**. Ingen tidsgrense eller test ble endret. Bygg bestod **1,72 s**, med kjent bundlevarsel. Lenke-/ankerkontroll før loggoppdateringen: **39 dokumenter, 605 lokale lenker, 130 ankre, ingen feil**. Avgrenset filkontroll: **779 tekstfiler / 11 utfoldede ICS, ingen funn i undersøkte mønstre**. Uavhengig dokumentkontroll fant en foreldet Outlook-rad og små presiseringsbehov; disse er rettet.
+
+Ved denne oppfølgingens start viste GitHub main og produksjonens `/release.json` uavhengig **`c7bd8f557e715c29ae0e3813bc2d91fb8c4c25fe`**. Denne loggen skrives før PR-ens avsluttende CI/publisering; den forhåndsgodkjenner ikke ny produksjon. Faktisk main-commit, deployment, produksjonsmarkør og CI-resultater føres i den lenkede PR #10 etter fullføring. Ingen direkte hovedgren-push eller omgåelse av sperrer er planlagt.
+
+### Åpne punkter
+
+- Prosjekteieren må skrive personlig refleksjon fra egne erfaringer, kontrollere formell frist/kanal/format og gjennomføre innleveringen. Godkjent proposal og overordnet veiledning er ikke identifisert.
+- NTNU-tomkilden, UiTs konkrete termin-/ECTS-tabell, F03/F05, tidligere kildegrenser, nettleserkvote og bundlevarsel står som dokumenterte begrensninger; full nasjonal dekning er ikke et nytt V1-krav.
+- Full nettleseromstart, separat tom profil og forrige-kopi-handlingen inngikk ikke i siste egenutprøving. Tidligere verktøyblokkerte sikkerhetsprøver er ikke gjennomført. Ingen ny full omprøving bestilles av dokumentarbeidet.
