@@ -1,5 +1,47 @@
 # Verifisering av Ajour
 
+## Egenutprøving utført av prosjekteier — 2026-11-01
+
+**Gjeldende sluttstatus:** Prosjekteieren bekrefter å ha gjennomført egenutprøvingen og kontrollert resultatene nedenfor. De berørte avvikene er lukket innen dette dokumenterte omfanget. Tidligere bestått **SC-07/1200–30** og **Outlook 30. oktober** beholdes. Personlig refleksjon er fortsatt prosjekteierens egen leveranse. Eldre daterte rapporter nedenfor beholdes som før/etter-bevis; deres utsagn om utestående omprøving beskriver tilstanden før denne bekreftelsen.
+
+Grunnlaget er prosjekteierens uttrykkelige bekreftelse i oppdraget, `ajour-pr8-omproving-2026-11-01.html` og `ajour-pr8-500-bestatt-20261101.jpg`. Det etterspurte HTML-navnet med `(1)` var ikke tilgjengelig; den vedlagte unummererte filen ble lest. HTML-en bruker den tidligere betegnelsen «agentutført teknisk omprøving». Prosjekteieren har nå korrigert denne attribusjonen: resultatene registreres som **egenutprøving utført av prosjekteier**, ikke som KI-utført egenutprøving på eierens vegne. Originalrapporten, skjermbildet og tidligere tekniske rapporter er beholdt uendret som kildemateriale og ikke lagt i Git. Dokumentasjonsarbeidet har ikke lest de fem underliggende backupfilene eller gjentatt prosjekteierens manuelle funksjonsprøver.
+
+| Egenutprøving 1. november 2026 | Kontrollert resultat oppgitt av prosjekteieren | Status og omfang |
+| --- | --- | --- |
+| Identisk 500-import | **0 nye, 0 oppdaterte, 525 uendrede**: 500 aktiviteter og 25 emner. Ingen lagringsfeil. Skjermbildet viser lagret import. | **Bestått**; tidligere lagringsavvik ved denne identiske reimporten er lukket. |
+| Angre-historikk etter reimport | Fortsatt **28 oppføringer**, **3 049 990 byte** kompakt UTF-8-JSON og **0 byte vekst**. Eksportert historikk og øvrige data var uendret også etter omlasting. | **Bestått**; den rapporterte unødvendige historikkveksten er lukket for denne prøven. |
+| Faktisk stor gjenoppretting | Backup på **6 624 803 byte**, omtrent **6,62 MB**, erstattet en profil med **7 → 6 oppgaver** etter at en midlertidig syntetisk oppgave var opprettet. | **Bestått**; dette var en faktisk erstatning, ikke bare identisk backup eller forhåndsvisning. |
+| Databevaring etter gjenoppretting og omlasting | Hele `data`-objektet, historikken, papirkurven og ID-ene var bevart; ingen nye ID-er (`rekeyedIds: 0`). Sluttdatasettet hadde 6 oppgaver, 40 emner, 618 aktiviteter, 41 studieøkter, 4 arbeidslogger, 28 angreoppføringer og 2 papirkurvoppføringer. | **Bestått**; etterkopiene samsvarte med førkopien bortsett fra eksporttidspunktet utenfor `data`. |
+| Ugyldige eller tvetydige tider | **29. mars 2026 kl. 02:30**, **25. oktober 2026 kl. 02:30** og **25:61** ble avvist med forståelige norske forklaringer om henholdsvis manglende sommertime, gjentatt vintertime og ugyldig klokkeslett. Ingen av forsøkene ble lagret. | **Bestått**; valideringen beholdes, og tvetydig tid velges ikke automatisk. |
+| Kapasitetsforklaring | Den tidligere seks ganger gjentatte forklaringen om passert, opptatt eller utilgjengelig reservasjon vises **én gang**. | **Bestått i den kontrollerte visningen**. |
+| AHO-semesteretiketter / F06 | Forhåndsvisningen viste **vår 2031 som 10. studiesemester** og **høst 2031 som 11. studiesemester**. | **Bestått**; etikettavviket er lukket. Kildens årshopp beholdes, og ingen AHO-emner ble importert eller lagret i denne omprøvingen. |
+
+Forklaringen om at full backup også kan inneholde historikk, papirkurv og tidligere verdier ble bekreftet. Identisk backup ble gjenkjent som uendret i en separat UI-flyt før den faktiske erstatningen. UI-meldingen om ingen skriving er en observert melding; **interne skriveoperasjoner er ikke målt i denne egenutprøvingen**. Funksjonsresultatene identifiserer heller ikke produksjonscommit og gir ingen konklusjon om full sikkerhet.
+
+Rapporten oppgir ca. **18:33–18:40 Europe/Oslo**, samme syntetiske Chrome-profil og [produksjonsadressen](https://ajour-sooty.vercel.app/). Rapportens miljø-/tidsopplysninger er ikke kontrollert på nytt. Full nettleseromstart, separat tom profil, kvotegrenser, alle backupstørrelser og handlingen «Gjenopprett forrige kopi» inngikk ikke i denne omprøvingen. Tidligere tekniske kontroller av slike tilfeller står separat nedenfor og er ikke prosjekteierens resultater.
+
+Kildeidentifikasjon: HTML SHA-256 `a019bd74e411169783c9ab7122030d98f8766ee9af69eea6c3d5ea12d5daee13`; JPG SHA-256 `17f75bdfaf651ef120f58cb6beef79b4f6161f7788083644d9c1ce2ecb6a7707`. Disse identifiserer de leste vedleggene, ikke backupinnhold eller kjørende kode. [Prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) viser gjeldende status uten å omskrive de opprinnelige observasjonene.
+
+### Separate automatiske kontroller og tidligere publisering
+
+Rettelsene i [PR #8](https://github.com/IBE160-2026/G37-yilmaz/pull/8) og dokumentasjonen i [PR #9](https://github.com/IBE160-2026/G37-yilmaz/pull/9) var publisert som **`c7bd8f557e715c29ae0e3813bc2d91fb8c4c25fe`** før denne dokumentoppfølgingen. Den tidligere tekniske publiseringskontrollen verifiserte samme main-/produksjonscommit via Vercel-deployment `7476077898` og `/release.json`; det er et eget bevis, ikke noe som utledes av eierens funksjonsprøver.
+
+[Main-CI 41328182714](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41328182714) bestod **2529 enhetstester, produksjonsbygg, 127 bygde nettleserprøver og 3 SQLite-prøver**. [Automatisk produksjonskontroll 41328761071](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41328761071) bestod **60 funksjonsprøver og 6 faktiske kildeprøver**. Disse er automatiske kontroller av den daværende publiserte commiten, ikke nye kjøringer eller manuelle eierresultater. Publisering av denne senere dokumentrevisjonen må identifiseres separat.
+
+### Gjenværende begrensninger etter omprøvingen
+
+Den samlede gjeldende [begrensningsoversikten i README](README.md#kjente-begrensninger-ved-levering) oppgir status, betydning for avtalt V1 og videre oppfølging for NTNU-tomkilden, den konkrete UiT-tabellen, nettleserkvoten, F03/F05 og bundlevarselet. De daterte tekniske målingene og kildeobservasjonene nedenfor er bevisgrunnlaget. Eierens siste omprøving prøvde ikke disse kildene eller full nettleseromstart/separat tom profil på nytt; det er ikke et krav om å gjenta de allerede beståtte prøvene.
+
+Tidligere verktøyblokkerte sikkerhetsprøver er fortsatt ikke gjennomført eller bestått. Denne resultatføringen gir ingen generell sikkerhetskonklusjon. [Leveringsoversikten](../README.md#leveringsoversikt--1-november-2026) skiller ferdig dokumentasjon fra begrensningene og prosjekteierens personlige gjenstående arbeid.
+
+### Dokumentasjons- og leveringskontroll — 2026-11-01
+
+Denne oppfølgingen endrer bare Markdown-dokumentasjon. Den samordner aktuelle statuser, bevarer de opprinnelige tekniske rapportene nedenfor og kildematerialets innhold, og fører detaljerte eierresultater i prøve-/verifikasjonsdokumentene. Brief og PRD beskriver produktmål, behov, krav og avgrensninger. Alle sju sider av den identifiserte sensorveiledningen og lærerfeedback fra 6. oktober er lest; [leveringskontrollen](../.docs/planning-artifacts/README.md#leveringskontroll--2026-11-01) oppgir manglende formelle opplysninger uten å finne på krav.
+
+Påkrevd lokal enhetskjøring ga først **2528/2529**, med tidsavbrudd på 5000 ms i `own-trial-stress-preview.test.js` etter totalt 111,27 s. Full omkjøring med **`npm run test:unit -- --maxWorkers=2`** bestod **2529/2529 i 147 filer (161,63 s)**. Ingen kode, tester, tidsgrenser eller låsefiler ble endret. Den første kjøringen beholdes som feil; konkret årsak til tidsavbruddet er ikke fastslått. Produksjonsbygget bestod på **1,72 s**, med uendret hovedbundle **957,30 kB / 292,79 kB gzip** og kjent størrelsesvarsel.
+
+Dokumentlenker, ankre og stabile krav-/storyreferanser er kontrollert. Den avgrensede kontrollen av 779 tekstfiler, inkludert 11 utfoldede ICS-filer, fant ingen av de undersøkte mønstrene for legitimasjon, private stier eller møtetilgang. Dette er ingen full sikkerhetsrevisjon eller kontroll av alle historiske Git-objekter. HTML- og JPG-sjekksummene ovenfor er uendret etter dokumentarbeidet. Ingen ny manuell funksjonsprøve er gjennomført av agenten; prosjektets uendrede CI- og publiseringssperrer gjelder også denne dokumentrevisjonen. Endelig PR, main-/produksjonscommit og publiseringsresultat dokumenteres separat i publiseringskvitteringen.
+
 ## Lagring, gjenoppretting og import — 2026-11-01
 
 Oppfølgingen fortsetter på samme arbeidsgren fra **`bbbf1bbe8baaf6d01702686a7c1cefc36812ca08`**, bekreftet på main og produksjon ved kontrollens start. Dette identifiserer ikke retroaktivt produksjonscommiten ved brukerens prøver. De to nye skjermbildene og `ajour-utvidet-test-2026-11-01(1).html` er lest som feilrapport. HTML-en beskriver agentutførte prøver; brukerens nyere opplysninger om historikkvekst og identisk reimport registreres i tillegg. Original `stress-500.ics` og den omtalte sikkerhetskopien var ikke vedlagt og er **ikke kontrollert**. Alle nye datasett er uavhengig syntetiske, bygget fra prosjektets eksisterende 500-hendelsesgenerator.

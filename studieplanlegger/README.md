@@ -1,5 +1,7 @@
 # Ajour
 
+Åpne [produksjonsutgaven](https://ajour-sooty.vercel.app/). [Leveringsoversikten](../README.md#leveringsoversikt--1-november-2026), [brukerveiledningen nedenfor](#kom-i-gang-og-finn-frem), [egenutprøving utført av prosjekteier](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) og [daterte automatiske kontroller](VERIFICATION.md) er samlet uten å blande testutførere. [Kjente begrensninger](#kjente-begrensninger-ved-levering) gjelder også etter de beståtte omprøvingene.
+
 **SC-07-retting, 2026-11-01:** En startklar oppgave med «Kan deles i flere økter» kan foreslås som en kort arbeidsøkt også uten arbeidssteg. «Totalt gjenstående arbeid» er hele arbeidsmengden, mens «Hvor lenge vil du jobbe nå?» gjelder den aktuelle økten. Et forslag eller en startet økt endrer ikke anslaget. Etter en deløkt er «Trenger mer tid» forhåndsvalgt; faktisk arbeid og nytt gjenstående anslag registreres separat. Reelle blokkeringer og oppgaver som ikke kan deles begrenser fortsatt forslagene. Forutsetninger er eksisterende oppgaver som må gjøres først; «Fjern alle forutsetninger» endrer bare utkastet frem til du lagrer. Se [datert teknisk kontroll](VERIFICATION.md#sc-07-kortøkt-på-stor-oppgave--2026-11-01) og [bevart egenutprøving](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#rapportert-målrettet-omprøving--2026-11-01).
 
 Ajour knytter **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering** sammen med lokale regler. Bare oppgavetittel er obligatorisk; registrerte opplysninger og valgfrie importer gir grunnlaget for forslag som studenten kontrollerer før lagring. Appen bruker ingen generativ KI under kjøring.
@@ -267,6 +269,24 @@ En full sikkerhetskopi inkluderer også Angre-historikk og papirkurv, og kan der
 Frister lagres som lokale datoer/klokkeslett, og importert undervisning vises i norsk tid. Bruk samme lokale tidssone; flytting mellom tidssoner er ikke fullstendig støttet. Ikke-eksisterende eller tvetydige klokkeslett ved tidsskifte må avklares. Studieøkter kan krysse midnatt med eksplisitt sluttdato.
 
 I Vite-utvikling og Vercel-utgaven kan sletting av nettleserdata slette planen fordi disse bruker `localStorage`. I lokal Node-/Docker-modus er SQLite autoritativ; sletting av nettleserdata sletter ikke databasen, men kan fjerne en uimportert nettleseroriginal. Oppbevar uansett egne sikkerhetskopier utenfor kildekoden eller i `local-backups/`. Private dokumenter og arbeidsfiler hører hjemme utenfor delbar kode; relevante lokale mapper og genererte rapporter er ignorert.
+
+## Kjente begrensninger ved levering
+
+**Status 1. november 2026.** V1 er fortsatt avgrenset til de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md); full støtte for alle læresteder er ikke et leveringskrav. Tidligere feil og rettinger er bevart i [verifikasjonen](VERIFICATION.md). Tabellen beskriver restpunkter, ikke nye funksjonsbestillinger.
+
+| Punkt og dokumentert status | Betydning for avtalt V1 og eventuell oppfølging |
+| --- | --- |
+| **NTNU:** Den samlede programkilden returnerte tomt før filtrering. TDT4109 fungerte og ga 115 undervisningshendelser i den tekniske kontrollen 1. november. | Komplett NTNU-programdekning er ikke lovet. Emnesøk og manuell registrering er alternativer. Kontroller katalogen på nytt bare ved et konkret behov eller kildeendring; TDT4109 erstatter ikke de navngitte V1-prøvene. |
+| **UiT:** Den konkrete Applied Computer Science-PDF-en (kilde-ID 941723) har en termin-/ECTS-tabell som ikke kan tolkes som semesterfordeling. Den tidligere H-2025-bildetabellen er også begrenset. | UiT-tabellene er utenfor de navngitte V1-prøvene. Bruk manuell registrering eller en støttet kalender-/filkilde; ingen semesterfordeling gjettes. Se [importdekning](IMPORT-COVERAGE.md). |
+| **Nettleserlagring:** Nettleserens lagringskvote gjelder fortsatt. Store sikkerhetskopier og samtidige redigeringer kan møte grenser selv etter rettingen. | Identisk import unngår unødvendig historikk, men lagringen er ikke ubegrenset. Oppbevar egne backuper og bruk én redigerende fane. Nettleserdata og lokal Node-/SQLite-lagring er forskjellige driftsformer. |
+| **Omprøvingens omfang:** Full nettleseromstart og separat tom profil ble ikke verifisert i prosjekteierens omprøving. «Gjenopprett forrige kopi» ble tilbudt, men ikke aktivert. | Bestått gjelder de dokumenterte flytene og omlasting i samme profil. Tidligere automatiske profil-/omstartsprøver står separat i verifikasjonen og utvider ikke den manuelle prøven. Dette er en evidensgrense, ikke en ny påvist feil eller et automatisk krav om omprøving. |
+| **F03 – fri tekst uten kjent importformat:** Åpent format-/tydelighetspunkt fra mengderapporten 29. oktober; ikke rettet eller omprøvd i denne dokumentasjonsrunden. | Import av vilkårlig prosa er ikke lovet. Funnet er relevant for forståelig avvisning i V1; manuell oppgaveregistrering og gjenkjente formater er alternativer. Eventuell oppfølging må avgrense konkret inndata og forventet oppførsel. |
+| **F05 – NHH/FHS/Samisk kildevalg:** Fortsatt åpent; ingen ny godkjenning av disse kildeflytene. | Kildene ligger utenfor de navngitte V1-prøvene. Dokumenter konkret kilde/år/valg ved senere oppfølging; eksisterende adaptere innebærer ingen generell dekningsgaranti. |
+| **Bundlevarsel:** Bygget varsler om hovedbundle over 500 kB. Siste funksjonsretting bygget 957,30 kB / 292,79 kB gzip og bestod kontrollene. | Varslet stopper ikke bygget, men er relevant for nedlasting og oppstart på tregt nett. Ingen konkret numerisk bundlegrense er avtalt som V1-akseptkrav. Mål ved et dokumentert ytelsesproblem før eventuell oppdeling; varslet er ikke fjernet eller løst her. |
+| **Andre kildegrenser:** BI har ikke automatisk undervisningshenting; kalenderlenker utenfor kildevernet avvises med filalternativ. | Bevar kildevern og manuell/filbasert reserveflyt. Flere integrasjoner er eventuell senere utvikling. |
+| **Sikkerhetsbevis:** Tidligere verktøyblokkerte sikkerhetsprøver er ikke gjennomført. | Funksjonsprøver og avgrenset kontroll av dokumenter/fixturer bekrefter ikke full sikkerhet. Ingen sikkerhetssperrer er omgått. |
+
+AHOs korrekte kildeårstall er beholdt: vår 2031 vises som studiesemester 10 og høst 2031 som 11. Etikettavviket er lukket innen den prøvde forhåndsvisningen; selve årshullet i kilden består. SC-07/1200–30 og prosjekteierens Outlook-prøve beholder sine tidligere beståttresultater. [Prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) avgrenser hva som er personlig prøvd.
 
 ## Tester og bygg
 
