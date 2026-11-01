@@ -1,6 +1,6 @@
 # Plan for egenutprøving av Ajour
 
-**Opprettet 2026-10-16; revidert 2026-11-01 etter prosjekteierens sluttbekreftelse. Status: egenutprøving utført av prosjekteier; dokumenterte omprøvinger bestått innen oppgitt omfang.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser. Personlig refleksjon er fortsatt prosjekteierens egen oppgave.
+**Opprettet 2026-10-16; revidert 2026-11-01 etter prosjekteierens sluttbekreftelse av egenutprøvingen. Status: egenutprøving utført av prosjekteier; dokumenterte omprøvinger bestått innen oppgitt omfang.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser. [Refleksjonsrapporten](../submission/reflection-report.md) og [Word-eksporten](../submission/reflection-report.docx) foreligger; personlig sluttgjennomlesing og innlevering er ikke bekreftet.
 
 ## Egenutprøving utført av prosjekteier — 2026-11-01
 
@@ -20,7 +20,7 @@ Vedlagt `ajour-pr8-omproving-2026-11-01.html` og `ajour-pr8-500-bestatt-20261101
 
 Dette dokumenterer **omlasting i samme syntetiske profil**. Full nettleseromstart, separat tom profil, kvotegrenser og «Gjenopprett forrige kopi» ble ikke verifisert i denne omprøvingen. Interne skriveoperasjoner ble ikke målt; funksjonsprøvene alene bekrefter heller ikke produksjonscommit, CI eller full sikkerhet. Tidligere tekniske kontroller av andre tilfeller beholder sin egen metode, dato og utfører. NTNU samlet programkilde, den konkrete UiT-tabellen, F03/F05 og nettleserkvoten er dokumenterte begrensninger, ikke nye beståttresultater.
 
-Den opprinnelige sjuscenariomalen nedenfor bevares som prøveoppskrift og historikk. Manglende observasjoner i den gamle malen fylles ikke med antakelser eller automatiske resultater, og den brukes ikke til å pålegge en ny full prøverunde. Ingen generell studentnytte eller forståelse hos ukjente brukere er påvist. Prosjekteieren skriver eventuell personlig refleksjon med egne ord fra faktiske erfaringer.
+Den opprinnelige sjuscenariomalen nedenfor bevares som prøveoppskrift og historikk. Manglende observasjoner i den gamle malen fylles ikke med antakelser eller automatiske resultater, og den brukes ikke til å pålegge en ny full prøverunde. Ingen generell studentnytte eller forståelse hos ukjente brukere er påvist. Prosjekteierens leverte refleksjonsrapport beholdes som eget dokument med oppgitt KI-hjelp til struktur og formulering.
 
 ## Ny lagrings- og importoppfølging — 2026-11-01
 
@@ -142,9 +142,9 @@ Prosjekteierens sluttbekreftelse 1. november erstatter den tidligere statusen «
 | SC-07/1200–30 og Outlook 30. oktober | Tidligere dokumentert **bestått** beholdes. |
 | Opprinnelig scenario 1–7-mal | Beholdt som oppskrift; ikke alle opprinnelige detaljfelt har et særskilt rapportert resultat. Ingen ekstra beståttresultater konstrueres. |
 | Full nettleseromstart og separat tom profil | Ikke verifisert i den siste egenutprøvingen; tidligere automatiske/tekniske prøver er separate. |
-| Personlig refleksjon | Gjenstår å formuleres av prosjekteieren ut fra egne erfaringer. |
+| Personlig refleksjon | [Rapporten foreligger](../submission/reflection-report.md), med [samsvarende Word-eksport](../submission/reflection-report.docx). Personlig sluttgjennomlesing og selve innleveringen er ikke bekreftet. |
 
-Etter prøven kan prosjekteieren med egne ord beskrive hva som var lett eller uklart, og om vedlikehold av oppgaver og anslag var nyttig sammenlignet med egen kalender, Canvas eller oppgaveliste. Dette er åpne refleksjonsspørsmål, ikke forhåndsskrevne svar eller påstand om bedre læring. Personlige rånotater forblir lokale; et kort, anonymisert sammendrag kan senere knyttes til SC-07.
+Den leverte rapporten inneholder prosjekteierens personlige vurderinger; denne prøveplanen dokumenterer forventet mot faktisk resultat. Rapporten gjør ikke tomme scenariofelt til beståtte tester eller egne erfaringer til bevis for generell studentnytte. Personlige rånotater og eldre private refleksjonsutkast forblir lokale; bare den uttrykkelig autoriserte sluttrapporten er lagt i leveringsdokumentasjonen. [Planindeksen](README.md#leveringskontroll--2026-11-01) oppgir malens 3000–5000 ord og hvilke formelle leveringsopplysninger som fortsatt må kontrolleres.
 
 ## Valgfri isolert oppstart før egenutprøvingen
 

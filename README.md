@@ -35,9 +35,13 @@ Planleggingen støtter gjenbrukbare studietidsmønstre, usikre arbeidsanslag, da
 | [Brukerveiledning](studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [løsningsguide](.docs/implementation-artifacts/solution-guide.md) | Hovedflyt, lagring, sikkerhetskopi og bruk. Lokal oppstart står nedenfor. |
 | [Planindeks og leveringsgrunnlag](.docs/planning-artifacts/README.md) | Brief, PRD, stories, arkitektur og krav-/testsporbarhet. |
 | [Kjente begrensninger](studieplanlegger/README.md#kjente-begrensninger-ved-levering) | NTNU, UiT, lagringskvote, prøvens avgrensning, F03/F05 og bundlevarsel, med betydning for V1. |
-| [Utviklingsprosess og refleksjonsdisposisjon](.docs/implementation-artifacts/development-process.md#disposisjon-for-personlig-refleksjon) | Dokumenterte hendelser og spørsmål som prosjekteieren besvarer selv. |
+| [Refleksjonsrapport – lesbar hovedtekst](.docs/submission/reflection-report.md) og [Word-eksport](.docs/submission/reflection-report.docx) | Prosjekteierens leverte rapport med egne erfaringer og oppgitt KI-hjelp til struktur og formulering. Markdown er redigerbar hovedtekst; Word er samsvarende eksport. |
+| [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md) | Dokumenterte hendelser, KI-styring og avgrensning av personvernkontroll. |
+| [GitHub-repo](https://github.com/IBE160-2026/G37-yilmaz) og [produksjonsapp](https://ajour-sooty.vercel.app/) | Leveringsdokumentene leses på GitHub; appen publiseres gjennom det eksisterende Vercel-prosjektet. |
 
-**Det prosjekteieren fortsatt må fullføre:** Skriv personlig refleksjon med egne erfaringer. Kontroller konkret frist og innleveringsformat i emnets leveringsinformasjon, og legg ved eller henvis til det materialet som faktisk kreves. Den tilgjengelige sensorveiledningen er lest; godkjent proposal og overordnet veiledning er fortsatt ikke identifisert. Dette er manglende kildegrunnlag, ikke nye krav. Eldre testresultater beholdes med dato; egenutprøvingen dokumenterer ikke generell studentnytte eller full sikkerhet.
+**Rapporten foreligger; personlig sluttgjennomlesing og innlevering er ikke bekreftet.** Prosjekteieren må sluttlese rapporten, kontrollere konkret frist, kanal og obligatorisk filformat i emnets offisielle innleveringsbeskjed, og gjennomføre selve innleveringen med kvittering. Den leverte rapportmalen angir **3000–5000 ord**. Det opprettes ingen PDF uten et bekreftet behov. Den tilgjengelige sensorveiledningen er lest; godkjent proposal og overordnet veiledning er fortsatt ikke identifisert. Dette er manglende kildegrunnlag, ikke nye krav. Eldre testresultater beholdes med dato; egenutprøvingen dokumenterer ikke generell studentnytte eller full sikkerhet.
+
+Sluttrapporten er inkludert etter prosjekteierens uttrykkelige tillatelse. Den ligger bare under `.docs/submission/`, uten kopi i appens `public/` eller brukergrensesnitt. Private refleksjonsutkast, rålogger, sikkerhetskopier og personlige testdata forblir lokale og ignorerte.
 
 ## Kjør den komplette lokale leveransen
 
@@ -89,3 +93,4 @@ Dokumentasjonen nedenfor beskriver løsningen, utviklingsprosessen med KI/BMAD o
 - [Kuratert TP CSV-formatkontrakt](.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md)
 - [Teknisk verifikasjon](studieplanlegger/VERIFICATION.md)
 - [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md)
+- [Refleksjonsrapport](.docs/submission/reflection-report.md) og [samsvarende Word-eksport](.docs/submission/reflection-report.docx)
