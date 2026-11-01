@@ -1,5 +1,13 @@
 # Verifisering av Ajour
 
+## Sluttrapport og avgrenset leveringskontroll — 2026-11-01
+
+Den brukerleverte [refleksjonsrapporten](../.docs/submission/reflection-report.md) og [samsvarende Word-fil](../.docs/submission/reflection-report.docx) foreligger. [Leveringskontrollen](../.docs/implementation-artifacts/submission-audit-2026-11-01.md) dokumenterer tekstlikhet, ordtelling, personvern-/historikkomfang og denne rundens faktiske automatiske kontroller. Ingen ny generell egenutprøving er utført. SC-07 og Outlook beholder resultatene nedenfor; personlig sluttgjennomlesing og formell innlevering er ikke bekreftet.
+
+Låst installasjon (`npm ci`), full enhetssuite **2529/2529 i 147 filer** og produksjonsbygg bestod i en isolert arbeidskopi fra `246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`. Dette er dokumentasjonsendringer; appkode, fixturer, lagringsformat og CI er uendret. Bundlevarselet består: hovedfil **957,30 kB / 292,79 kB gzip**. Det er ingen avtalt numerisk V1-grense; mulig nedlastings-/oppstartskostnad er fortsatt et kjent forbehold.
+
+Publisering av endelig commit kontrolleres separat gjennom eksisterende PR, `Ajour quality`, Vercels domenesperre og `Ajour deployment smoke`. [GitHub Actions](https://github.com/IBE160-2026/G37-yilmaz/actions) og produksjonens `/release.json` gir commitbundet bevis; eldre hasher nedenfor er historiske. Den kuraterte [sesjonsloggen](../.logs/goplayer007) samler oppfølgingen uten å hevde sin egen commit-hash.
+
 ## Egenutprøving utført av prosjekteier — 2026-11-01
 
 **Gjeldende sluttstatus:** Prosjekteieren bekrefter å ha gjennomført egenutprøvingen og kontrollert resultatene nedenfor. De berørte avvikene er lukket innen dette dokumenterte omfanget. Tidligere bestått **SC-07/1200–30** og **Outlook 30. oktober** beholdes. Personlig refleksjon er fortsatt prosjekteierens egen leveranse. Eldre daterte rapporter nedenfor beholdes som før/etter-bevis; deres utsagn om utestående omprøving beskriver tilstanden før denne bekreftelsen.

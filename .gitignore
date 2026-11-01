@@ -85,6 +85,12 @@ traces/
 /.docs/implementation-artifacts/assistant-reflection-support.md
 /.docs/implementation-artifacts/assistant-trial-report.md
 /.docs/implementation-artifacts/project-reflection.md
+# Only the owner's explicitly approved final report is published.
+# Markdown is the editable master; DOCX is its matching export.
+# Other submission drafts, attachments and backups remain private.
+/.docs/submission/*
+!/.docs/submission/reflection-report.md
+!/.docs/submission/reflection-report.docx
 /.docs/implementation-artifacts/trial-log.md
 /.docs/implementation-artifacts/capacity-evidence.md
 /.docs/implementation-artifacts/spec-1-2-opprette-oppgaver-og-beholde-dem-trygt.md

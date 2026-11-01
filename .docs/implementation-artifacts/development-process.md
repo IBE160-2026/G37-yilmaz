@@ -4,9 +4,17 @@ This document records verifiable facts about how Ajour was developed with AI ass
 
 **Documentation reconciliation — 2026-11-01:** The owner has confirmed that the latest manual retests were personally performed and checked. They are recorded as **egenutprøving utført av prosjekteier** in the [existing trial plan](../planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), separately from automated tests and CI. The original supplied HTML report labels the retest as agent-executed; it remains unchanged as source material, and the current record explicitly cites the owner's correction of that attribution. This does not relabel earlier technical checks as personal experience. SC-07/1200–30 and the owner's 30 October Outlook result retain their documented passes. No other participants are to be recruited. Personal reflection still comes from the owner's own experience; the retests do not establish general student benefit. Dated earlier entries below retain their historical scope.
 
+## Final reflection and submission closeout — 2026-11-01
+
+The owner supplied the completed [reflection report](../submission/reflection-report.md) and explicitly authorized its inclusion in the public repository, together with the corresponding [Word file](../submission/reflection-report.docx). The supplied first-person account, author information, dates, references and disclosure of AI assistance with structure and wording are preserved. Markdown is the future editable master; Word is a corresponding export, not an independently maintained account. The original Word bytes are retained after package/metadata inspection. The supplied course template specifies **3000–5000 words**; deadline, submission channel and mandatory file format remain unconfirmed. The owner's personal final reading and actual submission with receipt are not recorded as complete.
+
+This bounded delivery task follows the 6 October feedback on traceability, control of AI work and repository hygiene. The current brief, planning index, seven-page assessment guide and report template were read. BMAD's generated build workflow and independent checks support the authorized correction; it adds no feature or new personal trial. Private drafts, raw logs and course attachments remain local. The report is GitHub documentation, excluded from app runtime/deployment uploads by the existing `.vercelignore`.
+
+The [submission audit](submission-audit-2026-11-01.md) records report equivalence, actual file/history scope, findings and verification. Current-tree checks and removal of historical exposure are separate matters. Curated evidence does not claim that the owner approved every sentence or that automated results establish personal learning.
+
 ## Disposisjon for personlig refleksjon
 
-Dette er spørsmål til prosjekteieren, ikke en ferdig refleksjonsrapport. Bruk bare hendelser du faktisk deltok i, og beskriv med egne ord hva du vurderte, gjorde og erfarte. [Prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) og [verifikasjonen](../../studieplanlegger/VERIFICATION.md) gir daterte bevis, mens kravene til selve refleksjonsleveransen må kontrolleres mot emnets overordnede veiledning.
+Dette er den tidligere støttedisposisjonen, bevart som prosesshistorikk. Den ferdige, brukerleverte [refleksjonsrapporten](../submission/reflection-report.md) foreligger nå separat. Spørsmålene nedenfor er ikke nye krav eller påstander om opplevelser. [Prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) og [verifikasjonen](../../studieplanlegger/VERIFICATION.md) gir daterte bevis; formelle innleveringsopplysninger må fortsatt kontrolleres mot emnets offisielle beskjed.
 
 | Dokumentert hendelse | Spørsmål du kan besvare selv |
 | --- | --- |
@@ -84,6 +92,8 @@ The following short excerpts come from the user's actual instructions in this Co
 The earlier three-layer documentation review found imprecise NTNU acceptance criteria, undated evidence references and an insufficiently isolated trial recipe. The corrections were recorded in EPICS-CURRENT, TRACEABILITY and USER-TRIAL-PLAN; the trial method was subsequently changed on 26 October. This is evidence of Codex/BMAD correction within the documented task, not attribution of each discovery to the student. The seven-area assessment in TRACEABILITY preserves the historical gaps; the current owner-executed results are linked above.
 
 ### Historical repository limitation
+
+**Follow-up 2026-11-01:** The [bounded history audit](submission-audit-2026-11-01.md#git-historikk-og-gjenstående-oppfølging) reports which reachable objects were actually checked and any gaps. Historical findings remain separate from this delivery's current files. No history rewrite, force push, credential testing or revocation is performed by this task.
 
 The fixture minimization in commit `374d75c1ff91ca6f0aa69dace9de55295ec6be9a` corrected unnecessary contact/profile information and copied calendar access material in the current tree, as recorded in VERIFICATION on 2026-10-02. A normal follow-up commit does not remove old blobs from Git history. This documentation publication neither rewrites history nor certifies it free of secrets. Whether any formerly copied access material remains valid or requires revocation is not established here; any such follow-up belongs with the source owner/repository owner. Values are not repeated or tested. This historical uncertainty is separate from checking that the new documentation contains no such material.
 
