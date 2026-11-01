@@ -2,17 +2,19 @@
 
 Kontrollen gjelder sluttrapport, samordnet dokumentasjon og eksisterende GitHub-/Vercel-leveranse. Utgangspunktet var fersk `origin/main` **`246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`**, kontrollert mot GitHub og produksjonens `/release.json`. Repoet er **offentlig**. En egen arbeidskopi og gren bevarer eldre arbeidsgrener og private lokale filer. Ingen ZIP erstatter Git-checkoutet; brukerens tidligere ZIP-gjennomgang er bakgrunn, ikke denne kontrollens testbevis.
 
+**Senere oppfølging 2026-11-01:** Word-kopien er fjernet fra dagens repo etter prosjekteierens ønske. [Markdown-rapporten](../submission/reflection-report.md) er uendret og er nå eneste rapportformat i repoet. Word-kontrollene, hashen og tellingene nedenfor beskriver den opprinnelige leveringskontrollen. De tidligere anbefalingene om Word-eksport og layoutkontroll gjelder ikke lenger for repoets rapportleveranse.
+
 ## Refleksjonsrapport og kildegrunnlag
 
-- [Lesbar rapport](../submission/reflection-report.md) er fremtidig redigerbar hovedtekst; [Word-filen](../submission/reflection-report.docx) er samsvarende eksport. Senere tekstendringer må gjøres i Markdown og eksporteres til Word med ny tekst-/layoutkontroll. Ingen generell eksportverktøykjede eller stilmal er etablert i denne runden: dagens Word-fil er den uendrede originalen, som brukes som layoutreferanse ved senere eksport. Rediger ikke Word-teksten separat.
-- Word-filen er byte-identisk med det brukerleverte vedlegget, SHA-256 `4af19a2bdf560f2e274d0a541020b4ca188a0985f7c2d70b76d7784bd9b0a845`. Den er ikke redigert, så ingen ny Word-layout er produsert eller påstått kontrollert.
+- [Lesbar rapport](../submission/reflection-report.md) ble etablert som redigerbar hovedtekst; Word-filen var samsvarende eksport. Den opprinnelige planen var å gjøre senere tekstendringer i Markdown og eksportere til Word med ny tekst-/layoutkontroll, uten separat redigering av Word-teksten. Ingen generell eksportverktøykjede eller stilmal ble etablert i denne runden: Word-filen var den uendrede originalen og planlagt layoutreferanse ved senere eksport. Denne eksportplanen er opphevet etter den senere eierbestilte fjerningen.
+- Word-filen var byte-identisk med det brukerleverte vedlegget, SHA-256 `4af19a2bdf560f2e274d0a541020b4ca188a0985f7c2d70b76d7784bd9b0a845`. Historisk commit: `5b7f2d3c1b27dd3ef6a9e7f74f8e4c53c048c205`; tidligere sti: `.docs/submission/reflection-report.docx`. Den ble ikke redigert, så ingen ny Word-layout ble produsert eller påstått kontrollert.
 - Alle **117 avsnitt** har identisk normalisert synlig tekst i Word og Markdown. Alle **31 nummererte hoved-/underoverskrifter** følger rapportmalens struktur. Ingen erfaringer eller faglige vurderinger er lagt til.
 - Rapporten oppgir **3562 ord** i kapittel 2–7; tellemetoden bak dette anslaget er ikke dokumentert. En reproduksjonskontroll som deler synlig tekst på mellomrom gir **3530**, inkludert overskrifter, eller 3404 uten overskrifter. Både det oppgitte anslaget og de reproduserte tellingene ligger innen malens **3000–5000 ord**. Originalens anslag er beholdt.
 - DOCX-pakken er kontrollert for egenskaper, relasjoner, kommentarer, revisjoner, skjult tekst, innbygginger og miniatyrmetadata. Ingen konkrete unødvendige person-/adgangsopplysninger ble funnet. Forfatteren er prosjekteieren; oppgitt student-e-post og forfatteridentitet er bevisst autoriserte opplysninger. De to eksterne relasjonene er vanlige HTTPS-prosjektlenker uten tilgangsparametere. Tom standardbibliografi og et blankt standardminiatyrbilde inneholder ingen person-/lokasjonsmetadata.
 
 AGENTS, lærerens tilbakemelding 6. oktober, gjeldende brief, planindeks, sesjonslogginstruksjonen, rapportmalen og alle sju sider av den identifiserte sensorveiledningen er lest. Sensor-PDF-ens SHA-256 samsvarer med [planindeksen](../planning-artifacts/README.md#vurderingsgrunnlag-kontrollert-2026-10-16). Mal og sensorvedlegg er ikke publisert. Frist, kanal og obligatorisk filformat er fortsatt ubekreftet. Personlig sluttgjennomlesing og faktisk innlevering med kvittering står åpne.
 
-Rapportmalens SHA-256 er `5ef011358d9567a4b6afa48491db6b1d2275f5ccd3109bed2ac43179a7609c0b`. Ved sluttgjennomlesingen bør prosjekteieren også åpne Word-filen og se over sider, overskrifter og sideskift; XML-kontrollen erstatter ikke slik visuell lesing.
+Rapportmalens SHA-256 er `5ef011358d9567a4b6afa48491db6b1d2275f5ccd3109bed2ac43179a7609c0b`. Den opprinnelige anbefalingen var også å åpne Word-filen og se over sider, overskrifter og sideskift, fordi XML-kontrollen ikke erstattet slik visuell lesing. Word-anbefalingen er senere bortfalt etter prosjekteierens ønske om bare Markdown; personlig sluttgjennomlesing av rapportteksten gjenstår.
 
 ### Kildekart til rapporten
 
@@ -31,7 +33,7 @@ Baseline omfatter **805 sporede filer**: 800 tekstfiler, én DOCX, én PDF og tr
 
 **Resultat:** Ingen nye bekreftede reelle nøkler/tokens, private brukerbaner eller unødvendige personfelt ble funnet i dagens kontrollerte filer. Ingen kildefixture måtte derfor endres. Mønstertreff på syntetiske sikkerhetstester, kalender-UID-er, offentlige institusjonslenker/-kontaktpunkter, kildehenvisninger, lisensopplysninger og bevisste forfatteropplysninger ble vurdert separat og beholdt. Dette er en avgrenset kontroll, ikke en full sikkerhetsgodkjenning.
 
-Rapportens to filer er et presist unntak i `.gitignore`; andre filer under `.docs/submission/` ignoreres. Eldre `project-reflection.md`, rålogger, personlige testdata, sikkerhetskopier, databaser og nettleserprofiler forblir ignorert. Kursmateriale, ZIP og private rapportvedlegg inngår ikke. De tilsiktede DOCX-/PDF-fixturene, kuraterte logger, agentinstruksjoner og fontlisenser beholdes.
+Rapportens to filer fikk opprinnelig et presist unntak i `.gitignore`. Etter den senere eierbestilte fjerningen gjelder unntaket bare Markdown-rapporten; andre filer under `.docs/submission/` ignoreres. Eldre `project-reflection.md`, rålogger, personlige testdata, sikkerhetskopier, databaser og nettleserprofiler forblir ignorert. Kursmateriale, ZIP og private rapportvedlegg inngår ikke. De tilsiktede DOCX-/PDF-fixturene, kuraterte logger, agentinstruksjoner og fontlisenser beholdes.
 
 ## Git-historikk og gjenstående oppfølging
 
