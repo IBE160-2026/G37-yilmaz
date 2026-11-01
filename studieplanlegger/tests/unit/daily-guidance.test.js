@@ -68,8 +68,11 @@ describe('Jeg har tid nå', () => {
     expect(suggestions.every(item => item.nextStep)).toBe(true)
   })
 
-  it('dikter ikke opp et delsteg når ingen bekreftet aktivitet passer', () => {
-    expect(rankedSuggestions([task('lang', { estimatedMinutes: 90 })], 30)).toEqual([])
+  it('foreslår en deløkt på registrert arbeid uten å dikte opp et arbeidssteg', () => {
+    const large = task('lang', { estimatedMinutes: 90 })
+    expect(rankedSuggestions([large], 30)).toEqual([large])
+    expect(large).not.toHaveProperty('steps')
+    expect(rankedSuggestions([{ ...large, splittable: false }], 30)).toEqual([])
   })
 })
 

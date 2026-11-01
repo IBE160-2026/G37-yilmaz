@@ -14,6 +14,7 @@ test('100 synthetic tasks remain operable across views and mutations without exe
   })
   page.on('pageerror', error => pageErrors.push(error.message))
   const dates = ['2026-08-24T12:00', '2026-08-31T12:00', '2026-09-07T12:00', '2026-09-14T12:00']
+  // This fixture exercises whole-task budget filtering; partial-session eligibility is covered by SC-07.
   const tasks = Array.from({ length: 100 }, (_, i) => ({ ...task(`synthetic-${i}`, dates[i % 4], (i % 4 + 1) * 10, i % 10 === 0), splittable: false }))
   await seed(page, tasks)
   const ordered = list => [...list].sort((a, b) => a.deadlineLocal.localeCompare(b.deadlineLocal))
@@ -101,7 +102,7 @@ for (const width of [360, 1280]) {
     await page.screenshot({ path: testInfo.outputPath(`time-filter-${width}.png`), fullPage: true })
     await page.keyboard.press('Space')
     await expectFocusFits(page, page.locator('#available-minutes'))
-    await expect(page.locator('#empty-tasks')).toContainText('Ingen registrerte arbeidssteg passer sikkert')
+    await expect(page.locator('#empty-tasks')).toContainText('Arbeidet kan ikke deles og trenger 240 minutter sammenhengende')
     await tabTo(page, page.locator('#empty-minutes'))
     await page.keyboard.press('Enter')
     await expectFocusFits(page, page.locator('#available-minutes'))
