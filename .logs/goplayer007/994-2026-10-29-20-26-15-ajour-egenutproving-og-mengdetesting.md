@@ -31,3 +31,35 @@ Den vedlagte mengderapporten er registrert separat som KI-assistert testing: NHH
 - F03 (fri tekst uten kjent format), F05 (NHH/FHS/Samisk kildevalg) og F06 (uverifiserte AHO-semesterår) står åpne innen rapportens begrensninger.
 - UiTs bildetabell krever alternativ import; BI-undervisning og kalenderlenker utenfor støtten er fortsatt begrenset.
 - Eksisterende bundlevarsel består. Godkjent proposal og overordnet sensorveiledning er fortsatt ikke identifisert; den identifiserte syvsiders veiledningen er kontrollert.
+
+## 2026-11-01 kl. 14:25 — GOplayer007
+
+### Oppgave
+
+Rette gjenskapt SC-07-avvik der en startklar, delbar oppgave med 1200 minutter gjenstående og ingen arbeidssteg ga null forslag ved 30 minutter. Brukeren autoriserte commit, push, PR-integrering og produksjonspublisering med bevarte kontroller, data og tidligere testresultater. Outlook-prøven fra 30. oktober skulle forbli bestått, og tekniske prøver skulle ikke ferdigmelde personlig omprøving.
+
+### Plan
+
+- Lese prosjektinstruksjoner, tilbakemelding, identifisert sensorveiledning og relevant spesifikasjonskontekst; bruke vedleggene som feilrapport og gjenskape med syntetiske data.
+- Rette forslag og forklaringer, beholde blokkeringer og ikke-delbart arbeid, gjøre oppdeling og fjerning av forutsetninger synlig og tastaturtilgjengelig.
+- Kontrollere bygget app, faktisk preview og produksjon, inkludert samme syntetiske profil før/etter publisering. Bevare rapporterte resultater i [prøveplanen](../../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og teknisk evidens i [verifikasjonen](../../studieplanlegger/VERIFICATION.md).
+
+### Resultat
+
+Arbeidet ble gjort i egen arbeidskopi fra `460537f`; annen arbeidskopi, pågående dokumentasjonsarbeid og brukerdata ble bevart. Førkontrollen identifiserte denne produksjonsversjonen uavhengig, men bekrefter ikke retroaktivt commit ved brukerens skjermbilde. `rankedSuggestions` brukte ikke den eksisterende `includePartial`-støtten, og krevde dermed at hele totalen passet i tidsvalget. Feilen ble gjenskapt både i nettleser og regresjoner før retting.
+
+`827f672` tillater deløkter på startklart, delbart arbeid og skiller totalen fra tiden nå. Reelle blokkeringer, forutsetninger, ikke-delbart arbeid, lagring, backup, kalender og Angre beholdes. «Hvor lenge vil du jobbe nå?» og synlig oppdelingsvalg forklarer total/økt; forutsetninger beskrives som eksisterende oppgaver og har egen tastaturtilgjengelig fjernknapp. Deløkten endrer ikke anslag eller ferdigstatus automatisk, og faktisk tid registreres separat. `92541e8` presiserer en statusselektor i to lagringsfeiltester uten å svekke bevaringskravene. Uavhengig gjennomgang og oppfølgingslesning fant ingen konkrete uløste feil.
+
+Siste lokale fullsuite bestod 2467/2467 enhetsprøver; bygget nettleserpakke 107/107, SC-07-utvalg 10/10, SQLite 3/3 og undervisningsfixturer 141/141. Produksjonsbygg bestod med eksisterende bundlevarsel. Tidligere tidsavbrudd, kollisjon i testutdata og mislykkede mellomkjøringer beholdes som feil i verifikasjonen. Siste preview bestod 40/40 automatiske kontraktprøver, 6/6 faktiske kildeprøver og separat 10/10 SC-07. Først da ble [PR #7](https://github.com/IBE160-2026/G37-yilmaz/pull/7) integrert normalt som `2057984904874b586ab4b3dbe2302bef47e41ddb` på main.
+
+Main-kontrollen [41310394274](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41310394274) bestod 2467/2467 enhetsprøver, bygg, 107/107 nettleserprøver og 3/3 SQLite. Vercel meldte produksjonen vellykket. [Produksjonen](https://ajour-sooty.vercel.app/) viste samme fullstendige commitmarkør før og etter **10/10 SC-07-prøver** (45,4 s). Alle seks produksjonsbilder ved 1440/390 px ble vurdert uten nye visuelle avvik. Samme eide syntetiske profil fra før publisering bestod **1/1** gjenåpning med eksakt bevart lagring og preferanser (4,8 s). [Automatisk produksjonskontroll 41310830999](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41310830999) bestod **40/40 kontraktprøver og 6/6 faktiske kildeprøver**. CI og Vercels domenesperre ble beholdt; ingen administratoromgåelse eller tvangspromotering ble brukt.
+
+`30fed6e` dokumenterer disse publiserte resultatene. Den etterfølgende loggoppdateringen gjelder bare Markdown. Personvernkontrollen før dokumentasjonscommit omfattet 769 tekstfiler og 11 utfoldede ICS-filer uten funn; 39 dokumenter, 545 lokale lenker og 113 ankre bestod lenkekontrollen. Rårapporter, bilder og syntetiske profiler holdes utenfor Git. Arbeidet følger lærerens punkter om testbare krav, tydelig brukerflyt og sporbar etterprøving av KI-retting.
+
+Outlook-punktet i `issues.md` er lukket på grunnlag av brukerens bekreftede 37-hendelsesflyt 30. oktober, ikke en ny teknisk Outlook-prøve. Tidligere daterte resultater og begrensninger er bevart. Personlig SC-07-omprøving og refleksjon er fortsatt åpne; en kort 1200/30-prøve står i prøveplanen.
+
+### Åpne punkter
+
+- Prosjekteierens personlige SC-07-omprøving og egen refleksjon gjenstår; de tekniske produksjonsprøvene erstatter dem ikke.
+- Tidligere importbegrensninger F03/F05/F06, UiTs bildetabell, BI-undervisning og avviste kalenderkilder beholdes som egne punkter i `issues.md`.
+- Eksisterende bundlevarsel og tidligere åpne vurderingskilder beholdes i `issues.md`; denne rettingen utvider ikke prosjektets omfang.
