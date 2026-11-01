@@ -63,3 +63,31 @@ Outlook-punktet i `issues.md` er lukket på grunnlag av brukerens bekreftede 37-
 - Prosjekteierens personlige SC-07-omprøving og egen refleksjon gjenstår; de tekniske produksjonsprøvene erstatter dem ikke.
 - Tidligere importbegrensninger F03/F05/F06, UiTs bildetabell, BI-undervisning og avviste kalenderkilder beholdes som egne punkter i `issues.md`.
 - Eksisterende bundlevarsel og tidligere åpne vurderingskilder beholdes i `issues.md`; denne rettingen utvider ikke prosjektets omfang.
+
+## 2026-11-01 kl. 17:02 — GOplayer007
+
+### Oppgave
+
+Følge opp lagringsvekst ved identisk 500-import, stor backupgjenoppretting og avgrensede kilde-/presentasjonsfunn på samme arbeidsgren. Brukeren autoriserte hele løpet gjennom GitHub og Vercel med bevarte sperrer, brukerdata, Angre og tidligere testhistorikk.
+
+### Plan
+
+- Lese vedlegg som feilrapport, måle faktiske skriverier og feil med egne syntetiske data, og rette lagring/gjenoppretting først.
+- Kontrollere NTNU, AHO og den konkrete UiT-PDF-en mot offentlige kilder, med avgrensede norske forklaringer.
+- Uavhengig kodegjennomgang, full lokal kvalitetspakke og deretter kontrollert publisering. [Prøveplan](../../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og [målinger/kontrollhistorikk](../../studieplanlegger/VERIFICATION.md) bevarer skillet mellom eierens og agentens prøver.
+
+### Resultat
+
+`1ecea29362f4cb81ecc1b99c325eb5459facad8c` retter metadatautløst historikkvekst, identiske skriverier, doble recovery-representasjoner og misvisende feilklassifisering. Syntetisk identisk reimport gikk fra **+1 144 543 byte historikk per gang til 0 byte / 0 skriverier**. En eldre formatert backup på **6 843 299 byte** består i tom, identisk og endret stor profil; sistnevnte bruker **360 347 byte** recovery. Både ekte kvotefeil og kontrollerte tilgangs-/ukjente feil bevarer opprinnelige data og tidligere recovery etter omlasting. Ingen gammel historikk er ekstra slettet for å skaffe plass; eksisterende 30-oppføringsgrense beholdes.
+
+Eksport forklarer historisk innhold. Ugyldige/tvetydige klokkeslett avvises fortsatt med norske forklaringer, og identiske kapasitetsgrunner vises én gang. NTNUs publiserte programkatalog svarte faktisk tomt før filtrering; dette forklares uten falsk fullstendighet. TDT4109 ga fortsatt 115 hendelser. AHOs årshopp finnes i kilden; studiesemesteretikettene er rettet til 1–7, 10, 11 uten å endre årstall eller koblinger. UiTs konkrete engelske Applied Computer Science-PDF gjenkjennes, men termin-/ECTS-tabellen støttes ikke som semesterfordeling.
+
+Siste lokale kontroll: **2529/2529 enhetstester, 127/127 bygde nettleserprøver, 3/3 SQLite, 141/141 undervisningsfixturer og produksjonsbygg**. To runder med tre uavhengige gjennomganger; siste oppfølging uten uløste kodefunn. 779 tekstfiler / 11 utfoldede ICS og 39 dokumenter / 552 lokale lenker / 116 ankre uten funn eller feil. Tidligere mislykkede kontroller er bevart i verifikasjonen. Store syntetiske profiler, bilder og råvedlegg holdes utenfor Git.
+
+Dette loggpunktet registrerer lokal kontroll før push/PR-integrering. Faktisk publisert commit og fjernkontroller registreres i PR-ens publiseringsresultat; vellykket push alene regnes ikke som publisering. Samme syntetiske profil er opprettet på gammel produksjon `bbbf1bb` for kontroll etter publisering. SC-07 er fortsatt teknisk bestått; brukerens Outlook-prøve fra 30. oktober gjenåpnes ikke.
+
+### Åpne punkter
+
+- Personlig omprøving og refleksjon forblir åpne. Tidligere verktøyblokkerte sikkerhetsprøver er ikke gjennomført; ingen generell sikkerhetskonklusjon gis.
+- NTNUs tomme programkatalog, UiTs konkrete termin-/ECTS-tabell og tidligere F03/F05-/importbegrensninger er dokumenterte begrensninger. F06-årshoppet er nå kildebekreftet og semesteretikettene rettet.
+- Nettleserlagring er fortsatt begrenset; rettingen lover ikke ubegrenset plass eller transaksjoner mellom faner. Bruk én redigerende fane. Eksisterende bundlevarsel og tidligere åpne vurderingskilder beholdes.

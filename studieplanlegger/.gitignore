@@ -12,6 +12,7 @@ dist
 dist-ssr
 test-results
 playwright-report
+/.tmp/
 *.local
 
 # Editor directories and files

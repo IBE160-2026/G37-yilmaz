@@ -2,6 +2,14 @@
 
 **Opprettet 2026-10-16; revidert 2026-11-01. Status: påbegynt med rapporterte avvik; personlig omprøving gjenstår.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser.
 
+## Ny lagrings- og importoppfølging — 2026-11-01
+
+`ajour-utvidet-test-2026-11-01(1).html` beskriver agentutførte prøver og er holdt separat fra prosjekteierens personlige egenutprøving. De to nye skjermbildene viser lagringsfeil ved 525 uendrede importelementer og stoppet gjenoppretting. Brukeren rapporterer dessuten omtrent 1,46 MB historikkvekst ved en tidligere identisk reimport og en egen eksport på 6 622 143 byte som kunne forhåndsvises, men ikke erstatte lokale data. Hoveddata var identiske før feil, etter feil og etter omlasting; datatap er ikke påvist. Årsaken og produksjonscommiten ved originalprøven er ikke uavhengig bekreftet.
+
+[Den nye tekniske verifikasjonen](../../studieplanlegger/VERIFICATION.md#lagring-gjenoppretting-og-import--2026-11-01) dokumenterer separat gjenskaping, faktiske feilklasser, før/etter-målinger og retting med uavhengige syntetiske data. Den bevarer eksisterende bestått **SC-07/1200–30** og **Outlook 30. oktober**. Den nye HTML-rapportens tekniske SC-07-resultat er heller ikke en ferdigmelding av de sju personlige scenariene nedenfor. Tidligere verktøyblokkerte sikkerhetsprøver er ikke utført eller bestått.
+
+Kort målrettet omprøving etter publisering: I en separat syntetisk profil, importer samme 500-hendelsesfil på nytt, kontroller 525 uendrede uten lagringsfeil, og eksporter/gjenopprett den samme sikkerhetskopien. Last på nytt og kontroller at opplysninger og tidligere Angre er beholdt. Før eget resultat og faktisk versjon; **prøven står åpen til du selv har utført den**. NTNU-tomkilde, UiT-terminstøtte og øvrige kildegrenser har egne daterte tekniske forklaringer og er ikke ferdigmeldt som generell lærestedstøtte.
+
 ## Rapportert målrettet omprøving — 2026-11-01
 
 Brukerens vedlegg `ajour-omproving-2026-11-01.html` og skjermbildet `ajour-sc07-nullforslag-20261101.jpg` dokumenterer et gjenskapt avvik på [produksjon](https://ajour-sooty.vercel.app/). Rapporten beskriver Chrome med tom profil ved prøvestart og klokkeslett i Europe/Oslo. Chrome-versjon og faktisk produksjonscommit er ikke uavhengig bekreftet. `460537f864a89d709ae08aca818ef5adbbe0afaf` fra PR #6 er rapportert teknisk status, ikke en verifisert versjonsidentifikasjon for denne UI-prøven. Vedleggenes forslag til videre arbeid behandles som feilrapport; den aktuelle arbeidsbestillingen styrer rettingen.

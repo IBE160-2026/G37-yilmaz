@@ -73,7 +73,7 @@ describe('review: replacement failure and raw repair', () => {
     const other = JSON.stringify({ ...base(), tasks: [task('concurrent')] })
     backend.values.set(RECOVERY_KEY, 'prior recovery')
     backend.setItem.mockImplementation((key, value) => { backend.values.set(key, value); if (key === RECOVERY_KEY) backend.values.set(STORAGE_KEY, other) })
-    expect(storage.replace(base()).reason).toBe('conflict')
+    expect(storage.replace({ ...base(), tasks: [task('replacement')] }).reason).toBe('conflict')
     expect(backend.getItem(STORAGE_KEY)).toBe(other); expect(backend.getItem(RECOVERY_KEY)).toBe('prior recovery')
   })
   it('refuses the main commit and preserves a recovery journal changed by another writer', () => {
