@@ -2,14 +2,14 @@
 title: "PRD: Ajour"
 status: final
 created: 2026-10-16
-updated: 2026-10-29
+updated: 2026-11-01
 ---
 
 # PRD: avgrenset Ajour-leveranse
 
-**Oppfølging 2026-10-29:** [Rapporterte egne funn](USER-TRIAL-PLAN.md#rapporterte-funn-og-omprøving--2026-10-29) gjør R-07/SC-07 påbegynt med avvik; omprøving gjenstår. Den separate KI-rapporten er ikke prosjekteierens resultat. Tidligere daterte statusutsagn nedenfor beskriver historikk; verken samlet egenutprøving, Outlook-prøve eller refleksjon er ferdig.
+Denne PRD-en beskriver produktbehov, krav og avgrensninger. Prosjekteierens manuelle resultater står i [prøveplanen](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), automatiske kontroller i [verifikasjonen](../../studieplanlegger/VERIFICATION.md) og gjeldende leveringsoversikt i [planindeksen](README.md). Detaljert testutførelse føres der, ikke som produktkrav her.
 
-**Rekonstruert 2026-10-16, revidert 2026-10-26.** Dette er den eksisterende PRD-en, oppdatert etter [lærerens tilbakemelding](../../tilbakemelding-product-brief.md) og PRD-forberedelsene gjengitt i prosjekteierens oppdrag. Den beskriver allerede utviklet funksjonalitet og planlagt egenutprøving; den er ikke en opprinnelig plan for koden. [Briefen](../../brief.md) eier produktløftet, og [planindeksen](README.md) dokumenterer proveniens.
+**Rekonstruert 2026-10-16, revidert 2026-11-01.** Dette er den eksisterende PRD-en, oppdatert etter [lærerens tilbakemelding](../../tilbakemelding-product-brief.md) og PRD-forberedelsene gjengitt i prosjekteierens oppdrag. Den beskriver allerede utviklet funksjonalitet og kravene til egenutprøving; den er ikke en opprinnelig plan for koden. [Briefen](../../brief.md) eier produktløftet, og [planindeksen](README.md) dokumenterer proveniens.
 
 ## Hva vi skal lage og hvilket problem det skal løse
 
@@ -31,15 +31,13 @@ Importløftet er fortsatt **«HiMolde IT 2026–27 og NTNU emneutvalg høst 2026
 
 - HiMolde-programprøven har IBE110 og IBE430, samt valget **IBE160 eller IBE102 + IBE152**. Undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026.
 - NTNU-prøvene gjelder emnemetadata og emnelenket undervisning for **ARK1001 og EXPH0100 høsten 2026**. Det loves ikke komplett NTNU-program, full eksamensdekning eller personlig gruppetilhørighet.
-- [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) avgrenser lokale kontrakttester, offentlig transport og teknisk UI-kontroll. **2026-10-29:** Hele HiMolde-programflytens gjentakelse med IBE110/IBE430/IBE160 er [teknisk kontrollert med syntetiske kilder på faktisk Vercel-preview](../../studieplanlegger/IMPORT-COVERAGE.md#hel-himolde-programgjentakelse-med-syntetiske-kilder--2026-10-29). Dette er ikke gjentakelse med faktisk kildetransport. Eksisterende adaptere utvider ikke leveranseløftet.
+- [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) avgrenser lokale kontrakttester, offentlig transport og teknisk UI-kontroll. Eksisterende adaptere og supplerende prøver utvider ikke leveranseløftet. [Kjente begrensninger](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) beskriver gjenværende kilde- og driftsgrenser.
 
 ## Krav og akseptansekriterier
 
-**Publiseringskontroll 2026-10-29:** [Produksjonsadressen](https://ajour-sooty.vercel.app) er kontrollert etter faktisk preview og PR-integrering. [Daterte resultater](../../studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) dokumenterer nettprøver, live-import, profilisolasjon og ny deploy på samme adresse. Dette endrer ikke SC-07 eller personlig refleksjon.
-
 **Godkjent driftsutvidelse 2026-10-29:** Den komplette nettleserflyten kan publiseres i ett gratis Vercel-prosjekt uten konto, skydatabase eller delte studentdata. Lokal Node-/Docker-drift beholdes. R-01–R-06/R-08 gjelder også nettleserutgaven: emner, oppgaver, økter, utfall, justering/Angre og sikkerhetskopier skal beholde identiteter og relasjoner ved omlasting og gjenåpning på samme adresse. R-06s lokale datavolumkrav gjelder fortsatt Node/Docker; i nettutgaven er nettleserprofil og nøyaktig nettadresse lagringsgrensen. En ny publisering på samme adresse skal bevare gyldige data. Uavhengige profiler og adresser skal være adskilt. Ugyldig eller mislykket lagring/gjenoppretting skal beholde lagrede data og åpne utkast.
 
-Nettutgaven skal forklare at sletting av nettleserdata kan slette planen, at localhost/forhåndsvisning/produksjon har separate data, og at flytting skjer med sikkerhetskopi uten enhetssynkronisering. Offentlig import bruker bare gjenkjente kildeintegrasjoner og studentens kontroll før lagring; vilkårlige kalenderadresser avvises med veiledning til filimport. Importløftet utvides ikke. Faktisk forhåndsvisning skal kontrolleres før integrering, og publisert adresse, commit og produksjonskontroll skal dokumenteres etterpå. [Datert verifikasjon](../../studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) skiller tekniske prøver, live-transport og visuell inspeksjon fra SC-07, som fortsatt ikke er gjennomført.
+Nettutgaven skal forklare at sletting av nettleserdata kan slette planen, at localhost/forhåndsvisning/produksjon har separate data, og at flytting skjer med sikkerhetskopi uten enhetssynkronisering. Offentlig import bruker bare gjenkjente kildeintegrasjoner og studentens kontroll før lagring; vilkårlige kalenderadresser avvises med veiledning til filimport. Importløftet utvides ikke. Faktisk forhåndsvisning skal kontrolleres før integrering, og publisert adresse, commit og produksjonskontroll skal dokumenteres etterpå. Tekniske prøver, kildetransport og prosjekteierens manuelle egenutprøving skal dokumenteres hver for seg.
 
 ID-ene er stabile. [Stories](EPICS-CURRENT.md) utdyper Given/When/Then, og [sporbarheten](TRACEABILITY.md) kobler hvert krav til kode, test/metode og datert evidens.
 
@@ -74,21 +72,21 @@ Dette er en avgrenset kildeoversikt, ikke en markeds- eller studentundersøkelse
 | Hva og når | Kilde og faktisk funn | Betydning for Ajour og begrensning |
 | --- | --- | --- |
 | Produktgrunnlag, 2026-10-06 | [Lærerfeedback](../../tilbakemelding-product-brief.md) vurderer problemet og hovedreisen som konkrete, men etterspør avgrenset V1, sjekkbare kriterier og sporbarhet. | Gir føringer for leveransen; er ikke dokumentasjon på studentbehov eller nytte. |
-| V1-kilder, 2026-09-26 og 2026-10-01 | [Importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) beskriver daterte HiMolde-/NTNU-prøver og offentlig transport. | Underbygger et navngitt kildeutvalg, ikke nasjonal dekning eller personlig gruppetilhørighet. Hele HiMolde-programgjentakelsen var ikke verifisert i disse kildeprøvene; den senere syntetiske kontrollen er datert separat ovenfor. |
+| V1-kilder, avgrenset 2026-10-16 | [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) beskriver grunnlaget for det navngitte HiMolde-/NTNU-utvalget. | Kildeavhengigheten begrunner et begrenset importløfte og manuell registrering som alternativ, uten løfte om nasjonal dekning eller personlig gruppetilhørighet. |
 | Kalenderformat, 2026-10-23 | [TP CSV-formatgrunnlag](../implementation-artifacts/tp-csv-format-contract-2026-10-23.md) dokumenterer offentlig NTNU-veiledning, offisiell TP-klient og CSV-header. | Kildeinformasjon og tidsusikkerhet må bevares og forklares. Ingen private originaler er undersøkt; feltroller er ikke en full TP-spesifikasjon. |
 | Kalenderalternativ, lest 2026-10-26 | [Google Calendar: oppgaver](https://support.google.com/calendar/answer/9901136?co=GENIE.Platform%3DDesktop&hl=en) beskriver planlagt tid, frist, fullføring og omplanlegging. | Har overlappende planleggingsfunksjoner. Ajours sammenhengende arbeidsflyt er et designvalg, ikke dokumentert overlegenhet eller markedsunikhet. |
 | Læringsplattform, lest 2026-10-26 | [Canvas: studentkalender](https://community.instructure.com/en/kb/articles/662787-unknown) beskriver emne-/gruppekalender, oppgaver, egne gjøremål, kalenderfeed og innleveringsmarkering. | Ajour må skille lokal arbeidsstatus fra faktisk innlevering. Dette lover ingen generell Canvas-integrasjon; faktisk innlevering skjer fortsatt i lærestedets løsning. |
 | Oppgavelistealternativ, lest 2026-10-26 | [Microsoft To Do](https://support.microsoft.com/en-us/todo/add-due-dates-and-reminders-in-microsoft-to-do) beskriver forfallsdatoer, påminnelser, gjentakelse og planlagtlisten. | Et relevant alternativ til deler av flyten. Studentenes preferanser og eventuell fordel ved Ajour er ikke undersøkt. |
 
-Ingen intervjuer, studentundersøkelser eller observerte brukerresultater inngår i dette grunnlaget. Antakelsen om at koblingen mellom arbeid, tid og justering gir bedre oversikt, gjenstår å undersøke. Den planlagte egenutprøvingen kan gi konkrete observasjoner fra prosjekteieren, men ikke dokumentere bedre læring eller generell studentnytte.
+Ingen intervjuer eller studentundersøkelser inngår i researchgrunnlaget ovenfor. Prosjekteierens egne observasjoner dokumenteres separat i prøveplanen. De kan belyse egen bruk, men dokumenterer ikke bedre læring eller generell studentnytte. Antakelser om målgruppens behov må fortsatt skilles fra det én prosjekteier har erfart.
 
-## Hva som er kontrollert, antatt og planlagt
+## Krav, antakelser og evidens
 
-| Kategori | Gjeldende status 2026-10-26 |
+| Kategori | Dokumentasjonsgrense |
 | --- | --- |
-| Implementert og teknisk kontrollert | R-01–R-06/R-08 og Q-01–Q-03 har avgrenset evidens i [sporbarheten](TRACEABILITY.md) og [siste dokumenterte kandidatkontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26). [Temarunden](../../studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) har faktisk Node-/Docker-kontroll; eldre Docker-blokkeringer er historiske. Ingen tidligere kjøring blir ny ved denne dokumentrevisjonen. |
+| Produktkrav og teknisk kontroll | R-01–R-06/R-08 og Q-01–Q-03 spores til kode og daterte kontroller i [sporbarheten](TRACEABILITY.md) og [verifikasjonen](../../studieplanlegger/VERIFICATION.md). En dokumentrevisjon gjør ikke en tidligere kjøring til en ny test. |
 | Antakelser om behov og nytte | Designscenarioet, ønsket om mindre planleggingsarbeid og nytten av ett neste forslag er ikke validert med brukerundersøkelser. Tekniske tester beviser ikke læring eller generell studentnytte. |
-| Egenutprøving | SC-07/R-07/S-07: **2026-10-29 påbegynt med rapporterte avvik; omprøving gjenstår**. Bare prosjekteieren utfører de sju manuelle scenariene i [prøveplanen](USER-TRIAL-PLAN.md). Rapporterte funn beholdes; resterende observasjoner og omprøving fylles inn etter faktisk utførelse. |
+| Egenutprøving | SC-07/R-07/S-07 gjelder prosjekteierens egen manuelle betjening og observasjoner. [Prøveplanen](USER-TRIAL-PLAN.md) eier faktisk utførelse, før-/etter-resultater og avgrensninger. Automatiske kontroller kan ikke fylle inn eierens erfaringer. |
 
 **Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. Dette erstatter den tidligere planlagte prøven med en ny student; den tidligere prøven ble ikke gjennomført eller bestått. Samme SC-07/R-07/S-07 beholdes. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner. Personlig refleksjon må fortsatt bygge på prosjekteierens egne erfaringer.
 
@@ -96,9 +94,9 @@ Ingen intervjuer, studentundersøkelser eller observerte brukerresultater inngå
 
 | Spørsmål | Ansvar og når det følges opp |
 | --- | --- |
-| Hvilke deler av hovedflyten, kalenderen og temavalget oppleves uklare eller arbeidskrevende i egen bruk? | Prosjekteieren registrerer dette under de sju scenariene. Status er planlagt; ingen svar er fylt inn. |
-| Er vedlikeholdet av oppgaver og anslag nyttig nok sammenlignet med egen kalender/Canvas/oppgaveliste? | Prosjekteieren kan beskrive konkrete erfaringer etter prøven. Svaret kan ikke generaliseres til målgruppen eller dokumentere bedre læring. |
-| Hva er faktisk bekreftet utover lokale importprøver? | Hel HiMolde-programgjentakelse med syntetiske kilder er teknisk kontrollert på faktisk Vercel-preview 2026-10-29. Hel gjentakelse med faktisk kildetransport er ikke dokumentert. Ekstern Outlook-import er fortsatt ikke prøvd; eventuell senere kontroll får egen dato og avgrensning og er ikke en ny funksjonsbestilling. |
+| Hvilke deler av hovedflyten, kalenderen og temavalget oppleves uklare eller arbeidskrevende i egen bruk? | Prosjekteieren kan drøfte de dokumenterte observasjonene i sin personlige refleksjon. Den skal bygge på faktiske erfaringer; funksjonsprøvene alene gir ikke svar på opplevd nytte. |
+| Er vedlikeholdet av oppgaver og anslag nyttig nok sammenlignet med egen kalender/Canvas/oppgaveliste? | Prosjekteieren kan beskrive konkrete erfaringer fra prøven. Svaret kan ikke generaliseres til målgruppen eller dokumentere bedre læring. |
+| Hva er faktisk bekreftet utover lokale importprøver? | [Importdekning](../../studieplanlegger/IMPORT-COVERAGE.md), [prøveplan](USER-TRIAL-PLAN.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) skiller kildeprøver, egenutprøving og automatiske kontroller. Nye kilder blir ikke krav som følge av en vellykket enkeltprøve. |
 | Hvilke øvrige vurderingsdokumenter gjelder? | Godkjent proposal og overordnet veiledning er fortsatt ikke identifisert. Prosjekteieren kan supplere med disse når de foreligger; den tilgjengelige sensorveiledningen identifiseres i planindeksen. |
 
 ## Framtidige ideer utenfor V1
@@ -113,6 +111,7 @@ Nasjonal dekning er en **visjon**, ikke et uoppfylt V1-krav. Kontoer, betaling, 
 | 2026-10-18–24 | Avgrensede import-/kalenderrettinger presiserte eksisterende krav. Aksepteksemplene er bevart i stories; faktiske kjøringer og begrensninger i VERIFICATION. |
 | 2026-10-25–26 | Ajour-grensesnitt, personvernretting, emnefarger og tema innen samme V1. Historiske resultater beholdes med dato. |
 | 2026-10-26, denne revisjonen | Produkt/problem/målgruppe, research og åpne spørsmål gjort lettere å finne; egenutprøving innført etter prosjekteierens beslutning; korrigert uriktige dokumentpåstander. Ingen nye produktfunksjoner. |
-| 2026-10-29 | Uttrykkelig godkjent Vercel-nettleserdrift med komplett hovedflyt, lokale data og avgrenset import. Eldre lokalavgrensning beholdes som historikk; SC-07 og personlig refleksjon er fortsatt uutført. |
+| 2026-10-29 | Uttrykkelig godkjent Vercel-nettleserdrift med komplett hovedflyt, lokale data og avgrenset import. Eldre lokalavgrensning beholdes som historikk; faktiske prøver føres separat. |
+| 2026-11-01 | Dokumentasjonsgrensene tydeliggjort: mål, brukerbehov, krav og omfang her; eierens sluttresultater og automatiske kontrollresultater i prøve-/verifikasjonsdokumentasjonen. Krav-ID-er og V1 er uendret. |
 
 Implementasjonsvalg og kontrakter hører til arkitekturen. Detaljerte kjøreresultater hører til verifikasjonen. Denne PRD-en beskriver produktbehov, krav og grensen for hva dokumentasjonen kan underbygge.
