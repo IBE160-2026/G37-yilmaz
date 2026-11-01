@@ -1,5 +1,6 @@
 import { getActionMinutes, getRemainingRange, formatEstimateRange, selectTasksForMinutes, sortedTasks, isOverdue } from './tasks.js'
-import { taskBlockers } from './task-dependencies.js'
+import { canStartTask, taskBlockers } from './task-dependencies.js'
+import { primaryWorkStep } from './work-steps.js'
 
 export function formatDuration(minutes) {
   if (!Number.isSafeInteger(minutes) || minutes < 0) return 'ukjent tid'
@@ -10,12 +11,31 @@ export function formatDuration(minutes) {
 }
 
 export function rankedSuggestions(tasks, minutes) {
-  const candidates = selectTasksForMinutes(tasks, minutes)
+  const candidates = selectTasksForMinutes(tasks, minutes, { includePartial: true })
   if (candidates.length <= 2) return candidates
   const recommended = candidates[0]
   const shortest = [...candidates.slice(1)].sort((a, b) => getActionMinutes(a) - getActionMinutes(b) || a.id.localeCompare(b.id))[0]
   const alternative = candidates.slice(1).find(task => task.id !== shortest.id)
   return [recommended, alternative, shortest].filter(Boolean)
+}
+
+export function suggestionExclusions(tasks, minutes) {
+  const eligible = new Set(selectTasksForMinutes(tasks, minutes, { includePartial: true }).map(task => task.id))
+  return tasks.filter(task => !task.completed && !task.submitted && !eligible.has(task.id)).map(task => {
+    const step = primaryWorkStep(task)
+    let reason
+    if (!canStartTask(task, tasks, { nextStep: Boolean(step) })) {
+      const blockers = taskBlockers(task, tasks).filter(blocker => !blocker.waiting || !step?.unblocksWaiting)
+      reason = `${blockers.map(blocker => blocker.reason).join(' ')} Åpne oppgaven for å avklare venting eller forutsetninger.`
+    } else if (getRemainingRange(task)?.maxMinutes === 0) {
+      reason = 'Gjenstående arbeid er satt til 0, men oppgaven er ikke markert ferdig. Oppdater anslaget eller marker arbeidet ferdig.'
+    } else if (!Number.isSafeInteger(getActionMinutes(task)) || getActionMinutes(task) <= 0) {
+      reason = 'Tiden for arbeidet er ukjent. Oppgi et gjenstående anslag eller et tidsanslag for neste arbeidssteg.'
+    } else {
+      reason = `Arbeidet kan ikke deles og trenger ${getActionMinutes(task)} minutter sammenhengende. Velg mer tid, eller aktiver «Kan deles i flere økter» hvis arbeidet kan deles.`
+    }
+    return { taskId: task.id, title: task.title, reason }
+  })
 }
 
 export function dailyStatus(model) {

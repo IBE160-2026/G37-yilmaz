@@ -575,7 +575,7 @@ replanView = createReplanningView({ state: snapshot, commit: commitState, onClos
     queueMicrotask(() => document.querySelector(`#task-form [name="${field}"]`)?.focus())
   },
   advanced() { view = 'capacity'; refresh(); document.querySelector('.work-window-form input[name=startLocal]')?.focus() } })
-studySessionView = createStudySessionView({ onClose: refresh, finish(taskId, plannedMinutes, stepOnly) { workView.open(taskId, undefined, 'done', { plannedMinutes, stepOnly }); refresh() } })
+studySessionView = createStudySessionView({ onClose: refresh, finish(taskId, plannedMinutes, stepOnly, partial) { workView.open(taskId, undefined, partial ? 'more' : 'done', { plannedMinutes, stepOnly }); refresh() } })
 workStepsView = createWorkStepsView({ state: snapshot, commit: commitState, onClose: refresh })
 onboarding = createOnboarding({
   begin() { if (!extras.onboarding) commitState({ ...snapshot(), onboarding: { dismissed: false, completed: false } }, 'Startet oppstart', { history: false }) },

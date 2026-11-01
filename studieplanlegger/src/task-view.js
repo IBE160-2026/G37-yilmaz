@@ -1,4 +1,4 @@
-import { suggestionReason } from './tasks.js'
+import { getActionMinutes, getSessionMinutes, suggestionReason } from './tasks.js'
 import { isOverdue, getRemainingMinutes, getRemainingRange, formatEstimateRange } from './tasks.js'
 import { formatDeadline, taskStatus } from './calendar.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
@@ -40,6 +40,7 @@ export function createTaskList(list, actions) {
     const stepEstimate = node('p', 'action-estimate')
     stepBox.append(stepLabel, stepText, stepEstimate)
     const reason = node('p', 'suggestion-reason')
+    const sessionDuration = node('p', 'task-session-duration')
     const explanation = node('details', 'suggestion-explanation')
     explanation.append(node('summary', '', 'Hvorfor dette forslaget?'), reason)
     const blockers = node('p', 'task-blockers')
@@ -61,7 +62,7 @@ export function createTaskList(list, actions) {
     label.append(complete, completeText)
     menuItems.append(label)
     const buttons = { complete }
-    const row = { item, kicker, course, status, title, deadline, estimate, remaining, capacityWarning, overdue, stepBox, stepText,
+    const row = { item, kicker, course, status, title, deadline, estimate, remaining, capacityWarning, overdue, stepBox, stepText, sessionDuration,
       stepEstimate, reason, blockers, submissionHint, primary, menu, summary, buttons, completeText, task, primaryAction: null }
     function invoke(action) {
       if (action === 'complete') actions.complete(task.id, true, 'primary')
@@ -92,7 +93,7 @@ export function createTaskList(list, actions) {
     feedback.setAttribute('role', 'alert')
     feedback.hidden = true
     row.feedback = feedback
-    item.append(kicker, top, title, meta, capacityWarning, stepBox, blockers, controls, explanation, submissionHint, feedback)
+    item.append(kicker, top, title, meta, capacityWarning, stepBox, sessionDuration, blockers, controls, explanation, submissionHint, feedback)
     return row
   }
   function setDisabled(row, disabled) {
@@ -135,8 +136,11 @@ export function createTaskList(list, actions) {
         row.status.className = `status-badge ${task.submitted ? 'is-submitted' : ready ? 'is-ready' : task.completed ? 'is-completed' : 'is-open'}`
         setText(row.deadline, formatDeadline(task.deadlineLocal, { year: Number((task.deadlineLocal || '').slice(0, 4)) !== now.getFullYear() }))
         row.deadline.dateTime = task.deadlineLocal || ''
-        setText(row.estimate, task.estimatedMinutes == null ? 'Tidsestimat ukjent' : `Hele oppgaven: ${task.estimatedMinutes} min`)
+        row.estimate.hidden = task.estimatedMinutes == null
+        setText(row.estimate, task.estimatedMinutes == null ? '' : `Opprinnelig anslag: ${task.estimatedMinutes} min`)
         setText(row.remaining, `Gjenstående arbeid: ${formatEstimateRange(getRemainingRange(task))}`)
+        row.sessionDuration.hidden = !suggestion
+        setText(row.sessionDuration, suggestion ? `Arbeid nå: ${getSessionMinutes(task, minutes)} min${getActionMinutes(task) > getSessionMinutes(task, minutes) ? ' · deløkt' : ''}. Totalanslaget endres ikke av forslaget.` : '')
         const planned = capacity.find(entry => entry.taskId === task.id)
         row.capacityWarning.hidden = !planned || task.completed || (!planned.reasons.length && !planned.missingMinutes && !planned.missingMinMinutes)
         const missing = planned.missingMaxMinutes === null
