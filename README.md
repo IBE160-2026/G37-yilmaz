@@ -10,7 +10,7 @@ Ajour hjelper studenten gjennom **oppgave → valgfritt arbeidssteg → godkjent
 
 ## Nettleserutgave — 2026-10-29
 
-**Åpne [Ajour på nett](https://ajour-sooty.vercel.app).** Produksjonsadressen er kontrollert 2026-10-29 etter faktiske preview-prøver og integrering via [PR #1](https://github.com/IBE160-2026/G37-yilmaz/pull/1). Appen bruker **ett gratis Vercel-prosjekt**, `ajour`. Hele Ajour-flyten beholdes; lokal Node-/Docker-drift er fortsatt tilgjengelig. [Verifikasjonen](studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) oppgir testet produksjonscommit og faktiske resultater.
+**Åpne [Ajour på nett](https://ajour-sooty.vercel.app/).** Appen bruker **ett gratis Vercel-prosjekt**, `ajour`. Hele Ajour-flyten beholdes; lokal Node-/Docker-drift er fortsatt tilgjengelig. [Verifikasjonen](studieplanlegger/VERIFICATION.md) skiller daterte produksjonskontroller og commitbevis fra prosjekteierens egenutprøving. Den første publiseringen via [PR #1](https://github.com/IBE160-2026/G37-yilmaz/pull/1) er historikk fra 29. oktober.
 
 I nettutgaven lagres planen bare i den aktuelle nettleserprofilen på den nøyaktige nettadressen. Localhost, Vercel-forhåndsvisninger og produksjonsadressen har separate data. Sletting av nettleserdata kan slette planen; eksporter sikkerhetskopi for trygg oppbevaring eller flytting mellom adresser/enheter. Det finnes ingen konto eller enhetssynkronisering. [Oppsett og fjernkontroll](studieplanlegger/README.md#nettleserdrift-med-vercel--2026-10-29) beskriver den nye driftsformen uten å endre V1-importløftet eller statusen for egenutprøving.
 
@@ -26,7 +26,18 @@ Studieprogram, emner og offentlig undervisning kan importeres etter kontroll. Ki
 
 Planleggingen støtter gjenbrukbare studietidsmønstre, usikre arbeidsanslag, daglig veiledning og studentgodkjent omplanlegging. Import- og kalendergrensesnittet bevarer relevante åpne seksjoner, rulleposisjon og fokus, viser læresteder, programmer og emner alfabetisk etter norsk navn, og viser stabile emnefarger sammen med tydelige emnekoder. Kalenderens topp har en eksporthandling som lager en lokal `.ics`-kopi; frister blir kompatible, transparente kalenderhendelser uten oppdiktet varighet. Implementert kildekode og avgrensede kontroller er ikke det samme som full nasjonal kilde- eller programdekning; se [importdekningen](studieplanlegger/IMPORT-COVERAGE.md).
 
-**Dokumentasjonen er samordnet 26. oktober 2026.** Start med [planindeksen](.docs/planning-artifacts/README.md) for krav og kode-/testsporbarhet, og [VERIFICATION.md](studieplanlegger/VERIFICATION.md) for nyeste kandidatresultater, personvernkontroll og kjente begrensninger. Eldre kontroller er datert historikk. Etter prosjekteierens beslutning 26. oktober er [egenutprøvingen](.docs/planning-artifacts/USER-TRIAL-PLAN.md) en manuell prøve utført av prosjekteieren alene, med syntetiske data i et isolert miljø. Status er **planlagt / ikke gjennomført**. Tekniske tester er ikke prosjekteierens manuelle observasjoner, og egenutprøvingen vil ikke dokumentere nytten for studentgruppen generelt.
+## Leveringsoversikt — 1. november 2026
+
+**Ferdig og dokumentert:** De rapporterte omprøvingene er registrert som **egenutprøving utført av prosjekteier**. Identisk 500-import, historikk uten vekst, faktisk stor gjenoppretting med bevarte data etter omlasting, norske tidsfeil, én kapasitetsforklaring og AHOs semesteretiketter bestod innen det dokumenterte omfanget. SC-07/1200–30 og Outlook-prøven fra 30. oktober beholder bestått. [Prøveplan og egenresultater](.docs/planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) er skilt fra [automatiske kontroller og tekniske før/etter-bevis](studieplanlegger/VERIFICATION.md).
+
+| Finn fram | Innhold |
+| --- | --- |
+| [Brukerveiledning](studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [løsningsguide](.docs/implementation-artifacts/solution-guide.md) | Hovedflyt, lagring, sikkerhetskopi og bruk. Lokal oppstart står nedenfor. |
+| [Planindeks og leveringsgrunnlag](.docs/planning-artifacts/README.md) | Brief, PRD, stories, arkitektur og krav-/testsporbarhet. |
+| [Kjente begrensninger](studieplanlegger/README.md#kjente-begrensninger-ved-levering) | NTNU, UiT, lagringskvote, prøvens avgrensning, F03/F05 og bundlevarsel, med betydning for V1. |
+| [Utviklingsprosess og refleksjonsdisposisjon](.docs/implementation-artifacts/development-process.md#disposisjon-for-personlig-refleksjon) | Dokumenterte hendelser og spørsmål som prosjekteieren besvarer selv. |
+
+**Det prosjekteieren fortsatt må fullføre:** Skriv personlig refleksjon med egne erfaringer. Kontroller konkret frist og innleveringsformat i emnets leveringsinformasjon, og legg ved eller henvis til det materialet som faktisk kreves. Den tilgjengelige sensorveiledningen er lest; godkjent proposal og overordnet veiledning er fortsatt ikke identifisert. Dette er manglende kildegrunnlag, ikke nye krav. Eldre testresultater beholdes med dato; egenutprøvingen dokumenterer ikke generell studentnytte eller full sikkerhet.
 
 ## Kjør den komplette lokale leveransen
 

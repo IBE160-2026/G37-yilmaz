@@ -2,7 +2,22 @@
 
 This document records verifiable facts about how Ajour was developed with AI assistance and BMAD. It is not the student's personal reflection report and does not claim personal learning, user value, or experience that has not been documented.
 
-**Documentation revision — 2026-10-26:** The owner has chosen to carry out the manual trial alone, using synthetic data in an isolated environment. [The existing trial plan](../planning-artifacts/USER-TRIAL-PLAN.md) retains SC-07/R-07/S-07 and is **planned / not performed**. No other participants are to be recruited. The trial will record the owner's observations; it cannot establish that unfamiliar users understand Ajour or that the student population benefits. Product scope and target users remain unchanged. Personal reflection must still come from the owner's own experience.
+**Documentation reconciliation — 2026-11-01:** The owner has confirmed that the latest manual retests were personally performed and checked. They are recorded as **egenutprøving utført av prosjekteier** in the [existing trial plan](../planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), separately from automated tests and CI. The original supplied HTML report labels the retest as agent-executed; it remains unchanged as source material, and the current record explicitly cites the owner's correction of that attribution. This does not relabel earlier technical checks as personal experience. SC-07/1200–30 and the owner's 30 October Outlook result retain their documented passes. No other participants are to be recruited. Personal reflection still comes from the owner's own experience; the retests do not establish general student benefit. Dated earlier entries below retain their historical scope.
+
+## Disposisjon for personlig refleksjon
+
+Dette er spørsmål til prosjekteieren, ikke en ferdig refleksjonsrapport. Bruk bare hendelser du faktisk deltok i, og beskriv med egne ord hva du vurderte, gjorde og erfarte. [Prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) og [verifikasjonen](../../studieplanlegger/VERIFICATION.md) gir daterte bevis, mens kravene til selve refleksjonsleveransen må kontrolleres mot emnets overordnede veiledning.
+
+| Dokumentert hendelse | Spørsmål du kan besvare selv |
+| --- | --- |
+| Lærerfeedback 6. oktober og avgrensning til navngitte V1-prøver. | Hvordan tok du stilling til omfanget, og hvilke forslag valgte du å utsette? |
+| SC-07: en delbar oppgave på 1200 minutter ga først ikke et 30-minuttersforslag. | Hvordan oppdaget og beskrev du avviket? Hva kontrollerte du etter rettingen? |
+| Identisk 500-import og stor backup feilet tidligere; egenutprøvingen 1. november viste ingen historikkvekst og vellykket faktisk gjenoppretting. | Hvilke sammenligninger gjorde du selv, og hva gjorde deg trygg på det avgrensede resultatet? |
+| Egen Outlook-import 30. oktober og skillet mellom ferdig arbeid og levert. | Hva observerte du i den faktiske flyten, og hvilke antakelser unngikk du? |
+| PR-er, automatiske kontroller og separate manuelle resultater. | Hvordan brukte du testresultatene til å kontrollere KI-arbeidet, og hva måtte du fortsatt vurdere selv? |
+| NTNU-/UiT-kildegrenser, F03/F05 og bundlevarsel står igjen. | Hvilke avgrensninger kunne du akseptere for V1, hvilke bør følges opp, og hva ville du prioritert annerledes i et nytt prosjekt? |
+
+Skill egen erfaring fra kodeendringer eller undersøkelser agenten utførte. Ikke bruk antall beståtte tester som bevis for egen læring eller full sikkerhet.
 
 ## Local Ajour delivery follow-up — 2026-10-26
 
@@ -66,7 +81,7 @@ The following short excerpts come from the user's actual instructions in this Co
 | “Ikke fremstille en ny prompt som historisk dokumentasjon.” | The publication instruction led to this dated excerpt section and the retained retrospective labels on PRD/stories. Earlier corrections below remain linked to code/history, not invented historical prompts. | Does not fill missing records of original KI sessions or establish personal learning. |
 | “Stage eksplisitt gjennomgåtte filer. Ikke bruk ukritisk git add .” | The publication workflow selects the reviewed documentation paths, checks the staged diff, and compares the published revision with remote. Actual completion must be established by Git results, not by this instruction. | This is current publication authorization; it does not change the earlier no-commit round into a historical publication. |
 
-The earlier three-layer documentation review found imprecise NTNU acceptance criteria, undated evidence references and an insufficiently isolated trial recipe. The corrections were recorded in EPICS-CURRENT, TRACEABILITY and USER-TRIAL-PLAN; the trial method was subsequently changed on 26 October as described above. This is evidence of Codex/BMAD correction within the documented task, not attribution of each discovery to the student. The seven-area assessment in TRACEABILITY identifies missing original process evidence and the unperformed self-trial.
+The earlier three-layer documentation review found imprecise NTNU acceptance criteria, undated evidence references and an insufficiently isolated trial recipe. The corrections were recorded in EPICS-CURRENT, TRACEABILITY and USER-TRIAL-PLAN; the trial method was subsequently changed on 26 October. This is evidence of Codex/BMAD correction within the documented task, not attribution of each discovery to the student. The seven-area assessment in TRACEABILITY preserves the historical gaps; the current owner-executed results are linked above.
 
 ### Historical repository limitation
 

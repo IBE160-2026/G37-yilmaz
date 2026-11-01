@@ -1,8 +1,8 @@
 # Epics og stories for Ajour
 
-**Oppfølging 2026-10-29:** S-07 er [påbegynt med rapporterte egne avvik](USER-TRIAL-PLAN.md#rapporterte-funn-og-omprøving--2026-10-29); omprøving gjenstår. Tidligere daterte statusutsagn nedenfor er historikk. Teknisk etterprøving av den separate KI-rapporten er ikke prosjekteierens observasjoner eller bestått S-07.
+**Gjeldende status 2026-11-01:** Egenutprøving er utført av prosjekteier; de rapporterte omprøvingene er bestått innen [dokumentert omfang](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). SC-07/1200–30 og Outlook-prøven fra 30. oktober beholder bestått. Personlig refleksjon gjenstår. Tidligere daterte statusutsagn nedenfor er historikk; automatiske tester og tekniske rapporter tilskrives ikke prosjekteieren.
 
-**Rekonstruert 2026-10-16; revidert 2026-10-26.** Produktomfang og S-01–S-08 er beholdt. Etter prosjekteierens beslutning 26. oktober gjelder S-07 egenutprøving, **planlagt / ikke gjennomført**, uten andre testpersoner. Tidligere plan om ekstern studentprøve ble ikke gjennomført eller bestått. Daterte tekniske oppfølginger nedenfor er historikk, ikke resultater fra egenutprøvingen. [Siste tekniske kontroll](../../studieplanlegger/VERIFICATION.md#lokal-commitkontroll--2026-10-26).
+**Rekonstruert 2026-10-16; status samordnet 2026-11-01.** Produktomfang og S-01–S-08 er beholdt. Etter prosjekteierens beslutning 26. oktober gjelder S-07 egenutprøving uten andre testpersoner. Tidligere plan om ekstern studentprøve ble ikke gjennomført eller bestått. Daterte tekniske oppfølginger nedenfor er historikk, ikke resultater fra egenutprøvingen. [Automatiske kontroller og publisering](../../studieplanlegger/VERIFICATION.md) dokumenteres separat.
 
 ## Lokal Ajour-oppfølging — 2026-10-26
 
@@ -76,7 +76,7 @@ Som student vil jeg registrere det jeg vet, slik at manglende detaljer ikke hind
 - **Given** tom planlegger, **When** jeg lagrer et manuelt emne og en oppgave med bare tittel, **Then** oppgaven lagres uten oppdiktet frist eller anslag.
 - **Given** oppgaven og tilgjengelig tid, **When** jeg kontrollerer og godkjenner en økt og laster siden på nytt, **Then** emne, oppgave og økt beholder sine koblinger.
 
-Status: implementert; automatisert teknisk onboarding finnes. Prosjekteierens egenutprøving gjenstår i S-07; ukjente studenters forståelse er ikke undersøkt.
+Status 2026-11-01: implementert; automatisert teknisk onboarding finnes. Prosjekteierens egne resultater er dokumentert under S-07 og i prøveplanen; ukjente studenters forståelse er ikke undersøkt.
 
 ### S-02 — Avgrenset, kontrollert import (R-02, Q-02; SC-02)
 
@@ -96,7 +96,7 @@ Tillegg bestilt **2026-10-18**, jf. [datert oppfølging](../../studieplanlegger/
 - **Given** tidligere importert undervisning, **When** oppdateringen feiler, **Then** tidligere hendelser/valg og siste suksess beholdes, mens feilen beskrives separat.
 - **Given** NTNU ARK1001 eller EXPH0100 høst 2026, **When** studenten søker emnemetadata, henter emnelenket undervisning, kontrollerer aktivitetsutvalget og bekrefter importen, **Then** emnet og undervisningskoblingene beholdes ved omlasting og samme import gjentatt med stabile ID-er. Testkilde: [connected-public-teaching-live.spec.js](../../studieplanlegger/tests/e2e/connected-public-teaching-live.spec.js), `live NTNU course and teaching round-trip: ARK1001` / `live NTNU course and teaching round-trip: EXPH0100`. Dette er eksisterende testkode, ingen ny live-kjøring.
 
-Status: implementert. Ny lokal kontraktkontroll 2026-10-16; transport og UI er historiske avgrensede prøver. Hele HiMolde-programgjentakelsen er ikke verifisert. NTNU-avgrensningen følger PRD, uten programløfte.
+Status 2026-11-01: implementert med avgrenset, datert evidens i [importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md). Hel HiMolde-programgjentakelse er teknisk kontrollert med syntetiske kilder; hel gjentakelse med faktisk kildetransport påstås ikke. NTNU-avgrensningen følger PRD, uten programløfte. [Kjente begrensninger](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering), inkludert F03/F05, beholdes.
 
 Approved S-02 follow-up **2026-10-19**, [resolution correction](../../studieplanlegger/VERIFICATION.md#course-resolution-source-changes-and-csv-clarification--2026-10-19):
 
@@ -158,7 +158,7 @@ Som prosjekteier vil jeg gjennomføre en manuell prøve med syntetiske data og d
 - **Given** syntetisk kalender og lagrede oppgaver, **When** jeg prøver emnefarger, temabytte, omlasting og isolert sikkerhetskopi/gjenoppretting, **Then** registrerer jeg hva som faktisk bevares og eventuelle avvik. Lokale visningspreferanser loves ikke overført i sikkerhetskopien.
 - **Given** tekniske tester eller tomme observasjonsfelt, **When** status oppsummeres, **Then** teller de ikke som mine manuelle erfaringer eller som bevis for ukjente brukeres forståelse.
 
-**Status 2026-10-29: påbegynt med rapporterte avvik; omprøving og fullstendige scenarioresultater gjenstår.** Endret til egenutprøving etter prosjekteierens beslutning **2026-10-26**; ingen andre testpersoner rekrutteres. Den tidligere studentprøven ble ikke gjennomført eller bestått. Personlig refleksjon skrives fra prosjekteierens faktiske erfaringer.
+**Status 2026-11-01: egenutprøving utført av prosjekteier; rapporterte omprøvinger bestått innen dokumentert omfang.** [Prøveplanen](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) beholder de tidligere avvikene som før-/etter-bevis og angir hva siste omprøving ikke dekket. Den opprinnelige sjuscenariooppskriften er ikke fylt ut med antatte observasjoner. Endret til egenutprøving etter prosjekteierens beslutning **2026-10-26**; ingen andre testpersoner rekrutteres. Den tidligere eksterne studentprøven ble ikke gjennomført eller bestått. Personlig refleksjon gjenstår og skrives fra prosjekteierens faktiske erfaringer.
 
 ### S-08 — Bevare eksisterende tillegg (R-08; støtter SC-04/SC-05)
 
@@ -168,7 +168,7 @@ Som student vil jeg fortsatt kunne bruke valgfrie tillegg uten nye obligatoriske
 - **Given** lav frivillig egenvurdering, **When** repetisjon foreslås, **Then** ingen økt lagres før godkjenning.
 - **Given** lagret plan, **When** kalenderkopi eksporteres eller planalternativer sammenlignes, **Then** eksporten er en kopi og sammenligningen skriver ikke før eksplisitt valg.
 
-Status: implementert tillegg, med integrerte tester; ekstern Outlook-import og studentnytte er ikke bekreftet.
+Status 2026-11-01: implementert tillegg, med integrerte tester. Prosjekteierens Outlook-prøve fra 30. oktober beholder bestått innen [dokumentert omfang](USER-TRIAL-PLAN.md); generell studentnytte er ikke bekreftet.
 
 
 ### Subsequent calendar form correction — 2026-10-19 (S-02, S-05, S-06; Q-01)
