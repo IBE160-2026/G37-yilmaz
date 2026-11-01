@@ -17,7 +17,7 @@ const choices = [
 // concrete suggestions instead of turning into a second all-tasks list.
 const expectedIds = ['old-20', 'tie-first-30', 'future-20']
 
-test('30 minutes includes 20/30 across all weeks and overdue tasks, excludes 31/completed, and orders deadlines before durations', async ({ page }, testInfo) => {
+test('30 minutes includes 20/30 across all weeks and overdue tasks, excludes indivisible 31/completed, and orders deadlines before durations', async ({ page }, testInfo) => {
   await seed(page, choices)
   const before = await raw(page)
   await filter(page)
@@ -94,10 +94,11 @@ test('invalid minutes retain field input and task data, hide stale hits, and rec
 })
 
 test('empty time result offers keyboard change-minutes and all-tasks routes without writes', async ({ page }, testInfo) => {
+  // Only indivisible tasks exceed the session budget; divisible tasks may offer a partial session.
   await seed(page, choices.map(task => ({ ...task, splittable: false })))
   await filter(page, '1')
   await expect(rows(page)).toHaveCount(0)
-  await expect(page.locator('#empty-tasks')).toContainText('Ingen registrerte arbeidssteg passer sikkert')
+  await expect(page.locator('#empty-tasks')).toContainText('Arbeidet kan ikke deles')
   await page.locator('#empty-minutes').focus()
   await page.keyboard.press('Enter')
   await expect(page.locator('#available-minutes')).toBeFocused()
@@ -172,7 +173,7 @@ test('active filter keeps hits/raw state on failed completion, edit or delete an
   await save(page).click()
   await expect(page.getByRole('status')).toContainText('Endringen ble ikke lagret')
   await expect(page.locator('#remainingMinutes')).toHaveValue('31')
-  await expect(row(page, b.title)).toContainText('Hele oppgaven: 30 min')
+  await expect(row(page, b.title)).toContainText('Opprinnelig anslag: 30 min')
   expect(await ids(page)).toEqual([b.id, c.id])
   expect(await raw(page)).toBe(before)
   await page.clock.runFor(2000)
@@ -195,13 +196,13 @@ test('active filter keeps hits/raw state on failed completion, edit or delete an
   await page.evaluate(() => { window.failWrite = false })
   await deleteTask(page, c.title)
   await expect(rows(page)).toHaveCount(0)
-  await expect(page.locator('#empty-tasks')).toContainText('Ingen registrerte arbeidssteg passer sikkert')
+  await expect(page.locator('#empty-tasks')).toContainText('Arbeidet kan ikke deles og trenger 31 minutter sammenhengende')
   await expect(page.locator('#available-minutes')).toBeFocused()
   expect((await saved(page)).tasks).toEqual([{ ...a, completed: true, remainingMinutes: 0 }, { ...b, remainingMinutes: 31 }])
   expect(await writes(page)).toHaveLength(6)
 })
 
-test('creating outside the available minutes keeps the empty filter and explains where the saved task is', async ({ page }, testInfo) => {
+test('creating an indivisible task outside the available minutes keeps the empty filter and explains where the saved task is', async ({ page }, testInfo) => {
   await seed(page, [], { view: 'time' })
   await expect(page.locator('#empty-dashboard')).toBeVisible()
   await expect(page.locator('#focus-panel')).toBeHidden()
@@ -214,7 +215,7 @@ test('creating outside the available minutes keeps the empty filter and explains
   await expect(page.locator('#view-time')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('#available-minutes')).toHaveValue('30')
   await expect(rows(page)).toHaveCount(0)
-  await expect(page.locator('#empty-tasks')).toContainText('Ingen registrerte arbeidssteg passer sikkert')
+  await expect(page.locator('#empty-tasks')).toContainText('Arbeidet kan ikke deles og trenger 31 minutter sammenhengende')
   await expect(page.getByRole('status')).toHaveText('Oppgave lagret. Du finner oppgaven under «Alle oppgaver».')
   expect((await saved(page)).tasks).toHaveLength(1)
   expect(await writes(page)).toHaveLength(1)

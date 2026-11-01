@@ -28,9 +28,22 @@ export function createTaskForm(form) {
   unknown.onclick = () => { remainingTouched = true; form.elements.remainingMinutes.value = ''; form.elements.remainingMinutes.focus() }
   form.elements.remainingMinutes.addEventListener('input', () => { remainingTouched = true })
   form.elements.remainingMinutes.placeholder = 'Vet ikke'
-  form.querySelector('#remainingMinutes-help').textContent = 'Et anslag på arbeidet som gjenstår. Vet ikke bevarer usikkerheten. 0 markerer ikke oppgaven som ferdig.'
-  const relations = document.createElement('div'); relations.className = 'field field-wide'; relations.innerHTML = '<label>Forutsetninger<select name="dependencyIds" multiple size="4" aria-describedby="dependencyIds-help"></select></label><p id="dependencyIds-help" class="muted">Velg oppgavene som må gjøres først. Ctrl/⌘ velger flere.</p><p id="dependencyIds-error" class="field-error"></p><label>Venter på (valgfritt)<input name="waitingReason" placeholder="For eksempel tilbakemelding fra veileder"></label><label>Oppgavetype (valgfritt)<input name="taskType" placeholder="For eksempel lesing eller oppgaveskriving"></label><label class="check-label"><input name="splittable" type="checkbox" checked>Kan deles i flere økter</label>'
+  form.querySelector('label[for="remainingMinutes"]').textContent = 'Totalt gjenstående arbeid (minutter)'
+  form.querySelector('#remainingMinutes-help').textContent = 'Anslå alt arbeidet som gjenstår. Tiden du vil jobbe nå velger du på oversikten. Vet ikke bevarer usikkerheten. 0 markerer ikke oppgaven som ferdig.'
+  const splitChoice = document.createElement('label'); splitChoice.className = 'check-label'; splitChoice.innerHTML = '<input name="splittable" type="checkbox" checked aria-describedby="splittable-help">Kan deles i flere økter'
+  const splitHelp = document.createElement('p'); splitHelp.id = 'splittable-help'; splitHelp.className = 'muted'
+  splitHelp.textContent = 'Med oppdeling kan du jobbe for eksempel 30 minutter selv om 1200 minutter gjenstår, uten å lage arbeidssteg. Et øktforslag endrer ikke totalanslaget. Faktisk arbeid og nytt gjenstående anslag registreres hver for seg.'
+  form.elements.remainingMinutes.closest('.field').append(splitChoice, splitHelp)
+  const relations = document.createElement('div'); relations.className = 'field field-wide'; relations.innerHTML = '<label>Forutsetninger<select id="dependencyIds" name="dependencyIds" multiple size="4" aria-describedby="dependencyIds-help dependencyIds-error"></select></label><p id="dependencyIds-help" class="muted">Velg eksisterende oppgaver som må være ferdige før denne oppgaven kan startes. Ingen valg betyr at ingen andre oppgaver må gjøres først. Ctrl/⌘ velger flere.</p><button type="button" class="secondary" data-clear-dependencies aria-controls="dependencyIds">Fjern alle forutsetninger</button><p class="muted" role="status" data-dependency-status></p><p id="dependencyIds-error" class="field-error"></p><label>Venter på (valgfritt)<input name="waitingReason" placeholder="For eksempel tilbakemelding fra veileder"></label><label>Oppgavetype (valgfritt)<input name="taskType" placeholder="For eksempel lesing eller oppgaveskriving"></label>'
   detailGrid.append(relations)
+  const dependencyStatus = relations.querySelector('[data-dependency-status]'); dependencyStatus.hidden = true
+  form.elements.dependencyIds.addEventListener('change', () => { dependencyStatus.textContent = ''; dependencyStatus.hidden = true })
+  relations.querySelector('[data-clear-dependencies]').onclick = () => {
+    for (const option of form.elements.dependencyIds.options) option.selected = false
+    form.elements.dependencyIds.dispatchEvent(new Event('change', { bubbles: true }))
+    dependencyStatus.textContent = 'Ingen forutsetninger er valgt. Endringen lagres når du lagrer oppgaven.'
+    dependencyStatus.hidden = false
+  }
   const waitingHelp = document.createElement('p'); waitingHelp.id = 'waitingReason-help'; waitingHelp.className = 'muted'
   waitingHelp.textContent = 'Bruk «Venter på» når noe må avklares før du kan starte, for eksempel tilbakemelding. Oppgaven får ingen startklar økt mens feltet er fylt ut. Arbeid du selv skal gjøre, som lesing, legges til som et arbeidssteg etter lagring. Fjern ventingen selv når hindringen er avklart.'
   form.elements.waitingReason.setAttribute('aria-describedby', waitingHelp.id)
@@ -72,7 +85,7 @@ export function createTaskForm(form) {
       editingTask = task; remainingTouched = false; pending = null; options(); selectedLabel = task?.course || ''; input.value = selectedLabel; selector.value = task?.courseId || ''; inline.open = false; extra.open = Boolean(task?.id); inline.querySelector('[role=alert]').textContent = ''
       updateCourseColor()
       form.elements.remainingMinutes.value = task?.remainingMinutes !== undefined ? task.remainingMinutes ?? '' : task?.estimatedMinutes ?? ''
-      const deps = form.elements.dependencyIds; deps.replaceChildren()
+      const deps = form.elements.dependencyIds; deps.replaceChildren(); dependencyStatus.textContent = ''; dependencyStatus.hidden = true
       for (const candidate of model?.tasks || []) if (candidate.id !== task?.id) { const option = new Option(candidate.title, candidate.id); option.selected = Boolean(task?.dependencyIds?.includes(candidate.id)); deps.append(option) }
       for (const id of task?.missingDependencyIds || []) { const option = new Option(`Mangler: ${id}`, id); option.selected = true; deps.append(option) }
       form.elements.waitingReason.value = task?.waitingReason || ''; form.elements.taskType.value = task?.taskType || ''; form.elements.splittable.checked = task?.splittable !== false; estimateText()
@@ -86,6 +99,6 @@ export function createTaskForm(form) {
         taskType: form.elements.taskType.value || editingTask?.taskType !== undefined ? form.elements.taskType.value : undefined,
         splittable: !form.elements.splittable.checked || editingTask?.splittable !== undefined ? form.elements.splittable.checked : undefined }
     },
-    reset() { pending = null; selectedLabel = ''; inline.open = false; options() },
+    reset() { pending = null; selectedLabel = ''; inline.open = false; dependencyStatus.textContent = ''; dependencyStatus.hidden = true; options() },
   }
 }

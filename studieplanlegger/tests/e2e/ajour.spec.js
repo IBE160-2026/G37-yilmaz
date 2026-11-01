@@ -64,7 +64,7 @@ for (const [width, fontSize] of [[1440, 16], [900, 16], [390, 16], [390, 32]]) {
       expect(replan.x).toBeGreaterThan(upcoming.x)
       expect(Math.abs(replan.y - upcoming.y)).toBeLessThan(2)
     } else await expect(page.locator('.ajour-intro > img')).toBeHidden()
-    const timeChoices = page.getByRole('group', { name: 'Hvor mye tid har du?', exact: true })
+    const timeChoices = page.getByRole('group', { name: 'Hvor lenge vil du jobbe nå?', exact: true })
     await expect(timeChoices.locator('.quick-times')).toBeVisible()
     await expect(timeChoices.getByLabel('Egendefinert tid (minutter)')).toBeVisible()
     if (width === 900) {
@@ -208,7 +208,7 @@ test('onboarding preserves the plan opener and explicit Back until saved progres
   expect(await writes(page)).toEqual(beforeWrites)
 })
 
-test('daily rows retain the fourth task session and only deduplicate visible task deadlines', async ({ page }) => {
+test('daily overview shows three separate upcoming sessions and only deduplicates visible task deadlines', async ({ page }) => {
   const initial = structuredClone(state)
   initial.planner.events = []
   initial.tasks = Array.from({ length: 5 }, (_, index) => ({ id: `daily-task-${index + 1}`, title: `Syntetisk oppgave nummer ${index + 1}`, course: 'SYN101', courseId: 'ajour-course', deadlineLocal: `2026-10-${index < 4 ? '26' : '27'}T${10 + index}:00`, estimatedMinutes: 30, completed: false }))
@@ -216,28 +216,46 @@ test('daily rows retain the fourth task session and only deduplicate visible tas
   await boot(page, 900, initial)
   const plan = page.locator('#next-plan')
   await expect(plan.locator('.daily-task')).toHaveCount(3)
+  // The 29 October flow shows upcoming sessions separately from task follow-up rows.
   for (const index of [1, 2, 3]) {
-    await expect(plan.locator(`[data-daily-row="task:daily-task-${index}"]`)).toContainText(`i dag kl. ${13 + index}:00–${13 + index}:30`)
-    await expect(plan.locator(`[data-daily-row="session:daily-session-${index}"]`)).toHaveCount(0)
+    const session = plan.locator(`[data-daily-row="session:daily-session-${index}"]`)
+    const taskRow = plan.locator(`[data-daily-row="task:daily-task-${index}"]`)
+    await expect(session).toContainText(`Studieøkt: Syntetisk oppgave nummer ${index}`)
+    await expect(session).toContainText(`i dag kl. ${13 + index}:00–${13 + index}:30`)
+    await expect(session).toContainText('SYN101 Syntetisk metode og læring')
+    await expect(session.getByRole('button')).toHaveAccessibleName(new RegExp(`Åpne Studieøkt: Syntetisk oppgave nummer ${index}`))
+    await expect(taskRow.locator('.daily-task-copy')).not.toContainText(`${13 + index}:00–${13 + index}:30`)
+    await expect(taskRow.locator(`[data-daily-key="session:daily-session-${index}:edit"]`)).toHaveCount(1)
+    await expect(taskRow.locator(`[data-daily-key="session:daily-session-${index}:close"]`)).toHaveCount(1)
     await expect(plan.locator(`[data-daily-key="deadline:daily-task-${index}:open"]`)).toHaveCount(0)
   }
-  const fourth = plan.locator('[data-daily-row="session:daily-session-4"]')
-  await expect(fourth).toContainText('Studieøkt: Syntetisk oppgave nummer 4')
-  await expect(fourth).toContainText('17:00–17:30')
-  await expect(fourth).toContainText('SYN101 Syntetisk metode og læring')
-  await expect(fourth.getByRole('button')).toHaveAccessibleName(/Åpne Studieøkt: Syntetisk oppgave nummer 4/)
+  await expect(plan.locator('[data-daily-row="session:daily-session-4"]')).toHaveCount(0)
   await expect(plan.getByText('Ingen kommende aktivitet er registrert.')).toHaveCount(0)
   await expect(plan.locator('.deadline-row')).toHaveCount(2)
   for (const index of [4, 5]) await expect(plan.getByRole('button', { name: `Åpne fristen for Syntetisk oppgave nummer ${index}`, exact: true })).toBeVisible()
   expect(await saved(page)).toEqual(initial)
   expect(await writes(page)).toEqual([])
+  await plan.getByRole('button', { name: 'Åpne kalender', exact: true }).click()
+  const fourth = page.locator('.calendar-readable-content [data-calendar-key="session:daily-session-4"]')
+  await expect(fourth).toContainText('Studieøkt: Syntetisk oppgave nummer 4')
+  await expect(fourth).toContainText('17:00–17:30')
+  // Opening the calendar may persist its view/scroll preference, never alter the plan.
+  const { calendarPreferences, ...after } = await saved(page)
+  expect(after).toEqual(initial)
+  for (const write of await writes(page)) {
+    const { calendarPreferences, ...planState } = JSON.parse(write.value)
+    expect(planState).toEqual(initial)
+  }
 })
 
-test('sessions inside visible task rows prevent the no-activity message', async ({ page }) => {
+test('separate upcoming sessions prevent the no-activity message', async ({ page }) => {
   const initial = structuredClone(state)
   initial.planner.events = []
   await boot(page, 390, initial)
-  await expect(page.locator('#next-plan .daily-task')).toContainText('Neste aktivitet: i dag kl. 13:00–13:30')
+  const upcoming = page.locator('#next-plan [data-daily-row="session:ajour-session"]')
+  await expect(upcoming).toContainText('Neste aktivitet')
+  await expect(upcoming).toContainText('i dag kl. 13:00–13:30')
+  await expect(page.locator('#next-plan .daily-task-copy')).not.toContainText('13:00–13:30')
   await expect(page.locator('#next-plan').getByText('Ingen kommende aktivitet er registrert.')).toHaveCount(0)
   expect(await writes(page)).toEqual([])
 })
