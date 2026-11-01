@@ -30,6 +30,7 @@ import '../e2e/connected-root-acceptance.spec.js'
 import '../e2e/simple-planning-flow.spec.js'
 import '../e2e/connected-delivery-acceptance.spec.js'
 import '../e2e/himolde-program-repeat.spec.js'
+import '../e2e/own-trial-sc07.spec.js'
 
 const observations = new WeakMap()
 test.beforeEach(async ({ page }) => { observations.set(page, observe(page)) })

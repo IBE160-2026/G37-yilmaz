@@ -36,7 +36,7 @@ for (const width of [1440, 1280, 390]) {
     await expect(page.locator('#daily-overview').getByRole('status')).toContainText('Presentasjonen har anslagsvis 1–2 timer arbeid igjen')
     await expect(page.locator('#daily-overview').getByRole('status')).toContainText('Det kan mangle opptil 45 minutter')
     await expect(page.getByRole('heading', { name: 'Ditt neste steg' })).toBeVisible()
-    await expect(page.getByText('Hvor mye tid har du?')).toBeVisible()
+    await expect(page.getByText('Hvor lenge vil du jobbe nå?')).toBeVisible()
 
     await page.getByRole('button', { name: '15 min', exact: true }).click()
     await expect(page.locator('#dashboard-suggestions')).toContainText('Les kapittel 3')

@@ -5,6 +5,7 @@ import { createCapacityView } from './capacity-view.js'
 import { createTaskForm } from './task-form.js'
 import { primaryWorkStep } from './work-steps.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
+import { suggestionExclusions } from './daily-guidance.js'
 
 const $ = selector => document.querySelector(selector)
 const setText = (element, value) => { if (element.textContent !== value) element.textContent = value }
@@ -395,7 +396,7 @@ export function createUI(actions) {
     const timeEmptyText = hasNoTasks
       ? hasSubjectContext ? 'Ingen oppgaver enda. Du har undervisning eller emner registrert. Legg til din første oppgave for å få forslag.' : 'Ingen oppgaver ennå – legg til din første oppgave.'
       : allDone ? readyCount ? readyText : 'Alt registrert arbeid er ferdig. Ta en pause, eller legg til en ny oppgave.'
-      : `Ingen registrerte arbeidssteg passer sikkert innen ${minutes} minutter.`
+      : suggestionExclusions(tasks, minutes).map(item => `«${item.title}»: ${item.reason}`).join(' ')
     const taskListEmptyText = hasNoTasks
       ? hasSubjectContext ? 'Ingen oppgaver ennå. Legg til den første oppgaven din for å starte planen.' : 'Ingen oppgaver ennå – legg til din første oppgave.'
       : allDone ? readyCount ? readyText : 'Alt registrert arbeid er ferdig. Ta en pause, eller legg til en ny oppgave.'
