@@ -39,6 +39,7 @@
     "cheerio": "^1.2.0",
     "ical.js": "^2.2.1",
     "mammoth": "1.12.2",
+    "pako": "2.1.0",
     "papaparse": "5.7.0",
     "pdfjs-dist": "6.2.108"
   }
