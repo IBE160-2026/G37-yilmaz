@@ -64,7 +64,7 @@ Outlook-punktet i `issues.md` er lukket på grunnlag av brukerens bekreftede 37-
 - Tidligere importbegrensninger F03/F05/F06, UiTs bildetabell, BI-undervisning og avviste kalenderkilder beholdes som egne punkter i `issues.md`.
 - Eksisterende bundlevarsel og tidligere åpne vurderingskilder beholdes i `issues.md`; denne rettingen utvider ikke prosjektets omfang.
 
-## 2026-11-01 kl. 17:02 — GOplayer007
+## 2026-11-01 kl. 17:32 — GOplayer007
 
 ### Oppgave
 
@@ -84,7 +84,11 @@ Eksport forklarer historisk innhold. Ugyldige/tvetydige klokkeslett avvises fort
 
 Siste lokale kontroll: **2529/2529 enhetstester, 127/127 bygde nettleserprøver, 3/3 SQLite, 141/141 undervisningsfixturer og produksjonsbygg**. To runder med tre uavhengige gjennomganger; siste oppfølging uten uløste kodefunn. 779 tekstfiler / 11 utfoldede ICS og 39 dokumenter / 552 lokale lenker / 116 ankre uten funn eller feil. Tidligere mislykkede kontroller er bevart i verifikasjonen. Store syntetiske profiler, bilder og råvedlegg holdes utenfor Git.
 
-Dette loggpunktet registrerer lokal kontroll før push/PR-integrering. Faktisk publisert commit og fjernkontroller registreres i PR-ens publiseringsresultat; vellykket push alene regnes ikke som publisering. Samme syntetiske profil er opprettet på gammel produksjon `bbbf1bb` for kontroll etter publisering. SC-07 er fortsatt teknisk bestått; brukerens Outlook-prøve fra 30. oktober gjenåpnes ikke.
+Begge GitHub-kvalitetssjekkene og faktisk Vercel-preview bestod. [Previewkontroll 41324922345](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41324922345) ga **60/60 funksjonsprøver og 6/6 faktiske kildeprøver** før [PR #8](https://github.com/IBE160-2026/G37-yilmaz/pull/8) ble integrert normalt som **`a7fb9435c2b47e53146190cdd8f819dd91133ebb`**. Main-kontrollen bestod 2529 enhetsprøver, bygg, 127 nettleserprøver og tre SQLite-prøver. Vercel meldte produksjonsdeployment `7475716325` vellykket. Ingen sperre ble omgått.
+
+[Produksjonen](https://ajour-sooty.vercel.app/) viste eksakt samme merge-commit før og etter **30/30 separate målrettede nettleserprøver (5,9 min)**. [Automatisk produksjonskontroll 41326144049](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41326144049) bestod **60/60 funksjonsprøver og 6/6 faktiske kildeprøver**. Tre ekstra faktiske kilde-UI-flyter for NTNU/TDT4109, AHO og UiT bestod med uendrede lagrede byte etter omlasting; fire bilder ble vurdert. De to lagringsbildene ved 1440/390 px ble også vurdert. Identisk import ga fortsatt null vekst/null skriverier; stor gjenoppretting og ekte/innsprøytede feil bevarte data og historikk. Samme eide syntetiske profil fra `bbbf1bb` bestod **1/1** etterkontroll med eksakt samme lagring og preferanser. SC-07 er fortsatt teknisk bestått; brukerens Outlook-prøve fra 30. oktober gjenåpnes ikke.
+
+`34bb684` dokumenterer de publiserte resultatene i verifikasjonen. Denne loggoppdateringen og dokumentasjonscommiten endrer bare Markdown. Personvernkontrollen omfattet 779 tekstfiler / 11 utfoldede ICS; 39 dokumenter / 558 lokale lenker / 116 ankre bestod før dokumentasjonscommit. Sluttmarkør og kontroll for den etterfølgende dokumentasjonspubliseringen føres i PR #8; vellykket push alene regnes fortsatt ikke som publisering.
 
 ### Åpne punkter
 
