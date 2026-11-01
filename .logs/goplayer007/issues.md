@@ -1,6 +1,6 @@
 # Åpne punkter
 
-Gjeldende åpne punkter etter [retting av egenutprøving og separat KI-assistert mengdetesting](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md), oppdatert 2026-11-01 med lagrings-/importoppfølgingen. Rapporterte beståttresultater er bevart; personlig omprøving gjenstår. Tekniske prøver er ikke eierens manuelle resultater.
+Gjeldende åpne punkter etter [retting av egenutprøving og separat KI-assistert mengdetesting](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md), oppdatert 2026-11-01 etter publisert og teknisk kontrollert lagrings-/importretting. Rapporterte beståttresultater er bevart; personlig omprøving gjenstår. Tekniske prøver er ikke eierens manuelle resultater.
 
 ## Gjenstående aktiviteter
 
