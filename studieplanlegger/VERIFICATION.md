@@ -24,6 +24,10 @@ Personvernkontrollen omfattet **769 tekstfiler og 11 utfoldede ICS-filer**, uten
 
 Siste produksjonsbygg bestod etter det ekstra vernet for ikke-delbare steg. Alle **10/10 SC-07-prøver** bestod på dette bygget (18,4 s, normal avslutning). Hovedbundle var 905,39 kB / 275,51 kB gzip.
 
+Første faktiske [Vercel-preview](https://ajour-4ig3yv2oq-ajour1.vercel.app) bekreftet **`827f672de56a95da415520fd6c56c262ff6dfc1c`** i `/release.json`, etter begge grønne **Ajour quality**-kjøringene. Her bestod **10/10 SC-07-prøver** (51,2 s) og **1/1 profil-/backup-/gjenåpningsprøve** (15,6 s). Automatisk etterkontroll var **38/40**, fordi to lagringsfeiltester brukte en for bred `role=status`-selektor etter at skjemaet fikk en egen forutsetningsstatus. Lagringsfeilmeldingen var til stede; testene er presisert til `#feedback[role=status]`, med uendrede krav til bevart lagring, utkast og vellykket nytt forsøk. En ny grønn etterkontroll kreves før integrering; den feilede kjøringen regnes ikke som bestått.
+
+Etter presiseringen bestod **11/11 feil-/lagringsprøver** på samme faktiske preview (47,9 s), inkludert begge injiserte skrivefeilene og vellykket nytt lagringsforsøk. Alle seks faktiske previewbilder ved 1440/390 px ble åpnet og vurdert uten nye visuelle avvik.
+
 ## Separat KI-assistert mengdetesting — 2026-10-29
 
 Prosjekteieren sendte HTML-rapporten «Ajour stresstest 2026-10-29» som tillegg etter første rettingscommit `618357b`. Rapporten er et separat KI-assistert testgrunnlag, ikke prosjekteierens egenutprøving eller nye kontroller utført her. Rårapporten og prøveprofilen publiseres ikke. Arbeidet fortsetter på samme branch og innen eksisterende importstøtte.
