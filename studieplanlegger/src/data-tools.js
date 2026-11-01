@@ -2,6 +2,7 @@ import { previewBackup, previewLocalRecovery, downloadBackup, exportBackup } fro
 import { formatDay, formatDeadline } from './calendar.js'
 import { osloLocal } from './planner.js'
 import { createAppearanceSettings } from './appearance.js'
+import { storageErrorMessage } from './storage-errors.js'
 const node = (tag, text) => { const el = document.createElement(tag); if (text) el.textContent = text; return el }
 const button = (text, action) => { const el = node('button', text); el.type = 'button'; el.className = 'secondary'; el.onclick = action; return el }
 export function displayTimestamp(value) {
@@ -65,8 +66,8 @@ export function createDataTools(actions) {
     dialog.append(button('Erstatt lokale data', () => {
       if (JSON.stringify(actions.state()) !== baseline) { error.textContent = 'Dataene er endret etter forhåndsvisningen. Åpne filen på nytt.'; return }
       const result = actions.replace(value.data)
-      if (result.ok) { close(); feedback.textContent = 'Sikkerhetskopien er gjenopprettet. Forrige datasett kan hentes med Gjenopprett forrige kopi.' }
-      else error.textContent = result.error || 'Erstatningen ble stoppet. Kontroller ledig nettleserlagring.'
+      if (result.ok) { close(); feedback.textContent = result.unchanged ? 'Sikkerhetskopien inneholder de samme dataene. Ingenting er skrevet, og eventuell tidligere gjenopprettingskopi er beholdt.' : 'Sikkerhetskopien er gjenopprettet. Forrige datasett kan hentes med Gjenopprett forrige kopi.' }
+      else error.textContent = result.error || storageErrorMessage(result, { restore: true })
     }), button('Avbryt', close))
   }
   const recovery = button('Gjenopprett forrige kopi', () => {
@@ -80,7 +81,7 @@ export function createDataTools(actions) {
     } catch (error) { feedback.textContent = error.message }
   })
   const menu = node('details'); menu.className = 'data-menu'; menu.append(node('summary', 'Data og sikkerhetskopi'))
-  const panel = node('div'); panel.append(trash, save, restore, recovery, input); menu.append(panel)
+  const panel = node('div'); panel.append(node('p', 'En full sikkerhetskopi inneholder også Angre-historikk og papirkurv. Den kan derfor inneholde tidligere opplysninger som ikke lenger vises i oppgavene. Oppbevar filen privat.'), trash, save, restore, recovery, input); menu.append(panel)
   menu.open = true
   host.append(node('h2', 'Innstillinger'), node('p', serverStorage
     ? 'Sikkerhetskopi, angre og papirkurv. Dataene lagres på denne enheten.'
@@ -115,11 +116,12 @@ export function createDataTools(actions) {
     enabled.checked = model.personalization?.enabled !== false
     enabled.disabled = !model.readable || model.editing
     for (const control of personalization.querySelectorAll('button')) control.disabled = !model.readable || model.editing
-    const next = JSON.stringify([model.view, model.readable, model.editing, model.history, Boolean(actions.recovery())]); if (next === signature) return; signature = next
+    const hasRecovery = !host.hidden && Boolean(actions.recovery())
+    const next = JSON.stringify([model.view, model.readable, model.editing, model.history, hasRecovery]); if (next === signature) return; signature = next
     for (const control of [undo, trash, save]) control.disabled = !model.readable || model.editing
     restore.disabled = recovery.disabled = model.editing
     undo.disabled ||= !model.history?.undo.length
-    recovery.disabled ||= !actions.recovery()
+    recovery.disabled ||= !hasRecovery
     trash.textContent = `Papirkurv (${model.history?.trash.length || 0})`
   } }
 }

@@ -114,7 +114,7 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
   }
   async function request(action,query={}) {
     const data=await boundedApi(`/api/import/providers/${institution.value}/${action}?${new URLSearchParams(query)}`)
-    if(data.status!=='ok') throw Object.assign(new Error(data.error || 'Kilden har ingen bekreftede treff for valget.'),{status:data.status})
+    if(data.status!=='ok') throw Object.assign(new Error(data.error || 'Kilden har ingen bekreftede treff for valget.'),{status:data.status,sourceUrl:sourceHref(data.sourceUrl)})
     return data
   }
   async function run(work,{localStatus=false,startText=''}={}) {
@@ -123,7 +123,7 @@ export function createProgramImportView({ host, getState, commitPlanner, feedbac
     clearTransientStatus()
     busy=true;controller=new AbortController();const operation=++version;setBusy()
     activeLocalStatus=localStatus;if(localStatus){actionStatus.hidden=false;actionStatus.classList.remove('is-error');actionStatus.textContent=startText}
-    try {await work(operation)} catch(error) {if(operation===version && error.name!=='AbortError') {const text=`${error.message} Lagrede data er beholdt.`;feedback('');if(localStatus){actionStatus.textContent=text;actionStatus.classList.add('is-error');actionStatus.focus()}else {message.textContent=text;const source=selectedCohort()?.sourceUrl;if(source&&/\.pdf(?:[?#]|$)/i.test(source))message.append(document.createTextNode(' '),link(source,'Åpne valgt PDF-kilde'));message.tabIndex=-1;message.focus()}}}
+    try {await work(operation)} catch(error) {if(operation===version && error.name!=='AbortError') {const text=`${error.message} Lagrede data er beholdt.`;feedback('');if(localStatus){actionStatus.textContent=text;actionStatus.classList.add('is-error');actionStatus.focus()}else {message.textContent=text;const source=selectedCohort()?.sourceUrl;if(source&&/\.pdf(?:[?#]|$)/i.test(source))message.append(document.createTextNode(' '),link(source,'Åpne valgt PDF-kilde'));else if(error.sourceUrl)message.append(document.createTextNode(' '),link(error.sourceUrl,'Åpne offentlig programkilde'));message.tabIndex=-1;message.focus()}}}
     finally {if(operation===version){busy=false;activeLocalStatus=false;controller=null;setBusy();if(pendingFocus){pendingFocus.focus();pendingFocus=null}else if(actionStatus.classList.contains('is-error'))actionStatus.focus();else if(focusKey){const restored=previewHost.querySelector(`[data-import-key="${CSS.escape(focusKey)}"]`);const continuation=focusKey==='retry-failed'?previewHost.querySelector('[data-import-key="confirm-program"]'):null;(restored||continuation)?.focus()}onSettled()}}
   }
   function stopPending(){version++;controller?.abort();controller=null;busy=false;activeLocalStatus=false;clearTransientStatus();setBusy()}

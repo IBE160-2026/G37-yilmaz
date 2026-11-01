@@ -10,9 +10,35 @@ import { validConnectedPreferences } from './planning-rules.js'
 import { validateDependencyGraph } from './task-dependencies.js'
 import { createServerStorage } from './server-storage.js'
 import { validTopics, validAssessments, validReviewDecisions, hasReviewSession } from './review-planning.js'
+import { decodeRecoveryJournal, encodeRecoveryJournal } from './recovery-codec.js'
+import { storageFailure } from './storage-errors.js'
 
 export const STORAGE_KEY = 'studieplanlegger:v1'
 export const RECOVERY_KEY = 'studieplanlegger:recovery:v1'
+// UI snapshots can reconstruct object keys in a different order. Compare the
+// stored JSON values, retaining array order, before spending quota on a no-op.
+function sameStoredJson(a, b) {
+  if (a === b) return true
+  if (typeof a !== 'string' || typeof b !== 'string') return false
+  const equal = (left, right) => {
+    if (left === right) return true
+    if (!left || !right || typeof left !== 'object' || typeof right !== 'object' || Array.isArray(left) !== Array.isArray(right)) return false
+    const keys = Object.keys(left)
+    return keys.length === Object.keys(right).length && keys.every(key => Object.hasOwn(right, key) && equal(left[key], right[key]))
+  }
+  try { return equal(JSON.parse(a), JSON.parse(b)) } catch { return false }
+}
+function readRecoveryJournal(raw) {
+  const expand = (copy, depth = 0) => {
+    if (!copy || typeof copy !== 'object' || depth > 32) return copy
+    if (!copy.data && typeof copy.raw === 'string') {
+      try { const data = JSON.parse(copy.raw); if (validEnvelope(data)) copy.data = data } catch { /* Preserve unreadable raw for repair. */ }
+    }
+    if (copy.previous) copy.previous = expand(copy.previous, depth + 1)
+    return copy
+  }
+  return expand(decodeRecoveryJournal(raw))
+}
 // A privacy purge also reaches the copies that Restore can bring back. Refuse
 // unknown/corrupt journal formats instead of deleting unrelated recovery data.
 function purgeRecoveryJournal(raw) {
@@ -34,8 +60,8 @@ function purgeRecoveryJournal(raw) {
     if ('previous' in value) copy.previous = scrub(value.previous, depth + 1)
     return copy
   }
-  const parsed = JSON.parse(raw), purged = scrub(parsed)
-  return JSON.stringify(parsed) === JSON.stringify(purged) ? raw : JSON.stringify(purged)
+  const parsed = decodeRecoveryJournal(raw), purged = scrub(parsed)
+  return JSON.stringify(parsed) === JSON.stringify(purged) ? raw : encodeRecoveryJournal(purged)
 }
 export function validEnvelope(value, { relations = false } = {}) {
   if (!value || !validConnectedPreferences(value) || value.workLogs !== undefined && !validWorkLogs(value.workLogs, relations ? value : undefined) || value.importSources !== undefined && !validImportSources(value.importSources, relations ? value : undefined)) return false
@@ -53,6 +79,7 @@ export function createStorage(getStorage) {
   getStorage ||= () => window.localStorage
   let envelope = { schemaVersion: 1, tasks: [] }
   let lastRaw, loaded = false, writable = true
+  let recoveryCacheRaw, recoveryCache
   function persist(value, { repair = false, expectedRecovery } = {}) {
     if (!validEnvelope(value, { relations: true })) return { ok: false, reason: 'invalid' }
     if (!writable && !repair) return { ok: false, reason: 'unreadable' }
@@ -61,10 +88,11 @@ export function createStorage(getStorage) {
       if (loaded && storage.getItem(STORAGE_KEY) !== lastRaw) return { ok: false, reason: 'conflict' }
       if (expectedRecovery !== undefined && storage.getItem(RECOVERY_KEY) !== expectedRecovery) return { ok: false, reason: 'conflict' }
       const raw = JSON.stringify(value)
+      if (loaded && sameStoredJson(raw, lastRaw)) return { ok: true }
       storage.setItem(STORAGE_KEY, raw)
       envelope = structuredClone(value); lastRaw = raw; loaded = true; writable = true
       return { ok: true }
-    } catch { return { ok: false, reason: 'unwritable' } }
+    } catch (error) { return storageFailure(error, 'unwritable', 'main') }
   }
   return {
     read() {
@@ -98,7 +126,7 @@ export function createStorage(getStorage) {
           storage.setItem(RECOVERY_KEY, stagedRecovery)
           recoveryWritten = true
         }
-      } catch { return { ok: false, reason: 'recovery-failed' } }
+      } catch (error) { return storageFailure(error, 'recovery-failed', 'recovery') }
       // Main data is committed last. A failed write restores only our own staged
       // journal; another writer's recovery copy is never overwritten.
       const result = persist(candidate, { expectedRecovery: stagedRecovery })
@@ -121,13 +149,20 @@ export function createStorage(getStorage) {
       try {
         storage = getStorage(); currentRaw = storage.getItem(STORAGE_KEY)
         if (loaded && currentRaw !== lastRaw) return { ok: false, reason: 'conflict' }
+        if (sameStoredJson(currentRaw, JSON.stringify(value))) {
+          envelope = structuredClone(value); lastRaw = currentRaw; loaded = true; writable = true
+          return { ok: true, unchanged: true }
+        }
         priorRecovery = storage.getItem(RECOVERY_KEY)
         let data, previous
         try { const parsed = currentRaw === null ? { schemaVersion: 1, tasks: [] } : JSON.parse(currentRaw); if (validEnvelope(parsed)) data = parsed } catch { /* Preserve unreadable input verbatim, not an empty snapshot. */ }
-        try { const old = JSON.parse(priorRecovery); const copy = old?.raw === currentRaw && old.previous ? old.previous : old; if (validEnvelope(copy?.data)) previous = { savedAt: copy.savedAt, data: copy.data, raw: copy.raw } } catch { /* Older raw recovery is still retained for rollback. */ }
-        staged = JSON.stringify({ savedAt: new Date().toISOString(), raw: currentRaw, ...(data ? { data } : {}), ...(previous ? { previous } : {}) })
+        try { const old = readRecoveryJournal(priorRecovery); const copy = old?.raw === currentRaw && old.previous ? old.previous : old; if (validEnvelope(copy?.data)) previous = { savedAt: copy.savedAt, data: copy.data, raw: copy.raw } } catch { /* Older raw recovery is still retained for rollback. */ }
+        staged = encodeRecoveryJournal({ savedAt: new Date().toISOString(), raw: currentRaw, ...(data ? { data } : {}), ...(previous ? { previous } : {}) })
+        // Encoding can take time. Recheck both keys before touching recovery;
+        // another tab may have committed while this candidate was prepared.
+        if (storage.getItem(STORAGE_KEY) !== currentRaw || storage.getItem(RECOVERY_KEY) !== priorRecovery) return { ok: false, reason: 'conflict' }
         storage.setItem(RECOVERY_KEY, staged)
-      } catch { return { ok: false, reason: 'recovery-failed' } }
+      } catch (error) { return storageFailure(error, 'recovery-failed', 'recovery') }
       // Establish a guard even when replace is the first operation on this store.
       if (!loaded) { loaded = true; lastRaw = currentRaw }
       const result = persist(value, { repair: true, expectedRecovery: staged })
@@ -144,11 +179,17 @@ export function createStorage(getStorage) {
     },
     recovery() {
       try {
-        const storage = getStorage(); let copy = JSON.parse(storage.getItem(RECOVERY_KEY))
+        const storage = getStorage(), raw = storage.getItem(RECOVERY_KEY)
+        if (raw !== recoveryCacheRaw || !recoveryCache) {
+          const copy = readRecoveryJournal(raw)
+          recoveryCache = { copy, valid: validEnvelope(copy?.data), previousValid: validEnvelope(copy?.previous?.data) }
+          recoveryCacheRaw = raw
+        }
+        let { copy, valid } = recoveryCache
         // A retained staging journal keeps the older copy accessible even if
         // quota/access failure also prevented rollback of the recovery key.
-        if (copy?.previous && (copy.raw === storage.getItem(STORAGE_KEY) || !validEnvelope(copy.data))) copy = copy.previous
-        return copy && validEnvelope(copy.data) ? copy : null
+        if (copy?.previous && (copy.raw === storage.getItem(STORAGE_KEY) || !valid)) { copy = copy.previous; valid = recoveryCache.previousValid }
+        return copy && valid ? structuredClone(copy) : null
       } catch { return null }
     },
   }

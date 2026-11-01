@@ -2,6 +2,16 @@
 
 **Samordnet 2026-10-25:** Import støtter den lokale oppgave-/planleggingsflyten. Kalender- og personvernrettingene utvider ikke kildeutvalget. [Importavtalen](IMPORT.md) beskriver atferden, mens [nyeste verifikasjon](VERIFICATION.md) oppgir den kontrollerte kandidaten og skiller syntetiske prøver fra historisk kildetransport. Personvernminimerte kildefixturer bevarer parserkontraktene; de dokumenterer ikke ny live-tilgang, personlig gruppedekning eller studentnytte.
 
+## Avgrenset kildeoppfølging — 2026-11-01
+
+Faktiske offentlige forespørsler kl. 16:21–16:25 Europe/Oslo er dokumentert i [ny verifikasjon](VERIFICATION.md#lagring-gjenoppretting-og-import--2026-11-01), separat fra syntetiske UI-prøver. NTNUs samlede programindeks svarte HTTP 200 med null dokumenter før søkefiltrering; komplett 2026-katalog er derfor ikke bekreftet. UI-en sier nå at kilden er tom, gir offentlig kildelenke og viser alternativet for ett emne. Direkte MTDT-kull/plan var fortsatt tilgjengelig, uten bekreftet programcampus. TDT4109-emnesøk ga Trondheim og faktisk lenket undervisning ga **115 beholdte hendelser**. Dette bekrefter det konkrete emneforløpet, ikke full programdekning.
+
+AHOs arkitekturplan har selv årshoppet høst 2029 → vår 2031. De publiserte årstallene og 44 emneforekomstene beholdes, mens studiesemesternummer følger kalenderavstanden (**1–7, 10, 11**) og manglende 2030-perioder forklares. Dette avklarer det konkrete F06-kildespørsmålet, uten å korrigere originalkilden eller love komplett studieløp.
+
+UiTs Applied Computer Science-PDF 941723, publisert som 2026-utgave og revidert 07.09.2026, er faktisk lest: ti sider og en lesbar tabell med åtte terminer. Engelsk forside gjenkjennes. Termin-/ECTS-tabellen støttes fortsatt ikke som semesterfordeling; appen forklarer grensen og lenker til akkurat den valgte PDF-en. Den eldre sykepleieutgaven med bildetabell har en annen, fortsatt bevart begrensning. Ingen kildevern eller grenser er fjernet, og full støtte for alle læresteder er ikke innført.
+
+Tidligere daterte beståttresultater nedenfor beholdes. Outlook-prøven ble senere bekreftet av brukeren 30. oktober og er bestått for den viste flyten; eldre utsagn om åpen Outlook-prøve er historikk. Personlig samlet egenutprøving og refleksjon er fortsatt åpne.
+
 ## Hel HiMolde-programgjentakelse med syntetiske kilder — 2026-10-29
 
 Det tekniske restpunktet for hel HiMolde-programgjentakelse er kontrollert med syntetiske kilder: [himolde-program-repeat.spec.js](tests/e2e/himolde-program-repeat.spec.js) bestod **1/1, 7,3 s** på [faktisk Vercel-preview](https://ajour-klao1js30-ajour1.vercel.app), commit `ce6d410a47581ace22577b167a6f4257cb634f0d`. Appens bygde grensesnitt kjøres fra denne deployen; program- og undervisningssvar erstattes av tydelig syntetiske fixturer basert på den avgrensede HiMolde IT 2026-valgkontrakten.

@@ -12,7 +12,30 @@ export const osloLocalExact = instant => {
   const local = Temporal.Instant.from(instant).toZonedDateTimeISO(OSLO).toPlainDateTime()
   return local.toString(local.second || local.millisecond || local.microsecond || local.nanosecond ? {} : { smallestUnit: 'minute' })
 }
-export const toInstant = local => Temporal.PlainDateTime.from(local).toZonedDateTime(OSLO, { disambiguation: 'reject' }).toInstant().toString()
+export function toInstant(local) {
+  const invalid = 'Oppgi en gyldig dato og et gyldig klokkeslett i norsk tid.'
+  let dateTime
+  try { dateTime = Temporal.PlainDateTime.from(local, { overflow: 'reject' }) }
+  catch { throw new RangeError(invalid) }
+  try { return dateTime.toZonedDateTime(OSLO, { disambiguation: 'reject' }).toInstant().toString() }
+  catch {
+    let earlier, later
+    try {
+      // Diagnostic only: neither candidate is returned or saved. Reject remains
+      // the sole conversion policy, including the repeated autumn hour.
+      earlier = dateTime.toZonedDateTime(OSLO, { disambiguation: 'earlier' })
+      later = dateTime.toZonedDateTime(OSLO, { disambiguation: 'later' })
+    } catch { throw new RangeError(invalid) }
+    const earlierMatches = earlier.toPlainDateTime().equals(dateTime), laterMatches = later.toPlainDateTime().equals(dateTime)
+    if (earlierMatches && laterMatches && earlier.epochNanoseconds !== later.epochNanoseconds) {
+      throw new RangeError('Klokkeslettet er tvetydig fordi det forekommer to ganger ved overgang til vintertid. Velg et klokkeslett utenfor den gjentatte timen.')
+    }
+    if (!earlierMatches && !laterMatches) {
+      throw new RangeError('Klokkeslettet finnes ikke ved overgang til sommertid. Velg et klokkeslett før eller etter tidsskiftet.')
+    }
+    throw new RangeError(invalid)
+  }
+}
 export const semesterLabel = (semester, year) => `${semester === 'spring' ? 'Vår' : 'Høst'} ${year}`
 export function semesterWindow(semester, year) {
   if (!['spring', 'autumn'].includes(semester) || !Number.isInteger(Number(year)) || Number(year) < 1900 || Number(year) > 2200) throw new Error('Velg et gyldig semester og år (1900–2200).')

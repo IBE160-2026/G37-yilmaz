@@ -7,7 +7,7 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-10-29
+updated: 2026-11-01
 binds: [R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, Q-01, Q-02, Q-03]
 historical_binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
@@ -23,6 +23,14 @@ sources:
 # Technical plan: Ajour
 
 **Documentation revision, 2026-10-26:** R-07 now uses the project owner's planned manual self-trial with synthetic data, following the owner's decision on this date. It is not completed and establishes no result for unfamiliar users. The product scope and technical contracts are unchanged. The name audit corrected three runtime/error display strings to Ajour. Existing import transport identifiers (`Studieplanlegger/1.0` User-Agent and adapter-generated ICS `PRODID` values), package identity and the data/runtime names below remain compatibility exceptions; visible calendar exports already use Ajour.
+
+## AD-17 — Bounded import bookkeeping and lossless local recovery, 2026-11-01
+
+Identical document imports retain their last saved source timestamp. Document-source timestamps, file fingerprints and revision numbers are bookkeeping for undo comparison; source content, selection and identities remain meaningful changes. No history is pruned to make space for identical imports; the existing 30-entry undo retention for real changes and separate trash remain. The import builder and browser storage adapter compare JSON values independently of object-key order before writing unchanged state; array order and every field value remain significant. Conflict checks run before this no-op decision. Undoing changed content restores its old source fingerprint; undoing only a source setting retains later bookkeeping updates.
+
+Main state and portable backups retain v1 JSON. Large browser recovery journals store each snapshot once and use pinned `pako` 2.1.0 DEFLATE with base64, verified by an exact round trip before writing. The internal journal identifies this representation as version 2; legacy uncompressed journals remain readable. Streaming decompression enforces actual output size, capped at 50 MB, and validates stream completion/checksum before JSON parsing. It is compression, not encryption. Recovery expands raw snapshots for validation, restoration and explicit work-history purging; a raw-key cache avoids repeated decoding and returns isolated copies. Identical replacement preserves the previous journal without writing; changed replacement checks both keys again after encoding, stages recovery, checks concurrent changes, writes main last and rolls back only its own journal on failure. These are optimistic checks, not cross-tab transactions; use one editing browser tab. No quota is increased and no data are deleted to make room. SQLite and portable backup formats are unchanged.
+
+Quota errors, denied storage and unknown failures are distinguished; a generic failure no longer implies a full disk. Full backup disclosure covers undo/trash and historical values. [Dated verification](../../../../studieplanlegger/VERIFICATION.md#lagring-gjenoppretting-og-import--2026-11-01) records measured before/after sizes, injected versus native browser failures, old-format compatibility and source limits. Existing origin isolation, draft retention and separate actual/remaining/done/submitted contracts remain in force.
 
 ## AD-16 — Browser deployment with bounded stateless imports, 2026-10-29
 

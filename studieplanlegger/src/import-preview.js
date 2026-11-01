@@ -7,7 +7,8 @@ import { Temporal } from '@js-temporal/polyfill'
 
 const clone = value => structuredClone(value)
 const normal = value => String(value || '').trim().toLocaleLowerCase('nb-NO')
-const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null)
+const orderedJson = value => JSON.stringify(value ?? null, (_key, item) => item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b))) : item)
+const same = (a, b) => a === b || orderedJson(a) === orderedJson(b)
 const nameStatusFields = new Set(['nameStatus', 'titleStatus'])
 const snapshot = (row, value) => Object.fromEntries(IMPORT_FIELDS[row.kind].filter(key => value[key] !== undefined).map(key => [key, clone(value[key])]))
 const token = state => JSON.stringify(state)
@@ -652,7 +653,7 @@ export function buildDocumentImportCommit(state, preview, { now = new Date() } =
   if (excludedKeys.length > 5000) return { ok: false, error: 'Denne oppdateringen overskrider grensen på 5000 lagrede utelatelser for én kilde. Avgrens filen eller kalenderperioden, eller importer et eget utvalg som en ny kilde. Tidligere valg og planen er beholdt; ingenting er lagret.' }
   const evidence = { origin: clone(preview.origin), excludedKeys, complete: preview.complete !== false, warnings: boundedImportWarnings(preview.warnings), ...(preview.format === 'ics' && preview.accounting ? { accounting: clone(preview.accounting) } : {}), ...(preview.format === 'ics' && preview.period ? { period: clone(preview.period) } : {}) }
   const unchangedSource = oldSource && oldSource.format === preview.format && oldSource.contentHash === preview.contentHash && same(oldSource.entries, entries) && Object.keys(evidence).every(key => same(oldSource[key], evidence[key]))
-  const source = { id: preview.sourceId, kind: 'document', format: preview.format, name: preview.name, contentHash: preview.contentHash, revision: oldSource ? unchangedSource ? oldSource.revision : oldSource.revision + 1 : 1, createdAt: oldSource?.createdAt || now.toISOString(), lastUpdated: now.toISOString(), entries, ...evidence }
+  const source = unchangedSource && oldSource.name === preview.name ? clone(oldSource) : { id: preview.sourceId, kind: 'document', format: preview.format, name: preview.name, contentHash: preview.contentHash, revision: oldSource ? unchangedSource ? oldSource.revision : oldSource.revision + 1 : 1, createdAt: oldSource?.createdAt || now.toISOString(), lastUpdated: now.toISOString(), entries, ...evidence }
   if (oldSource) candidate.importSources.splice(candidate.importSources.indexOf(oldSource), 1, source); else candidate.importSources.push(source)
   if (!validTasks(candidate.tasks) || !validPlanner(candidate.planner) || !validImportSources(candidate.importSources, candidate) || !validEnvelope(candidate, { relations: true })) return { ok: false, error: 'Planen inneholder en ugyldig verdi eller kobling. Ingen del av planen er lagret.' }
   return { ok: true, state: candidate, candidate, counts, source }
