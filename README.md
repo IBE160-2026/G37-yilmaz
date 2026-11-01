@@ -35,7 +35,7 @@ Planleggingen støtter gjenbrukbare studietidsmønstre, usikre arbeidsanslag, da
 | [Brukerveiledning](studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [løsningsguide](.docs/implementation-artifacts/solution-guide.md) | Hovedflyt, lagring, sikkerhetskopi og bruk. Lokal oppstart står nedenfor. |
 | [Planindeks og leveringsgrunnlag](.docs/planning-artifacts/README.md) | Brief, PRD, stories, arkitektur og krav-/testsporbarhet. |
 | [Kjente begrensninger](studieplanlegger/README.md#kjente-begrensninger-ved-levering) | NTNU, UiT, lagringskvote, prøvens avgrensning, F03/F05 og bundlevarsel, med betydning for V1. |
-| [Refleksjonsrapport – lesbar hovedtekst](.docs/submission/reflection-report.md) og [Word-eksport](.docs/submission/reflection-report.docx) | Prosjekteierens leverte rapport med egne erfaringer og oppgitt KI-hjelp til struktur og formulering. Markdown er redigerbar hovedtekst; Word er samsvarende eksport. |
+| [Refleksjonsrapport – Markdown](.docs/submission/reflection-report.md) | Prosjekteierens leverte rapport med egne erfaringer og oppgitt KI-hjelp til struktur og formulering. Rapporten leveres bare som Markdown i repoet. |
 | [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md) | Dokumenterte hendelser, KI-styring og avgrensning av personvernkontroll. |
 | [GitHub-repo](https://github.com/IBE160-2026/G37-yilmaz) og [produksjonsapp](https://ajour-sooty.vercel.app/) | Leveringsdokumentene leses på GitHub; appen publiseres gjennom det eksisterende Vercel-prosjektet. |
 
@@ -93,4 +93,4 @@ Dokumentasjonen nedenfor beskriver løsningen, utviklingsprosessen med KI/BMAD o
 - [Kuratert TP CSV-formatkontrakt](.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md)
 - [Teknisk verifikasjon](studieplanlegger/VERIFICATION.md)
 - [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md)
-- [Refleksjonsrapport](.docs/submission/reflection-report.md) og [samsvarende Word-eksport](.docs/submission/reflection-report.docx)
+- [Refleksjonsrapport – Markdown](.docs/submission/reflection-report.md)

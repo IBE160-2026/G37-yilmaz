@@ -1,8 +1,18 @@
 # Verifisering av Ajour
 
+## Fontnavn og Markdown som eneste rapportformat — 2026-11-01
+
+Avgrenset opprydding fra main `17096603fb79487da4056c336dc976073ad3cf37`: De tre Manrope-filene hadde TrueType-signaturen `00010000` og `glyf`/`loca`-tabeller. De er omdøpt til `.ttf` uten å endre fontdata, vektene 400/500/600, `format('truetype')` eller OFL-lisensen. CSS-adressene, Node-serverens `font/ttf`-respons og fontkontrollen i [databaseprøven](tests/e2e/database-delivery.spec.js) er oppdatert; eksisterende støtte for øvrige MIME-typer består.
+
+Låst installasjon, **2529/2529 enhetstester i 147 filer**, produksjonsbygg og **3/3 SQLite-/nettleserprøver** bestod. Alle tre lokale fontadresser ga HTTP 200, `font/ttf`, `nosniff` og identiske SHA-256-verdier mot originalene. En isolert Chromium-kontroll lastet alle tre vekter; tekstmålinger og pikselbildet av samme tekstprøve var identiske før og etter rettingen. Ingen ekte nettleserprofil eller database ble brukt. Det kjente bundlevarselet består.
+
+Metode for fontsammenligningen: Chromium 153.0.8010.12, viewport 1440 × 1000, `deviceScaleFactor: 1` og fersk kontekst med lyst tema. Fontene definert i appens faktiske CSS ble lastet med `document.fonts.load` for vektene 400/500/600. En separat, fast tekstprøve brukte 32 px, linjehøyde 1,5 og «Ajour – Planer endrer seg. ÆØÅ æøå 0123456789» med vektetikett. Etter at fontene var ferdig lastet, ble tekstmålinger og PNG-ens SHA-256 sammenlignet mellom produksjonens tidligere WOFF2-adresser og de nye lokale TTF-adressene. Kontrollen brukte et midlertidig lokalt skript, ikke et publisert testverktøy i repoet.
+
+[Refleksjonsrapportens Markdown](../.docs/submission/reflection-report.md) er uendret. Word-kopien og dens `.gitignore`-unntak er fjernet etter prosjekteierens ønske; historiske kontrollopplysninger nedenfor beholdes, men Word-lenker er gjort til vanlig tekst. Ingen DOCX/PDF er opprettet. De tilsiktede fixturene `connected-semester.docx`, `uit-programs/pdf/868803.pdf` og `public-pdf-hung.worker.js` er bevart uendret. Ingen Outlook-prøve eller generell egenutprøving er gjentatt. Endelig CI-/publiseringsbevis etter loggcommiten føres i PR-en som [sesjonsloggen](../.logs/goplayer007/993-2026-11-01-22-34-20-ajour-sluttleveranse.md) lenker til.
+
 ## Sluttrapport og avgrenset leveringskontroll — 2026-11-01
 
-Den brukerleverte [refleksjonsrapporten](../.docs/submission/reflection-report.md) og [samsvarende Word-fil](../.docs/submission/reflection-report.docx) foreligger. [Leveringskontrollen](../.docs/implementation-artifacts/submission-audit-2026-11-01.md) dokumenterer tekstlikhet, ordtelling, personvern-/historikkomfang og denne rundens faktiske automatiske kontroller. Ingen ny generell egenutprøving er utført. SC-07 og Outlook beholder resultatene nedenfor; personlig sluttgjennomlesing og formell innlevering er ikke bekreftet.
+Den brukerleverte [refleksjonsrapporten](../.docs/submission/reflection-report.md) ble innarbeidet sammen med en samsvarende Word-fil. Word-kopien er senere fjernet fra dagens repo etter prosjekteierens ønske; den uendrede Markdown-rapporten er nå eneste rapportformat i repoet. [Leveringskontrollen](../.docs/implementation-artifacts/submission-audit-2026-11-01.md) dokumenterer den opprinnelige tekstlikheten, ordtellingen, personvern-/historikkomfanget og denne rundens faktiske automatiske kontroller. Ingen ny generell egenutprøving er utført. SC-07 og Outlook beholder resultatene nedenfor; personlig sluttgjennomlesing og formell innlevering er ikke bekreftet.
 
 Låst installasjon (`npm ci`), full enhetssuite **2529/2529 i 147 filer** og produksjonsbygg bestod i en isolert arbeidskopi fra `246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`. Dette er dokumentasjonsendringer; appkode, fixturer, lagringsformat og CI er uendret. Bundlevarselet består: hovedfil **957,30 kB / 292,79 kB gzip**. Det er ingen avtalt numerisk V1-grense; mulig nedlastings-/oppstartskostnad er fortsatt et kjent forbehold.
 
