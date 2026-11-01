@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { freeze, instrumentWrites, navigate, reveal, saved } from './helpers.js'
+import { freeze, instrumentWrites, key, navigate, reveal, saved } from './helpers.js'
 
 // Synthetic responses use the bounded HiMolde IT 2026 choice contract already
 // exercised in simplified-study-import.spec.js. No live calendar or student data
@@ -102,12 +102,15 @@ test('synthetic full HiMolde programme repeat preserves identities, choices and 
   let initial
   for (let attempt = 0; attempt < 2; attempt++) {
     const before = await saved(page)
+    const beforeRaw = await page.evaluate(key => localStorage.getItem(key), key)
     const host = await preview(page, attempt)
     expect(await saved(page)).toEqual(before)
     expect(await page.evaluate(() => window.writeAttempts.length)).toBe(0)
     await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
     await expect(host.getByRole('status')).toContainText('3 emner er lagret samlet')
-    expect(await page.evaluate(() => window.writeAttempts.length)).toBe(1)
+    // The frozen source has identical content and metadata on repeat. Preserve
+    // the stored bytes instead of requiring an unnecessary second write.
+    expect(await page.evaluate(() => window.writeAttempts.length)).toBe(attempt === 0 ? 1 : 0)
     const after = await saved(page)
     expect(after.planner.courses.map(item => item.code).sort()).toEqual([...codes].sort())
     expect(after.planner.sources).toHaveLength(3)
@@ -120,6 +123,8 @@ test('synthetic full HiMolde programme repeat preserves identities, choices and 
       await (await reveal(page.locator('#subject-editor [name=notes]'))).fill('Syntetisk eget notat beholdes ved gjentakelse')
       await page.getByRole('button', { name: 'Lagre emne', exact: true }).click()
     } else {
+      expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(beforeRaw)
+      expect(after).toEqual(before)
       for (const collection of ['courses', 'sources', 'events']) expect(after.planner[collection].map(item => item.id).sort()).toEqual(initial.planner[collection].map(item => item.id).sort())
       expect(after.planner.courses.find(item => item.code === 'IBE160').notes).toBe('Syntetisk eget notat beholdes ved gjentakelse')
       expect(after.planner.events).toEqual(before.planner.events)
@@ -134,5 +139,5 @@ test('synthetic full HiMolde programme repeat preserves identities, choices and 
     expect(calls.searches.filter(item => item === code)).toHaveLength(2)
     expect(calls.calendars.filter(item => item === code)).toHaveLength(2)
   }
-  await info.attach('synthetic-programme-repeat', { contentType: 'application/json', body: JSON.stringify({ source: 'synthetic-fixture', completeProgramPasses: 2, courseCount: 3, teachingSourceCount: 3, eventCount: 3, stableIdentities: true, retainedActivityChoices: true, retainedLocalNotes: true, writesPerConfirmation: 1, noPreapprovalWrites: true }) })
+  await info.attach('synthetic-programme-repeat', { contentType: 'application/json', body: JSON.stringify({ source: 'synthetic-fixture', completeProgramPasses: 2, courseCount: 3, teachingSourceCount: 3, eventCount: 3, stableIdentities: true, retainedActivityChoices: true, retainedLocalNotes: true, writesPerConfirmation: [1, 0], noPreapprovalWrites: true }) })
 })

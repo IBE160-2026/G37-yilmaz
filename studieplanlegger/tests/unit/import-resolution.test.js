@@ -118,9 +118,12 @@ it('usability: sub-millisecond precision is explicitly unresolved instead of sil
 })
 
 it('usability: SQLite object-key reconstruction permits exact undo but true source changes still conflict', () => {
-  const state = { schemaVersion: 1, tasks: [] }, parsed = { ...parseDocumentCsv('summary;dtstart;dtend\nOppdiktet historikk;2039-04-18T10:00:07+02;2039-04-18T11:00:09+02'), contentHash: 'a'.repeat(64) }
+  const state = { schemaVersion: 1, tasks: [] }, parsed = { ...parseDocumentCsv('eventid;summary;dtstart;dtend\nsynthetic-history-event;Oppdiktet historikk;2039-04-18T10:00:07+02;2039-04-18T11:00:09+02'), contentHash: 'a'.repeat(64) }
   const first = buildDocumentImportCommit(state, createDocumentImportPreview(state, parsed), { now: new Date('2039-04-01T10:00:00Z') })
-  const second = buildDocumentImportCommit(first.candidate, createDocumentImportPreview(first.candidate, parsed), { now: new Date('2039-04-02T10:00:00Z') })
+  // A timestamp-only reimport is now a no-op. Change actual source content so
+  // this still checks SQLite key ordering and conflict-safe undo of a real edit.
+  const revised = structuredClone(parsed); revised.rows[0].title = 'Oppdiktet endret historikk'; revised.contentHash = 'b'.repeat(64)
+  const second = buildDocumentImportCommit(first.candidate, createDocumentImportPreview(first.candidate, revised, { sourceId: first.source.id }), { now: new Date('2039-04-02T10:00:00Z') })
   const history = recordChange(first.candidate, second.candidate)
   const reverseKeys = value => Array.isArray(value) ? value.map(reverseKeys) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).reverse().map(([key, item]) => [key, reverseKeys(item)])) : value
   const fromSqlite = reverseKeys(JSON.parse(JSON.stringify(second.candidate)))

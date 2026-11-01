@@ -117,6 +117,7 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     entry.state = !known && !reservedFits ? 'unknown' : need > 0 ? 'insufficient' : reservedFits ? 'planned' : 'unplanned'
     entry.reasons.push({ unknown: 'Tilgjengelig arbeidstid er ukjent. Registrer arbeidstidsvinduer.', insufficient: `${need} min mangler før fristen i registrert arbeidstid.`, planned: 'Arbeidet har reservert tid. Oppdater gjenstående arbeid selv etter økten.', unplanned: capacityPlanningNote(planningRules) }[entry.state])
   }
+  for (const entry of entries) entry.reasons = [...new Set(entry.reasons)]
   const sum = field => Math.min(Number.MAX_SAFE_INTEGER, entries.reduce((n, e) => n + e[field], 0))
   const openRequired = entries.some(entry => entry.requiredMaxMinutes === null && entry.requiredMinMinutes !== null)
   const openMissing = entries.some(entry => entry.missingMaxMinutes === null && entry.missingMinMinutes !== null)

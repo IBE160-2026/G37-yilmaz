@@ -55,6 +55,10 @@ export async function ntnuPrograms(action, query, { fetchText }) {
   if (action==='programs') {
     const url = await endpoint('allStudies',fetchText), data=JSON.parse(await cachedText(fetchText,url.href,validate))
     if (!Array.isArray(data.docs) || !Number.isInteger(data.numFound)) fail('not-supported','NTNUs programliste har endret format.')
+    if (!data.docs.length) {
+      const error = 'NTNUs programkilde returnerte en tom samlet programliste før søket ditt ble filtrert. Det bekrefter ikke at programmet mangler. Prøv igjen senere, åpne NTNUs programside eller søk etter ett enkelt emne.'
+      return { status: 'source-empty', results: [], sourceUrl: catalogue, error, warnings: [], completeness: { complete: false, pages: 1, returned: 0, total: data.numFound, reason: 'Den samlede programkilden var tom; et fullstendig programutvalg er ikke bekreftet.' } }
+    }
     const results = data.docs.filter(item=>validCode(item?.studyprogCode)&&clean(item?.studyprogName)).map(item=>({code:item.studyprogCode,name:clean(item.studyprogName),level:clean(item.studyprogStudyLevel),sourceUrl:planning,campuses:Array.isArray(item.studyprogCities)?item.studyprogCities:[],campusNames:Array.isArray(item.studyprogCampuses)?item.studyprogCampuses:[]}))
     const complete = data.docs.length===data.numFound, q=clean(query.q).toLocaleLowerCase('nb'),omitted=data.docs.length-results.length
     return {status:'ok',results:results.filter(item=>!q||`${item.code} ${item.name}`.toLocaleLowerCase('nb').includes(q)),sourceUrl:catalogue,completeness:{complete:complete&&!omitted,pages:1,returned:results.length,total:data.numFound,omitted,...(!complete?{reason:'Den publiserte allStudies-listen er ufullstendig; ingen pagineringskontrakt er oppgitt.'}:{})},warnings:[...(!complete?['NTNU returnerte færre program enn oppgitt total. Listen er ufullstendig.']:[]),...(omitted?[`${omitted} publiserte rader mangler en lesbar programkode eller et programnavn og er utelatt. Ingen identitet er gjettet.`]:[])]}
