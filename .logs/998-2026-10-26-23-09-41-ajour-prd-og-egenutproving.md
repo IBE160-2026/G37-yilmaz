@@ -136,3 +136,32 @@ Kun denne loggseksjonen og issues oppdateres i Git som lokal loggcommit. De tidl
 ### Åpne punkter
 
 R-03 må avstemmes mot eksisterende betinget planlegging. Q-01s formulering og direkte interne kravlenker kan presiseres i samme dokumentoppfølging. Funnene står i [issues](issues.md); retting krever et eget Update-valg etter denne valideringen.
+
+## 2026-11-02 kl. 19:18 — GOplayer007
+
+### Oppgave
+
+Rette de tre dokumentfunnene fra PRD-valideringen etter prosjekteierens uttrykkelige «Update». Arbeidet følger opp lærerfeedback om sjekkbare krav, avgrensning og sporbarhet.
+
+### Plan
+
+- Avstemme funnene mot gjeldende beslutninger og eksisterende planleggingsflyt; bevare V1 og dokumentasjonsgrensene for R-07.
+- Presisere PRD og S-03, kontrollere fakta, struktur, språk og lenker, og lukke de tre valideringsfunnene i issues.
+
+### Resultat
+
+[PRD](../.docs/planning-artifacts/PRD.md) skiller nå bekreftede arbeidsvinduer fra uttrykkelig merket, betinget tilgjengelighet. En godkjent utforskende startøkt kan lagres mens totalanslaget fortsatt er ukjent; antatt tilgjengelighet blir ikke bekreftet kapasitet. [S-03](../.docs/planning-artifacts/EPICS-CURRENT.md#s-03--gjennomførbare-forslag-r-03-sc-03) har et eget aksepteksempel for dette, forankret i eksisterende brukerveiledning og tester. Kjente begrensninger, konflikter, foreldet grunnlag og uttrykkelig godkjenning gjelder fortsatt.
+
+Q-01 erstatter «lett å finne» med eksisterende, observerbare krav til tom oversikt, samlet tidsvalg/Start og mobilrekkefølge. Kravtabellens henvisninger fra R-03, R-05 og R-06 peker direkte til relevante avsnitt. Én skrivefeil er rettet. Revisjonshistorikken viser oppdateringen; krav-ID-er, rekonstruksjonsdato, navngitt V1 og R-07 er uendret.
+
+Uavhengig avstemming mot alle tre valideringsfunn og en målrettet faktakontroll fant ingen gjenstående feil i dette endringsutvalget. Struktur- og språkkontroll er gjennomført. Underlagsrapportene ligger lokalt i Git-ignorert `.tmp/prd-update-2026-11-02/`; valideringsrapporten fra før retting beholdes som datert vurdering. BMADs minnelogg er opprettet med gjenvunne gjeldende beslutninger og holdes ignorert, slik repositoryets personvernregel krever.
+
+Ny dokumentkontroll før loggoppdateringen: 47 Markdown-filer, 732 lokale lenker og 211 avsnittsreferanser, uten feil. De **8/8 simple-planning-testene fra kl. 18:58**, dagens tidligere **2604 enhetstester i 149 filer** og produksjonsbygg gjenbrukes for uendret appkode; ingen tester eller bygg er kjørt på nytt i Update-runden. Det tidligere bundlevarselet består. Sensororiginalen er fortsatt utilgjengelig; lærerfeedbacken er lest uten å utlede nye sensorkrav.
+
+Personvernkontrollen omfattet 790 filer og 11 utfoldede ICS-filer uten treff i de kontrollerte kategoriene. Diffens whitespace er kontrollert. Minnelogg og lokale vurderingsfiler er bekreftet Git-ignorert.
+
+Valideringspunktet i [issues](issues.md) er lukket for de tre dokumentfunnene. Bare denne loggen og issues inngår i lokal loggcommit; produktdokumentene ligger i arbeidskopien. Ingen ny funksjonalitet, manuell egenutprøving, push eller publisering er utført.
+
+### Åpne punkter
+
+Ingen nye. R-07s eksisterende dokumentasjonsgrenser, de aksepterte nyttehypotesene og øvrige tidligere begrensninger beholdes.
