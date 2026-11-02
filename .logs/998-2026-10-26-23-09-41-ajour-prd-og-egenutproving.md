@@ -109,3 +109,30 @@ Lærerfeedbacken er lest. Det identifiserte sensorvedlegget var ikke tilgjengeli
 ### Åpne punkter
 
 Scenariomatrisens dokumentasjonsgrenser føres under eksisterende punkt om egenutprøvingens omfang i [issues](issues.md). Dette er et dekningsforbehold, ikke en ny feil eller pålagt prøverunde. Nyttehypotesene er akseptert uvisshet i V1. Eksisterende formell sluttkontroll, kildebegrensninger og tekniske begrensninger er beholdt.
+
+## 2026-11-02 kl. 19:03 — GOplayer007
+
+### Oppgave
+
+Validere den oppdaterte PRD-en med bmad-prd etter prosjekteierens valg av Validate. Arbeidskopien med de tidligere godkjente presiseringene er vurderingsgrunnlaget; produktdokumentene skal ikke endres av valideringen.
+
+### Plan
+
+- Gjennomføre uavhengig vurdering av BMADs sju kvalitetsdimensjoner og kontrollere krav/evidens mot kildedokumentene.
+- Samle vurderingene i en lokal HTML-rapport og tilsvarende Markdown-rapport, kontrollere rapporten og føre konkrete restfunn i issues.
+
+### Resultat
+
+Valideringen gir **ett medium-funn og to low-funn**, ingen high eller critical. Fire dimensjoner er strong og tre adequate. BMADs oppgitte beregningsregel gir etiketten **Excellent** for dokumentkvalitet; dette betyr verken full produktaksept, rettet R-03-avvik eller akademisk karakter.
+
+R-03s formulering om bekreftede arbeidsvinduer utelater en eksisterende, tydelig merket betinget planleggingsflyt. [Brukerveiledningen](../studieplanlegger/README.md#oppgaver-arbeidssteg-og-egenvurdering) og [simple-planning-testene](../studieplanlegger/tests/unit/simple-planning.test.js) viser at en kort utforskende økt kan godkjennes uten registrerte arbeidsvinduer, mens totalanslaget fortsatt er ukjent. Dette er en dokumentkonflikt, ikke en ny påvist kodefeil. De to små funnene gjelder «lett å finne» uten egen akseptgrense og stedsord som «nedenfor» der direkte avsnittslenker vil gjøre kravene enklere å trekke ut. SC-07s presiserte evidensgrenser og kildeavgrensningen er konsistente.
+
+Samlet rapport er lagret lokalt i Git-ignorert `.tmp/prd-validation-2026-11-02/validation-report.html` og `validation-report.md`, med separate underlagsrapporter. Rapportene er gjennomgått, og HTML-visningen er kontrollert i isolert Chromium: sju dimensjoner, én supplerende reviewer, fungerende utfellingskontroller, ingen sidefeil eller horisontal overflyt på kontrollert bredde. Automatisk åpning i standardnettleseren ble avvist med «Ingen tilgang»; ingen alternativ åpner er forsøkt.
+
+Ny målrettet teknisk kontroll: **8/8 simple-planning-tester bestod** kl. 18:58. Dokumentkontrollen før loggoppdateringen fant 47 Markdown-filer, 721 lokale lenker og 203 avsnittsreferanser uten manglende mål. Åtte dokumentkilder er hashkontrollert før/etter og er uendret. Dagens tidligere 2604 enhetstester og produksjonsbygg gjenbrukes for uendret appkode; de er ikke nye kjøringer i denne valideringen. Lærerfeedbacken er brukt, særlig avgrensning, sjekkbare krav og sporbarhet. Sensororiginalen var utilgjengelig og er ikke erstattet av antatte krav.
+
+Kun denne loggseksjonen og issues oppdateres i Git som lokal loggcommit. De tidligere seks dokumentendringene beholdes i arbeidskopien. Ingen produktretting, ny manuell egenutprøving, push eller publisering er utført.
+
+### Åpne punkter
+
+R-03 må avstemmes mot eksisterende betinget planlegging. Q-01s formulering og direkte interne kravlenker kan presiseres i samme dokumentoppfølging. Funnene står i [issues](issues.md); retting krever et eget Update-valg etter denne valideringen.
