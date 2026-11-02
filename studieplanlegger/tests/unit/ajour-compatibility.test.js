@@ -119,7 +119,7 @@ describe('Ajour keeps pre-change local data and export contracts', () => {
   })
 
   it('uses Ajour calendar labels while preserving the exact pre-change UIDs and event times', () => {
-    const options = { includeTeaching: true }
+    const options = { includeTeaching: true, now: () => Date.parse('2026-10-26T07:00:00Z') }
     const source = generateCalendarIcs(legacyState, options)
     expect(validateGeneratedIcs(source)).toBe(true)
     const calendar = new ICAL.Component(ICAL.parse(source))
