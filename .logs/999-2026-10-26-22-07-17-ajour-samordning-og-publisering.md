@@ -10,7 +10,7 @@ Samordne ferdig lokal Ajour med lærerens faktiske GitHub-endringer og publisere
 
 - Kontrollere repository, indeks og leveransemanifest; hente og undersøke hele lærerbidraget før integrering.
 - Bevare begge bidrag, kontrollere en komplett isolert kandidat og publisere ordinært til riktig main.
-- Følge eksisterende [brief](../brief.md), [sporbarhet](../.docs/planning-artifacts/TRACEABILITY.md) og [verifikasjon](../studieplanlegger/VERIFICATION-HISTORY.md#samordning-og-publiseringskandidat--2026-10-26). Ingen ny PRD eller rekonstruksjon av gamle økter.
+- Følge eksisterende [brief](../brief.md), [sporbarhet](../.docs/planning-artifacts/TRACEABILITY.md) og [verifikasjon](../studieplanlegger/VERIFICATION.md). Ingen ny PRD eller rekonstruksjon av gamle økter.
 
 ### Resultat
 
