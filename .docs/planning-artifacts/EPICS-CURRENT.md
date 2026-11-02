@@ -109,14 +109,20 @@ Approved S-02 follow-up **2026-10-19**, [resolution correction](TRACEABILITY.md#
 
 ### S-03 — Gjennomførbare forslag (R-03; SC-03)
 
-Som student vil jeg se hva som får plass innenfor de opplysningene jeg har registrert.
+Som student vil jeg finne en startklar handling, vurdere kapasiteten og kontrollere konkrete øktforslag ut fra det jeg har registrert.
 
-- **Given** arbeidsvinduer, kjent undervisning/opptatt tid og avhengigheter, **When** forslag beregnes, **Then** nye økter ligger i gyldig ledig tid og respekterer forutsetninger; manglende kapasitet forklares.
+**Presisert 2026-11-02:** De tre funksjonene nedenfor har ulike resultater, jf. [løsningsguiden](../implementation-artifacts/solution-guide.md#tre-forskjellige-planleggingsfunksjoner). Dette presiserer eksisterende atferd og utvider ikke V1.
+
+- **Neste handling — Given** en startklar, delbar oppgave med 1200 minutter gjenstående, uten arbeidssteg eller blokkeringer, **When** jeg velger 30 minutter nå, **Then** vises et merket forslag om 30 minutters arbeid uten å redusere de 1200 minuttene eller fullføre oppgaven. Forslaget er ikke i seg selv en kontrollert kalenderreservasjon. Flere startklare alternativer rangeres etter egen/avhengiges frist, antall avhengige oppgaver, registrert prioritet og stabil rekkefølge.
+- **Ukjent grunnlag — Given** en oppgave med bare tittel og ukjent arbeidstid, **When** kapasiteten vurderes, **Then** forklares manglende tidsgrunnlag uten oppdiktet totalanslag eller påstand om at hele arbeidet får plass. Jeg kan senere oppgi anslag eller et tidsanslått, startklart steg; et slikt steg kan gi et handlingsforslag uten at hele arbeidsmengden blir kjent.
+- **Kapasitet — Given** registrert gjenstående arbeid, arbeidsvinduer og opptatt tid, **When** kapasiteten beregnes, **Then** vises reservert, foreslått og manglende tid med usikkerhet, uten at planen endres.
+- **Omplanlegging — Given** arbeidsvinduer, kjent undervisning/opptatt tid og avhengigheter, **When** konkrete økter foreslås, **Then** nye økter ligger i gyldig ledig tid og respekterer frister, forutsetninger, låser, delbarhet og økt-/pauseregler; manglende kapasitet forklares. Øktene lagres først ved godkjenning.
+- **Betinget startøkt — Given** en startklar oppgave med ukjent gjenstående arbeid, uten bekreftede arbeidsvinduer eller valgt studietidsmønster, **When** det oppgavenære forslaget beregnes og jeg godkjenner den viste økten, **Then** kan én tydelig merket, betinget og utforskende økt på 30 minutter lagres når kjente begrensninger tillater den. Totalanslaget forblir ukjent; det opprettes verken en gjentakende studietidspreferanse eller bekreftet kapasitet. Kjente konflikter og foreldet grunnlag skal fortsatt avvises. Et uttrykkelig valgt studietidsmønster kan brukes som preferanse, men regnes heller ikke som bekreftet kapasitet. Kontrakten finnes i [simple-planning.test.js](../../studieplanlegger/tests/unit/simple-planning.test.js), `uses a short exploratory session without turning an assumption into a recurring preference`, og [brukerveiledningen](../../studieplanlegger/README.md#oppgaver-arbeidssteg-og-egenvurdering).
 - **Given** et manuelt flyttet utkast, **When** det overlapper, bryter vinduet eller har foreldet grunnlag, **Then** godkjenning avvises uten lagring.
 - **Given** kjent frist og utilstrekkelig tid før fristen, **When** kapasiteten beregnes, **Then** arbeid etter fristen telles ikke som tilgjengelig, og manglende tid forklares. Testkilder: [capacity-invariants.test.js](../../studieplanlegger/tests/unit/capacity-invariants.test.js), `keeps every assigned minute inside a real session and deadline, never assigns it twice, and preserves input`, og [capacity-notice.test.js](../../studieplanlegger/tests/unit/capacity-notice.test.js), `identifies a hard deadline shortage independently of planned sessions`.
 - **Given** et forslag beregnet fra et tidligere gjenstående anslag, **When** anslaget endres før godkjenning, **Then** det gamle forslaget avvises som foreldet uten skriving. Dette er eksplisitt kontrollert av A10-testen i [connected-planner.test.js](../../studieplanlegger/tests/unit/connected-planner.test.js): `A10 rejects edits that overlap, lack breaks, violate windows, stale data or elapsed start, with atomic undo`.
 
-Status: implementert med enhetstester og historisk teknisk evidens; ingen garanti ved ukjente eller feilregistrerte opplysninger.
+Status: implementert med enhetstester og historisk teknisk evidens; ingen garanti ved ukjente eller feilregistrerte opplysninger. Presiseringen er ingen ny testkjøring; eksisterende [SC-07/1200–30-resultat](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) beholder dokumentert bestått.
 
 ### S-04 — Utfall uten falsk framgang (R-04; SC-04)
 
@@ -133,10 +139,12 @@ Status: implementert; automatiserte domene-/stegtester, ikke dokumentasjon på l
 Som student vil jeg kontrollere planendringer og kunne angre dem samlet.
 
 - **Given** et forslag, **When** jeg bare forhåndsviser eller avbryter, **Then** ingen ny økt lagres.
-- **Given** uendret gyldig grunnlag, **When** jeg godkjenner og deretter angrer, **Then** den samlede endringen lagres og gjenopprettes samlet.
+- **Given** et forslag med uendret gyldig grunnlag, **When** jeg godkjenner, **Then** lagres hele den godkjente endringen samlet.
+- **Given** en godkjent endring som fortsatt finnes blant de 30 nyeste Angre-oppføringene, med uendret gyldig grunnlag for tilbakeføring, **When** jeg angrer, **Then** gjenopprettes den samlede endringen. Grensen gjelder beholdt Angre-historikk, ikke ubegrenset tilbakeføring.
 - **Given** endret grunnlag, **When** gammelt forslag brukes, **Then** det avvises uten delvis skriving.
+- **Given** at grunnlaget for en beholdt Angre-oppføring er endret, **When** jeg forsøker å angre, **Then** avvises tilbakeføringen uten å overskrive nyere data. [Lagring og historikk](../../studieplanlegger/README.md#kalender-og-lokale-data) beskriver grensene.
 
-Status: implementert med tekniske tester; denne samordningen endrer ikke produktatferden.
+Status: implementert med tekniske tester; presiseringen 2026-11-02 endrer ikke produktatferden.
 
 ## Epic E-03: Bevare og etterprøve
 
@@ -146,8 +154,10 @@ Som student vil jeg bevare planen uten konto og kunne følge dokumentert lokal o
 
 - **Given** lagrede emner, oppgaver og økter, **When** produksjonsserveren/containeren starter på nytt med samme datavolum, **Then** identiteter og relasjoner beholdes.
 - **Given** ugyldig eller foreldet tilstand, **When** lagring forsøkes, **Then** ingen del av kandidaten erstatter gyldige data.
+- **Given** nettleserutgaven i samme profil og på samme nøyaktige adresse med én redigerende fane, **When** siden lastes om eller åpnes igjen, **Then** gyldige lagrede identiteter og relasjoner beholdes. Samtidig redigering i flere faner loves ikke; sletting av nettleserdata kan slette planen.
+- **Given** en sikkerhetskopi, **When** gjenoppretting forsøkes, **Then** avvises filer over 20 000 000 byte før forhåndsvisning i alle driftsformer. Gyldig gjenoppretting bevarer domenedata og relasjoner innen [sikkerhetskopiens dokumenterte innhold](../../studieplanlegger/README.md#sikkerhetskopi-og-lagring); kalenderforbindelser, kjente tilgangsnøkler, tema og emnefargepreferanser overføres ikke. Feil bevarer gjeldende data og åpne utkast.
 
-Status: implementert; datert Node/SQLite- og Docker-evidens. Ingen ny Docker-kjøring 2026-10-16.
+Status: implementert; datert Node/SQLite- og Docker-evidens. Ingen ny Docker-kjøring 2026-10-16. Nettleser-/sikkerhetskopigrensene er presisert 2026-11-02 uten ny testkjøring.
 
 ### S-07 — Gjennomføre og dokumentere egenutprøving (R-07, Q-01; SC-07)
 
@@ -159,6 +169,8 @@ Som prosjekteier vil jeg gjennomføre en manuell prøve med syntetiske data og d
 - **Given** tekniske tester eller tomme observasjonsfelt, **When** status oppsummeres, **Then** teller de ikke som mine manuelle erfaringer eller som bevis for ukjente brukeres forståelse.
 
 **Status 2026-11-01: egenutprøving utført av prosjekteier; rapporterte omprøvinger bestått innen dokumentert omfang.** [Prøveplanen](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) beholder de tidligere avvikene som før-/etter-bevis og angir hva siste omprøving ikke dekket. Den opprinnelige sjuscenariooppskriften er ikke fylt ut med antatte observasjoner. Endret til egenutprøving etter prosjekteierens beslutning **2026-10-26**; ingen andre testpersoner rekrutteres. Den tidligere eksterne studentprøven ble ikke gjennomført eller bestått. Prosjekteierens leverte [refleksjonsrapport](../submission/reflection-report.md) foreligger med oppgitt KI-hjelp til struktur og formulering; personlig sluttgjennomlesing og formell innlevering er separate restpunkter i [leveringskontrollen](README.md#leveringskontroll--2026-11-01).
+
+**Statuspresisering 2026-11-02:** [Scenariodekningen](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) skiller dokumenterte deler fra detaljer i den opprinnelige oppskriften som ikke er dokumentert. R-07/S-07 har derfor ikke dokumentasjon for full gjennomføring av alle opprinnelige detaljer. Dette endrer ikke beståtte omprøvinger, SC-07/1200–30 eller Outlook-prøven og pålegger ingen ny prøverunde.
 
 ### S-08 — Bevare eksisterende tillegg (R-08; støtter SC-04/SC-05)
 

@@ -6,6 +6,8 @@ Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere øn
 
 ## Gjenstående aktiviteter
 
+- [x] 2026-11-02 [PRD-validering](998-2026-10-26-23-09-41-ajour-prd-og-egenutproving.md#2026-11-02-kl-1903--goplayer007) — R-03/S-03 må skille planlegging med bekreftede arbeidsvinduer fra eksisterende, godkjennbare betingede startøkter med fortsatt ukjent totalanslag. To små dokumentfunn gjelder Q-01s «lett å finne» og direkte avsnittslenker i kravtabellen. Produkttekstene ble ikke endret i Validate-runden. Alle tre funn er rettet og kontrollert etter prosjekteierens [Update-valg](998-2026-10-26-23-09-41-ajour-prd-og-egenutproving.md#2026-11-02-kl-1918--goplayer007), uten ny funksjon eller manuell prøverunde (løst 2026-11-02).
+
 - [x] 2026-10-29 [Ajour for Vercel](997-2026-10-29-13-35-00-ajour-vercel.md) — Offentlig tilgang godkjent bare for ajour etter kildekontroll. Faktisk preview, alle 30 skjermbilder, live-import, profilisolasjon, gjenåpning og samme-adresse-redeploy bestod før PR-integrering. [Produksjon](https://ajour-sooty.vercel.app) er promotert og funksjonskontrollert, og lenken står i README (løst 2026-10-29).
 
 - [x] 2026-10-26 [Egenutprøving / SC-07](998-2026-10-26-23-09-41-ajour-prd-og-egenutproving.md) — Prosjekteieren bekrefter egenutprøvingen gjennomført og resultatene kontrollert. De dokumenterte omprøvingene er bestått; SC-07/1200–30 beholder bestått. Opprinnelige tomme scenariofelt fylles ikke med antatte observasjoner, og ingen andre testpersoner skal rekrutteres. [Prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) avgrenser lukkingen (løst innen dokumentert omfang 2026-11-01).
@@ -26,7 +28,7 @@ Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere øn
 
 - [ ] 2026-10-26 [Ajour-samordning og publisering](999-2026-10-26-22-07-17-ajour-samordning-og-publisering.md) — Bundlevarsel over 500 kB består. Det beståtte bygget 2026-11-01 målte 957,30 kB / 292,79 kB gzip; den [nyere daterte kontrollen 2026-11-02](../studieplanlegger/VERIFICATION.md#fristavklaring-oppgavebekreftelse-og-lagringshjelp--2026-11-02) målte 959,61 kB / 293,45 kB gzip. Mulig nedlastings-/oppstartsulempe, ingen avtalt numerisk V1-grense. Mål et konkret ytelsesproblem før eventuell optimalisering.
 
-- [ ] 2026-11-01 [Omfang for siste egenutprøving](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md) — Full nettleseromstart, separat tom profil og «Gjenopprett forrige kopi» er ikke verifisert i prosjekteierens siste omprøving. Tidligere tekniske kontroller står separat. Dette er et dekningsforbehold, ikke en ny påvist feil eller bestilling om å gjenta beståtte prøver.
+- [ ] 2026-11-01 [Omfang for siste egenutprøving](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md) — Full nettleseromstart, separat tom profil og «Gjenopprett forrige kopi» er ikke verifisert i prosjekteierens siste omprøving. Tidligere tekniske kontroller står separat. [Presisert 2026-11-02](998-2026-10-26-23-09-41-ajour-prd-og-egenutproving.md#2026-11-02-kl-1727--goplayer007): [scenariooversikten](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) viser at full oppfyllelse av alle opprinnelige detaljer i R-07 ikke er dokumentert; sjuscenariokravet og beståtte enkeltprøver beholdes. Dette er et dekningsforbehold, ikke en ny påvist feil eller bestilling om å gjenta beståtte prøver.
 
 ## Vurderingskilder som ikke er identifisert
 
