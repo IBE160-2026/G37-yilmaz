@@ -165,3 +165,30 @@ Valideringspunktet i [issues](issues.md) er lukket for de tre dokumentfunnene. B
 ### Åpne punkter
 
 Ingen nye. R-07s eksisterende dokumentasjonsgrenser, de aksepterte nyttehypotesene og øvrige tidligere begrensninger beholdes.
+
+## 2026-11-02 kl. 20:21 — GOplayer007
+
+### Oppgave
+
+Publisere de godkjente PRD-endringene til GitHub og gjennom eksisterende Vercel-prosjekt, og fjerne den gamle PRD-en, etter prosjekteierens uttrykkelige bestilling.
+
+### Plan
+
+- Kontrollere oppdatert GitHub-main, utgående dokumentendringer og gamle PRD-kopier i det aktive repoet.
+- Committe dokumentene og loggen, publisere en egen gren og integrere via PR etter prosjektets kvalitetskontroller. Kontrollere Vercels produksjon mot endelig main-commit og følge automatisk etterkontroll.
+
+### Resultat
+
+Dokumentcommit `f6be72a` inneholder de seks samordnede dokumentene etter godkjent kritikk og valideringsretting. Den gjeldende PRD-en erstatter innholdet på samme versjonerte sti; det finnes ingen ekstra gammel PRD i dagens GitHub-tre. Den faktiske gamle, ignorerte lokale filen `.docs/planning-artifacts/prds/prd-studieplanlegger-2026-09-06/prd.md` er fjernet etter brukerens bestilling. Planindeksens historikktekst er avstemt. Git-historikken og andre historiske arbeidskopier er bevart.
+
+Publiseringsgrenen er `docs/ajour-prd-validation-20261102`, med kontrollert `origin/main` på `2d2af05c8a925b44a045c837aa444a7ff3e3c8b4` som sammenligningsgrunnlag. Utgående endringer gjelder dokumentasjon og kuraterte logger. Appkilde, låsefil, publiseringskonfigurasjon og arbeidsflyter er identiske med dette grunnlaget. Dagens tidligere fokustester, full enhetstestsuite med 2604 tester og produksjonsbygg gjenbrukes lokalt; GitHubs obligatoriske kvalitetsløp kjører mot den publiserte revisjonen.
+
+Kontroll før staging: 47 dokumenter, 737 lokale lenker og 213 avsnittsreferanser uten feil; 790 filer og 11 utfoldede ICS-filer uten personverntreff i de kontrollerte kategoriene. Staged whitespace-kontroll bestod. Arbeidet viderefører lærerfeedback om sjekkbare krav, avgrensning og sporbarhet. Sensororiginalen er fortsatt utilgjengelig i denne oppfølgingen.
+
+PRD-en publiseres som GitHub-dokumentasjon. Vercel-prosjektet `ajour` publiserer appen og commitmarkøren; `.docs` inngår ikke i appens publiserte innhold. Den ordinære Git-integrasjonen, kvalitetskontrollen og etterkontrollen beholdes. Ingen ny funksjon, hostingtjeneste eller manuell egenutprøving er lagt til.
+
+Denne loggen committes før push. Endelig PR-adresse, integreringscommit, produksjonsidentitet og resultat fra automatisk etterkontroll rapporteres etter utførelsen; de er ikke forhåndsregistrert som bestått her.
+
+### Åpne punkter
+
+Ingen nye produktpunkter. Eksisterende begrensninger i [issues](issues.md) er bevart.
