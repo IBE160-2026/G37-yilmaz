@@ -15,10 +15,17 @@ export function displayTimestamp(value) {
 }
 export function createDataTools(actions) {
   const serverStorage = globalThis.__STUDIEPLAN_API__ === true
+  const storageDescription = serverStorage
+    ? 'Planen lagres i SQLite-databasen til den lokale serveren. Dataene beholdes når nettleseren lukkes. Ta sikkerhetskopi før databasen eller Docker-volumet fjernes.'
+    : 'Planen lagres bare i denne nettleserprofilen på denne nettadressen. Sletting av nettleserdata kan slette planen. Enheter synkroniseres ikke. Bruk sikkerhetskopi for å flytte planen.'
   const location = document.querySelector('#storage-location'), summary = document.querySelector('#storage-summary')
+  const helpHeading = document.querySelector('#storage-help-heading'), helpDescription = document.querySelector('#storage-help-description'), localServerHelp = document.querySelector('#storage-help-local-server')
+  if (helpHeading) helpHeading.textContent = serverStorage ? 'Lokal drift med SQLite' : 'Lagring i nettleseren'
+  if (helpDescription) helpDescription.textContent = storageDescription
+  if (localServerHelp) localServerHelp.hidden = !serverStorage
   if (serverStorage) {
-    if (location) location.textContent = 'Lagret på denne enheten'
-    if (summary) summary.textContent = 'Skalering, kalender og oppgaveforslag bygger på lokal data.'
+    if (location) location.textContent = 'Lagret i lokal SQLite-database'
+    if (summary) summary.textContent = 'Den lokale serveren må kjøre. Ta sikkerhetskopi i Innstillinger.'
   }
   const host = node('section'); host.id = 'settings-panel'; host.className = 'data-tools settings-panel panel'; host.setAttribute('aria-label', 'Innstillinger')
   document.querySelector('#workspace').before(host)
@@ -83,9 +90,7 @@ export function createDataTools(actions) {
   const menu = node('details'); menu.className = 'data-menu'; menu.append(node('summary', 'Data og sikkerhetskopi'))
   const panel = node('div'); panel.append(node('p', 'En full sikkerhetskopi inneholder også Angre-historikk og papirkurv. Den kan derfor inneholde tidligere opplysninger som ikke lenger vises i oppgavene. Oppbevar filen privat.'), trash, save, restore, recovery, input); menu.append(panel)
   menu.open = true
-  host.append(node('h2', 'Innstillinger'), node('p', serverStorage
-    ? 'Sikkerhetskopi, angre og papirkurv. Dataene lagres på denne enheten.'
-    : 'Dataene lagres bare i denne nettleserprofilen på denne nettadressen. Sletting av nettleserdata kan slette planen. Localhost, forhåndsvisning og publisert adresse har hver sin lagring. Eksporter sikkerhetskopi for å flytte data; enheter synkroniseres ikke.'), undo, menu, feedback)
+  host.append(node('h2', 'Innstillinger'), node('p', storageDescription), undo, menu, feedback)
   host.querySelector('h2').after(createAppearanceSettings())
   const planning = node('details'); planning.className = 'data-menu planning-settings'; planning.open = true; planning.append(node('summary', 'Planlegging'))
   const personalization = node('section'); personalization.className = 'personalization-settings'; personalization.append(node('h3', 'Personalisering'))

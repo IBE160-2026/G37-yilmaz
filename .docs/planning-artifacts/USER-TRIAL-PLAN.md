@@ -62,6 +62,12 @@ Teknisk oppfølging omtales separat i [verifikasjonsoversikten](../../studieplan
 
 Etter publisert retting: Opprett en syntetisk, startklar oppgave med **1200 minutter gjenstående**, oppdeling på og uten arbeidssteg eller forutsetninger. Velg **30 minutter** under «Hvor lenge vil du jobbe nå?», og kontroller at et forslag om 30 minutters arbeid vises mens totalanslaget fortsatt er 1200 og oppgaven fortsatt er uferdig. Noter eget resultat og faktisk versjon.
 
+## Avgrensning av F03 og ny fristregresjon — 2026-11-02
+
+Den lokale HTML-stresstestrapporten fra 29. oktober er funnet. Historisk F03 gjelder «Tekst med klokkeslett blir oppgaver fremfor kalenderaktiviteter»: `stress-text-005.txt` med fem aktivitetslinjer og en overskrift ga seks uvalgte oppgaver. Selve tekstfilen er ikke funnet, og denne historiske prøven er ikke omprøvd eller lukket.
+
+Det nye, syntetiske fristtilfellet gjelder dokumentimport av `Les kapittel 4 innen fredag kl. 14`, alene og sammen med `Innlevering syntetisk test, frist 2026-11-06 kl. 14:00`. Tidligere kunne den første valgte oppgaven få tom frist mens bekreftelsen viste at alt var klart. [Fristavklaringen](../../studieplanlegger/IMPORT.md) retter denne avgrensede feilen. [Verifikasjonen](../../studieplanlegger/VERIFICATION.md) oppgir de faktisk gjennomførte automatiske prøvene; dette er ikke nye resultater fra prosjekteierens egenutprøving og innfører ingen generell tolkning av naturlig språk.
+
 ## Rapporterte funn og omprøving — 2026-10-29
 
 Denne seksjonen bevarer rapporten og planlagte prøver slik de stod 2026-10-29. Senere resultater ovenfor gjelder foran eldre åpne statuser; Outlook-prøven skal ikke gjenåpnes.
