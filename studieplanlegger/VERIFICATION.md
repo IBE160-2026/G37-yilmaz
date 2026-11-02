@@ -1,6 +1,6 @@
 # Verifisering av Ajour
 
-**Kortoversikt, redigert 2. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
+**Kortoversikt, redigert 3. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
 
 ## Omfang og hvordan resultatene skal leses
 
@@ -21,6 +21,8 @@ Dette er **Codex-utførte tekniske kontroller, inkludert nettlesertester**, ikke
 Kodekandidat `a929c412341a38e786a68b0740f7b80c402a8614` bestod **2652/2652 enhetstester i 150 filer, 153/153 faktiske Chromium-prøver, 14/14 Chromium-/SQLite-prøver, 145/145 releasekontroller og produksjonsbygg**. Undervisningskontrollen bestod med 141 fixturetester og fem separate faktiske HiMolde-/NTNU-oppslag. Sju målrettede stegprøver samt UI-eksport/gjenoppretting i to tomme kontekster bestod også på faktisk Vercel-forhåndsvisning med bekreftet SHA. [Rapporten](../.docs/implementation-artifacts/work-step-identity-2026-11-02.md#kvalitetskontroller) oppgir metode, tider og et mellomliggende testoppsettavbrudd. Ny bundlemåling er **961,13 kB / 293,89 kB gzip**; størrelsesvarselet består.
 
 Den separate [sju-scenarioprøven](../.docs/implementation-artifacts/work-step-identity-2026-11-02.md#sjuscenarioprøve) bestod alle 20 delkontroller kl. **23:21:23–23:57:25 Europe/Oslo**, med dokumenterte dato-/UI-tilpasninger. Økten var faktisk 23:27–23:57; simulert utfall 30 faktiske/75 gjenstående ble lagret kl. 23:57:09.891. To nye tomme Chromium-kontekster, ekte tid, UI-eksport/gjenoppretting og omlasting bevarte data og koblinger. Alle scenario 6-delkrav ble kontrollert med den beskrevne native-modal-/System-temametoden. Den ekstra Start-flyten beholdt stegidentitet etter navneendring og omrekkefølge. GitHub-kvalitet og forhåndsvisningens deploykontroll bestod også; sistnevnte kjørte 60 runtimeprøver og seks faktiske kildeprøver.
+
+**Produksjonsoppfølging 3. november:** [PR #19](https://github.com/IBE160-2026/G37-yilmaz/pull/19) ble integrert som `b60455b808d3e3a3c92cf52fe8671db3e9c0d67a`. Main-kvalitet bestod med 2652 enhetstester, 153 bygde nettleserprøver og 14 SQLite-prøver; Vercel-prosjekt `ajour` rapporterte Ready. Den målrettede produksjonsprøven kl. **00:26:45–00:26:59 Europe/Oslo** beholdt stegkobling, separate 0/75 minutter og gyldig oppgaveplanlegging. Eksport/gjenoppretting i to nye tomme kontekster og omlasting bevarte dataene; produksjonens SHA var lik main før og etter. Appfilen var byteidentisk med sjuscenariokandidaten. [Daterte publiseringsresultater og syntetiske bevis](../.docs/implementation-artifacts/work-step-identity-2026-11-02.md#produksjon-etter-integrering--2026-11-03) avgrenser dette fra den fullstendige sjuscenarioprøven og fra senere dokumentcommiter.
 
 ## Fristavklaring, oppgavebekreftelse og lagringshjelp — 2026-11-02
 
