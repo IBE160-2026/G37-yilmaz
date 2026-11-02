@@ -5,6 +5,7 @@ import { parseDocumentIcs, parseDocumentText } from '../../src/document-parsers.
 import { createDocumentImportPreview, buildDocumentImportCommit } from '../../src/import-preview.js'
 import { closeWork } from '../../src/work-log.js'
 import { recordChange, undoLast, restoreTrash } from '../../src/history.js'
+import { taskSteps } from '../../src/work-steps.js'
 
 const now = new Date('2026-09-12T10:00:00Z')
 const secret = 'SYNTHETIC_CREDENTIAL_9147'
@@ -30,6 +31,108 @@ function importedState(parameter, { legacyId = false } = {}) {
 }
 
 describe('A14 portable privacy across connected records', () => {
+  for (const taskId of ['https://example.invalid/synthetic-task/1', secret]) {
+    for (const collision of [false, true]) {
+      it.each(['more', 'not-started'])(`preserves legacy identity after task aliasing (${taskId}, collision ${collision}, %s)`, outcome => {
+        const task = { id: taskId, title: `Syntetisk oppgave token=${secret}`, course: '', deadlineLocal: '',
+          estimatedMinutes: 60, remainingMinutes: 60, completed: false,
+          nextStep: { description: 'Eldre syntetisk steg', estimatedMinutes: 30 },
+          ...(collision ? { steps: [{ id: `${taskId}:legacy-next-step`, title: 'Syntetisk kollisjon', completed: true }] } : {}) }
+        const stepId = taskSteps(task).at(-1).id
+        expect(stepId).toBe(`${taskId}:legacy-next-step${collision ? ':2' : ''}`)
+        const session = { id: 'synthetic-legacy-session', taskId, dateLocal: '2026-09-12', startTime: '10:00', endTime: '10:30' }
+        const historical = { id: 'synthetic-old-log', operationId: 'synthetic-old-operation', taskId, at: now.toISOString(),
+          outcome: 'more', actualMinutes: 5, plannedMinutes: null, remainingMinutes: 60,
+          interrupted: false, historyComplete: false, taskSnapshot: structuredClone(task) }
+        const before = { schemaVersion: 1, tasks: [task], sessions: [session], workLogs: [historical] }
+        const closed = closeWork(before, { taskId, stepId, sessionId: session.id, operationId: 'synthetic-legacy-close', outcome, actualMinutes: 0, remainingMinutes: 75 }, { now })
+        expect(closed.ok).toBe(true)
+        const state = { ...closed.state, history: recordChange(before, closed.state, undefined, 'Syntetisk legacyutfall', now) }
+        const original = structuredClone(state), backup = exportBackup(state, now)
+        expect(JSON.stringify(backup)).not.toContain(secret)
+        const restored = previewBackup(JSON.stringify(backup), { schemaVersion: 1, tasks: [] })
+        expect(restored.ok).toBe(true)
+        expect(state).toEqual(original)
+        expect(state.workLogs[0]).not.toHaveProperty('stepId')
+        expect(state.workLogs[1].taskSnapshot.nextStep).toEqual(task.nextStep)
+        const data = restored.data, log = data.workLogs[1], exportedId = log.stepId
+        expect(data.tasks[0].id).toMatch(/^export-id-/)
+        expect(exportedId).toMatch(/^export-id-/)
+        expect(taskSteps(data.tasks[0]).at(-1).id).toBe(exportedId)
+        expect(taskSteps(log.taskSnapshot).at(-1).id).toBe(exportedId)
+        expect(data.workLogs[0]).not.toHaveProperty('stepId')
+        expect(taskSteps(data.workLogs[0].taskSnapshot).at(-1).id).toBe(exportedId)
+        expect(log.taskId).toBe(data.tasks[0].id)
+        expect(log.sessionSnapshot.taskId).toBe(data.tasks[0].id)
+        for (const entry of [...data.history.undo, ...data.history.trash]) {
+          const historicalLog = entry.changes.find(change => change.path === 'workLogs').after
+          expect(historicalLog.stepId).toBe(exportedId)
+          expect(taskSteps(historicalLog.taskSnapshot).at(-1).id).toBe(exportedId)
+          for (const change of entry.changes.filter(change => change.path === 'tasks')) {
+            expect(taskSteps(change.before).at(-1).id).toBe(exportedId)
+            expect(taskSteps(change.after).at(-1).id).toBe(exportedId)
+          }
+        }
+        expect(data.history.trash).toHaveLength(1)
+        for (const undone of [undoLast(data, data.history), restoreTrash(data, data.history, data.history.trash[0].id)]) {
+          expect(undone.ok).toBe(true)
+          expect(taskSteps(undone.state.tasks[0]).at(-1).id).toBe(exportedId)
+          expect(undone.state.workLogs).toHaveLength(1)
+          expect(undone.state.workLogs[0]).not.toHaveProperty('stepId')
+          expect(validEnvelope({ ...undone.state, history: undone.history }, { relations: true })).toBe(true)
+        }
+      })
+    }
+  }
+
+  // Deliberately synthetic credential markers exercise structural IDs versus
+  // free text, including aliases for whole-token and URL-bearing identities.
+  it.each([
+    [`step ${secret} suffix`, false],
+    [secret, true],
+    [`step:https://calendar.example.invalid/synthetic.ics?token=${secret}`, true],
+  ])('keeps explicit step identity consistent through portable snapshots and history: %s', (stepId, rekeyed) => {
+    const task = { id: 'synthetic-step-task', title: `Syntetisk oppgave token=${secret}`, course: '', deadlineLocal: '',
+      estimatedMinutes: 60, remainingMinutes: 60, completed: false, steps: [
+        { id: stepId, title: 'Syntetisk første steg', completed: false, estimatedMinutes: 30 },
+        { id: 'synthetic-dependent-step', title: 'Syntetisk neste steg', completed: false, dependencyIds: [stepId] },
+      ] }
+    const before = { schemaVersion: 1, tasks: [task] }
+    const closed = closeWork(before, { taskId: task.id, stepId, operationId: 'synthetic-step-close', outcome: 'more', actualMinutes: 30, remainingMinutes: 75 }, { now })
+    expect(closed.ok).toBe(true)
+    const state = { ...closed.state, history: recordChange(before, closed.state, undefined, 'Syntetisk stegutfall', now) }
+    const original = structuredClone(state)
+    expect(validEnvelope(state, { relations: true })).toBe(true)
+    const backup = exportBackup(state, now)
+    const restored = previewBackup(JSON.stringify(backup), { schemaVersion: 1, tasks: [] })
+    expect(restored.ok).toBe(true)
+    expect(state).toEqual(original)
+    const exportedId = restored.data.tasks[0].steps[0].id
+    if (rekeyed) {
+      expect(exportedId).toMatch(/^export-id-/)
+      expect(JSON.stringify(backup)).not.toContain(secret)
+    } else expect(exportedId).toBe(stepId)
+    expect(restored.data.tasks[0].title).not.toContain(secret)
+    expect(restored.data.tasks[0].steps[1].dependencyIds).toEqual([exportedId])
+    const log = restored.data.workLogs[0]
+    expect(log.stepId).toBe(exportedId)
+    expect(log.taskSnapshot.steps[0].id).toBe(exportedId)
+    expect(log.taskSnapshot.title).not.toContain(secret)
+    const changes = restored.data.history.undo[0].changes
+    const historicalLog = changes.find(change => change.path === 'workLogs').after
+    expect(historicalLog.stepId).toBe(exportedId)
+    expect(historicalLog.taskSnapshot.steps[0].id).toBe(exportedId)
+    const historicalTask = changes.find(change => change.path === 'tasks')
+    expect(historicalTask.before.steps[0].id).toBe(exportedId)
+    expect(historicalTask.after.steps[0].id).toBe(exportedId)
+    const undone = undoLast(restored.data, restored.data.history)
+    expect(undone.ok).toBe(true)
+    expect(undone.state.tasks[0].steps[0].id).toBe(exportedId)
+    expect(undone.state.tasks[0].remainingMinutes).toBe(60)
+    expect(undone.state.workLogs).toBeUndefined()
+    expect(validEnvelope({ ...undone.state, history: undone.history }, { relations: true })).toBe(true)
+  })
+
   it('redacts credential-bearing URL fragments and their encoded/repeated values while keeping ordinary anchors', () => {
     const { before } = importedState('access_token')
     const fragmentUrl = `https://calendar.example.invalid/private.ics#access_token=${secret}&token=${secret}`

@@ -156,7 +156,7 @@ describe('bounded mixed work-step preservation', () => {
 
   it('retains mixed content and original snapshots through whole-task, step-only and ordinary work closeout', () => {
     const initial = { schemaVersion: 1, tasks: [mixed()] }, originalSteps = taskSteps(initial.tasks[0])
-    for (const draft of [{ outcome: 'done' }, { outcome: 'done', stepOnly: true }, { outcome: 'more', remainingMinutes: 30 }]) {
+    for (const draft of [{ outcome: 'done' }, { outcome: 'done', stepOnly: true, stepId: originalSteps[0].id }, { outcome: 'more', remainingMinutes: 30 }]) {
       const result = closeWork(initial, { taskId: base.id, operationId: 'synthetic-closeout', actualMinutes: 15, ...draft }, { now: new Date('2026-10-02T10:00:00Z') })
       expect(result.ok).toBe(true)
       expect(result.state.tasks[0].steps.map(step => step.id)).toEqual(originalSteps.map(step => step.id))
