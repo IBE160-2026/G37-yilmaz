@@ -1,6 +1,6 @@
 import { validTasks, getRemainingMinutes, validEstimateRange } from './tasks.js'
 import { extendedSessionInterval } from './work-capacity.js'
-import { primaryWorkStep, completeWorkStep, migrateLegacyStep } from './work-steps.js'
+import { taskSteps, completeWorkStep, migrateLegacyStep } from './work-steps.js'
 import { privateReviewChange } from './review-planning.js'
 
 const nonnegative = value => value === null || Number.isSafeInteger(value) && value >= 0
@@ -20,10 +20,16 @@ export function validWorkLogs(values, envelope) {
       (!log.historyComplete || log.outcome === 'done') &&
       (log.outcome !== 'not-started' || log.actualMinutes === null && !log.historyComplete) &&
       (log.stepCompleted === undefined || typeof log.stepCompleted === 'boolean') &&
+      (log.taskCompleted === undefined || typeof log.taskCompleted === 'boolean' &&
+        (!log.taskCompleted || log.outcome === 'done' && log.remainingMinutes === 0) &&
+        (log.taskCompleted || !log.historyComplete) &&
+        (log.outcome !== 'done' || log.stepCompleted === true || log.taskCompleted)) &&
       (log.remainingEstimate === undefined || validEstimateRange(log.remainingEstimate)) &&
       (!log.stepCompleted || log.outcome === 'done') &&
       (log.remainingEstimate === undefined || log.outcome === 'more') &&
       validTasks([log.taskSnapshot]) && log.taskSnapshot.id === log.taskId &&
+      (log.stepId === undefined || typeof log.stepId === 'string' && Boolean(log.stepId.trim()) && taskSteps(log.taskSnapshot).some(step => step.id === log.stepId) &&
+        (log.outcome !== 'done' || log.stepCompleted === true)) &&
       (log.sessionSnapshot === undefined || (() => { try { return log.sessionSnapshot.id === log.sessionId && Boolean(extendedSessionInterval(log.sessionSnapshot)) } catch { return false } })()) &&
       (log.taskDeleted === undefined || typeof log.taskDeleted === 'boolean') &&
       (!envelope || envelope.tasks.some(task => task.id === log.taskId) || log.taskDeleted === true)
@@ -43,25 +49,34 @@ export function futureReservations(state, taskId, now = new Date()) {
 export function closeWork(state, draft, { now = new Date() } = {}) {
   const existing = (state.workLogs || []).find(log => log.operationId === draft.operationId || draft.sessionId && log.sessionId === draft.sessionId)
   const task = state.tasks.find(item => item.id === draft.taskId)
-  const finishTask = draft.outcome === 'done' && (!draft.stepOnly || draft.completeTask === true)
-  const estimate = draft.outcome === 'more' && validEstimateRange(draft.remainingEstimate) ? { ...draft.remainingEstimate } : null
+  const stepOnly = draft.stepId !== undefined || draft.stepOnly === true
+  const finishTask = draft.outcome === 'done' && (!stepOnly || draft.completeTask === true)
   try {
+    if (stepOnly && (typeof draft.stepId !== 'string' || !draft.stepId.trim())) throw new Error('Arbeidsregistreringen mangler et gyldig arbeidssteg. Åpne oppgaven på nytt.')
+    if (draft.outcome === 'more' && draft.remainingEstimate != null && !validEstimateRange(draft.remainingEstimate)) throw new Error('Gjenstående arbeid: oppgi et gyldig tidsintervall.')
+    const estimate = draft.outcome === 'more' && draft.remainingEstimate != null ? { ...draft.remainingEstimate } : null
     const actual = draft.outcome === 'not-started' ? null : minutes(draft.actualMinutes, 'Faktisk arbeidstid')
-    const remaining = finishTask ? 0 : draft.outcome === 'not-started' ? getRemainingMinutes(task) : estimate ? null : draft.stepOnly ? getRemainingMinutes(task) : minutes(draft.remainingMinutes, 'Gjenstående arbeid')
+    // Repeated saves compare against the original task, including outcomes that
+    // preserve its remainder. Later task edits must not change the operation.
+    const remaining = finishTask ? 0 : draft.outcome === 'more' ? estimate ? null : minutes(draft.remainingMinutes, 'Gjenstående arbeid') : getRemainingMinutes(existing?.taskSnapshot || task)
     if (existing) {
       if (existing.operationId !== draft.operationId || existing.sessionId !== draft.sessionId) throw new Error('Operasjons- eller økt-ID-en er allerede brukt med andre opplysninger. Åpne registreringen på nytt.')
       const expectedPlanned = Number.isSafeInteger(draft.plannedMinutes) ? draft.plannedMinutes : existing.plannedMinutes
       const sameEstimate = JSON.stringify(existing.remainingEstimate ?? null) === JSON.stringify(estimate)
-      const same = existing.taskId === draft.taskId && existing.outcome === draft.outcome && existing.actualMinutes === actual && existing.remainingMinutes === remaining &&
+      const same = existing.taskId === draft.taskId && existing.stepId === draft.stepId && existing.outcome === draft.outcome && existing.actualMinutes === actual && existing.remainingMinutes === remaining &&
+        (existing.taskCompleted === undefined || existing.taskCompleted === finishTask) &&
         existing.plannedMinutes === expectedPlanned && existing.interrupted === (draft.outcome === 'not-started' ? false : Boolean(draft.interrupted)) &&
-        existing.historyComplete === (finishTask && Boolean(draft.historyComplete)) && Boolean(existing.stepCompleted) === Boolean(draft.stepOnly && draft.outcome === 'done') && sameEstimate
+        existing.historyComplete === (finishTask && Boolean(draft.historyComplete)) && Boolean(existing.stepCompleted) === Boolean(stepOnly && draft.outcome === 'done') && sameEstimate
       if (!same) throw new Error('Operasjons- eller økt-ID-en er allerede brukt med andre opplysninger. Åpne registreringen på nytt.')
       return { ok: true, state, repeated: true, log: existing, released: [] }
     }
     if (typeof draft.operationId !== 'string' || !draft.operationId.trim()) throw new Error('Arbeidsregistreringen mangler operasjons-ID.')
     if (!task || task.submitted) throw new Error('Oppgaven finnes ikke eller er allerede levert.')
     if (!['done', 'more', 'not-started'].includes(draft.outcome)) throw new Error('Velg hva som skjedde.')
-    if (draft.stepOnly && draft.outcome === 'done' && !primaryWorkStep(task)) throw new Error('Arbeidssteget finnes ikke lenger. Åpne oppgaven på nytt.')
+    const step = stepOnly ? taskSteps(task).find(item => item.id === draft.stepId) : null
+    if (stepOnly && (!step || step.completed)) throw new Error('Arbeidssteget er endret eller finnes ikke lenger. Åpne oppgaven på nytt.')
+    const completedStep = stepOnly && draft.outcome === 'done' ? completeWorkStep(task, draft.stepId) : null
+    if (completedStep && !completedStep.ok) throw new Error(completedStep.error)
     const session = draft.sessionId ? (state.sessions || []).find(item => item.id === draft.sessionId && item.taskId === task.id) : undefined
     if (draft.sessionId && !session) throw new Error('Studieøkten er endret eller mangler. Åpne registreringen på nytt.')
     const released = finishTask ? futureReservations(state, task.id, now) : []
@@ -71,21 +86,19 @@ export function closeWork(state, draft, { now = new Date() } = {}) {
       at: now.toISOString(), outcome: draft.outcome, actualMinutes: actual,
       plannedMinutes: interval ? Math.floor((interval.end - interval.start) / 60000) : Number.isSafeInteger(draft.plannedMinutes) ? draft.plannedMinutes : null,
       remainingMinutes: remaining, interrupted: draft.outcome === 'not-started' ? false : Boolean(draft.interrupted),
-      historyComplete: finishTask && Boolean(draft.historyComplete), taskSnapshot: structuredClone(task),
-      ...(draft.stepOnly && draft.outcome === 'done' ? { stepCompleted: true } : {}), ...(estimate ? { remainingEstimate: estimate } : {}),
+      historyComplete: finishTask && Boolean(draft.historyComplete), taskCompleted: finishTask, taskSnapshot: structuredClone(task),
+      ...(stepOnly ? { stepId: draft.stepId } : {}),
+      ...(completedStep ? { stepCompleted: true } : {}), ...(estimate ? { remainingEstimate: estimate } : {}),
       ...(session ? { sessionId: session.id, sessionSnapshot: structuredClone(session) } : {}) }
     const next = structuredClone(state)
     next.workLogs = [...(next.workLogs || []), log]
     if (draft.outcome !== 'not-started') next.tasks = next.tasks.map(item => {
       if (item.id !== task.id) return item
-      const updated = { ...migrateLegacyStep(item), remainingMinutes: remaining, completed: finishTask }
+      const updated = completedStep ? structuredClone(completedStep.task) : migrateLegacyStep(item)
+      if (finishTask || draft.outcome === 'more') { updated.remainingMinutes = remaining; updated.completed = finishTask }
       if (finishTask) { delete updated.nextStep; if (updated.steps) updated.steps = updated.steps.map(step => ({ ...step, completed: true })) }
-      else if (draft.stepOnly && draft.outcome === 'done') {
-        if (updated.steps) return completeWorkStep(updated, primaryWorkStep(updated).id).task
-        delete updated.nextStep
-      }
       if (estimate) updated.remainingEstimate = estimate
-      else if (!draft.stepOnly || finishTask) delete updated.remainingEstimate
+      else if (draft.outcome === 'more' || finishTask) delete updated.remainingEstimate
       return updated
     })
     const remove = new Set([...released.map(item => item.id), ...(session ? [session.id] : [])])

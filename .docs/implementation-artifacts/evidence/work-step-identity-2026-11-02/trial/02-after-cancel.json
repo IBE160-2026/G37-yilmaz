@@ -1,0 +1,280 @@
+{
+  "format": "studieplan-local-backup",
+  "backupVersion": 1,
+  "createdAt": "2026-11-02T22:21:31.945Z",
+  "rekeyedIds": 0,
+  "data": {
+    "schemaVersion": 1,
+    "history": {
+      "version": 1,
+      "undo": [
+        {
+          "id": "06a94393-00c6-4d2e-b97c-c0f4b54d296c",
+          "label": "Oppgave: Les syntetisk eksempelkapittel",
+          "at": "2026-11-02T22:21:26.575Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": null,
+                "requiresSubmission": false,
+                "submitted": false
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": false
+        },
+        {
+          "id": "53e104e7-99e2-4bfc-baa7-a32884eb1275",
+          "label": "Emner og undervisning",
+          "at": "2026-11-02T22:21:27.814Z",
+          "changes": [
+            {
+              "path": "planner.courses",
+              "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+              "index": 0,
+              "before": null,
+              "after": {
+                "name": "Eksempelfag",
+                "code": "TEST101",
+                "university": "",
+                "semester": "autumn",
+                "year": 2026,
+                "credits": null,
+                "description": "",
+                "notes": "",
+                "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "existed": false
+            }
+          ],
+          "plannerExisted": false
+        },
+        {
+          "id": "c6872bb3-d32b-417f-87c0-a175fa753573",
+          "label": "Oppgave: Les syntetisk eksempelkapittel",
+          "at": "2026-11-02T22:21:28.637Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": null,
+                "requiresSubmission": false,
+                "submitted": false
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "a63c1ad1-164c-44c8-9486-c3e422090f5b",
+          "label": "Arbeidssteg oppdatert",
+          "at": "2026-11-02T22:21:29.095Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "d185f031-75a8-4bfb-807e-dc4a9452d0bc",
+          "label": "Arbeidstid / opptatt tid",
+          "at": "2026-11-02T22:21:29.540Z",
+          "changes": [
+            {
+              "path": "workWindows",
+              "id": "2d32c40b-94f4-4f62-9086-c7ac997bffe9",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "2d32c40b-94f4-4f62-9086-c7ac997bffe9",
+                "label": "",
+                "start": "2026-11-02T21:57:00Z",
+                "end": "2026-11-02T23:57:00Z"
+              },
+              "existed": false
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "6ef86219-a050-4f95-9e8a-0782c502b299",
+          "label": "Arbeidstid / opptatt tid",
+          "at": "2026-11-02T22:21:29.693Z",
+          "changes": [
+            {
+              "path": "workWindows",
+              "id": "fb597c79-f957-4de9-9275-8646d39eab23",
+              "index": 1,
+              "before": null,
+              "after": {
+                "id": "fb597c79-f957-4de9-9275-8646d39eab23",
+                "label": "",
+                "start": "2026-11-03T09:00:00Z",
+                "end": "2026-11-03T11:00:00Z"
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "d69cc728-117a-42cf-a711-24eba14c22de",
+          "label": "Arbeidstid / opptatt tid",
+          "at": "2026-11-02T22:21:29.828Z",
+          "changes": [
+            {
+              "path": "busyWindows",
+              "id": "d4fa4b75-55cc-48de-b64a-22ff8acbf6f8",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "d4fa4b75-55cc-48de-b64a-22ff8acbf6f8",
+                "label": "",
+                "start": "2026-11-02T21:57:00Z",
+                "end": "2026-11-02T22:27:00Z"
+              },
+              "existed": false
+            }
+          ],
+          "plannerExisted": true
+        }
+      ],
+      "trash": []
+    },
+    "workWindows": [
+      {
+        "id": "2d32c40b-94f4-4f62-9086-c7ac997bffe9",
+        "label": "",
+        "start": "2026-11-02T21:57:00Z",
+        "end": "2026-11-02T23:57:00Z"
+      },
+      {
+        "id": "fb597c79-f957-4de9-9275-8646d39eab23",
+        "label": "",
+        "start": "2026-11-03T09:00:00Z",
+        "end": "2026-11-03T11:00:00Z"
+      }
+    ],
+    "busyWindows": [
+      {
+        "id": "d4fa4b75-55cc-48de-b64a-22ff8acbf6f8",
+        "label": "",
+        "start": "2026-11-02T21:57:00Z",
+        "end": "2026-11-02T22:27:00Z"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "title": "Les syntetisk eksempelkapittel",
+        "course": "TEST101",
+        "deadlineLocal": "2026-11-04T16:00",
+        "estimatedMinutes": null,
+        "completed": false,
+        "remainingMinutes": 60,
+        "requiresSubmission": true,
+        "submitted": false,
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+        "steps": [
+          {
+            "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+            "title": "Les første del",
+            "completed": false,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 60
+          }
+        ]
+      }
+    ],
+    "planner": {
+      "courses": [
+        {
+          "name": "Eksempelfag",
+          "code": "TEST101",
+          "university": "",
+          "semester": "autumn",
+          "year": 2026,
+          "credits": null,
+          "description": "",
+          "notes": "",
+          "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+        }
+      ],
+      "events": [],
+      "sources": []
+    }
+  }
+}

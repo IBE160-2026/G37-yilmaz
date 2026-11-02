@@ -80,7 +80,7 @@ describe('øktslutt og realistisk omplanlegging', () => {
   const base = () => ({ tasks: [task('a', { nextStep: { description: 'Skriv første avsnitt', estimatedMinutes: 30 }, remainingEstimate: { minMinutes: 60, maxMinutes: 120 }, estimatedMinutes: undefined })], sessions: [], workLogs: [] })
 
   it('fullfører bare arbeidssteget når hele oppgaven ikke er bekreftet ferdig', () => {
-    const result = closeWork(base(), { taskId: 'a', operationId: 'step', outcome: 'done', actualMinutes: 30, stepOnly: true, completeTask: false }, { now })
+    const result = closeWork(base(), { taskId: 'a', operationId: 'step', outcome: 'done', actualMinutes: 30, stepOnly: true, stepId: 'a:legacy-next-step', completeTask: false }, { now })
     expect(result.ok).toBe(true)
     expect(result.state.tasks[0].completed).toBe(false)
     expect(result.state.tasks[0].nextStep).toBeUndefined()
@@ -97,7 +97,7 @@ describe('øktslutt og realistisk omplanlegging', () => {
 
   it('replaces an exact remainder with a range after a step and clears the step on whole-task completion', () => {
     const exact = { tasks: [task('a', { nextStep: { description: 'Les', estimatedMinutes: 30 }, remainingMinutes: 90 })], sessions: [], workLogs: [] }
-    const ranged = closeWork(exact, { taskId: 'a', operationId: 'range-after-step', outcome: 'more', actualMinutes: 20, stepOnly: true, remainingEstimate: { minMinutes: 60, maxMinutes: 120 } }, { now })
+    const ranged = closeWork(exact, { taskId: 'a', operationId: 'range-after-step', outcome: 'more', actualMinutes: 20, stepOnly: true, stepId: 'a:legacy-next-step', remainingEstimate: { minMinutes: 60, maxMinutes: 120 } }, { now })
     expect(ranged.state.tasks[0]).toMatchObject({ remainingMinutes: null, remainingEstimate: { minMinutes: 60, maxMinutes: 120 } })
     expect(validTasks(ranged.state.tasks)).toBe(true)
     const finished = closeWork(exact, { taskId: 'a', operationId: 'whole-done', outcome: 'done', actualMinutes: 90, historyComplete: true }, { now })
@@ -105,14 +105,14 @@ describe('øktslutt og realistisk omplanlegging', () => {
   })
 
   it('avviser utfallsfelt som ikke passer arbeidsloggen', () => {
-    const completedStep = closeWork(base(), { taskId: 'a', operationId: 'step-shape', outcome: 'done', actualMinutes: 20, stepOnly: true }, { now }).log
+    const completedStep = closeWork(base(), { taskId: 'a', operationId: 'step-shape', outcome: 'done', actualMinutes: 20, stepOnly: true, stepId: 'a:legacy-next-step' }, { now }).log
     expect(validWorkLogs([{ ...completedStep, outcome: 'more' }])).toBe(false)
     expect(validWorkLogs([{ ...completedStep, stepCompleted: undefined, remainingEstimate: { minMinutes: 30, maxMinutes: 60 } }])).toBe(false)
   })
 
   it('fullfører hele oppgaven separat fra steget og krever frigjøring av framtidige reservasjoner', () => {
     const withSession = { ...base(), sessions: [session('future', '12:00', '12:30', { taskId: 'a' })] }
-    const draft = { taskId: 'a', operationId: 'whole', outcome: 'done', actualMinutes: 30, stepOnly: true, completeTask: true, historyComplete: true }
+    const draft = { taskId: 'a', operationId: 'whole', outcome: 'done', actualMinutes: 30, stepOnly: true, stepId: 'a:legacy-next-step', completeTask: true, historyComplete: true }
     expect(closeWork(withSession, draft, { now })).toMatchObject({ ok: false, requiresRelease: true })
     const result = closeWork(withSession, { ...draft, confirmRelease: true }, { now })
     expect(result.state.tasks[0]).toMatchObject({ completed: true, remainingMinutes: 0 })

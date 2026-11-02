@@ -1,0 +1,221 @@
+{
+  "views": [
+    {
+      "label": "Dag",
+      "date": "2026-11-03"
+    },
+    {
+      "label": "Måned",
+      "date": "2026-11-03"
+    },
+    {
+      "label": "Agenda",
+      "date": "2026-11-03"
+    },
+    {
+      "label": "Uke",
+      "date": "2026-11-03"
+    }
+  ],
+  "calendarBefore": [
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "2. november 2026 · 23:27–23:57\nTEST101 · Studieøkt: Les syntetisk eksempelkapittel\nStudieøkt · Eksempelfag · TEST101",
+      "className": "calendar-entry entry-session",
+      "background": "rgb(243, 234, 242)",
+      "border": "rgb(134, 80, 123)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "3. november 2026 · 00:07–00:37\nTEST101 · Studieøkt: Les syntetisk eksempelkapittel\nStudieøkt · Eksempelfag · TEST101",
+      "className": "calendar-entry entry-session",
+      "background": "rgb(243, 234, 242)",
+      "border": "rgb(134, 80, 123)"
+    },
+    {
+      "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+      "slot": "2",
+      "text": "3. november 2026 · 11:00–11:30\nTEST102 · Studieøkt: Les neste syntetiske eksempel\nStudieøkt · Annet eksempelfag · TEST102",
+      "className": "calendar-entry entry-session",
+      "background": "rgb(229, 242, 239)",
+      "border": "rgb(35, 124, 118)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "",
+      "className": "short-event calendar-duration-marker entry-session",
+      "background": "rgb(134, 80, 123)",
+      "border": "rgb(90, 48, 67)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "",
+      "className": "short-event calendar-duration-marker entry-session",
+      "background": "rgb(134, 80, 123)",
+      "border": "rgb(90, 48, 67)"
+    },
+    {
+      "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+      "slot": "2",
+      "text": "",
+      "className": "short-event calendar-duration-marker entry-session",
+      "background": "rgb(35, 124, 118)",
+      "border": "rgb(90, 48, 67)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "i",
+      "className": "calendar-short-control secondary",
+      "background": "rgb(240, 234, 247)",
+      "border": "rgb(134, 80, 123)"
+    },
+    {
+      "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+      "slot": "2",
+      "text": "i",
+      "className": "calendar-short-control secondary",
+      "background": "rgb(240, 234, 247)",
+      "border": "rgb(35, 124, 118)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "Frist kl. 16:00\nTEST101 · Les syntetisk eksempelkapittel",
+      "className": "calendar-entry entry-deadline is-point",
+      "background": "rgb(243, 234, 242)",
+      "border": "rgb(134, 80, 123)"
+    }
+  ],
+  "calendarAfter": [
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "2. november 2026 · 23:27–23:57\nTEST101 · Studieøkt: Les syntetisk eksempelkapittel\nStudieøkt · Endret eksempelfag · TEST101",
+      "className": "calendar-entry entry-session",
+      "background": "rgb(243, 234, 242)",
+      "border": "rgb(134, 80, 123)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "3. november 2026 · 00:07–00:37\nTEST101 · Studieøkt: Les syntetisk eksempelkapittel\nStudieøkt · Endret eksempelfag · TEST101",
+      "className": "calendar-entry entry-session",
+      "background": "rgb(243, 234, 242)",
+      "border": "rgb(134, 80, 123)"
+    },
+    {
+      "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+      "slot": "2",
+      "text": "3. november 2026 · 11:00–11:30\nTEST102 · Studieøkt: Les neste syntetiske eksempel\nStudieøkt · Annet eksempelfag · TEST102",
+      "className": "calendar-entry entry-session",
+      "background": "rgb(229, 242, 239)",
+      "border": "rgb(35, 124, 118)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "",
+      "className": "short-event calendar-duration-marker entry-session",
+      "background": "rgb(134, 80, 123)",
+      "border": "rgb(90, 48, 67)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "",
+      "className": "short-event calendar-duration-marker entry-session",
+      "background": "rgb(134, 80, 123)",
+      "border": "rgb(90, 48, 67)"
+    },
+    {
+      "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+      "slot": "2",
+      "text": "",
+      "className": "short-event calendar-duration-marker entry-session",
+      "background": "rgb(35, 124, 118)",
+      "border": "rgb(90, 48, 67)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "i",
+      "className": "calendar-short-control secondary",
+      "background": "rgb(240, 234, 247)",
+      "border": "rgb(134, 80, 123)"
+    },
+    {
+      "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+      "slot": "2",
+      "text": "i",
+      "className": "calendar-short-control secondary",
+      "background": "rgb(240, 234, 247)",
+      "border": "rgb(35, 124, 118)"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "slot": "1",
+      "text": "Frist kl. 16:00\nTEST101 · Les syntetisk eksempelkapittel",
+      "className": "calendar-entry entry-deadline is-point",
+      "background": "rgb(243, 234, 242)",
+      "border": "rgb(134, 80, 123)"
+    }
+  ],
+  "taskMarkers": [
+    {
+      "code": "TEST101",
+      "marker": "rgb(134, 80, 123)",
+      "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+    },
+    {
+      "code": "TEST102",
+      "marker": "rgb(35, 124, 118)",
+      "courseId": "70680671-169f-4332-a3a9-6d9a839f6ebb"
+    },
+    {
+      "code": "TEST101",
+      "marker": "rgb(134, 80, 123)",
+      "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+    }
+  ],
+  "orderBefore": [
+    {
+      "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+      "heading": "Annet eksempelfag · TEST102",
+      "slot": "2"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "heading": "Eksempelfag · TEST101",
+      "slot": "1"
+    }
+  ],
+  "orderTemporary": [
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "heading": "Abc syntetisk sorteringskontroll · TEST101",
+      "slot": "1"
+    },
+    {
+      "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+      "heading": "Annet eksempelfag · TEST102",
+      "slot": "2"
+    }
+  ],
+  "orderFinal": [
+    {
+      "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+      "heading": "Annet eksempelfag · TEST102",
+      "slot": "2"
+    },
+    {
+      "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "heading": "Endret eksempelfag · TEST101",
+      "slot": "1"
+    }
+  ]
+}

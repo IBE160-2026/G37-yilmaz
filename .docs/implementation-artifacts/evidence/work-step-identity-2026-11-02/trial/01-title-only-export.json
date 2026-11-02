@@ -1,0 +1,54 @@
+{
+  "format": "studieplan-local-backup",
+  "backupVersion": 1,
+  "createdAt": "2026-11-02T22:21:27.313Z",
+  "rekeyedIds": 0,
+  "data": {
+    "schemaVersion": 1,
+    "history": {
+      "version": 1,
+      "undo": [
+        {
+          "id": "06a94393-00c6-4d2e-b97c-c0f4b54d296c",
+          "label": "Oppgave: Les syntetisk eksempelkapittel",
+          "at": "2026-11-02T22:21:26.575Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": null,
+                "requiresSubmission": false,
+                "submitted": false
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": false
+        }
+      ],
+      "trash": []
+    },
+    "tasks": [
+      {
+        "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "title": "Les syntetisk eksempelkapittel",
+        "course": "",
+        "deadlineLocal": "",
+        "estimatedMinutes": null,
+        "completed": false,
+        "remainingMinutes": null,
+        "requiresSubmission": false,
+        "submitted": false
+      }
+    ]
+  }
+}

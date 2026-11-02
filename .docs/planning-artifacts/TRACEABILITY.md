@@ -1,5 +1,14 @@
 # Ajour: sporbarhet fra løfte til evidens
 
+## Oppgave- og stegidentitet — 2026-11-02
+
+| Krav | Observerbar kontroll | Kode / testgrunnlag | Datert evidens |
+| --- | --- | --- | --- |
+| R-03/R-04, S-03/S-04 | Oppgaveplanlegging beholder oppgave-/øktkobling; navngitt Start beholder akkurat det presenterte steget og nytt gjenstående oppgaveanslag. | [Start-visning](../../studieplanlegger/src/study-session-view.js), [utfallsdialog](../../studieplanlegger/src/work-log-view.js), [arbeidslogg](../../studieplanlegger/src/work-log.js), [nettleserregresjon](../../studieplanlegger/tests/e2e/own-trial-work-step-identity.spec.js). | [Avklaring og teknisk rapport](../implementation-artifacts/work-step-identity-2026-11-02.md). |
+| R-05/R-06, S-05/S-06 | Omplanlegging/Angre, omlasting og sikkerhetskopi bevarer registrert arbeid og kjente koblinger; eldre logger får ingen gjettede steg. | [Historikk](../../studieplanlegger/src/history.js), [lagring](../../studieplanlegger/src/storage.js), [identitets-/SQLite-regresjoner](../../studieplanlegger/tests/unit/work-step-identity.test.js), [backup/personvern](../../studieplanlegger/tests/unit/connected-backup-privacy.test.js). | Samme rapport skiller nye kjøringer fra eldre resultater og fra prosjekteierens R-07. |
+
+Den første tekniske rapportens avvik i scenario 2–3 gjaldt en legitim oppgaveflyt og beviste ikke tap av et valgt steg. Den faktiske stegflyten er undersøkt separat. Krav, historiske observasjoner og sjuscenariokravet beholdes.
+
 **Presisert dokumentasjonsstatus 2026-11-02 — SC-07/R-07/S-07:** [Scenariomatrisen](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) kobler hvert av de sju opprinnelige scenariene til eksisterende rapporterte observasjoner og konkrete dokumentasjonsgrenser. Kravet om sju scenarier beholdes; full oppfyllelse av alle opprinnelige detaljer er ikke dokumentert. De rapporterte enkeltprøvene og omprøvingene beholder bestått og lukket status innen sitt oppgitte omfang. Presiseringen endrer verken V1 eller historiske resultater og bestiller ingen ny prøverunde.
 
 **Gjeldende oppfølging 2026-11-01:** [Egenutprøving utført av prosjekteier](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) er bekreftet gjennomført, og de rapporterte omprøvingene er bestått innen sitt dokumenterte omfang. SC-07/1200–30 og Outlook-prøven 30. oktober beholder bestått. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown i repoet; personlig sluttgjennomlesing og innlevering er ikke bekreftet. Den gamle sjuscenariomalen fylles ikke med urapporterte resultater; generell studentnytte er ikke dokumentert. Rekonstruksjonsdatoen **2026-10-16** og krav-/story-ID-ene beholdes.

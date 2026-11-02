@@ -1,0 +1,217 @@
+{
+  "stepOnly": {
+    "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+    "title": "Les syntetisk eksempelkapittel",
+    "course": "TEST101",
+    "deadlineLocal": "2026-11-04T16:00",
+    "estimatedMinutes": null,
+    "completed": false,
+    "remainingMinutes": 75,
+    "requiresSubmission": true,
+    "submitted": false,
+    "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+    "steps": [
+      {
+        "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+        "title": "Les første del",
+        "completed": true,
+        "provenance": {
+          "kind": "manual"
+        },
+        "estimatedMinutes": 60
+      }
+    ]
+  },
+  "taskDone": {
+    "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+    "title": "Les syntetisk eksempelkapittel",
+    "course": "TEST101",
+    "deadlineLocal": "2026-11-04T16:00",
+    "estimatedMinutes": null,
+    "completed": true,
+    "remainingMinutes": 0,
+    "requiresSubmission": true,
+    "submitted": false,
+    "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+    "steps": [
+      {
+        "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+        "title": "Les første del",
+        "completed": true,
+        "provenance": {
+          "kind": "manual"
+        },
+        "estimatedMinutes": 60
+      }
+    ]
+  },
+  "submitted": {
+    "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+    "title": "Les syntetisk eksempelkapittel",
+    "course": "TEST101",
+    "deadlineLocal": "2026-11-04T16:00",
+    "estimatedMinutes": null,
+    "completed": true,
+    "remainingMinutes": 0,
+    "requiresSubmission": true,
+    "submitted": true,
+    "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+    "steps": [
+      {
+        "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+        "title": "Les første del",
+        "completed": true,
+        "provenance": {
+          "kind": "manual"
+        },
+        "estimatedMinutes": 60
+      }
+    ]
+  },
+  "workLogs": [
+    {
+      "id": "work-3b834270-9228-48b6-95d5-ce8c9a86af71",
+      "operationId": "3b834270-9228-48b6-95d5-ce8c9a86af71",
+      "taskId": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+      "at": "2026-11-02T22:21:42.634Z",
+      "outcome": "more",
+      "actualMinutes": 0,
+      "plannedMinutes": 30,
+      "remainingMinutes": 75,
+      "interrupted": false,
+      "historyComplete": false,
+      "taskCompleted": false,
+      "taskSnapshot": {
+        "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+        "title": "Syntetisk kontroll av konkret steg",
+        "course": "TEST101",
+        "deadlineLocal": "",
+        "estimatedMinutes": null,
+        "completed": false,
+        "remainingMinutes": 60,
+        "requiresSubmission": false,
+        "submitted": false,
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+        "steps": [
+          {
+            "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+            "title": "Les første syntetiske avsnitt",
+            "completed": false,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 30
+          },
+          {
+            "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+            "title": "Oppsummer andre syntetiske avsnitt",
+            "completed": false,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 30
+          }
+        ]
+      },
+      "stepId": "66105d66-9698-4277-a733-665ddd5dfd61"
+    },
+    {
+      "id": "work-close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+      "operationId": "close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "at": "2026-11-02T22:57:09.891Z",
+      "outcome": "more",
+      "actualMinutes": 30,
+      "plannedMinutes": 30,
+      "remainingMinutes": 75,
+      "interrupted": false,
+      "historyComplete": false,
+      "taskCompleted": false,
+      "taskSnapshot": {
+        "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "title": "Les syntetisk eksempelkapittel",
+        "course": "TEST101",
+        "deadlineLocal": "2026-11-04T16:00",
+        "estimatedMinutes": null,
+        "completed": false,
+        "remainingMinutes": 60,
+        "requiresSubmission": true,
+        "submitted": false,
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+        "steps": [
+          {
+            "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+            "title": "Les første del",
+            "completed": false,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 60
+          }
+        ]
+      },
+      "sessionId": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+      "sessionSnapshot": {
+        "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+        "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "dateLocal": "2026-11-02",
+        "startTime": "23:27",
+        "endDateLocal": "2026-11-02",
+        "endTime": "23:57",
+        "locked": false,
+        "planningRules": {
+          "sessionMinutes": 30,
+          "minimumMinutes": 15,
+          "maximumMinutes": 60,
+          "breakMinutes": 10
+        }
+      }
+    },
+    {
+      "id": "work-6c37d3a4-a9cf-482d-bef2-767488add8be",
+      "operationId": "6c37d3a4-a9cf-482d-bef2-767488add8be",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "at": "2026-11-02T22:57:16.231Z",
+      "outcome": "done",
+      "actualMinutes": null,
+      "plannedMinutes": null,
+      "remainingMinutes": 0,
+      "interrupted": false,
+      "historyComplete": false,
+      "taskCompleted": true,
+      "taskSnapshot": {
+        "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "title": "Les syntetisk eksempelkapittel",
+        "course": "TEST101",
+        "deadlineLocal": "2026-11-04T16:00",
+        "estimatedMinutes": null,
+        "completed": false,
+        "remainingMinutes": 75,
+        "requiresSubmission": true,
+        "submitted": false,
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+        "steps": [
+          {
+            "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+            "title": "Les første del",
+            "completed": true,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 60
+          }
+        ]
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "id": "9f495a2f-9974-4ded-b005-f7cc916c3ad7",
+      "dateLocal": "2026-11-03",
+      "startTime": "11:00",
+      "endTime": "11:30",
+      "taskId": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+      "locked": false
+    }
+  ]
+}

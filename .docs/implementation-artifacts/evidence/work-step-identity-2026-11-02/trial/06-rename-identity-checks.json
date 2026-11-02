@@ -1,0 +1,55 @@
+{
+  "before": {
+    "tasks": [
+      {
+        "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+      },
+      {
+        "id": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+        "courseId": "70680671-169f-4332-a3a9-6d9a839f6ebb"
+      },
+      {
+        "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+      }
+    ],
+    "courses": [
+      {
+        "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+        "code": "TEST102"
+      },
+      {
+        "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+        "code": "TEST101"
+      }
+    ]
+  },
+  "after": {
+    "tasks": [
+      {
+        "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+      },
+      {
+        "id": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+        "courseId": "70680671-169f-4332-a3a9-6d9a839f6ebb"
+      },
+      {
+        "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+      }
+    ],
+    "courses": [
+      {
+        "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+        "code": "TEST102"
+      },
+      {
+        "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+        "code": "TEST101"
+      }
+    ]
+  },
+  "taskAndCourseIdsUnchanged": true
+}
