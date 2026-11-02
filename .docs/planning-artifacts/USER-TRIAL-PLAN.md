@@ -1,5 +1,15 @@
 # Plan for egenutprøving av Ajour
 
+## Teknisk avklaring av oppgave- og stegflyt — 2026-11-02
+
+Den første **Codex-utførte tekniske nettlesertesten** på `285dfac8e8513ce969da50017531622f40f15a7f` brukte oppgavenært planforslag i scenario 2 og avsluttet denne oppgaveøkten i scenario 3. Forslaget viste oppgaven som mål, ikke et valgt arbeidssteg. Rapportens krav om en ekstra stegkobling i akkurat denne flyten var derfor en for sterk testantakelse. Oppgave-/øktkoblingen var bevart; en oppgave med steg kan fortsatt planlegges på oppgavenivå. Den uprøvde stegflyten får ikke beståttstatus av denne avklaringen.
+
+En separat reproduksjon via **Oversikt → Start → Start økten → Avslutt økten** viste derimot et navngitt steg før utfallet, men mistet entydig stegidentitet i arbeidsloggen og ignorerte et nytt eksakt gjenstående anslag. [Avklaring, før-/etter-bevis og ny teknisk sjuscenarioprøve](../implementation-artifacts/work-step-identity-2026-11-02.md) dokumenterer dette med dato og omfang. Resultatene er ikke prosjekteierens personlige observasjoner og oppfyller ikke alene R-07.
+
+Ved prøving av scenario 2–3 skal **riktig oppgave/steg** vurderes mot det faktisk valgte eller presenterte målet. Prøv oppgaveplanlegging uten utledet stegkobling, og prøv også den navngitte Start-flyten med flere steg. Noter hvilket steg som vises før og etter utfallet, og kontroller samme identitet etter navneendring/omrekkefølge, omplanlegging/Angre og gjenoppretting. Fravær av et bestemt feltnavn alene er ikke feilbevis. Den opprinnelige oppskriften og tidligere daterte resultater nedenfor beholdes.
+
+**Ny teknisk prøve 2. november kl. 23:21:23–23:57:25 Europe/Oslo:** Alle sju flyter og 20 delkontroller bestod på uendret kodekandidat, innen [dokumenterte dato-/UI-tilpasninger](../implementation-artifacts/work-step-identity-2026-11-02.md#sjuscenarioprøve). Den faktiske økten 23:27–23:57 var avsluttet før 30 faktiske/75 gjenstående ble registrert. Scenario 6 omfattet kalender, emneidentitet/farger, navneendring, alle temavalg, dato og åpent utkast; scenario 7 brukte UI-gjenoppretting i en annen tom kontekst og omlasting. Dette nye Codex-resultatet fyller ikke eierens opprinnelige observasjonsfelt eller lukker R-07 på eierens vegne.
+
 **Opprettet 2026-10-16; revidert 2026-11-01 etter prosjekteierens sluttbekreftelse av egenutprøvingen; dokumentasjonsgrensen presisert 2026-11-02. Status: egenutprøving utført av prosjekteier; dokumenterte omprøvinger bestått innen oppgitt omfang.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown i repoet; personlig sluttgjennomlesing og innlevering er ikke bekreftet.
 
 <a id="scenario-dekning-2026-11-02"></a>

@@ -1,0 +1,23 @@
+{
+  "checkedAtOslo": "2026-11-02 23:57:04",
+  "dateThroughThemes": [
+    {
+      "choice": "System",
+      "before": "2026-11-03",
+      "after": "2026-11-03",
+      "actualTheme": "light"
+    },
+    {
+      "choice": "Lyst",
+      "before": "2026-11-03",
+      "after": "2026-11-03",
+      "actualTheme": "light"
+    },
+    {
+      "choice": "Mørkt",
+      "before": "2026-11-03",
+      "after": "2026-11-03",
+      "actualTheme": "dark"
+    }
+  ]
+}

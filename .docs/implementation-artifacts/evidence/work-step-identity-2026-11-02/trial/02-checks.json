@@ -1,0 +1,52 @@
+{
+  "cancelUnchanged": true,
+  "firstSession": {
+    "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+    "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+    "dateLocal": "2026-11-02",
+    "startTime": "23:27",
+    "endDateLocal": "2026-11-02",
+    "endTime": "23:57",
+    "locked": false,
+    "planningRules": {
+      "sessionMinutes": 30,
+      "minimumMinutes": 15,
+      "maximumMinutes": 60,
+      "breakMinutes": 10
+    }
+  },
+  "allSessions": [
+    {
+      "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "dateLocal": "2026-11-02",
+      "startTime": "23:27",
+      "endDateLocal": "2026-11-02",
+      "endTime": "23:57",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    },
+    {
+      "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "dateLocal": "2026-11-03",
+      "startTime": "00:07",
+      "endDateLocal": "2026-11-03",
+      "endTime": "00:37",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    }
+  ],
+  "scope": "Oppgaveplanlegging; ingen eksplisitt steg valgt eller forventet. Konkret Start-steg prøves separat.",
+  "startedAtOslo": "2026-11-02 23:21:33"
+}

@@ -1,0 +1,124 @@
+Hopp til hovedinnhold
+Oversikt
+Kalender
+Alle oppgaver
+Mine emner
+Planlegg uken
+Innstillinger
+Lagret i denne nettleseren
+Planlegg uken
+
+mandag 2. november 2026
+
+Legg inn arbeidskrav
++
+Ny oppgave
+
+ARBEID OG TILGJENGELIG TID
+
+Kapasitet før fristene
+Sammenlign planer
+Ny studieøkt
+
+Sammenlign gjenstående arbeid med tiden du har satt av.
+
+Arbeidstid og opptatt tid
+
+Registrer faktiske tidsrom i norsk tid, også over midnatt. Overlapp telles én gang. Uten arbeidstid er kapasiteten ukjent.
+
+Type
+Tilgjengelig arbeidstid
+Opptatt tid
+Navn (valgfritt)
+Start (norsk tid)
+Slutt (norsk tid)
+Lagre tidsrom
+Avbryt
+
+Arbeidstid: 2026-11-02 21:40 - 2026-11-02 23:40
+
+Rediger tidsrom
+Slett tidsrom
+
+Arbeidstid: 2026-11-03 10:00 - 2026-11-03 12:00
+
+Rediger tidsrom
+Slett tidsrom
+
+Opptatt: 2026-11-02 21:40 - 2026-11-02 22:10
+
+Rediger tidsrom
+Slett tidsrom
+
+Planlagte økter og gjenstående arbeid
+
+Se kapasitetsberegningen
+Studieøktene dine
+
+Studieøkt 2. november 2026 kl. 22:10–22:40
+
+Rediger økt
+Avslutt økt
+Slett økt
+
+Studieøkt 2. november 2026 kl. 22:50–23:20
+
+Rediger økt
+Avslutt økt
+Slett økt
+
+Studieøkt 3. november 2026 kl. 11:00–11:30
+
+Rediger økt
+Avslutt økt
+Slett økt
+Arbeid før hver frist
+TEST101 · Les syntetisk eksempelkapittel
+
+Frist: 4. november 2026 kl. 16:00 · Ikke fullført
+
+Gjenstående: 1 time · Reservert: 30 min · Forslag inkludert: 60 min
+
+Ikke planlagt. Deler av reservasjonen er passert, opptatt eller utenfor arbeidstiden. Minuttsummen er en kapasitetsoversikt. Øktlengder, pauser og klokkeslett ved tidsskifte er ikke kontrollert som en gjennomførbar plan. Valgte øktregler: 15–60 min per økt, vanligvis 30 min, med 10 min pause. Bruk Planlegg uken for å kontrollere et konkret forslag.
+
+2. november 2026 kl. 22:50–23:20: 30 min · 2. november 2026 kl. 22:41–22:50: 9 min · 2. november 2026 kl. 23:20–23:40: 20 min · 3. november 2026 kl. 10:00–10:01: 1 min
+
+Oppdater arbeid
+TEST102 · Les neste syntetiske eksempel
+
+Frist: Ingen frist · Ikke fullført
+
+Gjenstående: 30 min · Reservert: 30 min · Forslag inkludert: 30 min
+
+Planlagt. Arbeidet har reservert tid. Oppdater gjenstående arbeid selv etter økten.
+
+3. november 2026 kl. 11:00–11:30: 30 min
+
+Oppdater arbeid
+Ajour / Kom ajour.
+Hjelp og lokal lagring
+Hva skjedde?
+
+Les syntetisk eksempelkapittel
+
+Resultat
+Utført
+Trenger mer tid
+Ikke utført
+
+Faktisk arbeidstid og gjenstående arbeid lagres hver for seg.
+
+Faktisk arbeidstid (minutter, valgfritt)
+Gjenstående arbeid
+Vet ikke
+Under 30 min
+30–60 min
+1–2 timer
+2–4 timer
+Mer enn 4 timer
+Oppgi eksakte minutter
+Arbeidet ble avbrutt
+Valgfri egenvurdering
+
+Lagre utfallet
+Avbryt

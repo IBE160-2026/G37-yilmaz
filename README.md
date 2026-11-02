@@ -14,6 +14,8 @@ Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten
 
 Hovedflyten er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**. Fullført steg, ferdig oppgave og bekreftet innlevering er separate handlinger. Du kan registrere alt manuelt; import er valgfritt. [Brukerveiledningen](studieplanlegger/README.md#kom-i-gang-og-finn-frem) forklarer skjermbildene, import, kalenderkopi og temaene **System/Lyst/Mørkt**.
 
+**Oppgave eller arbeidssteg:** Planforslag reserverer tid til oppgaven. Når **Start** viser et bestemt arbeidssteg, følger dette steget med til arbeidsutfallet. Gjenstående arbeid gjelder fortsatt hele oppgaven. [Avklaring, retting og teknisk nettleserprøve 2. november](.docs/implementation-artifacts/work-step-identity-2026-11-02.md) skiller disse flytene og dokumenterer testomfanget.
+
 <a id="nettleserutgave--2026-10-29"></a>
 
 ## Ta vare på planen

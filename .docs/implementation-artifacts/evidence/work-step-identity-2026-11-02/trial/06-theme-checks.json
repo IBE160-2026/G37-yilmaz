@@ -1,0 +1,113 @@
+{
+  "themeResults": [
+    {
+      "name": "System",
+      "theme": "light",
+      "checked": true
+    },
+    {
+      "name": "Lyst",
+      "theme": "light",
+      "checked": true
+    },
+    {
+      "name": "Mørkt",
+      "theme": "dark",
+      "checked": true
+    }
+  ],
+  "beforeToggleDate": "2026-11-03",
+  "drafts": [
+    {
+      "scheme": "dark",
+      "title": "Ulagret syntetisk utkast – temakontroll",
+      "minutes": "47",
+      "focus": "remainingMinutes",
+      "date": "2026-11-03",
+      "dialogOpen": 1
+    },
+    {
+      "scheme": "light",
+      "title": "Ulagret syntetisk utkast – temakontroll",
+      "minutes": "47",
+      "focus": "remainingMinutes",
+      "date": "2026-11-03",
+      "dialogOpen": 1
+    }
+  ],
+  "narrow": {
+    "left": 36,
+    "right": 354,
+    "width": 390,
+    "focused": true,
+    "value": "47"
+  },
+  "domainUnchanged": true,
+  "explicitCalendarViewChange": {
+    "before": {
+      "version": 2,
+      "view": "week",
+      "weekMode": "full",
+      "date": "2026-11-03",
+      "courseId": "",
+      "kinds": [
+        "teaching",
+        "personal",
+        "deadline",
+        "session",
+        "work",
+        "busy",
+        "information"
+      ],
+      "scroll": {
+        "week:2026-11-02": {
+          "top": 440,
+          "left": 0
+        },
+        "month:2026-11-03": {
+          "top": 0,
+          "left": 0
+        },
+        "week:2026-11-03": {
+          "top": 440,
+          "left": 0
+        }
+      },
+      "completed": false,
+      "cancelled": false
+    },
+    "after": {
+      "version": 2,
+      "view": "day",
+      "weekMode": "full",
+      "date": "2026-11-03",
+      "courseId": "",
+      "kinds": [
+        "teaching",
+        "personal",
+        "deadline",
+        "session",
+        "work",
+        "busy",
+        "information"
+      ],
+      "scroll": {
+        "week:2026-11-02": {
+          "top": 440,
+          "left": 0
+        },
+        "month:2026-11-03": {
+          "top": 0,
+          "left": 0
+        },
+        "week:2026-11-03": {
+          "top": 440,
+          "left": 0
+        }
+      },
+      "completed": false,
+      "cancelled": false
+    }
+  },
+  "modalBoundary": "App theme controls tested outside native modal; open draft tested through System OS colorScheme, without bypassing modal."
+}

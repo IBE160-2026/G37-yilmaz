@@ -1,0 +1,16 @@
+{
+  "calendarLabels": "Hopp til hovedinnhold\nOversikt\nKalender\nAlle oppgaver\nMine emner\nPlanlegg uken\nInnstillinger\nLagret i denne nettleseren\nKalender\nUke · 2. november 2026 – 8. november 2026\nLegg inn arbeidskrav\n+\nNy oppgave\nDag\nUke\nMåned\nAgenda\nForrige\nI dag\nNeste\nDato\nEksporter kalender\nUkedager\nHele uken\nArbeidsuke\nFiltre og hjelp\nAktiviteter (6) · rull sidelengs\n2. november 2026 · 22:57–23:27\nOpptatt\nOpptatt\n2. november 2026 · 22:57–00:57\nArbeidstid\nArbeidstid\nFortsetter neste dag\n2. november 2026 · 23:27–23:57\nTEST101 · Studieøkt: Les syntetisk eksempelkapittel\nStudieøkt · Endret eksempelfag · TEST101\n3. november 2026 · 00:07–00:37\nTEST101 · Studieøkt: Les syntetisk eksempelkapittel\nStudieøkt · Endret eksempelfag · TEST101\n3. november 2026 · 10:00–12:00\nArbeidstid\nArbeidstid\n3. november 2026 · 11:00–11:30\nTEST102 · Studieøkt: Les neste syntetiske eksempel\nStudieøkt · Annet eksempelfag · TEST102\nTid\n00:00\n01:00\n02:00\n03:00\n04:00\n05:00\n06:00\n07:00\n08:00\n09:00\n10:00\n11:00\n12:00\n13:00\n14:00\n15:00\n16:00\n17:00\n18:00\n19:00\n20:00\n21:00\n22:00\n23:00\nman. 2. nov.\n2 i\ntir. 3. nov.\ni\ni\nons. 4. nov.\nFrist kl. 16:00\nTEST101 · Les syntetisk eksempelkapittel\ntor. 5. nov.\nfre. 6. nov.\nlør. 7. nov.\nsøn. 8. nov.\nAjour / Kom ajour.\nHjelp og lokal lagring",
+  "taskLabels": [
+    {
+      "title": "Les syntetisk eksempelkapittel",
+      "code": "TEST101",
+      "text": "TEST101\nIkke fullført\nLes syntetisk eksempelkapittel\n4. november kl. 16:00\nGjenstående arbeid: 1 time\nArbeid gjenstår å planlegge i studieøktene.\n\nLes første del\n\n60 min · bare neste steg · inkludert i gjenstående arbeid\n\nNeste steg gjort\nSe planforslag\nFlere ···"
+    },
+    {
+      "title": "Les neste syntetiske eksempel",
+      "code": "TEST102",
+      "text": "TEST102\nIkke fullført\nLes neste syntetiske eksempel\nIngen frist\nGjenstående arbeid: 30 min\nArbeidet har reservert tid.\nMarker ferdig\nSe planforslag\nFlere ···"
+    }
+  ],
+  "colorNotSoleSignal": true
+}
