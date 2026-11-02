@@ -48,7 +48,7 @@ for (const failure of ['QuotaExceededError', 'SecurityError']) test(`injected ${
     await page.locator('#task-form').getByRole('button', { name: 'Lagre', exact: true }).click()
     await expect(page.locator('#task-form')).toBeVisible()
     await expect(page.locator('#title')).toHaveValue('Syntetisk utkast som skal bevares')
-    await expect(page.locator('#task-form [role=status]')).toContainText('Endringen ble ikke lagret. Utkastet er beholdt.')
+    await expect(page.locator('#task-form #feedback[role=status]')).toContainText('Endringen ble ikke lagret. Utkastet er beholdt.')
     expect(await saved(page)).toEqual(before)
     await page.evaluate(() => { window.syntheticWriteFailure = false })
     await page.locator('#task-form').getByRole('button', { name: 'Lagre', exact: true }).click()

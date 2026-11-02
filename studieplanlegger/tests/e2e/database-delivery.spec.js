@@ -12,10 +12,13 @@ const legacy = {
 }
 
 test('production API explicitly migrates once, persists exact relations and rejects stale writes', async ({ page }) => {
-  const font = await page.request.get('/fonts/manrope-0.woff2')
-  expect(font.ok()).toBe(true)
-  expect(font.headers()['content-type']).toBe('font/woff2')
-  expect(font.headers()['x-content-type-options']).toBe('nosniff')
+  for (const filename of ['manrope-0.ttf', 'manrope-1.ttf', 'manrope-2.ttf']) {
+    const font = await page.request.get(`/fonts/${filename}`)
+    expect(font.ok()).toBe(true)
+    expect(font.headers()['content-type']).toBe('font/ttf')
+    expect(font.headers()['x-content-type-options']).toBe('nosniff')
+    expect((await font.body()).subarray(0, 4).toString('hex')).toBe('00010000')
+  }
   await page.addInitScript(value => localStorage.setItem('studieplanlegger:v1', JSON.stringify(value)), legacy)
   let confirmations = 0
   page.on('dialog', async dialog => { confirmations++; expect(dialog.type()).toBe('confirm'); await dialog.accept() })

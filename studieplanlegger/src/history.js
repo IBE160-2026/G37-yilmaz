@@ -13,7 +13,11 @@ const clone = value => value === undefined ? undefined : structuredClone(value)
 const orderedJson = value => JSON.stringify(value, (_key, item) => item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b))) : item)
 const equal = (a, b) => orderedJson(a) === orderedJson(b)
 const sourceBookkeeping = new Set(['lastAttempt', 'lastSuccess', 'lastUpdated', 'lastError', 'failures'])
-const semantic = (value, path) => path === 'planner.sources' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => !sourceBookkeeping.has(key))) : path === 'planner.courses' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'teachingCheck')) : value
+// A changed file timestamp/fingerprint may refresh provenance without changing
+// any imported content. Keep that metadata, but do not copy all source entries
+// into undo unless an actual field, selection or source decision changed.
+const documentBookkeeping = new Set(['lastUpdated', 'contentHash', 'revision'])
+const semantic = (value, path) => path === 'planner.sources' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => !sourceBookkeeping.has(key))) : path === 'planner.courses' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'teachingCheck')) : path === 'importSources' && value ? Object.fromEntries(Object.entries(value).filter(([key]) => !documentBookkeeping.has(key))) : value
 const scalarPaths = ['planningPreferences', 'studyTimePreference', 'personalization', 'onboarding']
 const paths = ['tasks', 'sessions', 'workWindows', 'busyWindows', 'planner.courses', 'planner.events', 'planner.sources', 'workLogs', 'importSources', 'topics', 'assessments', 'reviewDecisions', ...scalarPaths]
 const get = (value, path) => path.split('.').reduce((node, key) => node?.[key], value)
@@ -86,6 +90,14 @@ export function restoreChange(state, entry) {
       if (path === 'planner.courses') {
         const current = currentItems.find(item => item.id === c.id)
         if (current?.teachingCheck) before.teachingCheck = clone(current.teachingCheck)
+      }
+      if (path === 'importSources' && c.after && equal(c.before.entries, c.after.entries)) {
+        const current = currentItems.find(item => item.id === c.id)
+        // A later file-metadata refresh survives undoing a rename/other source
+        // setting. Undo of changed source content restores its original hash.
+        if (current && [...documentBookkeeping].some(key => !equal(current[key], c.after[key]))) {
+          for (const key of documentBookkeeping) if (key in current) before[key] = clone(current[key])
+        }
       }
       items.splice(Math.min(c.index, items.length), 0, before)
     }

@@ -202,6 +202,15 @@ export function getActionMinutes(task) {
   return primaryWorkStep(task)?.estimatedMinutes ?? getRemainingRange(task)?.maxMinutes ?? null
 }
 
+export function getSessionMinutes(task, availableMinutes) {
+  const action = getActionMinutes(task)
+  if (!Number.isSafeInteger(availableMinutes) || availableMinutes <= 0 || !Number.isSafeInteger(action) || action <= 0) return null
+  // A conflicting older step estimate must never turn indivisible work into a partial session.
+  if (task.splittable === false) return action <= availableMinutes ? action : null
+  const remaining = getRemainingRange(task)?.maxMinutes
+  return Math.min(action, availableMinutes, remaining ?? Infinity)
+}
+
 export { taskSteps, primaryWorkStep }
 
 export function getRemainingMinutes(task) {
@@ -284,7 +293,8 @@ export function selectTasksForMinutes(tasks, minutes, { includePartial = false }
 
 export function suggestionReason(task, minutes, now = new Date(), index = 0, allTasks = []) {
   const activeStep = primaryWorkStep(task)
-  const fit = activeStep ? `${getActionMinutes(task) <= minutes ? `Passer innen ${minutes} minutter. ` : ''}Neste steg: «${activeStep.title || activeStep.description}», ${Math.min(getActionMinutes(task), minutes)} min${getActionMinutes(task) > minutes ? ' som deløkt' : ''}. Hele oppgaven er ikke ferdig etter steget`
+  const sessionMinutes = getSessionMinutes(task, minutes)
+  const fit = activeStep ? `${getActionMinutes(task) <= minutes ? `Passer innen ${minutes} minutter. ` : ''}Neste steg: «${activeStep.title || activeStep.description}», ${sessionMinutes} min${getActionMinutes(task) > sessionMinutes ? ' som deløkt' : ''}. Hele oppgaven er ikke ferdig etter steget`
     : getActionMinutes(task) > minutes ? `En deløkt på ${minutes} min av ${formatEstimateRange(getRemainingRange(task))} gjenstående arbeid`
       : 'Passer innen ' + minutes + ' minutter'
   const { downstream } = actionUrgency(task, allTasks)
