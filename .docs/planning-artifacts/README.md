@@ -8,6 +8,8 @@
 
 Planene ble **rekonstruert 2026-10-16** mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae00268`. De er ikke opprinnelige planer for allerede skrevet kode. Revisjonen følger opp lærerens krav om avgrenset V1, sjekkbare kriterier, tekniske detaljer i arkitekturen og synlig kontroll av KI-generert arbeid.
 
+**PRD-presisering 2026-11-02:** [Gjeldende PRD](PRD.md) skiller de tre planleggingsfunksjonene og synliggjør eksisterende bruksgrenser og nyttehypoteser. SC-07/R-07/S-07 beholder sjuscenariokravet, men full oppfyllelse av alle opprinnelige detaljer er ikke dokumentert. [Scenariooversikten](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) viser grunnlaget; de avgrensede omprøvingene beholder bestått. V1, tidligere resultater og bestillingen om egenutprøving er uendret.
+
 ## Finn leveransen
 
 | Status / behov | Autoritativ inngang |
@@ -67,6 +69,6 @@ Godkjent proposal og den overordnede sensorveiledningen som PDF-en viser til, er
 
 ## Historikk og personvern
 
-Commit `1a39aaf450c3ff4a59908fd8caba9de10230b9a6` inneholder historiske filer på `.docs/planning-artifacts/prds/prd-studieplanlegger-2026-09-06/prd.md`, `.docs/planning-artifacts/epics.md` og `.docs/planning-artifacts/briefs/brief-studieplanlegger-2026-09-06/brief.md`. Lokale ignorerte kopier beholdes urørt. Gamle krav om obligatorisk emne/frister/tid og bare nettleserlagring er erstattet av registrering med bare tittel og støtte for både publisert nettutgave og lokal Node-/Docker-drift med SQLite; gamle FR/NFR-ID-er er historiske.
+Commit `1a39aaf450c3ff4a59908fd8caba9de10230b9a6` inneholder historiske filer på `.docs/planning-artifacts/prds/prd-studieplanlegger-2026-09-06/prd.md`, `.docs/planning-artifacts/epics.md` og `.docs/planning-artifacts/briefs/brief-studieplanlegger-2026-09-06/brief.md`. Den gamle lokale PRD-kopien ble fjernet etter prosjekteierens ønske 2026-11-02; [PRD.md](PRD.md) er eneste gjeldende PRD. Øvrige lokale ignorerte historiske kopier beholdes urørt. Gamle krav om obligatorisk emne/frister/tid og bare nettleserlagring er erstattet av registrering med bare tittel og støtte for både publisert nettutgave og lokal Node-/Docker-drift med SQLite; gamle FR/NFR-ID-er er historiske.
 
 `EPICS-CURRENT.md` brukes fordi den private historiske `epics.md` kolliderer med `EPICS.md` på Windows. Ingen historisk privat fil er omdøpt eller gjort leveringsklar for å fylle et dokumentasjonshull. **Uttrykkelig unntak 2026-11-01:** Prosjekteieren autoriserte først sluttrapporten som Markdown og Word. Word-kopien ble senere fjernet etter prosjekteierens ønske; gjeldende unntak gjelder bare `.docs/submission/reflection-report.md`, med uendret rapporttekst. Eldre private refleksjonsutkast, inkludert `.docs/implementation-artifacts/project-reflection.md`, rårapporter, rålogger, interne notater, personlige testdata, sikkerhetskopier, databaser og runtimefiler forblir lokale/ignorerte. Rapporten er tilgjengelig gjennom GitHub-dokumentasjonen og holdes utenfor appens `public/`, brukergrensesnitt og Vercel-opplastingsutvalg.
