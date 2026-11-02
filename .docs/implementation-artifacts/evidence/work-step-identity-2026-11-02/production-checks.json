@@ -1,0 +1,73 @@
+{
+  "label": "Codex-utført teknisk kontroll etter publisering",
+  "url": "https://ajour-sooty.vercel.app",
+  "expectedCommit": "b60455b808d3e3a3c92cf52fe8671db3e9c0d67a",
+  "startedOslo": "2026-11-03 00:26:45",
+  "realClock": true,
+  "syntheticDataOnly": true,
+  "method": "To tomme browser.newContext(); alle appendringer via UI; UI-eksport og UI-gjenoppretting; 0 faktisk arbeidstid, ingen utført studieinnsats påstått.",
+  "checks": {
+    "twoEmptyContexts": true,
+    "explicitStep": {
+      "passed": true,
+      "taskId": "6998b334-666b-4620-888b-be7fda51cc7f",
+      "stepId": "1759aa41-7b4d-4f4e-9126-fef7e68c531f",
+      "snapshotStepId": "1759aa41-7b4d-4f4e-9126-fef7e68c531f",
+      "actualMinutes": 0,
+      "remainingMinutes": 75,
+      "taskCompleted": false,
+      "submitted": false,
+      "observedDurationSeconds": 1,
+      "savedAtOslo": "2026-11-03 00:26:55"
+    },
+    "futureTaskPlan": {
+      "passed": true,
+      "taskId": "6998b334-666b-4620-888b-be7fda51cc7f",
+      "noStepAttribution": true,
+      "sessions": [
+        {
+          "id": "504f7808-8bc3-4fd1-8884-4ef03482acf9",
+          "taskId": "6998b334-666b-4620-888b-be7fda51cc7f",
+          "dateLocal": "2026-11-04",
+          "startTime": "10:00",
+          "endTime": "10:30"
+        },
+        {
+          "id": "292ff53e-cbd0-476f-ab76-3a01caa8ad71",
+          "taskId": "6998b334-666b-4620-888b-be7fda51cc7f",
+          "dateLocal": "2026-11-04",
+          "startTime": "10:40",
+          "endTime": "11:10"
+        },
+        {
+          "id": "037844c0-3834-496e-88df-aa81855c2210",
+          "taskId": "6998b334-666b-4620-888b-be7fda51cc7f",
+          "dateLocal": "2026-11-04",
+          "startTime": "11:20",
+          "endTime": "11:35"
+        }
+      ]
+    },
+    "restore": {
+      "passed": true,
+      "sourceReloadEqual": true,
+      "targetReloadEqual": true,
+      "knownLinksEqual": true,
+      "counts": {
+        "tasks": 1,
+        "steps": 2,
+        "workLogs": 1,
+        "futureSessions": 3
+      }
+    },
+    "release": {
+      "passed": true,
+      "exactCommitChecked": true,
+      "commitBefore": "b60455b808d3e3a3c92cf52fe8671db3e9c0d67a",
+      "commitAfter": "b60455b808d3e3a3c92cf52fe8671db3e9c0d67a"
+    }
+  },
+  "browser": "153.0.8010.12",
+  "passed": true,
+  "finishedOslo": "2026-11-03 00:26:59"
+}
