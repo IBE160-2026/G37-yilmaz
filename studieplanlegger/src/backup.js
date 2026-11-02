@@ -1,5 +1,6 @@
 import { validEnvelope } from './storage.js'
 import { boundedImportWarnings } from './import-source-contract.js'
+import { taskSteps, migrateLegacyStep, legacyStepId } from './work-steps.js'
 
 export const BACKUP_VERSION = 1
 const secretKey = /^(?:authorization|accesstoken|refreshtoken|token|password|pwd|secret|clientsecret|credentials|apikey|headers|cookie|cookies)$/i
@@ -7,7 +8,7 @@ const normalKey = key => key.replace(/[^a-z0-9]/gi, '')
 const credentialParameter = key => { const name = normalKey(key); return secretKey.test(name) || /(?:token|secret|password|authorization|credential|apikey)/i.test(name) || /^(key|auth|sig|signature)$/i.test(key) }
 const sourceObject = value => ['url', 'file'].includes(value.kind) && value.courseId && Array.isArray(value.groups) && value.id
 function portableData(value) {
-  const secrets = new Set(), credentials = new Set(), identities = new Set()
+  const secrets = new Set(), credentials = new Set(), identities = new Set(), derivedStepIds = new Map()
   const remember = (text, credential = false) => { if (typeof text === 'string' && text.length) for (const variant of [text, encodeURI(text), encodeURIComponent(text), text.replaceAll('/', '\\/')]) (credential ? credentials : secrets).add(variant) }
   function connection(url) {
     remember(url)
@@ -24,26 +25,42 @@ function portableData(value) {
       for (const match of item.matchAll(/(?:https?|webcal):\/\/[^\s<>"']+/gi)) {
         try { const url = new URL(match[0]); if (url.username || url.password || [...url.searchParams.keys()].some(credentialParameter) || [...new URLSearchParams(url.hash.slice(1)).keys()].some(credentialParameter)) connection(match[0]) } catch { /* Unparseable text is not executed. */ }
       }
-      if (/^(id|sourceId|courseId|taskId|topicId|assessmentId|sourceKey|sourceUid|operationId|sessionId|importSourceId|importEntryKey|targetId|dependencyIds|missingDependencyIds|reviewKey|key)$/.test(key)) {
+      if (/^(id|sourceId|courseId|taskId|stepId|topicId|assessmentId|sourceKey|sourceUid|operationId|sessionId|importSourceId|importEntryKey|targetId|dependencyIds|missingDependencyIds|reviewKey|key)$/.test(key)) {
         identities.add(item)
         const url = item.match(/(?:https?|webcal):\/\/\S+/i)?.[0]; if (url) connection(url)
       }
     } else if (Array.isArray(item)) item.forEach(entry => scan(entry, key, credential))
     else if (item && typeof item === 'object') {
+      // A legacy row may exist only implicitly in current or historical tasks.
+      // Include its original ID before redaction assigns structural aliases.
+      if (typeof item.id === 'string' && (item.nextStep || Array.isArray(item.steps))) {
+        const prefix = legacyStepId(item.id)
+        for (const step of taskSteps(item)) {
+          scan(step.id, 'id')
+          if (typeof step.id === 'string' && step.id.startsWith(prefix) && /^(?::[1-9]\d*)?$/.test(step.id.slice(prefix.length))) {
+            if (!derivedStepIds.has(item.id)) derivedStepIds.set(item.id, new Set())
+            derivedStepIds.get(item.id).add(step.id)
+          }
+        }
+      }
       if (sourceObject(item) && item.url) connection(item.url)
       for (const [name, entry] of Object.entries(item)) scan(entry, name, credential || secretKey.test(normalKey(name)))
     }
   }
   scan(value)
   const tokens = [...secrets].sort((a, b) => b.length - a.length || a.localeCompare(b))
-  const affected = [...identities].filter(id => /(?:https?|webcal)(?::\/\/|%3a%2f%2f)/i.test(id) || tokens.some(token => id.includes(token)) || credentials.has(id)).sort()
+  const affected = new Set([...identities].filter(id => /(?:https?|webcal)(?::\/\/|%3a%2f%2f)/i.test(id) || tokens.some(token => id.includes(token)) || credentials.has(id)))
+  // Derived IDs contain the original task ID, so they must not retain a task
+  // credential after its parent has been replaced by a portable alias.
+  const pending = [...affected]
+  for (const id of pending) for (const derived of derivedStepIds.get(id) || []) if (!affected.has(derived)) { affected.add(derived); pending.push(derived) }
   const replacements = new Map(), used = new Set(identities); let serial = 0
   // Sorted ordinal aliases are deterministic for an export, contain no hash or
   // reversible encoding of a secret, and cannot collide with existing IDs.
-  for (const id of affected) { let alias; do { alias = `export-id-${++serial}` } while (used.has(alias)); used.add(alias); replacements.set(id, alias) }
+  for (const id of [...affected].sort()) { let alias; do { alias = `export-id-${++serial}` } while (used.has(alias)); used.add(alias); replacements.set(id, alias) }
   const ids = [...replacements.keys()].sort((a, b) => b.length - a.length)
   const credentialPatterns = [...credentials].sort((a, b) => b.length - a.length).map(token => new RegExp(`(?<![\\p{L}\\p{N}_-])${token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_-])`, 'gu'))
-  const structural = /^(?:id|sourceId|courseId|taskId|topicId|assessmentId|sourceKey|sourceUid|operationId|sessionId|importSourceId|importEntryKey|targetId|dependencyIds|missingDependencyIds|reviewKey|key|start|end|startLocal|endLocal|dateLocal|endDateLocal|deadlineLocal|startTime|endTime|at|assessedAt|decidedAt|lastUpdated|lastAttempt|lastSuccess|createdAt|savedAt)$/
+  const structural = /^(?:id|sourceId|courseId|taskId|stepId|topicId|assessmentId|sourceKey|sourceUid|operationId|sessionId|importSourceId|importEntryKey|targetId|dependencyIds|missingDependencyIds|reviewKey|key|start|end|startLocal|endLocal|dateLocal|endDateLocal|deadlineLocal|startTime|endTime|at|assessedAt|decidedAt|lastUpdated|lastAttempt|lastSuccess|createdAt|savedAt)$/
   function safeText(text, key = '') {
     if (replacements.has(text)) return replacements.get(text)
     if (!structural.test(key)) for (const id of ids) text = text.replace(new RegExp(`(?<![\\p{L}\\p{N}_-])${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_-])`, 'gu'), () => replacements.get(id))
@@ -57,7 +74,12 @@ function portableData(value) {
     if (typeof item === 'string') return safeText(item, key)
     if (Array.isArray(item)) return item.map(entry => copy(entry, key))
     if (!item || typeof item !== 'object') return item
-    const result = Object.fromEntries(Object.entries(item).filter(([key]) => !secretKey.test(normalKey(key))).map(([key, entry]) => [safeText(key, 'id'), copy(entry, key)]))
+    // Freeze known legacy IDs (including collision suffixes) in the exported
+    // copy before task/step aliases change their derivation. Missing historical
+    // work-log links remain missing; the original state is never normalized.
+    const source = item.nextStep && typeof item.id === 'string' &&
+      (replacements.has(item.id) || taskSteps(item).some(step => replacements.has(step.id))) ? migrateLegacyStep(item) : item
+    const result = Object.fromEntries(Object.entries(source).filter(([key]) => !secretKey.test(normalKey(key))).map(([key, entry]) => [safeText(key, 'id'), copy(entry, key)]))
     // Redaction can make a short credential longer. Rebound retained warnings,
     // including historical source snapshots, after all secrets are removed.
     if (item.kind === 'document' && Array.isArray(result.warnings)) result.warnings = boundedImportWarnings(result.warnings)

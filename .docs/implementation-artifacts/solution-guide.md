@@ -1,5 +1,7 @@
 # Slik virker Ajour
 
+**Oppgave eller steg:** Kalenderens planforslag reserverer tid til oppgaven. Neste-handling-knappen **Start** kan vise et bestemt startklart arbeidssteg; dette målet følger med til utfallsdialogen og arbeidsloggen med stabil identitet. Navneendring eller omrekkefølge endrer ikke tidligere arbeid. Gjenstående arbeid i utfallet gjelder hele oppgaven, uavhengig av faktisk tid. Eldre logger uten kjent stegkobling beholdes uten gjetting. [Datert avklaring og tekniske kontroller](work-step-identity-2026-11-02.md) forklarer forskjellen mellom den opprinnelige oppgaveprøven og den faktiske stegflyten.
+
 **[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.** Begynn med en oppgave, kontroller en studieøkt og registrer utfallet etter arbeidet. [Brukerveiledningen](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) viser de første stegene; [lokal drift og utvikling](../../studieplanlegger/README.md#lokal-drift-og-utvikling) er alternativer for sensor og utviklere.
 
 Planen i nettutgaven tilhører nettleserprofilen og den nøyaktige nettadressen. Sletting av nettleserdata kan slette planen; det finnes ingen konto eller enhetssynkronisering. Bruk **Innstillinger → Data og sikkerhetskopi** for å oppbevare en separat kopi eller flytte data. Lokal Node-/Docker-drift bruker SQLite; tabellen nedenfor skiller driftsformene.

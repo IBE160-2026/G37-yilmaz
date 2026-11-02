@@ -1,0 +1,1682 @@
+{
+  "format": "studieplan-local-backup",
+  "backupVersion": 1,
+  "createdAt": "2026-11-02T22:57:17.911Z",
+  "rekeyedIds": 0,
+  "data": {
+    "schemaVersion": 1,
+    "history": {
+      "version": 1,
+      "undo": [
+        {
+          "id": "06a94393-00c6-4d2e-b97c-c0f4b54d296c",
+          "label": "Oppgave: Les syntetisk eksempelkapittel",
+          "at": "2026-11-02T22:21:26.575Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": null,
+                "requiresSubmission": false,
+                "submitted": false
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": false
+        },
+        {
+          "id": "53e104e7-99e2-4bfc-baa7-a32884eb1275",
+          "label": "Emner og undervisning",
+          "at": "2026-11-02T22:21:27.814Z",
+          "changes": [
+            {
+              "path": "planner.courses",
+              "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+              "index": 0,
+              "before": null,
+              "after": {
+                "name": "Eksempelfag",
+                "code": "TEST101",
+                "university": "",
+                "semester": "autumn",
+                "year": 2026,
+                "credits": null,
+                "description": "",
+                "notes": "",
+                "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "existed": false
+            }
+          ],
+          "plannerExisted": false
+        },
+        {
+          "id": "c6872bb3-d32b-417f-87c0-a175fa753573",
+          "label": "Oppgave: Les syntetisk eksempelkapittel",
+          "at": "2026-11-02T22:21:28.637Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": null,
+                "requiresSubmission": false,
+                "submitted": false
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "a63c1ad1-164c-44c8-9486-c3e422090f5b",
+          "label": "Arbeidssteg oppdatert",
+          "at": "2026-11-02T22:21:29.095Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "d185f031-75a8-4bfb-807e-dc4a9452d0bc",
+          "label": "Arbeidstid / opptatt tid",
+          "at": "2026-11-02T22:21:29.540Z",
+          "changes": [
+            {
+              "path": "workWindows",
+              "id": "2d32c40b-94f4-4f62-9086-c7ac997bffe9",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "2d32c40b-94f4-4f62-9086-c7ac997bffe9",
+                "label": "",
+                "start": "2026-11-02T21:57:00Z",
+                "end": "2026-11-02T23:57:00Z"
+              },
+              "existed": false
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "6ef86219-a050-4f95-9e8a-0782c502b299",
+          "label": "Arbeidstid / opptatt tid",
+          "at": "2026-11-02T22:21:29.693Z",
+          "changes": [
+            {
+              "path": "workWindows",
+              "id": "fb597c79-f957-4de9-9275-8646d39eab23",
+              "index": 1,
+              "before": null,
+              "after": {
+                "id": "fb597c79-f957-4de9-9275-8646d39eab23",
+                "label": "",
+                "start": "2026-11-03T09:00:00Z",
+                "end": "2026-11-03T11:00:00Z"
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "d69cc728-117a-42cf-a711-24eba14c22de",
+          "label": "Arbeidstid / opptatt tid",
+          "at": "2026-11-02T22:21:29.828Z",
+          "changes": [
+            {
+              "path": "busyWindows",
+              "id": "d4fa4b75-55cc-48de-b64a-22ff8acbf6f8",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "d4fa4b75-55cc-48de-b64a-22ff8acbf6f8",
+                "label": "",
+                "start": "2026-11-02T21:57:00Z",
+                "end": "2026-11-02T22:27:00Z"
+              },
+              "existed": false
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "bcb002d8-e92f-4c0d-b348-040607c7a6ac",
+          "label": "Ny samlet studieplan",
+          "at": "2026-11-02T22:21:32.294Z",
+          "changes": [
+            {
+              "path": "sessions",
+              "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "dateLocal": "2026-11-02",
+                "startTime": "23:27",
+                "endDateLocal": "2026-11-02",
+                "endTime": "23:57",
+                "locked": false,
+                "planningRules": {
+                  "sessionMinutes": 30,
+                  "minimumMinutes": 15,
+                  "maximumMinutes": 60,
+                  "breakMinutes": 10
+                }
+              },
+              "existed": false
+            },
+            {
+              "path": "sessions",
+              "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+              "index": 1,
+              "before": null,
+              "after": {
+                "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "dateLocal": "2026-11-03",
+                "startTime": "00:07",
+                "endDateLocal": "2026-11-03",
+                "endTime": "00:37",
+                "locked": false,
+                "planningRules": {
+                  "sessionMinutes": 30,
+                  "minimumMinutes": 15,
+                  "maximumMinutes": 60,
+                  "breakMinutes": 10
+                }
+              },
+              "existed": false
+            },
+            {
+              "path": "planningPreferences",
+              "id": "planningPreferences",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "planningPreferences",
+                "value": {
+                  "sessionMinutes": 30,
+                  "minimumMinutes": 15,
+                  "maximumMinutes": 60,
+                  "breakMinutes": 10
+                }
+              },
+              "existed": false
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "88f1de1b-7ab8-4a0e-8fdd-6308b5d03385",
+          "label": "Emner og undervisning",
+          "at": "2026-11-02T22:21:33.759Z",
+          "changes": [
+            {
+              "path": "planner.courses",
+              "id": "70680671-169f-4332-a3a9-6d9a839f6ebb",
+              "index": 1,
+              "before": null,
+              "after": {
+                "name": "Annet eksempelfag",
+                "code": "TEST102",
+                "university": "",
+                "semester": "autumn",
+                "year": 2026,
+                "credits": null,
+                "description": "",
+                "notes": "",
+                "id": "70680671-169f-4332-a3a9-6d9a839f6ebb"
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "41411234-0846-4178-b79b-0994551abe63",
+          "label": "Oppgave: Les neste syntetiske eksempel",
+          "at": "2026-11-02T22:21:34.405Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+              "index": 1,
+              "before": null,
+              "after": {
+                "id": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+                "title": "Les neste syntetiske eksempel",
+                "course": "TEST102",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 30,
+                "requiresSubmission": false,
+                "submitted": false,
+                "courseId": "70680671-169f-4332-a3a9-6d9a839f6ebb"
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "e36e4a00-fc6d-47ff-833c-04609aa80d6a",
+          "label": "Studieøkt",
+          "at": "2026-11-02T22:21:35.810Z",
+          "changes": [
+            {
+              "path": "sessions",
+              "id": "9f495a2f-9974-4ded-b005-f7cc916c3ad7",
+              "index": 2,
+              "before": null,
+              "after": {
+                "id": "9f495a2f-9974-4ded-b005-f7cc916c3ad7",
+                "dateLocal": "2026-11-03",
+                "startTime": "11:00",
+                "endTime": "11:30",
+                "taskId": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+                "locked": false
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "5d714fb7-3692-4f63-985b-444609fb1d13",
+          "label": "Oppgave: Syntetisk kontroll av konkret steg",
+          "at": "2026-11-02T22:21:36.416Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+              "index": 2,
+              "before": null,
+              "after": {
+                "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+                "title": "Syntetisk kontroll av konkret steg",
+                "course": "TEST101",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": false,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "cd84876d-7eef-4a4d-8626-553731b2f606",
+          "label": "Arbeidssteg oppdatert",
+          "at": "2026-11-02T22:21:37.324Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+              "index": 2,
+              "before": {
+                "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+                "title": "Syntetisk kontroll av konkret steg",
+                "course": "TEST101",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": false,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "after": {
+                "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+                "title": "Syntetisk kontroll av konkret steg",
+                "course": "TEST101",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": false,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+                    "title": "Les første syntetiske avsnitt",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  },
+                  {
+                    "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+                    "title": "Oppsummer andre syntetiske avsnitt",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  }
+                ]
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "c2f4b77d-fcee-4230-b1ad-80e6c360cdf3",
+          "label": "Arbeid registrert",
+          "at": "2026-11-02T22:21:42.634Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+              "index": 2,
+              "before": {
+                "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+                "title": "Syntetisk kontroll av konkret steg",
+                "course": "TEST101",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": false,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+                    "title": "Les første syntetiske avsnitt",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  },
+                  {
+                    "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+                    "title": "Oppsummer andre syntetiske avsnitt",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  }
+                ]
+              },
+              "after": {
+                "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+                "title": "Syntetisk kontroll av konkret steg",
+                "course": "TEST101",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 75,
+                "requiresSubmission": false,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+                    "title": "Les første syntetiske avsnitt",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  },
+                  {
+                    "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+                    "title": "Oppsummer andre syntetiske avsnitt",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  }
+                ]
+              },
+              "existed": true
+            },
+            {
+              "path": "workLogs",
+              "id": "work-3b834270-9228-48b6-95d5-ce8c9a86af71",
+              "index": 0,
+              "before": null,
+              "after": {
+                "id": "work-3b834270-9228-48b6-95d5-ce8c9a86af71",
+                "operationId": "3b834270-9228-48b6-95d5-ce8c9a86af71",
+                "taskId": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+                "at": "2026-11-02T22:21:42.634Z",
+                "outcome": "more",
+                "actualMinutes": 0,
+                "plannedMinutes": 30,
+                "remainingMinutes": 75,
+                "interrupted": false,
+                "historyComplete": false,
+                "taskCompleted": false,
+                "taskSnapshot": {
+                  "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+                  "title": "Syntetisk kontroll av konkret steg",
+                  "course": "TEST101",
+                  "deadlineLocal": "",
+                  "estimatedMinutes": null,
+                  "completed": false,
+                  "remainingMinutes": 60,
+                  "requiresSubmission": false,
+                  "submitted": false,
+                  "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                  "steps": [
+                    {
+                      "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+                      "title": "Les første syntetiske avsnitt",
+                      "completed": false,
+                      "provenance": {
+                        "kind": "manual"
+                      },
+                      "estimatedMinutes": 30
+                    },
+                    {
+                      "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+                      "title": "Oppsummer andre syntetiske avsnitt",
+                      "completed": false,
+                      "provenance": {
+                        "kind": "manual"
+                      },
+                      "estimatedMinutes": 30
+                    }
+                  ]
+                },
+                "stepId": "66105d66-9698-4277-a733-665ddd5dfd61"
+              },
+              "existed": false
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "9ea4c589-a6d1-4b18-97f4-f158204e5714",
+          "label": "Emner og undervisning",
+          "at": "2026-11-02T22:21:46.935Z",
+          "changes": [
+            {
+              "path": "planner.courses",
+              "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+              "index": 0,
+              "before": {
+                "name": "Eksempelfag",
+                "code": "TEST101",
+                "university": "",
+                "semester": "autumn",
+                "year": 2026,
+                "credits": null,
+                "description": "",
+                "notes": "",
+                "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "after": {
+                "name": "Abc syntetisk sorteringskontroll",
+                "code": "TEST101",
+                "university": "",
+                "semester": "autumn",
+                "year": 2026,
+                "credits": null,
+                "description": "",
+                "notes": "",
+                "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "71b4e1fd-ca6c-4382-99b5-ff0503ef2d42",
+          "label": "Emner og undervisning",
+          "at": "2026-11-02T22:21:47.800Z",
+          "changes": [
+            {
+              "path": "planner.courses",
+              "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+              "index": 0,
+              "before": {
+                "name": "Abc syntetisk sorteringskontroll",
+                "code": "TEST101",
+                "university": "",
+                "semester": "autumn",
+                "year": 2026,
+                "credits": null,
+                "description": "",
+                "notes": "",
+                "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "after": {
+                "name": "Endret eksempelfag",
+                "code": "TEST101",
+                "university": "",
+                "semester": "autumn",
+                "year": 2026,
+                "credits": null,
+                "description": "",
+                "notes": "",
+                "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "3f6e9ce0-0f0d-4ed4-abd1-a3763fb55894",
+          "label": "Arbeidssteg oppdatert",
+          "at": "2026-11-02T22:57:08.306Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+              "index": 2,
+              "before": {
+                "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+                "title": "Syntetisk kontroll av konkret steg",
+                "course": "TEST101",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 75,
+                "requiresSubmission": false,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+                    "title": "Les første syntetiske avsnitt",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  },
+                  {
+                    "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+                    "title": "Oppsummer andre syntetiske avsnitt",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  }
+                ]
+              },
+              "after": {
+                "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+                "title": "Syntetisk kontroll av konkret steg",
+                "course": "TEST101",
+                "deadlineLocal": "",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 75,
+                "requiresSubmission": false,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+                    "title": "Oppsummer andre syntetiske avsnitt",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  },
+                  {
+                    "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+                    "title": "Les første syntetiske avsnitt ? nytt navn",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 30
+                  }
+                ]
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "3c12914f-95fd-4185-8020-aebf92366b19",
+          "label": "Arbeid registrert",
+          "at": "2026-11-02T22:57:09.892Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 75,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "existed": true
+            },
+            {
+              "path": "sessions",
+              "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+              "index": 0,
+              "before": {
+                "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "dateLocal": "2026-11-02",
+                "startTime": "23:27",
+                "endDateLocal": "2026-11-02",
+                "endTime": "23:57",
+                "locked": false,
+                "planningRules": {
+                  "sessionMinutes": 30,
+                  "minimumMinutes": 15,
+                  "maximumMinutes": 60,
+                  "breakMinutes": 10
+                }
+              },
+              "after": null,
+              "existed": true
+            },
+            {
+              "path": "workLogs",
+              "id": "work-close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+              "index": 1,
+              "before": null,
+              "after": {
+                "id": "work-close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+                "operationId": "close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "at": "2026-11-02T22:57:09.891Z",
+                "outcome": "more",
+                "actualMinutes": 30,
+                "plannedMinutes": 30,
+                "remainingMinutes": 75,
+                "interrupted": false,
+                "historyComplete": false,
+                "taskCompleted": false,
+                "taskSnapshot": {
+                  "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                  "title": "Les syntetisk eksempelkapittel",
+                  "course": "TEST101",
+                  "deadlineLocal": "2026-11-04T16:00",
+                  "estimatedMinutes": null,
+                  "completed": false,
+                  "remainingMinutes": 60,
+                  "requiresSubmission": true,
+                  "submitted": false,
+                  "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                  "steps": [
+                    {
+                      "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                      "title": "Les første del",
+                      "completed": false,
+                      "provenance": {
+                        "kind": "manual"
+                      },
+                      "estimatedMinutes": 60
+                    }
+                  ]
+                },
+                "sessionId": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+                "sessionSnapshot": {
+                  "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+                  "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                  "dateLocal": "2026-11-02",
+                  "startTime": "23:27",
+                  "endDateLocal": "2026-11-02",
+                  "endTime": "23:57",
+                  "locked": false,
+                  "planningRules": {
+                    "sessionMinutes": 30,
+                    "minimumMinutes": 15,
+                    "maximumMinutes": 60,
+                    "breakMinutes": 10
+                  }
+                }
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "5132fb89-3fe4-4f32-9907-1c1eea2003a0",
+          "label": "Arbeidssteg oppdatert",
+          "at": "2026-11-02T22:57:15.244Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 75,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 75,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": true,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "befbf3cf-74ae-4ecf-8c68-b069d540283e",
+          "label": "Arbeid fullført og reservasjoner frigjort",
+          "at": "2026-11-02T22:57:16.232Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 75,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": true,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": true,
+                "remainingMinutes": 0,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": true,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "existed": true
+            },
+            {
+              "path": "sessions",
+              "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+              "index": 0,
+              "before": {
+                "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "dateLocal": "2026-11-03",
+                "startTime": "00:07",
+                "endDateLocal": "2026-11-03",
+                "endTime": "00:37",
+                "locked": false,
+                "planningRules": {
+                  "sessionMinutes": 30,
+                  "minimumMinutes": 15,
+                  "maximumMinutes": 60,
+                  "breakMinutes": 10
+                }
+              },
+              "after": null,
+              "existed": true
+            },
+            {
+              "path": "workLogs",
+              "id": "work-6c37d3a4-a9cf-482d-bef2-767488add8be",
+              "index": 2,
+              "before": null,
+              "after": {
+                "id": "work-6c37d3a4-a9cf-482d-bef2-767488add8be",
+                "operationId": "6c37d3a4-a9cf-482d-bef2-767488add8be",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "at": "2026-11-02T22:57:16.231Z",
+                "outcome": "done",
+                "actualMinutes": null,
+                "plannedMinutes": null,
+                "remainingMinutes": 0,
+                "interrupted": false,
+                "historyComplete": false,
+                "taskCompleted": true,
+                "taskSnapshot": {
+                  "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                  "title": "Les syntetisk eksempelkapittel",
+                  "course": "TEST101",
+                  "deadlineLocal": "2026-11-04T16:00",
+                  "estimatedMinutes": null,
+                  "completed": false,
+                  "remainingMinutes": 75,
+                  "requiresSubmission": true,
+                  "submitted": false,
+                  "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                  "steps": [
+                    {
+                      "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                      "title": "Les første del",
+                      "completed": true,
+                      "provenance": {
+                        "kind": "manual"
+                      },
+                      "estimatedMinutes": 60
+                    }
+                  ]
+                }
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "78ee57b8-1b0a-4c9f-ac5b-0e1bc842f038",
+          "label": "Oppgave: Les syntetisk eksempelkapittel",
+          "at": "2026-11-02T22:57:17.194Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": true,
+                "remainingMinutes": 0,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": true,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": true,
+                "remainingMinutes": 0,
+                "requiresSubmission": true,
+                "submitted": true,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": true,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        }
+      ],
+      "trash": [
+        {
+          "id": "3c12914f-95fd-4185-8020-aebf92366b19",
+          "label": "Arbeid registrert",
+          "at": "2026-11-02T22:57:09.892Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 60,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 75,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": false,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "existed": true
+            },
+            {
+              "path": "sessions",
+              "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+              "index": 0,
+              "before": {
+                "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "dateLocal": "2026-11-02",
+                "startTime": "23:27",
+                "endDateLocal": "2026-11-02",
+                "endTime": "23:57",
+                "locked": false,
+                "planningRules": {
+                  "sessionMinutes": 30,
+                  "minimumMinutes": 15,
+                  "maximumMinutes": 60,
+                  "breakMinutes": 10
+                }
+              },
+              "after": null,
+              "existed": true
+            },
+            {
+              "path": "workLogs",
+              "id": "work-close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+              "index": 1,
+              "before": null,
+              "after": {
+                "id": "work-close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+                "operationId": "close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "at": "2026-11-02T22:57:09.891Z",
+                "outcome": "more",
+                "actualMinutes": 30,
+                "plannedMinutes": 30,
+                "remainingMinutes": 75,
+                "interrupted": false,
+                "historyComplete": false,
+                "taskCompleted": false,
+                "taskSnapshot": {
+                  "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                  "title": "Les syntetisk eksempelkapittel",
+                  "course": "TEST101",
+                  "deadlineLocal": "2026-11-04T16:00",
+                  "estimatedMinutes": null,
+                  "completed": false,
+                  "remainingMinutes": 60,
+                  "requiresSubmission": true,
+                  "submitted": false,
+                  "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                  "steps": [
+                    {
+                      "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                      "title": "Les første del",
+                      "completed": false,
+                      "provenance": {
+                        "kind": "manual"
+                      },
+                      "estimatedMinutes": 60
+                    }
+                  ]
+                },
+                "sessionId": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+                "sessionSnapshot": {
+                  "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+                  "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                  "dateLocal": "2026-11-02",
+                  "startTime": "23:27",
+                  "endDateLocal": "2026-11-02",
+                  "endTime": "23:57",
+                  "locked": false,
+                  "planningRules": {
+                    "sessionMinutes": 30,
+                    "minimumMinutes": 15,
+                    "maximumMinutes": 60,
+                    "breakMinutes": 10
+                  }
+                }
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        },
+        {
+          "id": "befbf3cf-74ae-4ecf-8c68-b069d540283e",
+          "label": "Arbeid fullført og reservasjoner frigjort",
+          "at": "2026-11-02T22:57:16.232Z",
+          "changes": [
+            {
+              "path": "tasks",
+              "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+              "index": 0,
+              "before": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": false,
+                "remainingMinutes": 75,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": true,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "after": {
+                "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "title": "Les syntetisk eksempelkapittel",
+                "course": "TEST101",
+                "deadlineLocal": "2026-11-04T16:00",
+                "estimatedMinutes": null,
+                "completed": true,
+                "remainingMinutes": 0,
+                "requiresSubmission": true,
+                "submitted": false,
+                "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                "steps": [
+                  {
+                    "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                    "title": "Les første del",
+                    "completed": true,
+                    "provenance": {
+                      "kind": "manual"
+                    },
+                    "estimatedMinutes": 60
+                  }
+                ]
+              },
+              "existed": true
+            },
+            {
+              "path": "sessions",
+              "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+              "index": 0,
+              "before": {
+                "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "dateLocal": "2026-11-03",
+                "startTime": "00:07",
+                "endDateLocal": "2026-11-03",
+                "endTime": "00:37",
+                "locked": false,
+                "planningRules": {
+                  "sessionMinutes": 30,
+                  "minimumMinutes": 15,
+                  "maximumMinutes": 60,
+                  "breakMinutes": 10
+                }
+              },
+              "after": null,
+              "existed": true
+            },
+            {
+              "path": "workLogs",
+              "id": "work-6c37d3a4-a9cf-482d-bef2-767488add8be",
+              "index": 2,
+              "before": null,
+              "after": {
+                "id": "work-6c37d3a4-a9cf-482d-bef2-767488add8be",
+                "operationId": "6c37d3a4-a9cf-482d-bef2-767488add8be",
+                "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                "at": "2026-11-02T22:57:16.231Z",
+                "outcome": "done",
+                "actualMinutes": null,
+                "plannedMinutes": null,
+                "remainingMinutes": 0,
+                "interrupted": false,
+                "historyComplete": false,
+                "taskCompleted": true,
+                "taskSnapshot": {
+                  "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+                  "title": "Les syntetisk eksempelkapittel",
+                  "course": "TEST101",
+                  "deadlineLocal": "2026-11-04T16:00",
+                  "estimatedMinutes": null,
+                  "completed": false,
+                  "remainingMinutes": 75,
+                  "requiresSubmission": true,
+                  "submitted": false,
+                  "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+                  "steps": [
+                    {
+                      "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+                      "title": "Les første del",
+                      "completed": true,
+                      "provenance": {
+                        "kind": "manual"
+                      },
+                      "estimatedMinutes": 60
+                    }
+                  ]
+                }
+              },
+              "existed": true
+            }
+          ],
+          "plannerExisted": true
+        }
+      ]
+    },
+    "workWindows": [
+      {
+        "id": "2d32c40b-94f4-4f62-9086-c7ac997bffe9",
+        "label": "",
+        "start": "2026-11-02T21:57:00Z",
+        "end": "2026-11-02T23:57:00Z"
+      },
+      {
+        "id": "fb597c79-f957-4de9-9275-8646d39eab23",
+        "label": "",
+        "start": "2026-11-03T09:00:00Z",
+        "end": "2026-11-03T11:00:00Z"
+      }
+    ],
+    "busyWindows": [
+      {
+        "id": "d4fa4b75-55cc-48de-b64a-22ff8acbf6f8",
+        "label": "",
+        "start": "2026-11-02T21:57:00Z",
+        "end": "2026-11-02T22:27:00Z"
+      }
+    ],
+    "planningPreferences": {
+      "sessionMinutes": 30,
+      "minimumMinutes": 15,
+      "maximumMinutes": 60,
+      "breakMinutes": 10
+    },
+    "workLogs": [
+      {
+        "id": "work-3b834270-9228-48b6-95d5-ce8c9a86af71",
+        "operationId": "3b834270-9228-48b6-95d5-ce8c9a86af71",
+        "taskId": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+        "at": "2026-11-02T22:21:42.634Z",
+        "outcome": "more",
+        "actualMinutes": 0,
+        "plannedMinutes": 30,
+        "remainingMinutes": 75,
+        "interrupted": false,
+        "historyComplete": false,
+        "taskCompleted": false,
+        "taskSnapshot": {
+          "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+          "title": "Syntetisk kontroll av konkret steg",
+          "course": "TEST101",
+          "deadlineLocal": "",
+          "estimatedMinutes": null,
+          "completed": false,
+          "remainingMinutes": 60,
+          "requiresSubmission": false,
+          "submitted": false,
+          "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+          "steps": [
+            {
+              "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+              "title": "Les første syntetiske avsnitt",
+              "completed": false,
+              "provenance": {
+                "kind": "manual"
+              },
+              "estimatedMinutes": 30
+            },
+            {
+              "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+              "title": "Oppsummer andre syntetiske avsnitt",
+              "completed": false,
+              "provenance": {
+                "kind": "manual"
+              },
+              "estimatedMinutes": 30
+            }
+          ]
+        },
+        "stepId": "66105d66-9698-4277-a733-665ddd5dfd61"
+      },
+      {
+        "id": "work-close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+        "operationId": "close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+        "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "at": "2026-11-02T22:57:09.891Z",
+        "outcome": "more",
+        "actualMinutes": 30,
+        "plannedMinutes": 30,
+        "remainingMinutes": 75,
+        "interrupted": false,
+        "historyComplete": false,
+        "taskCompleted": false,
+        "taskSnapshot": {
+          "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+          "title": "Les syntetisk eksempelkapittel",
+          "course": "TEST101",
+          "deadlineLocal": "2026-11-04T16:00",
+          "estimatedMinutes": null,
+          "completed": false,
+          "remainingMinutes": 60,
+          "requiresSubmission": true,
+          "submitted": false,
+          "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+          "steps": [
+            {
+              "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+              "title": "Les første del",
+              "completed": false,
+              "provenance": {
+                "kind": "manual"
+              },
+              "estimatedMinutes": 60
+            }
+          ]
+        },
+        "sessionId": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+        "sessionSnapshot": {
+          "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+          "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+          "dateLocal": "2026-11-02",
+          "startTime": "23:27",
+          "endDateLocal": "2026-11-02",
+          "endTime": "23:57",
+          "locked": false,
+          "planningRules": {
+            "sessionMinutes": 30,
+            "minimumMinutes": 15,
+            "maximumMinutes": 60,
+            "breakMinutes": 10
+          }
+        }
+      },
+      {
+        "id": "work-6c37d3a4-a9cf-482d-bef2-767488add8be",
+        "operationId": "6c37d3a4-a9cf-482d-bef2-767488add8be",
+        "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "at": "2026-11-02T22:57:16.231Z",
+        "outcome": "done",
+        "actualMinutes": null,
+        "plannedMinutes": null,
+        "remainingMinutes": 0,
+        "interrupted": false,
+        "historyComplete": false,
+        "taskCompleted": true,
+        "taskSnapshot": {
+          "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+          "title": "Les syntetisk eksempelkapittel",
+          "course": "TEST101",
+          "deadlineLocal": "2026-11-04T16:00",
+          "estimatedMinutes": null,
+          "completed": false,
+          "remainingMinutes": 75,
+          "requiresSubmission": true,
+          "submitted": false,
+          "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+          "steps": [
+            {
+              "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+              "title": "Les første del",
+              "completed": true,
+              "provenance": {
+                "kind": "manual"
+              },
+              "estimatedMinutes": 60
+            }
+          ]
+        }
+      }
+    ],
+    "calendarPreferences": {
+      "version": 2,
+      "view": "week",
+      "weekMode": "full",
+      "date": "2026-11-02",
+      "courseId": "",
+      "kinds": [
+        "teaching",
+        "personal",
+        "deadline",
+        "session",
+        "work",
+        "busy",
+        "information"
+      ],
+      "scroll": {
+        "week:2026-11-02": {
+          "top": 440,
+          "left": 0
+        },
+        "month:2026-11-03": {
+          "top": 0,
+          "left": 0
+        },
+        "week:2026-11-03": {
+          "top": 440,
+          "left": 0
+        }
+      },
+      "completed": false,
+      "cancelled": false
+    },
+    "tasks": [
+      {
+        "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+        "title": "Les syntetisk eksempelkapittel",
+        "course": "TEST101",
+        "deadlineLocal": "2026-11-04T16:00",
+        "estimatedMinutes": null,
+        "completed": true,
+        "remainingMinutes": 0,
+        "requiresSubmission": true,
+        "submitted": true,
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+        "steps": [
+          {
+            "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+            "title": "Les første del",
+            "completed": true,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 60
+          }
+        ]
+      },
+      {
+        "id": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+        "title": "Les neste syntetiske eksempel",
+        "course": "TEST102",
+        "deadlineLocal": "",
+        "estimatedMinutes": null,
+        "completed": false,
+        "remainingMinutes": 30,
+        "requiresSubmission": false,
+        "submitted": false,
+        "courseId": "70680671-169f-4332-a3a9-6d9a839f6ebb"
+      },
+      {
+        "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+        "title": "Syntetisk kontroll av konkret steg",
+        "course": "TEST101",
+        "deadlineLocal": "",
+        "estimatedMinutes": null,
+        "completed": false,
+        "remainingMinutes": 75,
+        "requiresSubmission": false,
+        "submitted": false,
+        "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+        "steps": [
+          {
+            "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+            "title": "Oppsummer andre syntetiske avsnitt",
+            "completed": false,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 30
+          },
+          {
+            "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+            "title": "Les første syntetiske avsnitt ? nytt navn",
+            "completed": false,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 30
+          }
+        ]
+      }
+    ],
+    "sessions": [
+      {
+        "id": "9f495a2f-9974-4ded-b005-f7cc916c3ad7",
+        "dateLocal": "2026-11-03",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "taskId": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+        "locked": false
+      }
+    ],
+    "planner": {
+      "courses": [
+        {
+          "name": "Endret eksempelfag",
+          "code": "TEST101",
+          "university": "",
+          "semester": "autumn",
+          "year": 2026,
+          "credits": null,
+          "description": "",
+          "notes": "",
+          "id": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c"
+        },
+        {
+          "name": "Annet eksempelfag",
+          "code": "TEST102",
+          "university": "",
+          "semester": "autumn",
+          "year": 2026,
+          "credits": null,
+          "description": "",
+          "notes": "",
+          "id": "70680671-169f-4332-a3a9-6d9a839f6ebb"
+        }
+      ],
+      "events": [],
+      "sources": []
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "previewUnchanged": true,
+  "planChanged": true,
+  "workPreserved": true,
+  "beforeSessions": [
+    {
+      "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "dateLocal": "2026-11-03",
+      "startTime": "00:07",
+      "endDateLocal": "2026-11-03",
+      "endTime": "00:37",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    },
+    {
+      "id": "9f495a2f-9974-4ded-b005-f7cc916c3ad7",
+      "dateLocal": "2026-11-03",
+      "startTime": "11:00",
+      "endTime": "11:30",
+      "taskId": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+      "locked": false
+    }
+  ],
+  "appliedSessions": [
+    {
+      "id": "9f495a2f-9974-4ded-b005-f7cc916c3ad7",
+      "dateLocal": "2026-11-03",
+      "startTime": "11:00",
+      "endTime": "11:30",
+      "taskId": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+      "locked": false
+    },
+    {
+      "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "dateLocal": "2026-11-02",
+      "startTime": "23:58",
+      "endDateLocal": "2026-11-03",
+      "endTime": "00:28",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    },
+    {
+      "id": "d37a2e2e-8e52-4be2-a3ab-65dd9eb32b18",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "dateLocal": "2026-11-03",
+      "startTime": "00:38",
+      "endDateLocal": "2026-11-03",
+      "endTime": "00:57",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    },
+    {
+      "id": "3b4a9053-9b74-4208-b645-8c6f6f1b691e",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "dateLocal": "2026-11-03",
+      "startTime": "10:00",
+      "endDateLocal": "2026-11-03",
+      "endTime": "10:26",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    }
+  ],
+  "restoredSessions": [
+    {
+      "id": "81fe3b78-ff2c-4121-a247-4f8789fd17ba",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "dateLocal": "2026-11-03",
+      "startTime": "00:07",
+      "endDateLocal": "2026-11-03",
+      "endTime": "00:37",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    },
+    {
+      "id": "9f495a2f-9974-4ded-b005-f7cc916c3ad7",
+      "dateLocal": "2026-11-03",
+      "startTime": "11:00",
+      "endTime": "11:30",
+      "taskId": "e9624f79-3bf2-4a5e-b2c7-2aaa2191359e",
+      "locked": false
+    }
+  ],
+  "primaryPlannedMinutes": 75,
+  "noConflicts": true
+}

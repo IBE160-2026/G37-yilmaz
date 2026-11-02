@@ -1,5 +1,7 @@
 # Ajour: planlegging og leveranseevidens
 
+**Teknisk oppfølging 2026-11-02:** [Oppgave- og stegidentitet](../implementation-artifacts/work-step-identity-2026-11-02.md) avklarer den første Codex-rapportens testantakelse og dokumenterer den separate navngitte Start-flyten, retting og tekniske kontroller. Oppgavearbeid er fortsatt gyldig uten stegkobling. Codex-prøvene erstatter ikke prosjekteierens R-07; eldre daterte resultater beholdes.
+
 **Leveringsoversikt oppdatert 2026-11-01.** [Brief](../../brief.md) og [PRD](PRD.md) beskriver produktmål, brukerbehov, krav og avgrensninger. V1 og krav-/story-ID-er er uendret. Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**.
 
 **[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.** [Brukerveiledningen](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) forklarer de første stegene og sikkerhetskopi. Nettutgaven lagrer planen i nettleserprofilen på den nøyaktige adressen, uten konto eller synkronisering. [Lokal Node-/Docker-drift med SQLite og Vite-utvikling med nettleserlagring](../../studieplanlegger/README.md#lokal-drift-og-utvikling) er egne alternativer for sensor og utviklere.

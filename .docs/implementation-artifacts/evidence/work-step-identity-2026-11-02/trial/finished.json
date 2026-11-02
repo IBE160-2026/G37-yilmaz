@@ -1,0 +1,19 @@
+{
+  "label": "Codex-utført teknisk nettlesertest",
+  "url": "http://127.0.0.1:58856",
+  "release": {
+    "commit": null
+  },
+  "finishedOslo": "2026-11-02 23:57:25",
+  "scenarios": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "extraStepRegression": true,
+  "method": "UI, two empty contexts; real clock; UI backup/restore; no direct storage writes"
+}

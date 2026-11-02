@@ -1,0 +1,74 @@
+﻿{
+    "label":  "Codex-utført teknisk kontroll etter publisering",
+    "url":  "https://ajour-9rkrudo17-ajour1.vercel.app",
+    "expectedCommit":  "a929c412341a38e786a68b0740f7b80c402a8614",
+    "startedOslo":  "2026-11-02 23:28:55",
+    "realClock":  true,
+    "syntheticDataOnly":  true,
+    "method":  "To tomme browser.newContext(); alle appendringer via UI; UI-eksport og UI-gjenoppretting; 0 faktisk arbeidstid, ingen utført studieinnsats påstått.",
+    "checks":  {
+                   "twoEmptyContexts":  true,
+                   "explicitStep":  {
+                                        "passed":  true,
+                                        "taskId":  "6b33ae31-9fda-4730-b2ee-88a91a6c37ad",
+                                        "stepId":  "15f91b65-6eda-4605-830d-a8af602548cc",
+                                        "snapshotStepId":  "15f91b65-6eda-4605-830d-a8af602548cc",
+                                        "actualMinutes":  0,
+                                        "remainingMinutes":  75,
+                                        "taskCompleted":  false,
+                                        "submitted":  false,
+                                        "observedDurationSeconds":  1,
+                                        "savedAtOslo":  "2026-11-02 23:29:02"
+                                    },
+                   "futureTaskPlan":  {
+                                          "passed":  true,
+                                          "taskId":  "6b33ae31-9fda-4730-b2ee-88a91a6c37ad",
+                                          "noStepAttribution":  true,
+                                          "sessions":  [
+                                                           {
+                                                               "id":  "9fe5896e-cbed-40c4-9535-1685163aed76",
+                                                               "taskId":  "6b33ae31-9fda-4730-b2ee-88a91a6c37ad",
+                                                               "dateLocal":  "2026-11-03",
+                                                               "startTime":  "10:00",
+                                                               "endTime":  "10:30"
+                                                           },
+                                                           {
+                                                               "id":  "35863829-ff53-4049-b292-11d757222f4f",
+                                                               "taskId":  "6b33ae31-9fda-4730-b2ee-88a91a6c37ad",
+                                                               "dateLocal":  "2026-11-03",
+                                                               "startTime":  "10:40",
+                                                               "endTime":  "11:10"
+                                                           },
+                                                           {
+                                                               "id":  "fd40749c-5d04-4680-bf3b-31a89e7e98ab",
+                                                               "taskId":  "6b33ae31-9fda-4730-b2ee-88a91a6c37ad",
+                                                               "dateLocal":  "2026-11-03",
+                                                               "startTime":  "11:20",
+                                                               "endTime":  "11:35"
+                                                           }
+                                                       ]
+                                      },
+                   "restore":  {
+                                   "passed":  true,
+                                   "sourceReloadEqual":  true,
+                                   "targetReloadEqual":  true,
+                                   "knownLinksEqual":  true,
+                                   "counts":  {
+                                                  "tasks":  1,
+                                                  "steps":  2,
+                                                  "workLogs":  1,
+                                                  "futureSessions":  3
+                                              }
+                               },
+                   "release":  {
+                                   "passed":  true,
+                                   "exactCommitChecked":  true,
+                                   "commitBefore":  "a929c412341a38e786a68b0740f7b80c402a8614",
+                                   "commitAfter":  "a929c412341a38e786a68b0740f7b80c402a8614"
+                               }
+               },
+    "browser":  "153.0.8010.12",
+    "passed":  true,
+    "finishedOslo":  "2026-11-02 23:29:05",
+    "target":  "Vercel preview; not production"
+}

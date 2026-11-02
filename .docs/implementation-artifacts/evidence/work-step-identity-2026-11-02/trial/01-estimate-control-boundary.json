@@ -1,0 +1,8 @@
+{
+  "checkedAtOslo": "2026-11-02 23:57:07",
+  "originalEstimateVisible": false,
+  "originalEstimateValue": "",
+  "remainingVisible": true,
+  "remainingValue": "60",
+  "explanation": "Original estimate is an explicitly hidden legacy field; only total remaining is editable through this UI. Main step has an independently visible60-minute estimate. No hidden control was changed."
+}
