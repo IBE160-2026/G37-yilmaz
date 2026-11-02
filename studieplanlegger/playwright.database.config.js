@@ -5,7 +5,9 @@ if (!port || !process.env.STUDIEPLAN_DB) throw new Error('Production database ru
 
 export default defineConfig({
   testDir: './tests/e2e',
-  testMatch: 'database-delivery.spec.js',
+  testMatch: ['database-delivery.spec.js', 'own-trial-deadline-help.spec.js'],
+  // Keep SQLite evidence separate from the built-browser runner's artifacts.
+  outputDir: './test-results/database',
   fullyParallel: false,
   workers: 1,
   timeout: 60_000,

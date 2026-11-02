@@ -99,7 +99,7 @@ test('edit, remove and complete a next step leave parent estimate, completion an
   const completedStep = { ...withoutStep, steps: [{ id: `${parent.id}:legacy-next-step`, title: 'Finn to kilder', estimatedMinutes: 10, completed: true, unblocksWaiting: false, provenance: { kind: 'manual' } }] }
   expect((await saved(page)).tasks[0]).toEqual(completedStep)
   await expect(work(page, parent.title)).not.toBeChecked()
-  await expect(row(page, parent.title)).toContainText('Hele oppgaven: 240 min')
+  await expect(row(page, parent.title)).toContainText('Opprinnelig anslag: 240 min')
   await openMenu(page, parent.title)
   await step(page, parent.title).click()
   await fillStep(page, 'Skriv innledningen', '25')
@@ -136,7 +136,7 @@ test('one explained main suggestion uses remaining work, deadline order and opti
   await page.keyboard.press('Enter')
   await expect(visibleRows(page)).toHaveCount(3)
   await expect(page.locator('#toggle-alternatives')).toHaveAttribute('aria-expanded', 'true')
-  await expect(row(page, fallback.title)).toContainText('Hele oppgaven: 30 min')
+  await expect(row(page, fallback.title)).toContainText('Opprinnelig anslag: 30 min')
   await tabTo(page, row(page, future.title).locator('.task-menu > summary'), 'Shift+Tab')
   await expect(row(page, future.title).locator('.task-menu > summary')).toBeFocused()
   await page.keyboard.press('Enter')
@@ -154,12 +154,13 @@ test('one explained main suggestion uses remaining work, deadline order and opti
 })
 
 test('empty time results keep all deadlines and next-step editing reachable without treating a short step as remaining work', async ({ page }, testInfo) => {
+  // Indivisible tasks require enough time unless the user registers a separately bounded work step.
   const large = { ...task('large', '2026-09-03T10:00', 240), splittable: false }
   const later = { ...task('later', '2026-09-03T16:00', 120), splittable: false }
   await seed(page, [later, large])
   await filter(page, '20', { alternatives: false })
   await expect(visibleRows(page)).toHaveCount(0)
-  await expect(page.locator('#empty-tasks')).toContainText('Ingen registrerte arbeidssteg passer sikkert')
+  await expect(page.locator('#empty-tasks')).toContainText('Arbeidet kan ikke deles og trenger 240 minutter sammenhengende')
   await expect(page.locator('#empty-minutes')).toBeVisible()
   await page.locator('#empty-all').focus()
   await page.keyboard.press('Enter')

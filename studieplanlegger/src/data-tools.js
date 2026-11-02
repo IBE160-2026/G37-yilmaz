@@ -2,6 +2,7 @@ import { previewBackup, previewLocalRecovery, downloadBackup, exportBackup } fro
 import { formatDay, formatDeadline } from './calendar.js'
 import { osloLocal } from './planner.js'
 import { createAppearanceSettings } from './appearance.js'
+import { storageErrorMessage } from './storage-errors.js'
 const node = (tag, text) => { const el = document.createElement(tag); if (text) el.textContent = text; return el }
 const button = (text, action) => { const el = node('button', text); el.type = 'button'; el.className = 'secondary'; el.onclick = action; return el }
 export function displayTimestamp(value) {
@@ -14,10 +15,17 @@ export function displayTimestamp(value) {
 }
 export function createDataTools(actions) {
   const serverStorage = globalThis.__STUDIEPLAN_API__ === true
+  const storageDescription = serverStorage
+    ? 'Planen lagres i SQLite-databasen til den lokale serveren. Dataene beholdes når nettleseren lukkes. Ta sikkerhetskopi før databasen eller Docker-volumet fjernes.'
+    : 'Planen lagres bare i denne nettleserprofilen på denne nettadressen. Sletting av nettleserdata kan slette planen. Enheter synkroniseres ikke. Bruk sikkerhetskopi for å flytte planen.'
   const location = document.querySelector('#storage-location'), summary = document.querySelector('#storage-summary')
+  const helpHeading = document.querySelector('#storage-help-heading'), helpDescription = document.querySelector('#storage-help-description'), localServerHelp = document.querySelector('#storage-help-local-server')
+  if (helpHeading) helpHeading.textContent = serverStorage ? 'Lokal drift med SQLite' : 'Lagring i nettleseren'
+  if (helpDescription) helpDescription.textContent = storageDescription
+  if (localServerHelp) localServerHelp.hidden = !serverStorage
   if (serverStorage) {
-    if (location) location.textContent = 'Lagret på denne enheten'
-    if (summary) summary.textContent = 'Skalering, kalender og oppgaveforslag bygger på lokal data.'
+    if (location) location.textContent = 'Lagret i lokal SQLite-database'
+    if (summary) summary.textContent = 'Den lokale serveren må kjøre. Ta sikkerhetskopi i Innstillinger.'
   }
   const host = node('section'); host.id = 'settings-panel'; host.className = 'data-tools settings-panel panel'; host.setAttribute('aria-label', 'Innstillinger')
   document.querySelector('#workspace').before(host)
@@ -65,8 +73,8 @@ export function createDataTools(actions) {
     dialog.append(button('Erstatt lokale data', () => {
       if (JSON.stringify(actions.state()) !== baseline) { error.textContent = 'Dataene er endret etter forhåndsvisningen. Åpne filen på nytt.'; return }
       const result = actions.replace(value.data)
-      if (result.ok) { close(); feedback.textContent = 'Sikkerhetskopien er gjenopprettet. Forrige datasett kan hentes med Gjenopprett forrige kopi.' }
-      else error.textContent = result.error || 'Erstatningen ble stoppet. Kontroller ledig nettleserlagring.'
+      if (result.ok) { close(); feedback.textContent = result.unchanged ? 'Sikkerhetskopien inneholder de samme dataene. Ingenting er skrevet, og eventuell tidligere gjenopprettingskopi er beholdt.' : 'Sikkerhetskopien er gjenopprettet. Forrige datasett kan hentes med Gjenopprett forrige kopi.' }
+      else error.textContent = result.error || storageErrorMessage(result, { restore: true })
     }), button('Avbryt', close))
   }
   const recovery = button('Gjenopprett forrige kopi', () => {
@@ -80,11 +88,9 @@ export function createDataTools(actions) {
     } catch (error) { feedback.textContent = error.message }
   })
   const menu = node('details'); menu.className = 'data-menu'; menu.append(node('summary', 'Data og sikkerhetskopi'))
-  const panel = node('div'); panel.append(trash, save, restore, recovery, input); menu.append(panel)
+  const panel = node('div'); panel.append(node('p', 'En full sikkerhetskopi inneholder også Angre-historikk og papirkurv. Den kan derfor inneholde tidligere opplysninger som ikke lenger vises i oppgavene. Oppbevar filen privat.'), trash, save, restore, recovery, input); menu.append(panel)
   menu.open = true
-  host.append(node('h2', 'Innstillinger'), node('p', serverStorage
-    ? 'Sikkerhetskopi, angre og papirkurv. Dataene lagres på denne enheten.'
-    : 'Dataene lagres bare i denne nettleserprofilen på denne nettadressen. Sletting av nettleserdata kan slette planen. Localhost, forhåndsvisning og publisert adresse har hver sin lagring. Eksporter sikkerhetskopi for å flytte data; enheter synkroniseres ikke.'), undo, menu, feedback)
+  host.append(node('h2', 'Innstillinger'), node('p', storageDescription), undo, menu, feedback)
   host.querySelector('h2').after(createAppearanceSettings())
   const planning = node('details'); planning.className = 'data-menu planning-settings'; planning.open = true; planning.append(node('summary', 'Planlegging'))
   const personalization = node('section'); personalization.className = 'personalization-settings'; personalization.append(node('h3', 'Personalisering'))
@@ -115,11 +121,12 @@ export function createDataTools(actions) {
     enabled.checked = model.personalization?.enabled !== false
     enabled.disabled = !model.readable || model.editing
     for (const control of personalization.querySelectorAll('button')) control.disabled = !model.readable || model.editing
-    const next = JSON.stringify([model.view, model.readable, model.editing, model.history, Boolean(actions.recovery())]); if (next === signature) return; signature = next
+    const hasRecovery = !host.hidden && Boolean(actions.recovery())
+    const next = JSON.stringify([model.view, model.readable, model.editing, model.history, hasRecovery]); if (next === signature) return; signature = next
     for (const control of [undo, trash, save]) control.disabled = !model.readable || model.editing
     restore.disabled = recovery.disabled = model.editing
     undo.disabled ||= !model.history?.undo.length
-    recovery.disabled ||= !actions.recovery()
+    recovery.disabled ||= !hasRecovery
     trash.textContent = `Papirkurv (${model.history?.trash.length || 0})`
   } }
 }

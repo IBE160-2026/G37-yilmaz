@@ -110,13 +110,26 @@ export function parseAhoPlan(html, sourceUrl, selectedCode, selectedCohort) {
   const $ = load(html), heading = clean($('h1').first().text())
   const title = heading.match(/^(?:Studieplan for|Study plan for)\s+(.+?)\s*\((\d{4})\s*[–-]\s*(\d{4})\)$/i)
   if (!title || title[2] !== String(selectedCohort)) fail('source-changed', 'AHO-siden bekrefter ikke valgt program og planutgave.')
-  const campus = campusFromFacts($), periods = [], seenPeriods = new Set()
-  $('.vrtx-fs-study-model .term').each((index, term) => {
+  const campus = campusFromFacts($), periods = [], seenPeriods = new Set(), missingPeriods = []
+  let startCalendar, previousSemester = 0
+  $('.vrtx-fs-study-model .term').each((_, term) => {
     const calendar = termFromHeading($(term).children('h3').first().text())
     if (!calendar) fail('source-changed', 'En publisert AHO-periode mangler entydig kalendersemester.')
+    if (!startCalendar) {
+      if (calendar.year !== Number(selectedCohort)) fail('not-supported', 'AHO-planen oppgir ikke et startsemester i valgt opptaksår. Studiesemesternummer kan ikke bekreftes; kontroller den publiserte planen.')
+      startCalendar = calendar
+    }
+    const start = startCalendar.year * 2 + Number(startCalendar.semester === 'autumn')
+    const studySemester = calendar.year * 2 + Number(calendar.semester === 'autumn') - start + 1
+    if (studySemester < 1 || studySemester > 40 || studySemester < previousSemester) fail('source-changed', 'AHO-planens kalendersemestre har ikke en gyldig kronologisk rekkefølge.')
     const periodKey = `${calendar.year}:${calendar.semester}`
     if (seenPeriods.has(periodKey)) fail('source-changed', 'AHO-planen inneholder flere blokker for samme kalendersemester.')
     seenPeriods.add(periodKey)
+    for (let missing = previousSemester + 1; missing < studySemester; missing++) {
+      const absolute = start + missing - 1
+      missingPeriods.push(`${absolute % 2 ? 'Høst' : 'Vår'} ${Math.floor(absolute / 2)}`)
+    }
+    previousSemester = studySemester
     const courses = [], identities = new Map(), requirements = []
     $(term).children('.combination').each((_, block) => {
       const group = clean($(block).find('h4').first().text()), explanation = clean($(block).children('p').first().text())
@@ -136,11 +149,12 @@ export function parseAhoPlan(html, sourceUrl, selectedCode, selectedCohort) {
         if (!previous) { identities.set(courseUrl, course); courses.push(course) }
       })
     })
-    periods.push({ id: `semester-${index + 1}`, studySemester: index + 1, year: calendar.year, semester: calendar.semester, label: `${index + 1}. studiesemester · ${calendar.semester === 'spring' ? 'Vår' : 'Høst'} ${calendar.year}`, courses, requirements })
+    periods.push({ id: `semester-${studySemester}`, studySemester, year: calendar.year, semester: calendar.semester, label: `${studySemester}. studiesemester · ${calendar.semester === 'spring' ? 'Vår' : 'Høst'} ${calendar.year}`, courses, requirements })
   })
   if (!periods.length || !periods.some(period => period.courses.length)) fail('not-supported', 'AHO-planen har ingen lesbare, periodeplasserte emner.')
   const returned = periods.reduce((sum, period) => sum + period.courses.length, 0)
-  return { status: 'ok', program: { code, name: title[1], cohort: String(selectedCohort), sourceEdition: `${title[2]}–${title[3]}`, sourceUrl: url.href, campuses: campus ? [campus] : [] }, models: [{ id: 'published-study-model', name: 'Publisert studiemodell', periods, unplacedCourses: [] }], warnings: ['Planutgaven er knyttet til opptaksåret som AHO publiserer. Studiesemester og kalendersemester beholdes separat.', 'Emner i valgbare studio-, fordypnings- og valgemnegrupper er ikke forhåndsvalgt. Studenten må velge de faktisk relevante emnene.', 'Planen inneholder ikke personlig gruppe eller undervisningskalender.'], completeness: { complete: true, pages: 1, returned, scope: 'Alle lesbare emner og perioder i den valgte publiserte AHO-planutgaven.' } }
+  const gapWarning = missingPeriods.length ? `Den publiserte AHO-planen mangler perioder for ${missingPeriods.join(', ')}. Kildens årstall er beholdt, og studiesemesternumrene hopper over hullene. Ingen emner eller perioder er fylt inn.` : ''
+  return { status: 'ok', program: { code, name: title[1], cohort: String(selectedCohort), sourceEdition: `${title[2]}–${title[3]}`, sourceUrl: url.href, campuses: campus ? [campus] : [] }, models: [{ id: 'published-study-model', name: 'Publisert studiemodell', periods, unplacedCourses: [] }], warnings: ['Planutgaven er knyttet til opptaksåret som AHO publiserer. Studiesemester og kalendersemester beholdes separat.', 'Emner i valgbare studio-, fordypnings- og valgemnegrupper er ikke forhåndsvalgt. Studenten må velge de faktisk relevante emnene.', 'Planen inneholder ikke personlig gruppe eller undervisningskalender.', ...(gapWarning ? [gapWarning] : [])], completeness: { complete: !missingPeriods.length, pages: 1, returned, scope: 'Alle lesbare emner og perioder i den valgte publiserte AHO-planutgaven.', ...(gapWarning ? { reason: gapWarning } : {}) } }
 }
 
 export async function ahoPrograms(institution, action, query, { fetchText }) {

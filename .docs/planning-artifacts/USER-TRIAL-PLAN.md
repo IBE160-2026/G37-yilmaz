@@ -1,8 +1,76 @@
 # Plan for egenutprøving av Ajour
 
-**Opprettet 2026-10-16; revidert 2026-10-29. Status: påbegynt med rapporterte avvik; omprøving gjenstår.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser.
+**Opprettet 2026-10-16; revidert 2026-11-01 etter prosjekteierens sluttbekreftelse av egenutprøvingen. Status: egenutprøving utført av prosjekteier; dokumenterte omprøvinger bestått innen oppgitt omfang.** Dette er den ene gjeldende prøveplanen for [SC-07](../../brief.md), [R-07](PRD.md) og [S-07](EPICS-CURRENT.md). Filnavnet er beholdt for stabile referanser. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown i repoet; personlig sluttgjennomlesing og innlevering er ikke bekreftet.
+
+## Egenutprøving utført av prosjekteier — 2026-11-01
+
+Prosjekteieren har uttrykkelig bekreftet at egenutprøvingen er gjennomført og resultatene kontrollert. Tabellen registrerer eierens resultater, ikke automatiske kontroller eller KI-utført egenutprøving på eierens vegne. Den tidligere åpne målrettede omprøvingen er lukket innen omfanget nedenfor. **SC-07/1200–30 beholder dokumentert bestått, og Outlook-prøven 30. oktober beholder bestått.** Ingen av disse prøvene gjenåpnes her.
+
+| Omprøving | Egen observasjon bekreftet av prosjekteieren | Sluttstatus |
+| --- | --- | --- |
+| Identisk 500-import | 0 nye, 0 oppdaterte og **525 uendrede elementer**, uten lagringsfeil. | **Bestått** |
+| Angre-historikk | Fortsatt **28 oppføringer og 0 byte vekst** etter import og omlasting. | **Bestått** |
+| Faktisk stor gjenoppretting | Backup på omtrent **6,62 MB** gjenopprettet **7 → 6 oppgaver**. | **Bestått** |
+| Databevaring | Hele datasettet, historikken, papirkurven og ID-ene var bevart etter gjenoppretting og omlasting. | **Bestått** |
+| Norske tidsfeilmeldinger | Tre ugyldige eller tvetydige tider ble avvist med forståelige norske meldinger, uten lagring. | **Bestått** |
+| Kapasitetsforklaring | Den identiske forklaringen ble vist **én gang** i den kontrollerte visningen. | **Bestått innen prøvd visning** |
+| AHO / F06 | **Vår 2031 = semester 10**, **høst 2031 = semester 11** i forhåndsvisningen; ingen emner ble lagret. | **Bestått for etikettene** |
+
+Vedlagt `ajour-pr8-omproving-2026-11-01.html` og `ajour-pr8-500-bestatt-20261101.jpg` er lest som resultatgrunnlag. Filen med `(1)` i det etterspurte HTML-navnet var ikke tilgjengelig; den unummererte filen er den faktisk leste. Original-HTML-en kaller prøven agentutført, men prosjekteierens uttrykkelige korrigering av attribusjonen styrer denne sluttdokumentasjonen. Originale rapporter er beholdt uendret. [Verifikasjonen](../../studieplanlegger/VERIFICATION.md#dokumenterte-resultater) oppsummerer datasettstørrelser, observerte resultater og prøvegrenser. De underliggende backupfilene er ikke lest som del av dokumentasjonsarbeidet.
+
+Dette dokumenterer **omlasting i samme syntetiske profil**. Full nettleseromstart, separat tom profil, kvotegrenser og «Gjenopprett forrige kopi» ble ikke verifisert i denne omprøvingen. Interne skriveoperasjoner ble ikke målt; funksjonsprøvene alene bekrefter heller ikke produksjonscommit, CI eller full sikkerhet. Tidligere tekniske kontroller av andre tilfeller beholder sin egen metode, dato og utfører. NTNU samlet programkilde, den konkrete UiT-tabellen, F03/F05 og nettleserkvoten er dokumenterte begrensninger, ikke nye beståttresultater.
+
+Den opprinnelige sjuscenariomalen nedenfor bevares som prøveoppskrift og historikk. Manglende observasjoner i den gamle malen fylles ikke med antakelser eller automatiske resultater, og den brukes ikke til å pålegge en ny full prøverunde. Ingen generell studentnytte eller forståelse hos ukjente brukere er påvist. Prosjekteierens leverte refleksjonsrapport beholdes som eget dokument med oppgitt KI-hjelp til struktur og formulering.
+
+## Ny lagrings- og importoppfølging — 2026-11-01
+
+**Historisk status før sluttbekreftelsen ovenfor.** Den da planlagte målrettede omprøvingen er nå gjennomført og bestått innen dokumentert omfang. Rapporten og oppfølgingen nedenfor beholdes som før/etter-grunnlag.
+
+`ajour-utvidet-test-2026-11-01(1).html` beskriver agentutførte prøver og er holdt separat fra prosjekteierens personlige egenutprøving. De to nye skjermbildene viser lagringsfeil ved 525 uendrede importelementer og stoppet gjenoppretting. Brukeren rapporterer dessuten omtrent 1,46 MB historikkvekst ved en tidligere identisk reimport og en egen eksport på 6 622 143 byte som kunne forhåndsvises, men ikke erstatte lokale data. Hoveddata var identiske før feil, etter feil og etter omlasting; datatap er ikke påvist. Årsaken og produksjonscommiten ved originalprøven er ikke uavhengig bekreftet.
+
+[Den tekniske sporbarheten](TRACEABILITY.md#gjeldende-sporbarhet-for-omprøvingen--2026-11-01) kobler feilklassene og rettingene til kode og tester med uavhengige syntetiske data. Den bevarer eksisterende bestått **SC-07/1200–30** og **Outlook 30. oktober**. Den nye HTML-rapportens tekniske SC-07-resultat er heller ikke en ferdigmelding av de sju personlige scenariene nedenfor. Tidligere verktøyblokkerte sikkerhetsprøver er ikke utført eller bestått.
+
+Kort målrettet omprøving etter publisering: I en separat syntetisk profil, importer samme 500-hendelsesfil på nytt, kontroller 525 uendrede uten lagringsfeil, og eksporter/gjenopprett den samme sikkerhetskopien. Last på nytt og kontroller at opplysninger og tidligere Angre er beholdt. Før eget resultat og faktisk versjon; **prøven står åpen til du selv har utført den**. NTNU-tomkilde, UiT-terminstøtte og øvrige kildegrenser har egne daterte tekniske forklaringer og er ikke ferdigmeldt som generell lærestedstøtte.
+
+## Rapportert målrettet omprøving — 2026-11-01
+
+**Historisk feilrapport før SC-07-rettingen.** Avviket og den daværende åpne statusen bevares; gjeldende beståttstatus står øverst.
+
+Brukerens vedlegg `ajour-omproving-2026-11-01.html` og skjermbildet `ajour-sc07-nullforslag-20261101.jpg` dokumenterer et gjenskapt avvik på [produksjon](https://ajour-sooty.vercel.app/). Rapporten beskriver Chrome med tom profil ved prøvestart og klokkeslett i Europe/Oslo. Chrome-versjon og faktisk produksjonscommit er ikke uavhengig bekreftet. `460537f864a89d709ae08aca818ef5adbbe0afaf` fra PR #6 er rapportert teknisk status, ikke en verifisert versjonsidentifikasjon for denne UI-prøven. Vedleggenes forslag til videre arbeid behandles som feilrapport; den aktuelle arbeidsbestillingen styrer rettingen.
+
+En uferdig oppgave hadde **1200 minutter gjenstående**, frist **15. november 2026 kl. 20:00**, aktivert «Kan deles i flere økter», ingen arbeidssteg, tomt «Venter på» og ingen forutsetninger. Separat `estimatedMinutes` var ikke satt. Ajour viste 83 timer 45 minutter tilgjengelig mot 20 timer arbeid, men «Ditt neste steg» ga **0 forslag ved 30 minutter** og meldingen «Ingen registrerte arbeidssteg passer sikkert innen 30 minutter.» Kalenderplanleggingen kunne samtidig foreslå **40 økter à 30 minutter**. Avviket vedvarte etter omlasting og senere også med 1140 minutter gjenstående. Rapporten fastslår ikke kodeårsaken; verken totalanslaget eller tidsvalget ble endret for å få 1200/30-prøven til å passere.
+
+Følgende resultater bevares med vedleggets avgrensning. Dette er **rapporterte observasjoner**, ikke nye tester utført under rettingen og ikke en ferdigmelding av prosjekteierens samlede personlige omprøving.
+
+| Berørt flyt | Rapportert resultat 2026-11-01 | Avgrensning og oppfølging |
+| --- | --- | --- |
+| Stor, delbar oppgave uten arbeidssteg / 1200 minutter totalt og 30 minutter nå | **Avvik**: ingen forslag, også etter omlasting. | Rett og omprøv kort arbeidsøkt uten krav om arbeidssteg eller mindre totalanslag. Bevar reelle blokkeringer og regler for oppgaver som ikke kan deles. |
+| Forklaring av totalarbeid og oppdeling | **Fortsatt åpent**: oppdeling lå under «Flere detaljer»; tidsvalget het «Hvor mye tid har du?». | Oppdeling skal være synlig ved totalanslaget, og tidsvalget skal forklare arbeid nå. |
+| Kalenderplanlegging og oversikt | **Bestått for rapportert flyt**: 40 × 30 minutter med 10 minutters pauser; de første øktene 1. november 12:15–12:45 og 12:55–13:25 ble godkjent og vist korrekt. | Behold resultatet; det er ikke bevis på at «Ditt neste steg» fungerte. |
+| Direkte redigering og umiddelbar Angre | **Bestått for rapportert flyt**: flytting til 2. november 18:00–18:30 ble angret; UI og backup viste opprinnelig plassering 1. november 12:55–13:25. | Den flyttede plasseringen var borte. |
+| Faktisk arbeid og gjenstående anslag | **Bestått på oppgavenivå**: 17 minutter faktisk arbeid og 1140 minutter gjenstående ble lagret separat og bekreftet i backup. | Loggen hadde ingen `sessionId`; dette dokumenterer ikke kobling til den opprettede avsluttede økten. |
+| Avslutte arbeid og bekrefte levering | **Bestått for rapportert flyt**: kontrolloppgaven ble «Klar til levering» etter «Utført» og 5 faktiske minutter; separat «Bekreft levert» ga «Levert». | Bevar skillet mellom ferdig arbeid og levert. |
+| Radio, etiketter og fokus | **Bestått for rapporterte flyter**: etikettklikk og venstre/høyre piltast fungerte i «Registrer arbeid» og «Avslutt». | Ingen ny full matrise av skjermbredder, tema og tekststørrelser er rapportert. |
+| Fjerne alle forutsetninger | Tastatur fungerte med Home og Ctrl+Space; ingen egen fjern-alle-kontroll ble observert. | Redigeringen ble avbrutt uten lagring. En tydelig kontroll og forklaring av eksisterende oppgaver gjenstår. |
+| Lagring etter omlasting | **Bestått for rapportert datasett**: backupinnhold var identisk før/etter, med 2 oppgaver, 41 studieøkter og 2 arbeidslogger. | Hovedoppgaven var uferdig/ikke levert med 1140 minutter; kontrolloppgaven var ferdig/levert med 0. |
+
+**Outlook er bestått for brukerens viste flyt 2026-10-30.** Brukeren har bekreftet faktisk import av eksporten med 37 hendelser. Resultatet beholdes som brukerens egenutprøving, og prøven gjenåpnes ikke i denne rettingen. Dette bekrefter ikke alle 37 sluttider, gjentatt import, endringsoppdatering eller alle Outlook-klienter. Tidligere daterte utsagn om at Outlook gjenstod beskriver tilstanden før denne bekreftelsen.
+
+«Tilpass selv», smalt vindu, større tekst, tema, UiT/BI/NTNU/HVL-import og 500-hendelsesimport ble ikke omprøvd i vedleggets runde. Tidligere resultater beholder sine egne datoer og forbehold. Den rapporterte kontrolloppgaven med 30 minutter og uten arbeidssteg fikk et forslag, men manglet fristen hovedoppgaven hadde; kontrollen isolerer derfor ikke oppgavestørrelse som eneste forskjell. «Tidsestimat ukjent» på hovedoppgavens kort er et observasjonsspor, ikke en fastslått årsak.
+
+Teknisk oppfølging omtales separat i [verifikasjonsoversikten](../../studieplanlegger/VERIFICATION.md#hva-som-ble-rettet-og-kontrollert). **SC-07 er fortsatt påbegynt med avvik; prosjekteierens personlige omprøving og refleksjon ferdigmeldes ikke av tekniske kontroller.**
+
+Etter publisert retting: Opprett en syntetisk, startklar oppgave med **1200 minutter gjenstående**, oppdeling på og uten arbeidssteg eller forutsetninger. Velg **30 minutter** under «Hvor lenge vil du jobbe nå?», og kontroller at et forslag om 30 minutters arbeid vises mens totalanslaget fortsatt er 1200 og oppgaven fortsatt er uferdig. Noter eget resultat og faktisk versjon.
+
+## Avgrensning av F03 og ny fristregresjon — 2026-11-02
+
+Den lokale HTML-stresstestrapporten fra 29. oktober er funnet. Historisk F03 gjelder «Tekst med klokkeslett blir oppgaver fremfor kalenderaktiviteter»: `stress-text-005.txt` med fem aktivitetslinjer og en overskrift ga seks uvalgte oppgaver. Selve tekstfilen er ikke funnet, og denne historiske prøven er ikke omprøvd eller lukket.
+
+Det nye, syntetiske fristtilfellet gjelder dokumentimport av `Les kapittel 4 innen fredag kl. 14`, alene og sammen med `Innlevering syntetisk test, frist 2026-11-06 kl. 14:00`. Tidligere kunne den første valgte oppgaven få tom frist mens bekreftelsen viste at alt var klart. [Fristavklaringen](../../studieplanlegger/IMPORT.md) retter denne avgrensede feilen. [Verifikasjonen](../../studieplanlegger/VERIFICATION.md) oppgir de faktisk gjennomførte automatiske prøvene; dette er ikke nye resultater fra prosjekteierens egenutprøving og innfører ingen generell tolkning av naturlig språk.
 
 ## Rapporterte funn og omprøving — 2026-10-29
+
+Denne seksjonen bevarer rapporten og planlagte prøver slik de stod 2026-10-29. Senere resultater ovenfor gjelder foran eldre åpne statuser; Outlook-prøven skal ikke gjenåpnes.
 
 Den senere HTML-stresstestrapporten er **separat KI-assistert mengdetesting**, beskrevet med begrensninger i [verifikasjonen](../../studieplanlegger/VERIFICATION.md). Den fyller ikke ut eierens resultater nedenfor. Detaljrapportens NHH-forsøk feilet; NIH ga forhåndsvisning med advarsler. Etter retting skal import med mange hendelser og eksisterende emner, bytte av lærested/program under henting, ICS-titler, lenkehjelp og HVL-emnemetadata omprøves med syntetiske data. F03/F05/F06 er ikke ferdigmeldt.
 
@@ -26,11 +94,13 @@ Tilleggsprøvene nedenfor følger den separate KI-assisterte mengderapporten. Br
 | F07/F08 | Eksporter en vanlig hendelse og en studieøkt der tittelen allerede begynner med emnekoden. Kontroller ett kodeprefiks, nytt UTC-tidsstempel ved ny eksport og uendrede UID-er/tider. Den faktiske Outlook-prøven utføres og registreres separat. |
 | F09 | Søk HVL DAT100 høst 2026 både med kode og navn. Kontroller emnenavn, publisert campus og variant før lagring. Gjenimport av samme eldre prøveemne skal etter bekreftelse bevare egne navn/notater og oppgave-/hendelseskoblinger, uten dublett. Ukjente felt skal fortsatt være uavklart. |
 
-Nye tekniske resultater føres i [verifikasjonen](../../studieplanlegger/VERIFICATION.md). Ingen rad over betyr at omprøvingen er gjennomført. Samlet egenutprøving, Outlook-prøve og personlig refleksjon er fortsatt ikke ferdige.
+Nye tekniske resultater føres i [verifikasjonen](../../studieplanlegger/VERIFICATION.md). Ved rapporten 2026-10-29 var ingen rad over registrert som gjennomført omprøving; samlet egenutprøving, Outlook-prøve og personlig refleksjon stod da åpne. Senere resultater er datert separat ovenfor.
 
 **Beslutning 2026-10-26:** Prosjekteieren gjennomfører egenutprøvingen selv. Ingen andre testpersoner skal rekrutteres. Dette erstatter den tidligere planlagte prøven med en ny student; den ble ikke gjennomført eller bestått. Produktets målgruppe er uendret. Prøven dokumenterer bare prosjekteierens bruk og observasjoner, ikke ukjente brukeres forståelse eller generell studentnytte.
 
 ## Formål, datagrunnlag og registrering
+
+**Opprinnelig prøveoppskrift.** De tomme feltene og forventningene nedenfor er beholdt fra planleggingen. Faktiske senere resultater er datert ovenfor; denne malen er ikke en ny bestilling om å gjenta beståtte prøver.
 
 Gjennomfør hovedreisen **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**, og kontroller kalender, visningspreferanser og databevaring manuelt. Alle oppgaver, emner, frister og arbeidsutfall i prøven er syntetiske. Et simulert arbeidsutfall i appen skal beskrives som simulert; den faktiske observasjonen er hvordan appen reagerte under manuell betjening.
 
@@ -70,14 +140,17 @@ Utfør i rekkefølge. «—» betyr ikke registrert, aldri bestått. Ved avvik n
 
 For hvert scenario registreres senere **ikke forsøkt**, **bestått**, **avvik** eller **avbrutt**, med konkret observasjon. Et scenario er bestått når alle forventede resultater er observert. Hele SC-07 er oppnådd for denne prøven først når alle sju er utført og bestått, eventuelt etter dokumentert omprøving. Feil og avbrudd er gyldige funn og skal beholdes. En utført prøve med avvik er ikke en bestått prøve.
 
-Prosjekteierens rapporterte avvik 2026-10-29 viser at egenutprøvingen er påbegynt. Samlet status er **påbegynt med avvik; omprøving gjenstår**, uten å erklære de sju scenariene bestått. Nye resultater føres med reell dato, versjon og begrensning; de gir ingen representativ vurdering av studentgruppen. Eldre daterte statusutsagn beskriver tilstanden før denne rapporten.
+Prosjekteierens sluttbekreftelse 1. november erstatter den tidligere statusen «påbegynt med avvik; personlig omprøving gjenstår» for de dokumenterte omprøvingene. Førfunnene fra 29. oktober og 1. november beholdes, og de konkrete etterresultatene står øverst. Dette gir ikke grunnlag for å fylle alle tomme felt i den opprinnelige sjuscenariomalen som bestått eller hevde representativ studentnytte. Det innebærer heller ikke at de allerede beståtte prøvene må gjentas.
 
-| Scenario | Status nå |
+| Omfang | Status nå |
 | --- | --- |
-| 1–7 | Rapporterte avvik ovenfor; fullstendige resultater per scenario og omprøving mangler |
-| Samlet resultat | Påbegynt med avvik; ikke ferdig eller bestått |
+| Dokumenterte omprøvinger 1. november | **Egenutprøving utført av prosjekteier; bestått innen tabellens omfang.** De berørte avvikene er lukket. |
+| SC-07/1200–30 og Outlook 30. oktober | Tidligere dokumentert **bestått** beholdes. |
+| Opprinnelig scenario 1–7-mal | Beholdt som oppskrift; ikke alle opprinnelige detaljfelt har et særskilt rapportert resultat. Ingen ekstra beståttresultater konstrueres. |
+| Full nettleseromstart og separat tom profil | Ikke verifisert i den siste egenutprøvingen; tidligere automatiske/tekniske prøver er separate. |
+| Personlig refleksjon | [Rapporten foreligger som Markdown](../submission/reflection-report.md), som eneste rapportformat i repoet. Personlig sluttgjennomlesing og selve innleveringen er ikke bekreftet. |
 
-Etter prøven kan prosjekteieren med egne ord beskrive hva som var lett eller uklart, og om vedlikehold av oppgaver og anslag var nyttig sammenlignet med egen kalender, Canvas eller oppgaveliste. Dette er åpne refleksjonsspørsmål, ikke forhåndsskrevne svar eller påstand om bedre læring. Personlige rånotater forblir lokale; et kort, anonymisert sammendrag kan senere knyttes til SC-07.
+Den leverte rapporten inneholder prosjekteierens personlige vurderinger; denne prøveplanen dokumenterer forventet mot faktisk resultat. Rapporten gjør ikke tomme scenariofelt til beståtte tester eller egne erfaringer til bevis for generell studentnytte. Personlige rånotater og eldre private refleksjonsutkast forblir lokale; bare den uttrykkelig autoriserte sluttrapporten er lagt i leveringsdokumentasjonen. [Planindeksen](README.md#leveringskontroll--2026-11-01) oppgir malens 3000–5000 ord og hvilke formelle leveringsopplysninger som fortsatt må kontrolleres.
 
 ## Valgfri isolert oppstart før egenutprøvingen
 

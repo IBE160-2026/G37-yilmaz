@@ -11,6 +11,7 @@ import { createUI } from './redesigned-ui.js'
 import { deriveCapacity, validateSession } from './capacity.js'
 
 import { recordChange, emptyHistory, undoLast, restoreTrash } from './history.js'
+import { storageErrorMessage } from './storage-errors.js'
 import { createDataTools } from './data-tools.js'
 import { createCalendarSync } from './calendar-sync.js'
 import { validateWorkWindow } from './work-capacity.js'
@@ -365,7 +366,7 @@ function commitState(candidate, label = 'Studiedata', { history = true } = {}) {
     if (history && nextHistory?.undo.at(-1)?.id !== before.history?.undo.at(-1)?.id) dataTools?.changed(nextHistory?.undo.at(-1))
   }
   const historyEntryId = history && nextHistory?.undo.at(-1)?.id !== before.history?.undo.at(-1)?.id ? nextHistory.undo.at(-1).id : null
-  return result.ok ? { ...result, historyEntryId } : { ...result, error: result.reason === 'conflict' ? 'En annen fane har endret dataene. Last inn på nytt før du lagrer.' : 'Kunne ikke lagre. Tidligere data og utkast er beholdt.' }
+  return result.ok ? { ...result, historyEntryId } : { ...result, error: result.error || storageErrorMessage(result) }
 }
 function writeTasks(candidate, nextPlanner = planner) {
   const changed = tasks.find(task => JSON.stringify(task) !== JSON.stringify(candidate.find(t => t.id === task.id))) || candidate.find(task => !tasks.some(t => t.id === task.id))
@@ -575,7 +576,7 @@ replanView = createReplanningView({ state: snapshot, commit: commitState, onClos
     queueMicrotask(() => document.querySelector(`#task-form [name="${field}"]`)?.focus())
   },
   advanced() { view = 'capacity'; refresh(); document.querySelector('.work-window-form input[name=startLocal]')?.focus() } })
-studySessionView = createStudySessionView({ onClose: refresh, finish(taskId, plannedMinutes, stepOnly) { workView.open(taskId, undefined, 'done', { plannedMinutes, stepOnly }); refresh() } })
+studySessionView = createStudySessionView({ onClose: refresh, finish(taskId, plannedMinutes, stepOnly, partial) { workView.open(taskId, undefined, partial ? 'more' : 'done', { plannedMinutes, stepOnly }); refresh() } })
 workStepsView = createWorkStepsView({ state: snapshot, commit: commitState, onClose: refresh })
 onboarding = createOnboarding({
   begin() { if (!extras.onboarding) commitState({ ...snapshot(), onboarding: { dismissed: false, completed: false } }, 'Startet oppstart', { history: false }) },

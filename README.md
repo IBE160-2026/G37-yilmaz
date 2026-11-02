@@ -1,80 +1,66 @@
-# G37 — Git Happens
+# Ajour — G37 «Git Happens»
 
-Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten 2026 (15 studiepoeng).
+**[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.**
 
-Ajour hjelper studenten gjennom **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**. Lokale regler bruker registrerte frister, gjenstående arbeid, avhengigheter og ledig tid til å foreslå neste handling. Studenten godkjenner planen og registrerer hva som faktisk skjedde. Import støtter denne flyten; manuell registrering fungerer uten eksterne kilder. Repoet inneholder appen og dokumentasjon av utvikling, testing og kvalitetssikring med KI.
+Ajour hjelper deg å gjøre oppgaver og tilgjengelig tid om til en plan, registrere hva du faktisk fikk gjort og justere resten. Du godkjenner import og planendringer selv. Appen bruker faste, forklarbare regler og krever ingen konto.
 
-**Ajour, oppfølging 2026-10-26:** Produktet bruker ordmerket **ajour**, «Kom ajour.» og «Planer endrer seg. Det er helt greit.». Tolv stabile emnefarger og **System/Lyst/Mørkt** viderefører dagens layout, V1, dataformater og oppstartskommandoer. Appmappen heter fortsatt `studieplanlegger`. [Gjeldende lokal kontroll](studieplanlegger/VERIFICATION.md#emnepalett-og-mørk-modus--2026-10-26) skiller den nye temaendringen fra tidligere grensesnitt-/personvernrettinger og oppgir faktisk teststatus. Publiseringen `9d3a169` er historisk og før Ajour; eldre kontroller er ikke nye pass.
+Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten 2026 (15 studiepoeng). **Gruppe G37 — Git Happens. Medlem: Elias Hemsett Yilmaz.** Repoet inneholder appen og dokumentasjon av utvikling, testing og kvalitetssikring med KI. Appmappen heter `studieplanlegger`.
 
-**Avgrensning 2026-10-16:** [Brief → PRD → stories → kode/test](.docs/planning-artifacts/README.md) er nå dokumentert som en datert rekonstruksjon etter faglærertilbakemeldingen. V1-import gjelder HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152; undervisning bare IBE110/IBE430/IBE160 høst 2026. NTNU omfatter ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026, uten komplett programløfte. Full nasjonal dekning er visjon. Ingen full eksamensdekning eller personlig gruppetilhørighet loves. Historiske kontroller beholder sine datoer; teknisk testing dokumenterer ikke studentnytte.
+## Kom i gang
 
-## Nettleserutgave — 2026-10-29
+1. Åpne [nettutgaven](https://ajour-sooty.vercel.app/) og legg til en oppgave. Bare tittelen er obligatorisk; emne, frist, tidsanslag og arbeidssteg er valgfrie.
+2. Registrer ledig studietid og opptatte perioder. Kontroller forslaget før du godkjenner en studieøkt.
+3. Etter arbeidet registrerer du faktisk tid og gjenstående anslag hver for seg. Godkjenn eventuelle justeringer av planen; en godkjent omplanlegging kan angres.
 
-**Åpne [Ajour på nett](https://ajour-sooty.vercel.app).** Produksjonsadressen er kontrollert 2026-10-29 etter faktiske preview-prøver og integrering via [PR #1](https://github.com/IBE160-2026/G37-yilmaz/pull/1). Appen bruker **ett gratis Vercel-prosjekt**, `ajour`. Hele Ajour-flyten beholdes; lokal Node-/Docker-drift er fortsatt tilgjengelig. [Verifikasjonen](studieplanlegger/VERIFICATION.md#vercel-nettleserutgave--2026-10-29) oppgir testet produksjonscommit og faktiske resultater.
+Hovedflyten er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**. Fullført steg, ferdig oppgave og bekreftet innlevering er separate handlinger. Du kan registrere alt manuelt; import er valgfritt. [Brukerveiledningen](studieplanlegger/README.md#kom-i-gang-og-finn-frem) forklarer skjermbildene, import, kalenderkopi og temaene **System/Lyst/Mørkt**.
 
-I nettutgaven lagres planen bare i den aktuelle nettleserprofilen på den nøyaktige nettadressen. Localhost, Vercel-forhåndsvisninger og produksjonsadressen har separate data. Sletting av nettleserdata kan slette planen; eksporter sikkerhetskopi for trygg oppbevaring eller flytting mellom adresser/enheter. Det finnes ingen konto eller enhetssynkronisering. [Oppsett og fjernkontroll](studieplanlegger/README.md#nettleserdrift-med-vercel--2026-10-29) beskriver den nye driftsformen uten å endre V1-importløftet eller statusen for egenutprøving.
+<a id="nettleserutgave--2026-10-29"></a>
 
-## Medlemmer
+## Ta vare på planen
 
-- Elias Hemsett Yilmaz
+Nettutgaven lagrer planen i den aktuelle nettleserprofilen på den nøyaktige nettadressen. En annen profil, enhet, localhost eller Vercel-forhåndsvisning har egne data. **Sletting av nettleserdata kan slette planen.** Det finnes ingen konto eller automatisk synkronisering mellom enheter.
 
-## Dette inneholder dagens versjon
+Åpne **Innstillinger → Data og sikkerhetskopi** (på mobil under **Mer**) for å eksportere en lokal JSON-fil. Oppbevar kopien trygt, og bruk forhåndsvist gjenoppretting når du vil flytte planen. Gjenoppretting erstatter data etter uttrykkelig bekreftelse. Kalenderlenker kan kreve ny tilkobling fordi tilgangsopplysninger utelates. Kalenderens `.ics`-eksport er en kalenderkopi, ikke en full sikkerhetskopi. [Lagring og sikkerhetskopi](studieplanlegger/README.md#lagring-og-sikkerhetskopi) beskriver forskjellene mellom nettutgaven og lokal drift.
 
-En oppgave trenger bare tittel; emne, frist, arbeidsanslag og ordnede steg er valgfrie. En godkjent økt er planlagt tid. Faktisk tid og nytt gjenstående anslag registreres hver for seg, og fullført steg, ferdig oppgave og bekreftet innlevering er separate handlinger. Den [syntetiske hovedflyten](.docs/implementation-artifacts/solution-guide.md#hovedflyt-og-gjeldende-løfte--2026-10-16) viser hvordan delene henger sammen.
+<a id="arkitektur-og-dokumentasjon"></a>
 
-Studieprogram, emner og offentlig undervisning kan importeres etter kontroll. Kildens alternativgrener beholdes som valg; tidligere aktiviteter og studentvalg bevares ved kildefeil. Fil- og kalenderlenkeimport deler forhåndsvisning og én samlet godkjenning, med nødvendige avklaringer av emner og usikre tidspunkt. Gjentatt import bevarer identiteter og egne endringer innen de dokumenterte kontraktene.
+## Finn dokumentasjonen
 
-Planleggingen støtter gjenbrukbare studietidsmønstre, usikre arbeidsanslag, daglig veiledning og studentgodkjent omplanlegging. Import- og kalendergrensesnittet bevarer relevante åpne seksjoner, rulleposisjon og fokus, viser læresteder, programmer og emner alfabetisk etter norsk navn, og viser stabile emnefarger sammen med tydelige emnekoder. Kalenderens topp har en eksporthandling som lager en lokal `.ics`-kopi; frister blir kompatible, transparente kalenderhendelser uten oppdiktet varighet. Implementert kildekode og avgrensede kontroller er ikke det samme som full nasjonal kilde- eller programdekning; se [importdekningen](studieplanlegger/IMPORT-COVERAGE.md).
+| Du vil … | Les her |
+| --- | --- |
+| Bruke Ajour | [Brukerveiledning](studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [slik virker løsningen](.docs/implementation-artifacts/solution-guide.md). |
+| Importere eller forstå kildegrenser | [Importavtale](studieplanlegger/IMPORT.md), [importdekning](studieplanlegger/IMPORT-COVERAGE.md) og [TP CSV-formatkontrakt](.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md). |
+| Se mål, krav og sporbarhet | [Brief](brief.md), [planindeks med PRD og stories](.docs/planning-artifacts/README.md) og [arkitektur](.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). |
+| Kontrollere tester og kjente begrensninger | [Daterte verifikasjonsresultater](studieplanlegger/VERIFICATION.md), [samlet begrensningsoversikt](studieplanlegger/README.md#kjente-begrensninger-ved-levering) og [åpne punkter](.logs/issues.md). |
+| Vurdere prosess og KI-bruk | [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md). |
+| Lese refleksjonsrapporten | [Refleksjonsrapport — Markdown](.docs/submission/reflection-report.md), med prosjekteierens erfaringer og oppgitt KI-hjelp til struktur og formulering. |
+| Kjøre eller utvikle lokalt | [Lokale alternativer og oppskrifter](studieplanlegger/README.md#lokal-drift-og-utvikling) og [tester og bygg](studieplanlegger/README.md#tester-og-bygg). |
 
-**Dokumentasjonen er samordnet 26. oktober 2026.** Start med [planindeksen](.docs/planning-artifacts/README.md) for krav og kode-/testsporbarhet, og [VERIFICATION.md](studieplanlegger/VERIFICATION.md) for nyeste kandidatresultater, personvernkontroll og kjente begrensninger. Eldre kontroller er datert historikk. Etter prosjekteierens beslutning 26. oktober er [egenutprøvingen](.docs/planning-artifacts/USER-TRIAL-PLAN.md) en manuell prøve utført av prosjekteieren alene, med syntetiske data i et isolert miljø. Status er **planlagt / ikke gjennomført**. Tekniske tester er ikke prosjekteierens manuelle observasjoner, og egenutprøvingen vil ikke dokumentere nytten for studentgruppen generelt.
+<a id="dette-inneholder-dagens-versjon"></a>
 
-## Kjør den komplette lokale leveransen
+## Avgrenset første versjon
 
-Du trenger Docker med **Compose v2** (`docker compose version`). Ingen konto, nøkler eller `.env` er nødvendig med standardoppsettet. Fra repository-roten:
+V1-import gjelder **HiMolde IT 2026–27** med IBE110/IBE430 og enten IBE160 eller IBE102 + IBE152; undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026. **NTNU** omfatter emnemetadata og emnelenket undervisning for ARK1001/EXPH0100 høsten 2026, uten løfte om et komplett program. Full nasjonal dekning er visjon. Det loves ikke full eksamensdekning eller personlig gruppetilhørighet.
 
-```powershell
-cd studieplanlegger
-docker compose up --build -d
-```
+Avgrensningen og [rekonstruerte planer fra 16. oktober](.docs/planning-artifacts/README.md) følger opp [faglærerens tilbakemelding](tilbakemelding-product-brief.md). Eksisterende adaptere og funksjoner er beholdt, men utvider ikke leveranseløftet. [Verifikasjonen](studieplanlegger/VERIFICATION.md) bevarer datoene for tidligere rettinger, Ajour-utformingen og nettutgaven som ble godkjent 29. oktober. Teknisk testing dokumenterer ikke generell studentnytte.
 
-Åpne <http://127.0.0.1:8088>. Kontroller at tjenesten er klar med:
+## Leveringsoversikt — 1. november 2026
 
-```powershell
-docker compose ps
-Invoke-RestMethod http://127.0.0.1:8088/api/health
-```
+De rapporterte omprøvingene er bestått innen det dokumenterte omfanget som **egenutprøving utført av prosjekteier**. SC-07/1200–30 og Outlook-prøven fra 30. oktober beholder bestått. [Prøveplan og egenresultater](.docs/planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) gir detaljene; [automatiske kontroller](studieplanlegger/VERIFICATION.md) er et separat bevisgrunnlag.
 
-Stopp med `docker compose down`. Ikke bruk `-v` hvis dataene skal beholdes. Tjenesten publiseres bare på loopback, og SQLite-databasen ligger i et navngitt Docker-volum. Se [appens README](studieplanlegger/README.md) for bruk, lagring, sikkerhetskopi og kjente begrensninger.
+**Refleksjonsrapporten foreligger bare som Markdown; personlig sluttgjennomlesing og innlevering er ikke bekreftet.** [Planindeksens leveringskontroll](.docs/planning-artifacts/README.md#leveringskontroll--2026-11-01) samler vurderingsgrunnlag og formelle restpunkter. Historisk F03 og personvernfunn står fortsatt åpne i [begrensningsoversikten](studieplanlegger/README.md#kjente-begrensninger-ved-levering); den rettede fredags-/fristregresjonen 2. november lukker ikke historisk F03.
 
-## Tester og produksjonsbygg
+<a id="kjør-den-komplette-lokale-leveransen"></a>
+<a id="tester-og-produksjonsbygg"></a>
 
-Docker-oppstarten ovenfor krever ikke en lokal Node-installasjon. For lokal utvikling og npm-testene trenger du **Node.js 24** (låsefilen er kontrollert med npm 11). Kjør fra `studieplanlegger/`:
+## Lokal kjøring og utvikling
 
-```powershell
-npm ci
-npx playwright install chromium
-npm run test:unit
-npm run verify:teaching
-npm run build
-npm run test:e2e:database
-```
+Dette er alternativer til nettutgaven for sensor og utviklere. Vanlig bruk på nett krever ingen av disse installasjonene.
 
-`npx playwright install chromium` kreves før både `npm run test:e2e` og `npm run test:e2e:database`. `verify:teaching` er den repeterbare, lokale kontrollen av versjonerte undervisningsfixturer; den gjør ikke eksterne kildeoppslag. Databasekommandoen bygger appen, velger en ledig loopback-port og kjører den målrettede produksjonsflyten mot en midlertidig Node/SQLite-database; den trenger ikke Docker eller en eksisterende server. Den vanlige Vite-baserte nettlesersuiten kan kjøres separat med `npm run test:e2e` og bruker `localStorage`, ikke SQLite. Testene bruker syntetiske studentdata; kildeadaptrene testes også mot versjonerte fixturer fra offentlige kilder.
+| Alternativ | Forutsetning og lagring | Oppskrift |
+| --- | --- | --- |
+| Docker | Docker med Compose v2; lokal Node-installasjon trengs ikke. SQLite i navngitt volum. | [Docker-oppskrift](studieplanlegger/README.md#full-stack-drift-med-docker). |
+| Lokal Node-server | Node.js 24. SQLite i en valgt lokal databasefil. | [Node-oppskrift](studieplanlegger/README.md#lokal-node-server-med-sqlite). |
+| Vite-utvikling | Node.js 24. `localStorage` i nettleserprofilen på utviklingsadressen. | [Vite-oppskrift](studieplanlegger/README.md#vite-utvikling-med-nettleserlagring). |
 
-På en ren Linux-maskin kan Playwrights systembiblioteker også mangle. Bruk da `npx playwright install --with-deps chromium` med nødvendige lokale administratorrettigheter i stedet for den vanlige installasjonskommandoen.
-
-## Arkitektur og dokumentasjon
-
-`studieplanlegger/src/` inneholder klient og domeneregler, `studieplanlegger/server/` API/database og kildeadaptere, og `studieplanlegger/tests/` enhets-, nettleser- og produksjonstester. `.docs/planning-artifacts/` samler gjeldende krav og sporbarhet; `.docs/implementation-artifacts/` inneholder kuratert prosess, løsningsbeskrivelse og CSV-formatkontrakt. [Sporbarhetsmatrisen](.docs/planning-artifacts/TRACEABILITY.md#sensorveiledningens-sju-områder) bevarer den daterte vurderingsgjennomgangen fra 16. oktober. Sensorveiledning og godkjent proposal var ikke tilgjengelige i den tidligere dokumentasjonsrunden 25. oktober. I Ajour-oppfølgingen samme dag ble alle sju sider av sensorveiledningen lest på nytt; kilde og sjekksum står i planindeksen. Godkjent proposal er fortsatt ikke identifisert.
-
-Løsningen består av en Vite-klient i vanlig JavaScript, kildeadaptere og to tydelige driftsformer. Lokal Node-/Docker-produksjon bruker SQLite som autoritativ lagring: klienten sender komplette, validerte tilstandsendringer med forventet revisjon, og serveren skriver transaksjonelt. Compose binder vertsporten til `127.0.0.1` og beholder databasen i volumet `studieplan-data`. Vercel-utgaven bruker den eksisterende nettleserlagringen; serverfunksjonene gir bare avgrenset importforhåndsvisning og har ingen delt studenttilstand.
-
-Dokumentasjonen nedenfor beskriver løsningen, utviklingsprosessen med KI/BMAD og gjennomførte kontroller.
-
-- [Product brief](brief.md)
-- [Arkitektur](.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md)
-- [Løsningsguide](.docs/implementation-artifacts/solution-guide.md)
-- [Krav, stories og kode-/testsporbarhet](.docs/planning-artifacts/README.md)
-- [Kuratert TP CSV-formatkontrakt](.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md)
-- [Teknisk verifikasjon](studieplanlegger/VERIFICATION.md)
-- [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md)
+Alle lokale alternativer har manuell registrering og import. Ingen konto, betalte nøkler eller `.env` kreves for standardoppsettet. [Testoppskriftene](studieplanlegger/README.md#tester-og-bygg) skiller enhetstester, bygd nettleserapp og isolert SQLite fra Vercel-kontroll. [Vercel-drift](studieplanlegger/README.md#nettleserdrift-med-vercel--2026-10-29) beskriver det eksisterende gratisprosjektet og kontroll av publisert commit.

@@ -85,6 +85,11 @@ traces/
 /.docs/implementation-artifacts/assistant-reflection-support.md
 /.docs/implementation-artifacts/assistant-trial-report.md
 /.docs/implementation-artifacts/project-reflection.md
+# Only the owner's explicitly approved final report is published.
+# Markdown is the only published report format.
+# Other submission drafts, attachments and backups remain private.
+/.docs/submission/*
+!/.docs/submission/reflection-report.md
 /.docs/implementation-artifacts/trial-log.md
 /.docs/implementation-artifacts/capacity-evidence.md
 /.docs/implementation-artifacts/spec-1-2-opprette-oppgaver-og-beholde-dem-trygt.md
@@ -126,6 +131,8 @@ traces/
 /.docs/planning-artifacts/stories/3-1-neste-steg-hovedforslag-og-levering.md
 /.docs/planning-artifacts/stories/4-1-oversiktlig-dashboard-og-fristkalender.md
 /studieplanlegger/DESIGN-UPDATE.md
+/studieplanlegger/VERIFICATION-HISTORY.md
+/.logs/991-2026-11-02-01-53-21-kort-verifikasjonsoversikt.md
 
 # Internal BMAD working memory (local only, at any directory depth)
 .memlog.md
