@@ -10,7 +10,7 @@ Samordne ferdig lokal Ajour med lærerens faktiske GitHub-endringer og publisere
 
 - Kontrollere repository, indeks og leveransemanifest; hente og undersøke hele lærerbidraget før integrering.
 - Bevare begge bidrag, kontrollere en komplett isolert kandidat og publisere ordinært til riktig main.
-- Følge eksisterende [brief](../../brief.md), [sporbarhet](../../.docs/planning-artifacts/TRACEABILITY.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md#samordning-og-publiseringskandidat--2026-10-26). Ingen ny PRD eller rekonstruksjon av gamle økter.
+- Følge eksisterende [brief](../brief.md), [sporbarhet](../.docs/planning-artifacts/TRACEABILITY.md) og [verifikasjon](../studieplanlegger/VERIFICATION.md#samordning-og-publiseringskandidat--2026-10-26). Ingen ny PRD eller rekonstruksjon av gamle økter.
 
 ### Resultat
 
@@ -28,4 +28,4 @@ Ingen påvist teknisk publiseringsblokkering i det kontrollerte utvalget. Punkte
 
 - Eksisterende bundlevarsel over 500 kB består.
 - Godkjent proposal og overordnet sensorveiledning er ikke identifisert. Det identifiserte sju-siders sensorvedlegget er lest med samsvarende kontrollsum.
-- SC-07, personlig refleksjon og faktisk Outlook-kontroll var ikke gjennomført ved denne publiseringen. Senere samme dato endret prosjekteieren SC-07 til [egenutprøving alene](../../.docs/planning-artifacts/USER-TRIAL-PLAN.md), fortsatt planlagt / ikke gjennomført. Den tidligere eksterne studentprøven ble ikke gjennomført.
+- SC-07, personlig refleksjon og faktisk Outlook-kontroll var ikke gjennomført ved denne publiseringen. Senere samme dato endret prosjekteieren SC-07 til [egenutprøving alene](../.docs/planning-artifacts/USER-TRIAL-PLAN.md), fortsatt planlagt / ikke gjennomført. Den tidligere eksterne studentprøven ble ikke gjennomført.

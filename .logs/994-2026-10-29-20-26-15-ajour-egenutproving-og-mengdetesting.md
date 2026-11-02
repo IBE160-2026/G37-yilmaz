@@ -10,7 +10,7 @@ Rette og etterprøve prosjekteierens rapporterte avvik og den separate KI-rappor
 
 - Gjenskape funnene med isolerte syntetiske profiler, kontrollere faktiske offentlige kilder og rette årsakene innen eksisterende støtte.
 - Full enhetssuite og bygg med låste avhengigheter, nettleser-/SQLite-regresjon, faktiske preview-prøver og separat gjennomgang før integrering.
-- Bevare rapporterte resultater i [prøveplanen](../../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og føre nye tekniske bevis i [verifikasjonen](../../studieplanlegger/VERIFICATION.md).
+- Bevare rapporterte resultater i [prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og føre nye tekniske bevis i [verifikasjonen](../studieplanlegger/VERIFICATION.md).
 
 ### Resultat
 
@@ -42,7 +42,7 @@ Rette gjenskapt SC-07-avvik der en startklar, delbar oppgave med 1200 minutter g
 
 - Lese prosjektinstruksjoner, tilbakemelding, identifisert sensorveiledning og relevant spesifikasjonskontekst; bruke vedleggene som feilrapport og gjenskape med syntetiske data.
 - Rette forslag og forklaringer, beholde blokkeringer og ikke-delbart arbeid, gjøre oppdeling og fjerning av forutsetninger synlig og tastaturtilgjengelig.
-- Kontrollere bygget app, faktisk preview og produksjon, inkludert samme syntetiske profil før/etter publisering. Bevare rapporterte resultater i [prøveplanen](../../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og teknisk evidens i [verifikasjonen](../../studieplanlegger/VERIFICATION.md).
+- Kontrollere bygget app, faktisk preview og produksjon, inkludert samme syntetiske profil før/etter publisering. Bevare rapporterte resultater i [prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og teknisk evidens i [verifikasjonen](../studieplanlegger/VERIFICATION.md).
 
 ### Resultat
 
@@ -74,7 +74,7 @@ Følge opp lagringsvekst ved identisk 500-import, stor backupgjenoppretting og a
 
 - Lese vedlegg som feilrapport, måle faktiske skriverier og feil med egne syntetiske data, og rette lagring/gjenoppretting først.
 - Kontrollere NTNU, AHO og den konkrete UiT-PDF-en mot offentlige kilder, med avgrensede norske forklaringer.
-- Uavhengig kodegjennomgang, full lokal kvalitetspakke og deretter kontrollert publisering. [Prøveplan](../../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og [målinger/kontrollhistorikk](../../studieplanlegger/VERIFICATION.md) bevarer skillet mellom eierens og agentens prøver.
+- Uavhengig kodegjennomgang, full lokal kvalitetspakke og deretter kontrollert publisering. [Prøveplan](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og [målinger/kontrollhistorikk](../studieplanlegger/VERIFICATION.md) bevarer skillet mellom eierens og agentens prøver.
 
 ### Resultat
 
