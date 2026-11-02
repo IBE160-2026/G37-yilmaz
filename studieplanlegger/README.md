@@ -4,11 +4,11 @@
 
 [Refleksjonsrapporten](../.docs/submission/reflection-report.md) foreligger bare som Markdown i [GitHub-repoet](https://github.com/IBE160-2026/G37-yilmaz). Rapporten er et leveringsdokument og følger ikke med appens runtime-filer. Personlig sluttgjennomlesing og formell innlevering er ikke bekreftet; [planindeksen](../.docs/planning-artifacts/README.md#leveringskontroll--2026-11-01) skiller dette fra ferdige tekniske kontroller.
 
-**SC-07-retting, 2026-11-01:** En startklar oppgave med «Kan deles i flere økter» kan foreslås som en kort arbeidsøkt også uten arbeidssteg. «Totalt gjenstående arbeid» er hele arbeidsmengden, mens «Hvor lenge vil du jobbe nå?» gjelder den aktuelle økten. Et forslag eller en startet økt endrer ikke anslaget. Etter en deløkt er «Trenger mer tid» forhåndsvalgt; faktisk arbeid og nytt gjenstående anslag registreres separat. Reelle blokkeringer og oppgaver som ikke kan deles begrenser fortsatt forslagene. Forutsetninger er eksisterende oppgaver som må gjøres først; «Fjern alle forutsetninger» endrer bare utkastet frem til du lagrer. Se [datert teknisk kontroll](VERIFICATION-HISTORY.md#sc-07-kortøkt-på-stor-oppgave--2026-11-01) og [bevart egenutprøving](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#rapportert-målrettet-omprøving--2026-11-01).
+**SC-07-retting, 2026-11-01:** En startklar oppgave med «Kan deles i flere økter» kan foreslås som en kort arbeidsøkt også uten arbeidssteg. «Totalt gjenstående arbeid» er hele arbeidsmengden, mens «Hvor lenge vil du jobbe nå?» gjelder den aktuelle økten. Et forslag eller en startet økt endrer ikke anslaget. Etter en deløkt er «Trenger mer tid» forhåndsvalgt; faktisk arbeid og nytt gjenstående anslag registreres separat. Reelle blokkeringer og oppgaver som ikke kan deles begrenser fortsatt forslagene. Forutsetninger er eksisterende oppgaver som må gjøres først; «Fjern alle forutsetninger» endrer bare utkastet frem til du lagrer. Se [oppsummering av rettingen](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert) og [bevart egenutprøving](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#rapportert-målrettet-omprøving--2026-11-01).
 
 Ajour knytter **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering** sammen med lokale regler. Bare oppgavetittel er obligatorisk; registrerte opplysninger og valgfrie importer gir grunnlaget for forslag som studenten kontrollerer før lagring. Appen bruker ingen generativ KI under kjøring.
 
-**Ajour-oppdatering, 2026-10-26:** Ordmerket er **ajour**, med «Kom ajour.» og «Planer endrer seg. Det er helt greit.». Oversikten prioriterer neste handling og korte utdrag med vei videre til komplette visninger. De lokale SVG-illustrasjonene er gjenskapt med de to leverte PNG-referansene som grunnlag; en større designpakke var ikke tilgjengelig. Eksisterende Manrope og fontlisens beholdes. [Tidligere UI- og personvernkontroll](VERIFICATION-HISTORY.md#gjeldende-lokal-oppfølging--2026-10-26) skiller oppfølgingens resultater fra den historiske Ajour-runden 25. oktober og publiseringen `9d3a169` før Ajour.
+**Ajour-oppdatering, 2026-10-26:** Ordmerket er **ajour**, med «Kom ajour.» og «Planer endrer seg. Det er helt greit.». Oversikten prioriterer neste handling og korte utdrag med vei videre til komplette visninger. De lokale SVG-illustrasjonene er gjenskapt med de to leverte PNG-referansene som grunnlag; en større designpakke var ikke tilgjengelig. Eksisterende Manrope og fontlisens beholdes. [Verifikasjonsoversikten](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert) oppsummerer Ajour- og temaendringene 25.–26. oktober. Publiseringen `9d3a169` er historisk og før Ajour.
 
 Navneendringen krever ingen datamigrering. Mappen `studieplanlegger`, eksisterende lagrings-/backupformat, miljøvariabler og Docker-tjenesten `studieplan` med volumet `studieplan-data` beholder navnene sine. Bruk oppstartskommandoene nedenfor som før.
 
@@ -16,9 +16,9 @@ Navneendringen krever ingen datamigrering. Mappen `studieplanlegger`, eksisteren
 
 Tolv samordnede emnefarger følger emnets stabile ID, også når to læresteder bruker samme kode. Ledige plasser brukes før gjenbruk; mer enn tolv emner gir forutsigbar gjenbruk. Navn, kode, aktivitetstype og status står fortsatt i tekst. Vanlig sletting/Angre beholder fargen. Hvis en slettet fargeplass i mellomtiden er tatt av et annet emne, flyttes bare den nødvendige kollisjonen til en ledig plass; øvrige tildelinger beholdes. Det samme gjelder når en samling med fargegjenbruk krymper til tolv emner.
 
-Tema (`ajour:appearance:v1`) og ID→fargeplass (`ajour.course-colors.v1`) er separate preferanser i nettleseren, per adresse. De inngår **ikke** i database eller sikkerhetskopi. En gammel backup får gyldige standardfarger når slike preferanser mangler. Ugyldig eller utilgjengelig preferanselagring hindrer ikke bruk, men valget kan da gå tapt ved omlasting. Eksisterende automatisk kodehash er erstattet; appen hadde ingen tidligere brukerbetjent fargevelger eller lagret brukerfarge å migrere. [Ny temakontroll](VERIFICATION-HISTORY.md#emnepalett-og-mørk-modus--2026-10-26) skiller denne endringen fra tidligere Ajour-resultater.
+Tema (`ajour:appearance:v1`) og ID→fargeplass (`ajour.course-colors.v1`) er separate preferanser i nettleseren, per adresse. De inngår **ikke** i database eller sikkerhetskopi. En gammel backup får gyldige standardfarger når slike preferanser mangler. Ugyldig eller utilgjengelig preferanselagring hindrer ikke bruk, men valget kan da gå tapt ved omlasting. Eksisterende automatisk kodehash er erstattet; appen hadde ingen tidligere brukerbetjent fargevelger eller lagret brukerfarge å migrere. [Verifikasjonsoversikten](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert) oppsummerer temaendringen og kontrollene.
 
-**Samordnet leveransedokumentasjon, 2026-10-26:** Import, kalendergrenser og eksport er beskrevet nedenfor. [Verifikasjonen](VERIFICATION.md) viser nyeste kontrollerte kandidat, personvernrettinger og tekniske begrensninger først; eldre resultater beholder sine datoer. Private originaler og faktisk studentnytte er ikke verifisert.
+**Samordnet leveransedokumentasjon, 2026-10-26:** Import, kalendergrenser og eksport er beskrevet nedenfor. [Verifikasjonsoversikten](VERIFICATION.md) oppsummerer daterte resultater, rettinger og tekniske begrensninger. Private originaler og faktisk studentnytte er ikke verifisert.
 
 **Gjeldende avgrensning 2026-10-16:** [Planindeksen](../.docs/planning-artifacts/README.md) knytter brief, PRD og stories til kode/test som en datert rekonstruksjon. V1-import er HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, samt NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Full nasjonal dekning er visjon. Historiske tekniske kontroller nedenfor er ikke nye kjøringer eller dokumentert studentnytte.
 
@@ -26,7 +26,7 @@ En syntetisk hovedflyt er å opprette oppgaven «Les eksempelkapittel» med bare
 
 ## Nettleserdrift med Vercel — 2026-10-29
 
-**Produksjon: [Ajour på nett](https://ajour-sooty.vercel.app)**, kontrollert 2026-10-29. Den godkjente driftsutvidelsen bruker det eksisterende prosjektet **`ajour` i Hobby-teamet `ajour1`**. Gjenbruk dette ene gratisprosjektet; opprett ikke separate prosjekter for forhåndsvisning og produksjon. Eieren godkjente offentlig tilgang til eksisterende og framtidige preview-adresser etter kontroll av deployenes kildegrunnlag. Automatisk domenetildeling for `main` er aktivert med nødvendig kvalitetssjekk. [Faktisk publiseringsstatus](VERIFICATION-HISTORY.md#teknisk-sluttkontroll-og-publiseringssperrer--2026-10-29) dokumenterer commit og kjørte kontroller.
+**Produksjon: [Ajour på nett](https://ajour-sooty.vercel.app)**, kontrollert 2026-10-29. Den godkjente driftsutvidelsen bruker det eksisterende prosjektet **`ajour` i Hobby-teamet `ajour1`**. Gjenbruk dette ene gratisprosjektet; opprett ikke separate prosjekter for forhåndsvisning og produksjon. Eieren godkjente offentlig tilgang til eksisterende og framtidige preview-adresser etter kontroll av deployenes kildegrunnlag. Automatisk domenetildeling for `main` er aktivert med nødvendig kvalitetssjekk. [Verifikasjonsoversikten](VERIFICATION.md#dokumenterte-resultater) oppsummerer daterte kontroller; [kontrolloppskriften](VERIFICATION.md#finne-og-gjenta-kontrollene) beskriver hvordan en publisert versjon knyttes til riktig commit.
 
 Prosjektinnstillingene er repository `IBE160-2026/G37-yilmaz`, rotmappe `studieplanlegger`, rammeverk **Vite**, installasjon `npm ci`, bygg `npm run build:release`, utmappe `dist` og **Node.js 24.x**. `main` er produksjonsgren. [vercel.json](vercel.json) styrer byggesperre, API-ruting og appens inngang; `api/` eksponerer bare avgrenset, tilstandsløs import. `server/app.js` skal fortsatt bare starte den lokale Node-/SQLite-tjenesten. Nettutgaven krever ingen database, miljøhemmeligheter, konto eller betalt tjeneste.
 
@@ -127,7 +127,7 @@ Remove-Item Env:STUDIEPLAN_SEED_JSON -ErrorAction SilentlyContinue
 node server/app.js
 ```
 
-Åpne **http://127.0.0.1:5200**. Første oppstart er tom; syntetiske oppgaver beholdes ved neste oppstart med samme fil. Ctrl+C stopper bare denne serveren. Hvis porten er opptatt, avslutt din egen prøveprosess eller velg en annen ledig port; ikke stopp en ukjent tjeneste. [Verifikasjonen](VERIFICATION-HISTORY.md#emnepalett-og-mørk-modus--2026-10-26) oppgir hvilke nye kontroller som er kjørt på kandidaten og aktuell Docker-status.
+Åpne **http://127.0.0.1:5200**. Første oppstart er tom; syntetiske oppgaver beholdes ved neste oppstart med samme fil. Ctrl+C stopper bare denne serveren. Hvis porten er opptatt, avslutt din egen prøveprosess eller velg en annen ledig port; ikke stopp en ukjent tjeneste. [Verifikasjonsoversikten](VERIFICATION.md#dokumenterte-resultater) oppsummerer daterte kontroller, uten å bekrefte statusen til en lokal kjørende tjeneste.
 
 ## Full-stack drift med Docker
 
@@ -135,7 +135,7 @@ Forutsetning: Docker med Compose v2; kontroller med `docker compose version`. St
 
 Den komplette leveransen bygger nettleserklient, Node-server og SQLite-database fra de låste npm-avhengighetene. Node-basisbildet bruker den valgte, mutable taggen `node:24-bookworm-slim`. Skjemaet opprettes automatisk, og databasen ligger i et navngitt Docker-volum.
 
-Kommandoen nedenfor er historisk runtime-verifisert fra en ren leveransekopi. [Verifikasjonen](VERIFICATION-HISTORY.md#emnepalett-og-mørk-modus--2026-10-26) skiller ny isolert Docker-kontroll fra den tidligere motorblokkeringen; den er ikke en oppdatering av vanlig drift. Kommandoen bygger klient og server, oppretter SQLite-skjemaet automatisk og starter den lokale tjenesten:
+Kommandoen nedenfor er historisk runtime-verifisert fra en ren leveransekopi. [Verifikasjonsoversikten](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert) oppsummerer tidligere isolerte Node-/Docker-kontroller; disse bekrefter ikke statusen til vanlig drift. Kommandoen bygger klient og server, oppretter SQLite-skjemaet automatisk og starter den lokale tjenesten:
 
 ```powershell
 docker compose up --build -d
@@ -166,7 +166,7 @@ Sluttkontrollen etter reviewrettingene bestod **1382 enhetstester i 109 filer, 4
 
 ### Historisk Docker-kontroll — 2026-10-01
 
-Etter uavhengig review ble sluttkoden bygget fra **641 hashkontrollerte leveransefiler** i eget prosjekt på `127.0.0.1:18521`. Fire produksjonsforløp bestod normalt: fleksibel registrering, faktisk plan/replan, ekte NTNU-import med bevaring ved simulerte kildefeil og fersk browser/UI-backup/restore etter containergjenskaping. Hele tilstanden ved revisjon **34** overlevde; restore ga **36**. SQLite hadde integritet OK og **0 FK-brudd**. Container/nettverk er stoppet og det syntetiske volumet beholdt. Sluttregresjon: **1346 enheter, 41 nettleserforløp, 92 undervisningskontroller og 3 Node/SQLite-forløp**, alle normalt avsluttet. [VERIFICATION.md](VERIFICATION.md) skiller sluttbevis, historiske kjøringer og åpne review-/dekningstema.
+Etter uavhengig review ble sluttkoden bygget fra **641 hashkontrollerte leveransefiler** i eget prosjekt på `127.0.0.1:18521`. Fire produksjonsforløp bestod normalt: fleksibel registrering, faktisk plan/replan, ekte NTNU-import med bevaring ved simulerte kildefeil og fersk browser/UI-backup/restore etter containergjenskaping. Hele tilstanden ved revisjon **34** overlevde; restore ga **36**. SQLite hadde integritet OK og **0 FK-brudd**. Container/nettverk er stoppet og det syntetiske volumet beholdt. Sluttregresjon: **1346 enheter, 41 nettleserforløp, 92 undervisningskontroller og 3 Node/SQLite-forløp**, alle normalt avsluttet. [Verifikasjonsoversikten](VERIFICATION.md) oppsummerer utvalgte daterte resultater og gjenværende begrensninger.
 
 En lokal studieplanlegger for emner, oppgaver og tid. Appen bruker lokal parsing, planleggingsregler og enkel statistikk, uten konto eller generativ KI. Oppgaver, dokumentutdrag og arbeidshistorikk blir på denne enheten. Vanlig Node-start lytter på loopback; Docker bruker 0.0.0.0 inne i containeren og publiserer vertsporten bare på 127.0.0.1.
 
@@ -274,7 +274,7 @@ I Vite-utvikling og Vercel-utgaven kan sletting av nettleserdata slette planen f
 
 ## Kjente begrensninger ved levering
 
-**Status 1. november 2026.** V1 er fortsatt avgrenset til de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md); full støtte for alle læresteder er ikke et leveringskrav. Tidligere feil og rettinger er bevart i [verifikasjonen](VERIFICATION.md). Tabellen beskriver restpunkter, ikke nye funksjonsbestillinger.
+**Status 1. november 2026.** V1 er fortsatt avgrenset til de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md); full støtte for alle læresteder er ikke et leveringskrav. Tidligere feil og rettinger er oppsummert i [verifikasjonsoversikten](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert). Tabellen beskriver restpunkter, ikke nye funksjonsbestillinger.
 
 | Punkt og dokumentert status | Betydning for avtalt V1 og eventuell oppfølging |
 | --- | --- |
@@ -305,7 +305,7 @@ npm.cmd run verify:teaching
 npm.cmd run build
 ```
 
-Den vanlige nettlesersuiten bruker isolerte kontekster og en Vite-server på **127.0.0.1:5174**. `test:e2e:database` bygger appen, velger en ledig loopback-port, starter den faktiske Node/SQLite-serveren med en midlertidig database og rydder databasen etterpå. Begge bruker syntetiske studentdata. `verify:teaching` kjører den frakoblede adaptermatrisen med varige fixturer. Den eksplisitte opt-in-kommandoen `npm.cmd run verify:teaching:live` gjør avgrensede, skrivebeskyttede kontroller av HiMolde IBE110/IBE430/IBE160 og NTNU ARK1001/EXPH0100; den krever nettverk og lagrer ingen sesjonscookie. Live-prøver telles separat fra simulerte svar og offentlige fixturer. [VERIFICATION.md](VERIFICATION.md) dokumenterer de faktiske kjøringene, visuelle kontrollene og begrensningene.
+Den vanlige nettlesersuiten bruker isolerte kontekster og en Vite-server på **127.0.0.1:5174**. `test:e2e:database` bygger appen, velger en ledig loopback-port, starter den faktiske Node/SQLite-serveren med en midlertidig database og rydder databasen etterpå. Begge bruker syntetiske studentdata. `verify:teaching` kjører den frakoblede adaptermatrisen med varige fixturer. Den eksplisitte opt-in-kommandoen `npm.cmd run verify:teaching:live` gjør avgrensede, skrivebeskyttede kontroller av HiMolde IBE110/IBE430/IBE160 og NTNU ARK1001/EXPH0100; den krever nettverk og lagrer ingen sesjonscookie. Live-prøver telles separat fra simulerte svar og offentlige fixturer. [Verifikasjonsoversikten](VERIFICATION.md) samler utvalgte daterte resultater og begrensninger.
 
 `build` lager lokale filer i `dist/` og publiserer ingenting. Prosjektet har ingen egen lint- eller typekontrollkommando. Behold `package-lock.json`; `npm.cmd ci` installerer de låste avhengighetene.
 

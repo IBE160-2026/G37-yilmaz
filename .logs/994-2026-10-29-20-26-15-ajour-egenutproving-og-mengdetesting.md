@@ -74,7 +74,7 @@ Følge opp lagringsvekst ved identisk 500-import, stor backupgjenoppretting og a
 
 - Lese vedlegg som feilrapport, måle faktiske skriverier og feil med egne syntetiske data, og rette lagring/gjenoppretting først.
 - Kontrollere NTNU, AHO og den konkrete UiT-PDF-en mot offentlige kilder, med avgrensede norske forklaringer.
-- Uavhengig kodegjennomgang, full lokal kvalitetspakke og deretter kontrollert publisering. [Prøveplan](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og [målinger/kontrollhistorikk](../studieplanlegger/VERIFICATION.md) bevarer skillet mellom eierens og agentens prøver.
+- Uavhengig kodegjennomgang, full lokal kvalitetspakke og deretter kontrollert publisering. [Prøveplan](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og [verifikasjonsoversikten](../studieplanlegger/VERIFICATION.md) bevarer skillet mellom eierens og agentens prøver.
 
 ### Resultat
 

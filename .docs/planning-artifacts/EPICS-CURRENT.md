@@ -14,7 +14,7 @@ Presisering av S-01/S-03/S-04/S-05/S-06 og Q-01–Q-03 innen godkjent V1:
 - **Given** begge NIH-personfiltre eller personrester i senere segmenter/attributter, **when** personvernprøvene kjøres, **then** hvert relevant felt kontrolleres selvstendig og nødvendig parserstruktur bevares; et syntetisk token fritar ingen annen verdi.
 - **Given** det komplette kontrollerte filutvalget, **when** kandidaten får egen låst installasjon og relevante regressjoner, **then** faktiske resultater og manifest-samsvar føres med dato; utilgjengelig Docker rapporteres som manglende kontroll.
 
-[Aktuell evidens](../../studieplanlegger/VERIFICATION-HISTORY.md#gjeldende-lokal-oppfølging--2026-10-26) er teknisk kontroll. S-07/egenutprøving er planlagt / ikke gjennomført, og historisk publisering `9d3a169` før Ajour blir ikke ny akseptanse.
+[Datert kontrollgrunnlag](TRACEABILITY.md#lokal-ajour-oppfølging--2026-10-26) er teknisk kontroll. S-07/egenutprøving er planlagt / ikke gjennomført, og historisk publisering `9d3a169` før Ajour blir ikke ny akseptanse.
 
 ## Ajour-grensesnitt og bevaring — 2026-10-25
 
@@ -25,9 +25,9 @@ Presisering av eksisterende S-01–S-06/S-08 og Q-01–Q-03; dette innfører ing
 - **Given** åpne skjemaer, importavklaringer og kalender, **when** innhold oppdateres eller tastatur brukes, **then** utkast, fokus, rulling og åpne seksjoner bevares, dialogfokus returnerer og importbekreftelsen er tilgjengelig.
 - **Given** syntetiske data og sikkerhetskopier fra før navneendringen, **when** de lastes, gjenopprettes og eksporteres, **then** data, relasjoner og ICS-UID-er bevares uten migrering; samme isolerte SQLite-/Docker-lagring overlever gjenskaping sammen med statiske merkevareressurser.
 
-Kontrollene inkluderer lang tekst, hover/fokus/valg/feil, minst 4,5:1 tekstkontrast og redusert bevegelse. Faktiske kjøreresultater føres separat i [Ajour-verifikasjonen](../../studieplanlegger/VERIFICATION-HISTORY.md#ajour-grensesnitt-og-databevaring--2026-10-25). S-07/egenutprøving er planlagt / ikke gjennomført.
+Kontrollene inkluderer lang tekst, hover/fokus/valg/feil, minst 4,5:1 tekstkontrast og redusert bevegelse. Krav, testgrunnlag og datert Docker-begrensning står i [Ajour-sporbarheten](TRACEABILITY.md#ajour-grensesnitt-og-bevaring--2026-10-25). S-07/egenutprøving er planlagt / ikke gjennomført.
 
-**Samordnet 2026-10-25.** S-01/S-03/S-04/S-05 følger **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering** med lokale regler; S-02 støtter flyten med import, S-06 bevarer data, og S-08 bevarer valgfrie tillegg. Et eget steg er valgfritt. Krav-ID-er og HiMolde-/NTNU-avgrensning er uendret. Daterte tekniske resultater nedenfor tilhører sine kontrollerte versjoner; [publiseringskontrollen](../../studieplanlegger/VERIFICATION-HISTORY.md#publiseringskontroll--2026-10-25) skiller dem fra kandidatkontrollene. S-07/egenutprøvingen er planlagt / ikke gjennomført.
+**Samordnet 2026-10-25.** S-01/S-03/S-04/S-05 følger **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering** med lokale regler; S-02 støtter flyten med import, S-06 bevarer data, og S-08 bevarer valgfrie tillegg. Et eget steg er valgfritt. Krav-ID-er og HiMolde-/NTNU-avgrensning er uendret. Daterte tekniske resultater nedenfor tilhører sine kontrollerte versjoner; [verifikasjonsoversikten](../../studieplanlegger/VERIFICATION.md#omfang-og-hvordan-resultatene-skal-leses) forklarer hvordan daterte resultater skal leses. S-07/egenutprøvingen er planlagt / ikke gjennomført.
 
 ## Personvern og kalenderintegritet — 2026-10-25
 
@@ -44,7 +44,7 @@ Kjøreresultater og begrensninger føres i [VERIFICATION](../../studieplanlegger
 
 Approved additions to S-02/S-03/S-05/S-06/S-08 and Q-01–Q-03:
 
-Implementation and independent review were recorded complete on 24 October. [That dated technical acceptance](../../studieplanlegger/VERIFICATION-HISTORY.md#consolidated-import-and-calendar-closure--2026-10-24) records source/build hashes, the full unit run, relevant browser regression and 17 scenarios on each production runtime. Its manifests omit tests, fixtures and configuration, so they do not establish identical test inputs for a later candidate. The results do not establish student acceptance or private-calendar verification.
+Implementation and independent review were recorded complete on 24 October. That dated technical acceptance recorded source/build hashes, the full unit run, relevant browser regression and 17 scenarios on each production runtime. The [traceability](TRACEABILITY.md#consolidated-import-and-calendar-closure-2026-10-24) links the contracts to source and tests. Its manifests omit tests, fixtures and configuration, so they do not establish identical test inputs for a later candidate. The results do not establish student acceptance or private-calendar verification.
 
 - **Given** first/middle/later title codes and qualified file/plan courses, **when** previewed, **then** unique links resolve automatically without title-based exam/deadline classification; multiple codes or institutions require one shared clarification.
 - **Given** legacy empty links or explicit manual links/no-course decisions, **when** repaired and reimported, **then** uncertain legacy intent is clarified per course once, the decision persists, and event/source identities and unrelated edits survive.
@@ -57,12 +57,12 @@ Implementation and independent review were recorded complete on 24 October. [Tha
 
 ## Import clarity follow-up — 2026-10-23
 
-The [approved bounded correction](../../studieplanlegger/VERIFICATION-HISTORY.md#import-clarity-final-review--2026-10-23) adds these acceptance examples to S-02/S-05/S-06 and Q-01–Q-03, preserving the existing V1 scope:
+The [approved bounded correction](TRACEABILITY.md#import-clarity-trace--2026-10-23) adds these acceptance examples to S-02/S-05/S-06 and Q-01–Q-03, preserving the existing V1 scope:
 
 - **Given** mixed known/unknown institutions, **when** the student opens compact per-course choices or applies a common choice, **then** known affiliations remain intact, unknown remains valid, and deliberate corrections require consent. A same-source/UID reimport with omitted affiliation restores only uniquely established context.
 - **Given** an equal, missing or invalid end with a valid start, **when** the student explicitly confirms a point, **then** user provenance persists through refresh/reload/reimport and the point reserves no duration or invented deadline. Invalid starts remain rejected; later positive ends restore intervals.
 - **Given** valid 30-row TP CSV or mixed ICS input, **when** the student previews, chooses all/published groups/individual exceptions and confirms once, **then** exact times, names, IDs, course links and omissions survive storage, editing, undo and recreation. HTTP rejection or a real stale revision preserves the previous envelope.
-- **Given** desktop, 390px or enlarged text, **when** keyboard controls or delayed responses update the draft, **then** focus, scroll, open sections and newer choices remain usable. Technical screenshots and action/control counts are recorded separately from student testing in [VERIFICATION](../../studieplanlegger/VERIFICATION.md).
+- **Given** desktop, 390px or enlarged text, **when** keyboard controls or delayed responses update the draft, **then** focus, scroll, open sections and newer choices remain usable. Technical screenshots and action/control counts remain separate from student testing; the [traceability](TRACEABILITY.md#import-clarity-trace--2026-10-23) links the consumer controls to tests.
 - **Given** a time decision, an incomplete numeric edit or a retained receipt, **when** selection/rendering changes or a later edit is saved, **then** reselection preserves the explicit time decision, rendering retains the live input and current row binding, and stale receipt undo rejects without changing the saved envelope. Colliding group labels remain distinguishable; compact and detailed institution choices show the same effective affiliation and consent.
 
 **Rekonstruert 2026-10-16**, jf. [proveniens og historikk](README.md). Disse åtte små historiene beskriver eksisterende kode og planlagt egenutprøving. «Implementert» betyr at kode og tekniske tester finnes; det er ikke en ny kjøring eller studentaksept. [PRD](PRD.md) eier R-/Q-kravene, og [sporbarhet](TRACEABILITY.md) peker til kode, navngitte tester og daterte resultater.
@@ -82,9 +82,9 @@ Status 2026-11-01: implementert; automatisert teknisk onboarding finnes. Prosjek
 
 Som student vil jeg se kildens informasjon og usikkerhet før jeg bekrefter den.
 
-Bounded correction **2026-10-19**, see [correction](../../studieplanlegger/VERIFICATION-HISTORY.md#ics-point-markers-and-period-correction--2026-10-19): given a mixed calendar with intervals, date-only events and timed events without an end, when imported, then valid point markers remain editable without invented duration or busy time. Given a new file after an earlier period choice, then automatic file dates apply until an explicit filter is chosen; included, filtered and rejected source entries must be explained separately from generated course proposals and recurrence occurrences.
+Bounded correction **2026-10-19**, see [correction](TRACEABILITY.md#avgrenset-kalenderfiloppfølging--2026-10-18): given a mixed calendar with intervals, date-only events and timed events without an end, when imported, then valid point markers remain editable without invented duration or busy time. Given a new file after an earlier period choice, then automatic file dates apply until an explicit filter is chosen; included, filtered and rejected source entries must be explained separately from generated course proposals and recurrence occurrences.
 
-Tillegg bestilt **2026-10-18**, jf. [datert oppfølging](../../studieplanlegger/VERIFICATION-HISTORY.md#kalenderfil-og-sammenhengende-flyt--2026-10-18):
+Tillegg bestilt **2026-10-18**, jf. [datert oppfølging](TRACEABILITY.md#avgrenset-kalenderfiloppfølging--2026-10-18):
 
 - **Given** én ICS-fil med tydelig identifiserte nye/eksisterende emner og en hendelse uten emne, **When** studenten gjennomgår nødvendige gruppeavklaringer og bekrefter én gang, **Then** opplysningene lagres samlet med stabile identiteter og eksisterende angre; uten-emne-hendelsen kan vises og redigeres etter omlasting.
 - **Given** samme kalenderkilde med endrede, avlyste og manglende oppføringer, **When** en oppdatering kontrolleres, **Then** UID/forekomstidentitet beholdes, fravær sletter ikke hendelser, og lokale konflikter må avklares.
@@ -98,7 +98,7 @@ Tillegg bestilt **2026-10-18**, jf. [datert oppfølging](../../studieplanlegger/
 
 Status 2026-11-01: implementert med avgrenset, datert evidens i [importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md). Hel HiMolde-programgjentakelse er teknisk kontrollert med syntetiske kilder; hel gjentakelse med faktisk kildetransport påstås ikke. NTNU-avgrensningen følger PRD, uten programløfte. [Kjente begrensninger](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering), inkludert F03/F05, beholdes.
 
-Approved S-02 follow-up **2026-10-19**, [resolution correction](../../studieplanlegger/VERIFICATION-HISTORY.md#course-resolution-source-changes-and-csv-clarification--2026-10-19):
+Approved S-02 follow-up **2026-10-19**, [resolution correction](TRACEABILITY.md#course-resolution-and-source-clarification-2026-10-19):
 
 - **Given** a qualified course code and one verified name, **When** a file or link is previewed, **Then** the name is resolved without a separate approval; unknown or ambiguous identity requires one grouped clarification.
 - **Given** a missing name or explicit course deselection, **When** linked activities remain selected, **Then** the preview explains the unresolved relationship and cannot save a dangling reference or silently remap activities.
@@ -173,27 +173,27 @@ Status 2026-11-01: implementert tillegg, med integrerte tester. Prosjekteierens 
 
 ### Subsequent calendar form correction — 2026-10-19 (S-02, S-05, S-06; Q-01)
 
-The [bounded UI correction](../../studieplanlegger/VERIFICATION-HISTORY.md#calendar-import-forms-final-follow-up-2026-10-19) refines the existing stories without extending coverage.
+The [bounded UI correction](TRACEABILITY.md#calendar-form-follow-up-evidence-2026-10-19) refines the existing stories without extending coverage.
 
 - **Given** an empty planner and a mixed synthetic ICS file, **When** the student uses any file entry with automatic dates and resolves a code-only course name once, **Then** new courses and linked/unassigned events are saved together.
 - **Given** optional settings or an earlier program semester, **When** a new file draft opens, **Then** only an explicit manual period choice enables filtering and required semester/year validation.
 - **Given** a supported calendar link without saved courses, **When** snapshot import is selected, **Then** the shared preview offers course clarification; the existing recurring-source contract remains an explicit separate choice.
 - **Given** many events, **When** the preview opens, **Then** counts distinguish courses/events/points, valid event groups collapse and confirmation remains reachable.
 
-These are reported UI problems and technical acceptance criteria, not a student trial. See the separately dated entry in [VERIFICATION](../../studieplanlegger/VERIFICATION.md) for actual results.
+These are reported UI problems and technical acceptance criteria, not a student trial. See the dated [traceability section](TRACEABILITY.md#calendar-form-follow-up-evidence-2026-10-19) for the recorded test totals and scope.
 
 
 ### Import story correction evidence - 2026-10-19
 
-S-02, S-05 and S-06 retain their existing scope. The [approved continuation](../../studieplanlegger/VERIFICATION-HISTORY.md#final-blocked-import-continuation--2026-10-19) supplies missing context-to-name resolution, explicit grouped fallback, exact TP term discovery and CSV calendar identity/time persistence. New synthetic visible cases reproduce the three blockers before fixes; focused corrected results are 177 unit tests and 17 browser cases. These are technical evidence, not student testing or national source coverage.
+S-02, S-05 and S-06 retain their existing scope. The [approved continuation](TRACEABILITY.md#additional-sc-02sc-06-import-evidence---2026-10-19) supplies missing context-to-name resolution, explicit grouped fallback, exact TP term discovery and CSV calendar identity/time persistence. New synthetic visible cases reproduce the three blockers before fixes; focused corrected results are 177 unit tests and 17 browser cases. These are technical evidence, not student testing or national source coverage.
 
-Final story acceptance is technically verified through the visible forms: empty planner → code-only ICS → context/name/fallback/no-course decisions → one save; populated planner → legacy CSV encoding/title choice → linked calendar event; bare public TP → exact published term or explicit variant choice. Reimport, undo, failed write, real revision conflict and Node/Docker recreation preserve exact state. The final 100-case browser run includes asynchronous active-field and scroll preservation. Actual public name lookup and separate TP adapter evidence, limitations and deployment status are documented in [VERIFICATION](../../studieplanlegger/VERIFICATION.md). The original private files and complete clipped URL remain unverified.
+Final story acceptance is technically verified through the visible forms: empty planner → code-only ICS → context/name/fallback/no-course decisions → one save; populated planner → legacy CSV encoding/title choice → linked calendar event; bare public TP → exact published term or explicit variant choice. Reimport, undo, failed write, real revision conflict and Node/Docker recreation preserve exact state. The final 100-case browser run includes asynchronous active-field and scroll preservation. The dated [traceability section](TRACEABILITY.md#additional-sc-02sc-06-import-evidence---2026-10-19) records public name lookup, separate TP adapter observations and deployment status. The original private files and complete clipped URL remain unverified.
 
 ### Import usability acceptance — 2026-10-21 (S-02, S-05, S-06; Q-01)
 
-At the **2026-10-21 pre-review checkpoint**, all six isolated Node/SQLite and Docker/SQLite scenarios passed with recreation and fresh browsers. Visible first UiO TP/CSV imports required no precreated UiO course. Published-group and ungrouped all-selection each saved eight activities in two selection/confirmation actions; deliberate exceptions remained excluded on reimport. Exact seconds and source labels survived storage. These checkpoint results precede the review corrections below; current execution status and bounded source/test limitations are maintained in [VERIFICATION](../../studieplanlegger/VERIFICATION.md).
+At the **2026-10-21 pre-review checkpoint**, all six isolated Node/SQLite and Docker/SQLite scenarios passed with recreation and fresh browsers. Visible first UiO TP/CSV imports required no precreated UiO course. Published-group and ungrouped all-selection each saved eight activities in two selection/confirmation actions; deliberate exceptions remained excluded on reimport. Exact seconds and source labels survived storage. These checkpoint results precede the review corrections below; selected dated results and evidence limits are summarized in [VERIFICATION](../../studieplanlegger/VERIFICATION.md).
 
-The [approved correction](../../studieplanlegger/VERIFICATION-HISTORY.md#import-usability-continuation--2026-10-21) adds bounded acceptance to the existing import story:
+The [approved correction](TRACEABILITY.md#import-usability-trace--2026-10-21) adds bounded acceptance to the existing import story:
 
 - **Given** another institution in an existing or empty planner, **when** its published context or a registry choice is supplied, **then** institutions, accepted course names and links survive save/reload without precreating that institution's courses.
 - **Given** eight ungrouped seminars or eight members of one published group, **when** the student chooses all or that group and confirms, **then** selection/save needs two activations; individual exclusions survive repeat import. Titles and overlaps never establish membership.
@@ -209,26 +209,26 @@ Review corrections on the same date add these cases to S-02/S-05/S-06 and the ex
 - **Given** equal group names in different course contexts or simultaneous start/end column ambiguities, **when** the student reviews choices, **then** labels distinguish the course and destination field, and examples expose the actual differing rows even when those occur later in the file.
 - **Given** supported millisecond timestamps and deliberate exclusions, **when** the student previews, opens calendar details, edits notes and reimports, **then** exact instants, links and exclusions survive. Refresh also retains explicitly approved provisional-title provenance; equivalent start aliases remain calendar events, malformed assessment groups are rejected, and exceeding the existing retained-exclusion limit gives a specific nonmutating error.
 
-The added [visible review journeys](../../studieplanlegger/tests/e2e/import-usability-review.spec.js), [unit regressions](../../studieplanlegger/tests/unit/import-usability-review.test.js) and expanded [selection/editor journey](../../studieplanlegger/tests/e2e/import-resolution.spec.js) verify these outcomes. Final post-review technical acceptance passed, including Node/SQLite and Docker recreation; earlier checkpoints remain historical. Tests are synthetic technical evidence. Public CSV schema, private CSV/TP equivalence and actual student understanding remain distinct, unverified claims; see dated [verification results](../../studieplanlegger/VERIFICATION.md).
+The added [visible review journeys](../../studieplanlegger/tests/e2e/import-usability-review.spec.js), [unit regressions](../../studieplanlegger/tests/unit/import-usability-review.test.js) and expanded [selection/editor journey](../../studieplanlegger/tests/e2e/import-resolution.spec.js) verify these outcomes. Final post-review technical acceptance passed, including Node/SQLite and Docker recreation; earlier checkpoints remain historical. Tests are synthetic technical evidence. Public CSV schema, private CSV/TP equivalence and actual student understanding remain distinct, unverified claims; see the [evidence limits](../../studieplanlegger/VERIFICATION.md#omfang-og-hvordan-resultatene-skal-leses).
 
 ### S-02/S-05/S-06 follow-up - 2026-10-21
 
-The [reimport repair](../../studieplanlegger/VERIFICATION-HISTORY.md#reimport-repair-final-verification---2026-10-21) adds these acceptance cases: a display-title change after reload retains activity IDs; pre-fix deletion/exclusion history survives reimport; real deletion needs an explicit grouped keep/restore decision; changing the missing candidate requires fresh consent; accepted course names and manual edits remain; undo followed by reimport retains valid relationships. Dates and course consequences distinguish ambiguous choices. No missing activity is silently recreated. Concrete results and limits are in [VERIFICATION](../../studieplanlegger/VERIFICATION.md).
+The [reimport repair](TRACEABILITY.md#reimport-repair-trace---2026-10-21) adds these acceptance cases: a display-title change after reload retains activity IDs; pre-fix deletion/exclusion history survives reimport; real deletion needs an explicit grouped keep/restore decision; changing the missing candidate requires fresh consent; accepted course names and manual edits remain; undo followed by reimport retains valid relationships. Dates and course consequences distinguish ambiguous choices. No missing activity is silently recreated. The [verification overview](../../studieplanlegger/VERIFICATION.md#begrensninger-og-gjenstående-arbeid) summarizes current evidence limits.
 
 
 ### Source lifecycle continuation - 2026-10-21
 
-The user's subsequent failure reopens the existing R-02/R-05/R-06 and S-02/S-05/S-06 import journey. [The approved continuation](../../studieplanlegger/VERIFICATION-HISTORY.md#reopened-source-lifecycle-blocker---2026-10-21) requires A-to-B-to-A source revisions, deletion restore/omit and refreshed confirmation to reach storage with stable IDs; known per-course institutions must survive missing raw context, and deliberate corrections need explicit consent. New-file source selection and asynchronous drafts must remain isolated. Invalid previews explain their state rather than show zero completed totals. This applies the teacher's main-flow and documented-quality feedback within the same bounded providers/formats. [Dated verification](../../studieplanlegger/VERIFICATION.md) distinguishes proven synthetic failures, implementation checks and final runtime acceptance; earlier counts are not proof of this later blocker.
+The user's subsequent failure reopens the existing R-02/R-05/R-06 and S-02/S-05/S-06 import journey. [The approved continuation](TRACEABILITY.md#source-lifecycle-continuation---2026-10-21) requires A-to-B-to-A source revisions, deletion restore/omit and refreshed confirmation to reach storage with stable IDs; known per-course institutions must survive missing raw context, and deliberate corrections need explicit consent. New-file source selection and asynchronous drafts must remain isolated. Invalid previews explain their state rather than show zero completed totals. This applies the teacher's main-flow and documented-quality feedback within the same bounded providers/formats. The [verification overview](../../studieplanlegger/VERIFICATION.md#omfang-og-hvordan-resultatene-skal-leses) explains evidence limits; earlier counts are not proof of this later blocker.
 
 ### S-02/S-05/S-06: recognized TP CSV repair — 2026-10-23
 
-The [approved repair](../../studieplanlegger/VERIFICATION-HISTORY.md#recognized-tp-csv-main-flow-repair--2026-10-23) adds bounded acceptance without new adapters:
+The [approved repair](TRACEABILITY.md#recognized-tp-csv-repair-trace--2026-10-23) adds bounded acceptance without new adapters:
 
 - **Given** a recognized 30-row TP CSV with partial blank titles and no full course name, **when** the file is selected, reviewed and collectively confirmed, **then** reliable row-level text fallbacks and marked provisional names save without individual name typing or a technical column question.
 - **Given** an exact positive subminute interval, **when** previewed, edited, saved and reloaded, **then** its seconds and duration remain exact. Explicit valid points remain nonblocking; missing, invalid, reversed or unmarked equal ends require correction or explicit omission, without invented duration.
 - **Given** previous ICS data and CSV import history, **when** importing a new CSV or reimporting after reload, manual edits or undo, **then** source selection, stable IDs, course links, accepted names and deliberate exclusions survive. Failed or stale writes leave the stored envelope unchanged.
 
-The original user's time values remain unverified. Technical synthetic evidence, runtime availability and exact exit codes are recorded separately in [VERIFICATION](../../studieplanlegger/VERIFICATION.md); neither private-file compatibility nor student usability is inferred.
+The original user's time values remain unverified. Technical synthetic checks, runtime availability and private-file compatibility remain distinct; the [verification scope](../../studieplanlegger/VERIFICATION.md#omfang-og-hvordan-resultatene-skal-leses) explains these limits. Neither private-file compatibility nor student usability is inferred.
 
 ### Calendar correction acceptance — 2026-10-24 (S-02/S-03/S-05/S-06/S-08; Q-01–Q-03)
 
@@ -240,4 +240,4 @@ The original user's time values remain unverified. Technical synthetic evidence,
 - **Given** busy intervals, transparent activities and points selected for export, **when** the actual file is downloaded and reread, **then** TRANSP matches capacity and points have no invented end. Export remains a copy with the existing selection scope.
 - **Given** desktop, 390px mobile, larger text and keyboard use, **when** the necessary clarification is completed, **then** confirmation remains reachable, blockers and ready counts are understandable, and focus/selection/open details survive updates.
 
-These are approved acceptance criteria. Dated execution evidence is recorded separately in [VERIFICATION](../../studieplanlegger/VERIFICATION.md). The user's new equal-time report supplies the structural CSV fact; this round does not inspect the original or establish its meaning. Sensor guidance remains unavailable; technical checks are not student testing.
+These are approved acceptance criteria. Test coverage is linked in the [calendar-correction traceability](TRACEABILITY.md#calendar-corrections-trace--2026-10-24). The user's new equal-time report supplies the structural CSV fact; this round does not inspect the original or establish its meaning. Sensor guidance remains unavailable; technical checks are not student testing.
