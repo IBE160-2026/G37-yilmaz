@@ -1,24 +1,14 @@
 # Slik virker Ajour
 
-**Gjeldende leveringsstatus — 1. november 2026:** [Åpne Ajour](https://ajour-sooty.vercel.app/) eller følg [lokal oppstart og brukerveiledning](../../studieplanlegger/README.md). De rapporterte omprøvingene er bestått som [egenutprøving utført av prosjekteier](../planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), inkludert de konkret avgrensede lagrings-/gjenopprettingsfunnene. SC-07/1200–30 og Outlook 30. oktober beholder bestått. [Begrensningsoversikten](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) og [leveringsoversikten](../../README.md#leveringsoversikt--1-november-2026) viser hva som fortsatt er åpent. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown i repoet; personlig sluttgjennomlesing og innlevering er ikke bekreftet. Daterte beskrivelser nedenfor er utviklingshistorikk.
+**[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.** Begynn med en oppgave, kontroller en studieøkt og registrer utfallet etter arbeidet. [Brukerveiledningen](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) viser de første stegene; [lokal drift og utvikling](../../studieplanlegger/README.md#lokal-drift-og-utvikling) er alternativer for sensor og utviklere.
 
-Rapporten er tilgjengelig i [GitHub-repoets dokumentasjon](https://github.com/IBE160-2026/G37-yilmaz) etter prosjekteierens uttrykkelige tillatelse. Markdown er den redigerbare rapporten og eneste rapportformat i repoet. Den er holdt utenfor appens brukergrensesnitt, `public/` og Vercel-opplastingen. [Planindeksen](../planning-artifacts/README.md#leveringskontroll--2026-11-01) angir malens 3000–5000 ord og hvilke formelle opplysninger eieren fortsatt må kontrollere. [Teknisk verifikasjon](../../studieplanlegger/VERIFICATION.md) dokumenterer automatiske kontroller og publiseringsbevis separat fra rapporten og egenutprøvingen.
+Planen i nettutgaven tilhører nettleserprofilen og den nøyaktige nettadressen. Sletting av nettleserdata kan slette planen; det finnes ingen konto eller enhetssynkronisering. Bruk **Innstillinger → Data og sikkerhetskopi** for å oppbevare en separat kopi eller flytte data. Lokal Node-/Docker-drift bruker SQLite; tabellen nedenfor skiller driftsformene.
 
-## Lokal oppfølging — 2026-10-26
+<a id="hovedflyt-og-gjeldende-løfte--2026-10-16"></a>
 
-Den fylte mobiloversikten har en kort introduksjon før Start. Tidsspørsmålet, hurtigvalgene og egendefinert tid er én samlet kontrollgruppe. Forfalt arbeid, ferdig arbeid og bekreftet innlevering beholder ulike handlinger, med rolige påminnelser etter hovedhandlingen. Tom onboarding tilbyr oppgave med bare tittel tydelig; import er valgfri. Dialoger skal ha synlige handlinger og faktisk intern rulling ved 200 % tekst, med alle felt tilgjengelige fra tastaturet og fokus tilbake ved lukking.
+## Hovedflyt og gjeldende løfte
 
-[Verifikasjonsoversikten](../../studieplanlegger/VERIFICATION.md#omfang-og-hvordan-resultatene-skal-leses) forklarer skillet mellom daterte kontroller og gjenbrukt teknisk evidens. Docker-blokkeringen i de tidligere rundene er historisk; temaoppfølgingen 26. oktober inkluderte senere beståtte isolerte Docker-prøver, og [sporbarheten](../planning-artifacts/TRACEABILITY.md#emnepalett-og-mørk-modus--2026-10-26) viser testgrunnlaget. Ingen ny runtimekontroll er utført i denne dokumentrevisjonen. Dette er teknisk evidens innen samme V1, ikke dokumentert studentnytte.
-
-## Ajour-grensesnitt — 2026-10-25
-
-Ajour beholder den samme hovedflyten og de samme dataene. **Kom ajour.** møter studenten med neste handling, og **Planer endrer seg. Det er helt greit.** forklarer plassen til omplanlegging. Korte oversiktsutdrag leder til fullstendige oppgave-, kalender- og planvisninger. Mobil prioriterer handlingen i én kolonne; kalenderen beholder egen avgrenset rulling. Tomme tilstander og ukjent tid skal forklares uten demoarbeid, oppdiktede anslag eller ubekreftede påstander om ledig kapasitet.
-
-Ordmerke, notatbok/ansikt og dekor er lokale SVG-er gjenskapt fra de leverte desktop-/mobil-PNG-ene. En større designpakke var ikke tilgjengelig. Manrope og eksisterende fontlisens beholdes. [Arkitekturens AD-14](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-14--ajour-presentation-with-stable-data-contracts-2026-10-25) beskriver palett, teknisk navneklassifisering og bevarte kontrakter. [Ajour-sporbarheten](../planning-artifacts/TRACEABILITY.md#ajour-grensesnitt-og-bevaring--2026-10-25) kobler den nye utformingen og kompatibiliteten til kode og tester; tidligere kjøringer beviser ikke denne endringen.
-
-## Hovedflyt og gjeldende løfte — 2026-10-16
-
-[Brief, PRD og stories](../planning-artifacts/README.md) er rekonstruert denne datoen for å gjøre dagens kode etterprøvbar. Importløftet er avgrenset til de navngitte HiMolde-/NTNU-prøvene i briefen; nasjonal dekning er framtidsvisjon. Historiske kontroller nedenfor er ikke nye kjøringer eller studentresultater.
+[Brief, PRD og stories](../planning-artifacts/README.md) ble rekonstruert **2026-10-16** for å gjøre kodegrunnlaget etterprøvbart. Importløftet er avgrenset til de navngitte HiMolde-/NTNU-prøvene i briefen; nasjonal dekning er framtidsvisjon. Historiske kontroller nedenfor er ikke nye kjøringer eller studentresultater.
 
 Et enkelt **syntetisk** eksempel: Opprett emnet «Eksempelfag» og oppgaven «Les eksempelkapittel». Bare tittelen er nødvendig; legg eventuelt til steget «Les første avsnitt». Legg til et ledig arbeidsvindu og en opptatt periode. Kontroller en foreslått halvtimesøkt før godkjenning. Etter økten registreres 30 faktiske minutter og for eksempel 45 minutter gjenstående hver for seg. Hvis planen må endres, kontrolleres og godkjennes et forslag som kan angres. Et ferdig steg fullfører ikke hele oppgaven, og ferdig arbeid bekrefter ikke innlevering. Eksemplet beskriver **oppgave → arbeidssteg → godkjent studieøkt → utfall → justering**, ikke en ny utført prøve eller en students erfaring.
 
@@ -33,26 +23,29 @@ flowchart LR
 
 Tekniske beslutninger og sammenhengen med krav står i [arkitekturen](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). Etter prosjekteierens beslutning **2026-10-26** gjelder [egenutprøvingen](../planning-artifacts/USER-TRIAL-PLAN.md) prosjekteieren alene, med syntetiske data i et isolert miljø. Prøveplanen har gjeldende daterte resultater og skiller dem fra automatiske kontroller. Resultatene dokumenterer egne observasjoner, ikke ukjente brukeres forståelse eller generell studentnytte. Dokumentasjonsarbeidet bruker Codex; den manuelle egenutprøvingen er utført av prosjekteieren. Sensorveiledningen for del 1 er lest i sin helhet, senest i leveringskontrollen 1. november.
 
-Ajour er en lokal studieplanlegger skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet, som er dokumentert i [utviklingsprosessen](development-process.md). Dokumentet er ikke studentens personlige refleksjonsrapport.
-
-**Samordning 2026-10-25:** [Importavtalen](../../studieplanlegger/IMPORT.md) beskriver felles forhåndsvisning, avklaring av emner/tid, gjentatt import og kildegrenser. [Nyeste verifikasjon](../../studieplanlegger/VERIFICATION.md) skiller kandidatkontrollene fra historiske resultater. Sensorveiledning og godkjent proposal manglet i publiseringsrunden før Ajour 25. oktober. Alle sju sensorsider ble senere lest i Ajour-runden samme dag; godkjent proposal er fortsatt ikke identifisert.
+Ajour er en studieplanlegger for nettleseren, med valgfri lokal Node-/Docker-drift, skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet, som er dokumentert i [utviklingsprosessen](development-process.md). Dokumentet er ikke studentens personlige refleksjonsrapport.
 
 ## Nettleserutgave — 2026-10-29
 
-[Ajour på nett](https://ajour-sooty.vercel.app/) bruker den samme hovedflyten med planen i nettleserprofilens `localStorage` og avgrensede Vercel-funksjoner for offentlig import. Profiler og nøyaktige nettadresser har separate data; localhost, preview og produksjon deler ikke automatisk plan. Sikkerhetskopi brukes til flytting og oppbevaring. Ingen konto, skydatabase eller enhetssynkronisering er innført. [Publiseringskontrollen fra 29. oktober](../../.logs/997-2026-10-29-13-35-00-ajour-vercel.md) er teknisk historikk; gjeldende egenutprøving står øverst og i prøveplanen. De to lokale kjøremåtene nedenfor beholdes.
+[Ajour på nett](https://ajour-sooty.vercel.app/) bruker den samme hovedflyten med planen i nettleserprofilens `localStorage` og avgrensede Vercel-funksjoner for offentlig import. Profiler og nøyaktige nettadresser har separate data; localhost, forhåndsvisning og publisert adresse deler ikke automatisk plan. Sikkerhetskopi brukes til flytting og oppbevaring. Ingen konto, skydatabase eller enhetssynkronisering er innført. [Publiseringskontrollen fra 29. oktober](../../.logs/997-2026-10-29-13-35-00-ajour-vercel.md) er teknisk historikk; gjeldende egenutprøving står i [prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). De lokale alternativene i tabellen beholdes.
 
-## To lokale kjøremåter
+<a id="to-lokale-kjøremåter"></a>
+
+## Nettutgave og lokale kjøremåter
 
 | Kjøremåte | Autoritativ lagring | Bruksområde |
 | --- | --- | --- |
-| Docker/produksjon | Node-API og SQLite | Den komplette lokale leveransen. Node serverer den bygde Vite-klienten, validerer alle endringer og skriver databasen transaksjonelt. Compose publiserer bare på `127.0.0.1` og beholder databasen i et navngitt volum. |
-| Vite-utvikling | Nettleserens `localStorage` | Rask lokal UI-utvikling og den vanlige nettlesertestsuiten. Denne modusen bruker ikke SQLite og er derfor ikke bevis for produksjonslagringen. |
+| [Publisert nettutgave](https://ajour-sooty.vercel.app/) | Nettleserprofilens `localStorage`, separat for hver nettadresse | Vanlig bruk uten installasjon. Vercel leverer appen og avgrensede importfunksjoner; ingen delt studentlagring, konto eller skydatabase. |
+| Lokal Node-server eller Docker | Node-API og SQLite | Lokal drift. Node serverer den bygde Vite-klienten, validerer alle endringer og skriver databasen transaksjonelt. Node bruker den valgte databasefilen; Compose publiserer bare på `127.0.0.1` og beholder databasen i et navngitt volum. |
+| Vite-utvikling og lokal Vite-forhåndsvisning | Nettleserprofilens `localStorage`, separat for hver nettadresse | Lokal utvikling og nettleserkontroll. Denne modusen bruker ikke SQLite og dokumenterer derfor ikke lokal serverlagring. |
 
-Ved første produksjonsstart kan en tom database tilby å kopiere gyldige eksisterende nettleserdata. Originalen i nettleseren beholdes. Flyttingen bruker fingeravtrykk og arkivkvittering, slik at samme datasett ikke importeres flere ganger. Eksport og validert gjenoppretting kan brukes når appen åpnes på en annen lokal adresse.
+Ved første start av lokal Node-/Docker-drift kan en tom SQLite-database tilby å kopiere gyldige eksisterende nettleserdata fra samme adresse. Originalen i nettleseren beholdes. Flyttingen bruker fingeravtrykk og arkivkvittering, slik at samme datasett ikke importeres flere ganger. Eksport og validert gjenoppretting brukes til å flytte data mellom adresser og driftsformer.
 
-Kontrollen 1. oktober 2026 beholder disse kjøremåtene. Feilet kildeoppdatering bevarer tidligere undervisning og valg, og registrerer nytt forsøk separat fra siste vellykkede kontroll. En enkelt HTTP-feil bekrefter ikke innloggingskrav. Kapasitetsberegning reserverer også økter uten oppgave og varsler om egne aktiviteter med ukjent tid; plansammenligning teller ikke samme tidsintervall som arbeid for flere oppgaver. Gjentatt import av arbeidssteg bevarer allerede redigerte og fullførte steg. Se [gjeldende verifikasjon](../../studieplanlegger/VERIFICATION.md) og [datatypefordelt importdekning](../../studieplanlegger/IMPORT-COVERAGE.md).
+<a id="fra-brukerhandling-til-sqlite"></a>
 
-## Fra brukerhandling til SQLite
+## Fra brukerhandling til SQLite i lokal Node-/Docker-drift
+
+Diagrammet gjelder den lokale serverutgaven. Nettutgaven og Vite bruker nettleserlagring og sender ikke planen til dette API-et.
 
 ```mermaid
 flowchart TD
@@ -70,7 +63,7 @@ flowchart TD
 
 En ny oppgave trenger bare et navn. Emne, frist, hovedestimat, gjenstående arbeid, prioritet, avhengigheter og innleveringskrav kan legges til når de er kjent. [tasks.js](../../studieplanlegger/src/tasks.js) normaliserer og validerer oppgaven. [storage.js](../../studieplanlegger/src/storage.js) velger lagringsadapter: Vite-/Vercel-modusen validerer den komplette konvolutten før `localStorage`, mens lokal Node-/SQLite-modus sender kandidaten og forventet revisjon til [state-api.js](../../studieplanlegger/server/state-api.js). API-et validerer hele datasettet og relasjonene før [database.js](../../studieplanlegger/server/database.js) skriver SQLite.
 
-An optional task-adjacent proposal reduces first-time setup. [study-time.js](../../studieplanlegger/src/study-time.js) distinguishes confirmed work windows, selected study-time preferences, concrete one-off candidates, and provisional assumptions. A saved pattern is reused, while “Det varierer” and the no-choice draft create no weekly pattern. [replanning-view.js](../../studieplanlegger/src/replanning-view.js) presents readable sessions and reveals manual date/time fields only as the final move option. [replanning.js](../../studieplanlegger/src/replanning.js) retains rule enforcement, scopes task-adjacent changes, validates move alternatives, and rejects stale drafts before writing.
+Et valgfritt øktforslag ved oppgaven gjør det enklere å komme i gang. [study-time.js](../../studieplanlegger/src/study-time.js) skiller bekreftede arbeidsvinduer, valgte studietidspreferanser, konkrete engangsforslag og foreløpige antakelser. Et lagret mønster gjenbrukes, mens «Det varierer» og et utkast uten valg ikke oppretter et ukemønster. [replanning-view.js](../../studieplanlegger/src/replanning-view.js) viser lesbare økter og manuelle dato-/tidsfelt først ved siste flyttealternativ. [replanning.js](../../studieplanlegger/src/replanning.js) håndhever reglene, avgrenser endringene til den aktuelle oppgaven, validerer flyttealternativer og avviser foreldede utkast før lagring.
 
 I lokal Node-/SQLite-modus sender klienten revisjonen den sist leste. Hvis en annen endring allerede har økt revisjonen, svarer API-et med HTTP 409 i stedet for å overskrive nyere data. Den avviste kandidaten blir ikke delvis lagret; klienten må lese gjeldende tilstand og la brukeren prøve endringen på nytt. Vite-/Vercel-modus har ikke serverrevisjoner; nettleserens optimistiske konfliktvern erstatter ikke SQLite-transaksjoner. Bruk én redigerende fane i nettutgaven og oppbevar egne sikkerhetskopier.
 
@@ -136,17 +129,19 @@ Utelatelseslisten navngir frist, lagret datoverdi og konkret årsak uten å gjet
 
 [plan-comparison.js](../../studieplanlegger/src/plan-comparison.js) beregner alle alternativer fra samme fingeravtrykk, klokkeslett og periode. «Behold dagens plan» er et nullalternativ; redusert kapasitet og valgt oppgaveprioritet går gjennom den eksisterende omplanleggeren. Sammenligning skriver ingenting. Bruk av ett forslag går gjennom samme revisjonskontroll og historikk som andre samlede planendringer, slik at et foreldet forslag avvises og en anvendt plan kan angres.
 
-SQLite-tabellene `topics`, `assessments` og `review_decisions` har relasjonelle identitetskolonner og tapsfri JSON. Nettleserlagring, sikkerhetskopi, recovery og historikk bruker de samme valgfrie envelope-feltene. Personvernsletting fjerner arbeidshistorikk, egenvurderinger, beslutninger og tilhørende repetisjonsøkter også fra lokale recovery-kopier og lesbare legacy-arkiver; den endrer ikke sikkerhetskopier brukeren allerede har lastet ned.
+I lokal Node-/Docker-drift har SQLite-tabellene `topics`, `assessments` og `review_decisions` relasjonelle identitetskolonner og tapsfri JSON. Nettleserlagring, sikkerhetskopi, recovery og historikk bruker de samme valgfrie feltene i tilstandskonvolutten. Personvernsletting fjerner arbeidshistorikk, egenvurderinger, beslutninger og tilhørende repetisjonsøkter også fra lokale recovery-kopier og lesbare legacy-arkiver; den endrer ikke sikkerhetskopier brukeren allerede har lastet ned.
 
 ## Feil, sikkerhetskopi og gjenoppretting
 
-Ugyldige felt eller relasjoner avvises før skriving. En SQLite-endring som består av flere tabelloperasjoner kjøres i én transaksjon; enten lagres hele tilstanden med ny revisjon, eller så beholdes den forrige. Erstattende endringer lager et begrenset recovery-øyeblikksbilde. Innstillinger lar brukeren eksportere en portabel JSON-sikkerhetskopi og forhåndsvise en validert gjenoppretting før databasen erstattes. Recovery, angre og papirkurv er hjelp mot nylige brukerhandlinger, ikke en erstatning for en separat sikkerhetskopi ved diskfeil.
+Ugyldige felt eller relasjoner avvises før skriving i begge driftsformer. I lokal Node-/Docker-drift kjøres en SQLite-endring som består av flere tabelloperasjoner i én transaksjon; enten lagres hele tilstanden med ny revisjon, eller så beholdes den forrige. Nettutgaven validerer tilstanden før nettleserlagring, med egne kvote- og konfliktgrenser. Erstattende endringer lager et begrenset recovery-øyeblikksbilde.
+
+Under **Innstillinger → Data og sikkerhetskopi** kan brukeren eksportere en portabel JSON-fil og forhåndsvise validert gjenoppretting før dataene erstattes. Tilgangsopplysninger utelates fra filen; kalenderlenker kan kreve ny tilkobling. Recovery, angre og papirkurv er hjelp mot nylige brukerhandlinger og erstatter ikke en separat kopi ved sletting av nettleserdata eller diskfeil. Kalenderens `.ics`-eksport er heller ikke en full sikkerhetskopi.
 
 ## Hva testene kontrollerer
 
 - [Enhetstestene](../../studieplanlegger/tests/unit) dekker validering, relasjoner, forslag, kapasitet, omplanlegging, arbeidsstatus, SQLite-migrering, revisjonskonflikter, recovery og sikkerhetskopi.
-- [Nettlesertestene](../../studieplanlegger/tests/e2e) kontrollerer de synlige brukerflytene. Den vanlige suiten bruker Vite/localStorage.
-- `npm run test:e2e:database` bygger klienten, starter Node/SQLite med en midlertidig database på loopback og kjører den produksjonsrettede databaseflyten.
+- [Nettlesertestene](../../studieplanlegger/tests/e2e) kontrollerer de synlige brukerflytene. `npm.cmd run test:e2e` bruker Vite/localStorage; `npm.cmd run test:e2e:ci` bruker den bygde klienten med nettleserlagring på en midlertidig loopback-adresse.
+- `npm.cmd run test:e2e:database` bygger klienten, starter lokal Node/SQLite med en midlertidig database på loopback og kjører databaseflyten. Dette er separat fra kontroll av publisert Vercel-versjon.
 - [VERIFICATION.md](../../studieplanlegger/VERIFICATION.md) skiller daterte, faktisk kjørte kontroller fra historiske eller utestede påstander.
 
 Testene bruker syntetiske data. Et grønt bygg viser at den kontrollerte tekniske flyten virker; det dokumenterer ikke studentens opplevde nytte eller læring. [Utviklingsprosessen](development-process.md) beskriver dette skillet og samler kildebelagte hendelser uten å fylle inn personlige vurderinger.
@@ -156,3 +151,25 @@ Testene bruker syntetiske data. Et grønt bygg viser at den kontrollerte teknisk
 Tekstregistreringen godtar en trygg deklarativ tittel uten kommandoprefiks og viser først et kompakt forslag; emne, frist og arbeid ligger under valgfrie detaljer. Spørsmål og ukjent mutasjonsintensjon avvises. Korte datoer bruker inneværende Oslo-år når datoen ikke er passert; ellers kreves eksplisitt årsvalg. Ukjent arbeid er `null`, og tomt eller eksplisitt fravær av emne oppretter aldri et kunstig emne.
 
 Egne kalenderaktiviteter ligger i `planner.events` med `activityKind: "personal"`, tom `courseId`, `dateLocal` og valgfri `start`/`end`. Bare begge instanser blokkerer kapasitet. Dato alene og start alene vises med eksplisitt usikkerhet på kalender-, agenda- og dagsflater. Kildeoppdatering er isolert gjennom fravær av kildeidentitet, og ICS-eksport krever et eget opt-in-valg og bevarer den lagrede presisjonen.
+
+## Datert leveringsstatus og utviklingshistorikk
+
+**Leveringsstatus 1. november 2026:** De rapporterte omprøvingene er bestått innen dokumentert omfang som [egenutprøving utført av prosjekteier](../planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). SC-07/1200–30 og Outlook 30. oktober beholder bestått. [Begrensningsoversikten](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) og [leveringsoversikten](../../README.md#leveringsoversikt--1-november-2026) viser åpne punkter. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown; personlig sluttgjennomlesing og innlevering er ikke bekreftet.
+
+[Planindeksens leveringskontroll](../planning-artifacts/README.md#leveringskontroll--2026-11-01) bevarer vurderingsgrunnlaget og rapportens avgrensning. [Teknisk verifikasjon](../../studieplanlegger/VERIFICATION.md) samler daterte kontroller og publiseringsbevis. Historisk F03 og personvernfunn er fortsatt åpne; den rettede fredags-/fristregresjonen 2. november lukker ikke historisk F03.
+
+## Lokal oppfølging — 2026-10-26
+
+Den fylte mobiloversikten har en kort introduksjon før Start. Tidsspørsmålet, hurtigvalgene og egendefinert tid er én samlet kontrollgruppe. Forfalt arbeid, ferdig arbeid og bekreftet innlevering beholder ulike handlinger, med rolige påminnelser etter hovedhandlingen. Tom onboarding tilbyr oppgave med bare tittel tydelig; import er valgfri. Dialoger skal ha synlige handlinger og faktisk intern rulling ved 200 % tekst, med alle felt tilgjengelige fra tastaturet og fokus tilbake ved lukking.
+
+[Verifikasjonsoversikten](../../studieplanlegger/VERIFICATION.md#omfang-og-hvordan-resultatene-skal-leses) forklarer skillet mellom daterte kontroller og gjenbrukt teknisk evidens. Docker-blokkeringen i de tidligere rundene er historisk; temaoppfølgingen 26. oktober inkluderte senere beståtte isolerte Docker-prøver, og [sporbarheten](../planning-artifacts/TRACEABILITY.md#emnepalett-og-mørk-modus--2026-10-26) viser testgrunnlaget. Ingen ny runtimekontroll er utført i denne dokumentrevisjonen. Dette er teknisk evidens innen samme V1, ikke dokumentert studentnytte.
+
+## Ajour-grensesnitt — 2026-10-25
+
+Ajour beholder den samme hovedflyten og de samme dataene. **Kom ajour.** møter studenten med neste handling, og **Planer endrer seg. Det er helt greit.** forklarer plassen til omplanlegging. Korte oversiktsutdrag leder til fullstendige oppgave-, kalender- og planvisninger. Mobil prioriterer handlingen i én kolonne; kalenderen beholder egen avgrenset rulling. Tomme tilstander og ukjent tid skal forklares uten demoarbeid, oppdiktede anslag eller ubekreftede påstander om ledig kapasitet.
+
+Ordmerke, notatbok/ansikt og dekor er lokale SVG-er gjenskapt fra de leverte desktop-/mobil-PNG-ene. En større designpakke var ikke tilgjengelig. Manrope og eksisterende fontlisens beholdes. [Arkitekturens AD-14](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-14--ajour-presentation-with-stable-data-contracts-2026-10-25) beskriver palett, teknisk navneklassifisering og bevarte kontrakter. [Ajour-sporbarheten](../planning-artifacts/TRACEABILITY.md#ajour-grensesnitt-og-bevaring--2026-10-25) kobler den nye utformingen og kompatibiliteten til kode og tester; tidligere kjøringer beviser ikke denne endringen.
+
+**Samordning 2026-10-25:** [Importavtalen](../../studieplanlegger/IMPORT.md) beskriver felles forhåndsvisning, avklaring av emner/tid, gjentatt import og kildegrenser. [Nyeste verifikasjon](../../studieplanlegger/VERIFICATION.md) skiller kandidatkontrollene fra historiske resultater. Sensorveiledning og godkjent proposal manglet i publiseringsrunden før Ajour 25. oktober. Alle sju sensorsider ble senere lest i Ajour-runden samme dag; godkjent proposal er fortsatt ikke identifisert.
+
+Kontrollen **1. oktober 2026** gjaldt de to lokale kjøremåtene: Node-/Docker-drift med SQLite og Vite med nettleserlagring. Nettutgaven ble godkjent senere, 29. oktober. Kontrollen dokumenterte at feilet kildeoppdatering bevarte tidligere undervisning og valg og registrerte nytt forsøk separat fra siste vellykkede kontroll. En enkelt HTTP-feil bekreftet ikke innloggingskrav. Kapasitetsberegningen reserverte også økter uten oppgave og varslet om egne aktiviteter med ukjent tid; plansammenligning talte ikke samme tidsintervall som arbeid for flere oppgaver. Gjentatt import av arbeidssteg bevarte allerede redigerte og fullførte steg. Se [gjeldende verifikasjon](../../studieplanlegger/VERIFICATION.md) og [datatypefordelt importdekning](../../studieplanlegger/IMPORT-COVERAGE.md).
