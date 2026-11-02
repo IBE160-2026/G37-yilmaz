@@ -58,7 +58,7 @@ export function parseDocumentDate(value) {
   }
   const issues = []
   if (!date) issues.push('Datoen mangler et entydig år eller datoformat.')
-  if (!time) issues.push('Klokkeslett mangler; velg det selv eller lagre uten frist.')
+  if (!time) issues.push('Klokkeslett mangler; bekreft dato uten klokkeslett, oppgi klokkeslett selv eller lagre uten frist.')
   if (ambiguous) issues.push('Dato med skråstrek kan bety dag/måned eller måned/dag. Avklar datoen.')
   const candidate = date && time ? `${date}T${time}` : ''
   if (candidate && !validDeadline(candidate)) issues.push('Dato eller klokkeslett er ugyldig.')
@@ -132,7 +132,12 @@ export function parseDocumentText(text, { blocks, format = 'text' } = {}) {
       localSuffix = tail.match(/^(?:[:.,]\d+)?(?:\s*(?:Z\b|[+-]\d{2}(?::?\d{2})?(?::\d+)?|\[[^\]]+\]))?/i)?.[0] || ''
       localSuffix += namedZoneSuffix(tail.slice(localSuffix.length))
     }
-    const dateRaw = isoToken || (localDate && localDate[0] + localSuffix) || value.match(/(?<![\p{L}\p{N}\p{M}])(?:frist|deadline|due)(?![\p{L}\p{N}\p{M}])\s*:?\s*.*$|(?<![\p{L}\p{N}\p{M}])(?:leveres|innleveres|innlevering)\s+(?:innen|senest)\s+.+$/iu)?.[0] || ''
+    // An explicit deadline cue still needs a decision when its date cannot be
+    // parsed. Weekday mentions alone never create or infer a deadline.
+    const relativeDeadlineCue = !event && value.match(/(?<![\p{L}\p{N}\p{M}])(?:innen|senest)\s+(?:mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag|i\s+(?:dag|morgen|kveld|natt)|(?:neste|denne|kommende|førstkommende)\s+(?:uke|måned|helg|mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)|(?:utgangen|slutten)\s+av\s+(?:dagen|uken|uka|måneden|semesteret)|kl\.?\s*\d{1,2}|\d{1,2}[:.]\d{2}(?![./]\d)|(?:om\s+)?(?:\d+|en|ei|ett)\s+(?:time|timer|dag|dager|døgn|uke|uker|måned|måneder))(?![\p{L}\p{N}\p{M}]).*$/iu)?.[0]
+    const deadlineCue = value.match(/(?<![\p{L}\p{N}\p{M}])(?:frist|deadline|due)(?![\p{L}\p{N}\p{M}])\s*:?\s*.*$|(?<![\p{L}\p{N}\p{M}])(?:leveres|innleveres|innlevering)\s+(?:innen|senest)\s+.+$/iu)?.[0]
+    // A different date elsewhere in the sentence cannot resolve this cue.
+    const dateRaw = relativeDeadlineCue || isoToken || (localDate && localDate[0] + localSuffix) || deadlineCue || ''
     const date = parseDocumentDate(dateRaw)
     const row = baseRow(event ? 'event' : 'task', value, value, position, { courseHint, selected: event || task, unsupported: !event && !task, deadlineLocal: date.value, deadlineRaw: dateRaw, deadlineIssues: date.issues, requiresSubmission: /(?<![\p{L}\p{N}\p{M}])(innlevering|lever|submit|assignment)(?![\p{L}\p{N}\p{M}])/iu.test(value) })
     if (event) {

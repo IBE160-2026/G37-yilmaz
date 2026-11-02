@@ -345,10 +345,10 @@
         <details class="local-help">
           <summary>Hjelp og lokal lagring</summary>
           <div>
-            <h2>Bruk på din datamaskin</h2>
-            <p>Åpne <a href="http://studieplan.localhost/">studieplan.localhost</a> mens den lokale serveren kjører. Bruk samme adresse og nettleserprofil hver gang.</p>
-            <p>Har du brukt den gamle adressen? Tidligere oppgaver ligger fortsatt på <a href="http://localhost:5173/">den gamle siden</a> mens den serveren kjører. De flyttes ikke automatisk til den nye adressen.</p>
-            <p>Oppgavene lagres i nettleseren, uten konto eller synkronisering. Sletting av nettleserdata kan slette oppgavene. Bruk én redigerende fane og samme tidssone.</p>
+            <h2 id="storage-help-heading">Lagring i nettleseren</h2>
+            <p id="storage-help-description">Planen lagres bare i denne nettleserprofilen på denne nettadressen. Sletting av nettleserdata kan slette planen. Enheter synkroniseres ikke. Bruk sikkerhetskopi for å flytte planen.</p>
+            <p id="storage-help-local-server" hidden>Hold den lokale Node- eller Docker-serveren i gang mens du bruker Ajour. Behold databasen eller Docker-volumet ved omstart.</p>
+            <p>Sikkerhetskopi finnes under Innstillinger → Data og sikkerhetskopi. Velg «Eksporter sikkerhetskopi» for å lagre en fil, eller «Importer sikkerhetskopi» for å hente den inn.</p>
             <p>Frister bruker lokal dato og klokkeslett i 24-timersformat. Kalenderen viser frister og studieøkter. Kapasitet foreslår arbeid innen øktene før hver frist; gjenstående tid oppdaterer du selv.</p>
           </div>
         </details>

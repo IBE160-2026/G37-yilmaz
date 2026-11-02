@@ -10,6 +10,20 @@ Avtalt V1 er de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md). Flere
 
 **Eierens egenutprøving, automatiske tester med syntetiske data og faktiske offentlige kildeprøver er forskjellige bevis.** Et bestått resultat gjelder den daterte prøven og dens versjon, ikke automatisk dagens produksjon, alle kilder eller generell studentnytte. Denne forkortingen er dokumentarbeid og innebærer ingen ny manuell egenutprøving.
 
+## Fristavklaring, oppgavebekreftelse og lagringshjelp — 2026-11-02
+
+Førtilstanden er reprodusert mot commit `0e58fc72b057beb41a9b3bedb9805d567ac7a60e`: parser/modell tillot lagring med tom frist for `Les kapittel 4 innen fredag kl. 14`, både alene og sammen med `Innlevering syntetisk test, frist 2026-11-06 kl. 14:00`. En ny isolert Chromium-profil mot daværende produksjon viste **«2 av 2 oppføringer klare · 0 må avklares»**. `/release.json` bekreftet samme commit. Produksjonsprøven lagret ingen import.
+
+Rettelsen markerer tydelige, ufortolkede fristuttrykk som uavklart, med forklaring også i lukket rad. Valgt dato, dato uten klokkeslett, **Uten frist** eller utelatelse avklarer oppgaven; importen skriver ingenting mens en valgt rad krever avklaring. Tilfeldige ukedagsomtaler og vanlige oppgaver uten frist blokkeres ikke. En tidligere lydløs utelatelse regnes ikke som et dokumentert brukerønske ved gjenimport. Uttrykkelige valg og eksisterende data bevares. Dette er avklaring, ikke ny generell datotolking.
+
+«Kontroller før lagring» viser hele den effektive fristen og oppdateres etter redigering, også etter årvalg. Ingen frist, bare dato og dato med klokkeslett forblir forskjellige verdier. Hjelp og Innstillinger bruker samme eksisterende driftsflagg: nettleserprofil/adresse, slettingsfare, ingen synkronisering og sikkerhetskopi i nettutgaven; lokal SQLite-/serverinformasjon i Node-/Docker-utgaven.
+
+Regresjonene finnes i [fristparser og atomisk import](tests/unit/document-deadline-clarification.test.js), [oppgavesammendrag](tests/unit/text-registration-preview.test.js) og [faktiske Chromium-prøver](tests/e2e/own-trial-deadline-help.spec.js). Nettleserprøvene kjøres mot bygd app og isolert SQLite-server, ved 1440 og 390 piksler, med syntetiske data. De måler avvist lagring, bevaring av tidligere oppgaver/importkilder, omlasting, redigert frist og hjelpetekst i begge driftsformer. Dette er tekniske prøver, ikke eierens manuelle egenutprøving.
+
+**Historisk F03 er fortsatt avgrenset:** Den lokale HTML-rapporten fra 29. oktober gjelder tekst tolket som oppgaver fremfor kalenderaktiviteter. Rapporten er funnet, men originalen `stress-text-005.txt` er ikke funnet eller omprøvd. Den nye fristregresjonen dokumenterer derfor ikke at hele historisk F03 er lukket. De tidligere 40 enhetstestene og sju simulerte nettleserprøvene er heller ikke ført som nye faktiske nettlesertester. Historiske resultater nedenfor beholder dato og omfang.
+
+Lokal kontroll 2. november: **2604/2604 enhetstester i 149 filer**, produksjonsbygg, **146/146 faktiske Chromium-prøver mot bygd app** og **14/14 Chromium-/SQLite-prøver** bestod. Av enhetstestene er 60 nye importregresjoner og 15 nye sammendragsregresjoner; SQLite-kjøringen omfatter de tre eksisterende databaseprøvene og elleve nye brukerflyter. Vanlig skjermbredde (1440 px) og mobilbredde (390 px) er prøvd, med visuell gjennomgang av skjermbilder. Hovedbundle er 959,61 kB / 293,45 kB gzip; eksisterende størrelsesvarsel består. Markdown-lenker, dokument-/fixturekontroll med utfoldede ICS-linjer og staged whitespace-kontroll bestod. Refleksjonsrapporten, fontdata og eksisterende testfiler er uendret.
+
 ## Dokumenterte resultater
 
 | Grunnlag | Resultat og avgrensning | Detaljer |

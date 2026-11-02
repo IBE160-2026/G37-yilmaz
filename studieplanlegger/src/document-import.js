@@ -3,7 +3,7 @@ import { resolveDocumentCourses, retryDocumentCourseNames } from './document-cou
 import { invalidateDocumentCourseName } from './document-course-identity.js'
 import { DOCUMENT_LIMITS } from './document-parsers.js'
 import { createDocumentImportPreview, buildDocumentImportCommit, refreshDocumentConflicts, changeDocumentRowKind, refreshDocumentImportPreview, documentSourceChanged, addDocumentCourseDraft, chooseDocumentCourse, chooseDocumentTime, chooseDocumentSelection } from './import-preview.js'
-import { estimateChoiceRange } from './tasks.js'
+import { estimateChoiceRange, validDeadline } from './tasks.js'
 import { isExamEvent } from './event-kind.js'
 import { institutions } from './institutions.js'
 import { documentInstitution } from './document-course-identity.js'
@@ -94,6 +94,12 @@ const provisionalCourse = row => row.kind === 'course' && row.nameStatus === 'pr
 const rowDisplayName = row => row.kind === 'course' ? visibleName({ ...row, name: row.title }) : row.title
 const rowCourseLabel = row => nameFirstLabel({ ...row, name: row.title })
 const unresolvedTime = row => row.kind === 'event' && (!row.startLocal || !row.point && (!row.endLocal || row.endLocal <= row.startLocal) && !(row.originalStart && row.originalEnd && Date.parse(row.originalEnd) > Date.parse(row.originalStart) && row.startLocal === osloLocal(row.originalStart) && row.endLocal === osloLocal(row.originalEnd)))
+const unresolvedDeadline = row => {
+  if (row.kind !== 'task' || row.deadlineMode === 'none') return false
+  if (row.deadlineMode === '?' || !validDeadline(row.deadlineLocal)) return true
+  try { if (row.deadlineLocal.length > 10) toInstant(row.deadlineLocal); return false } catch { return true }
+}
+const deadlineSummary = row => unresolvedDeadline(row) ? ` · Frist må avklares: ${row.deadlineMode === '?' && row.deadlineRaw ? 'uttrykket kunne ikke tolkes' : 'dato eller klokkeslett mangler eller er ugyldig'}. Oppgi dato, velg «Uten frist» eller utelat oppgaven.` : ''
 const fieldNames = { title: 'navn', name: 'emnenavn', deadlineLocal: 'frist', remainingMinutes: 'gjenstående minutter', courseId: 'emne', course: 'emne', start: 'start', end: 'slutt', location: 'sted', description: 'beskrivelse', semester: 'semester', year: 'år' }
 const courseOptionLabel = course => {
   const identity = nameFirstLabel(course) || 'Emne uten navn'
@@ -134,7 +140,7 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
   const selectionSummary = el('p', undefined, 'document-selection-summary'); form.append(selectionSummary)
   form.append(el('p', 'Importen er et øyeblikksbilde. Den oppdateres ikke automatisk.', 'form-hint'))
   const referenced = row => row.kind === 'course' && preview.rows.some(item => item.kind !== 'course' && item.selected && item.courseChoice === `row:${row.index}`)
-  const needsChoice = row => !row.selected && referenced(row) || row.kind !== 'course' && !row.title || row.courseTarget === '?' || row.kind !== 'course' && row.courseChoice === '?' || row.matchChoice === '?' || row.deadlineMode === '?' || row.statusNeedsChoice && row.statusChoice !== 'open' || row.deletedLocally && !row.recreate || row.typeChanged && row.typeChangeChoice !== 'replace' || row.estimateIssue && !row.estimateResolved || row.conflicts.some(conflict => !row.conflictChoices[conflict.field]) || row.kind === 'course' && !row.courseTarget && (!row.title && !provisionalCourse(row) || !row.year || !row.semester) || unresolvedTime(row)
+  const needsChoice = row => !row.selected && referenced(row) || row.kind !== 'course' && !row.title || row.courseTarget === '?' || row.kind !== 'course' && row.courseChoice === '?' || row.matchChoice === '?' || unresolvedDeadline(row) || row.statusNeedsChoice && row.statusChoice !== 'open' || row.deletedLocally && !row.recreate || row.typeChanged && row.typeChangeChoice !== 'replace' || row.estimateIssue && !row.estimateResolved || row.conflicts.some(conflict => !row.conflictChoices[conflict.field]) || row.kind === 'course' && !row.courseTarget && (!row.title && !provisionalCourse(row) || !row.year || !row.semester) || unresolvedTime(row)
   const updateSummary = () => {
     cancelPreviewSummary(container)
     const currentState = getState()
@@ -474,7 +480,7 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
         return mark(key, field(parent, label, value, onChange, type, savedCourse ? undefined : editor))
       }, rowChoice = (key, ...args) => mark(key, choice(...args))
       const summary = el('summary'); section.append(summary)
-      const updateRowSummary = () => { const linked = row.kind === 'course' && linkedCourse(row); section.dataset.pending = String(Boolean((row.selected || referenced(row)) && needsChoice(row))); summary.textContent = `${row.index + 1}. ${rowTypeName(row)} · ${(row.kind === 'course' ? rowCourseLabel(row) : rowDisplayName(row)) || (row.draftCourse && !row.selected ? 'Ubrukt emneforslag' : 'Mangler navn')}${row.kind === 'course' ? ` · Lærested: ${(linked ? linked.university : row.university) || 'Ukjent / velg senere'}` : ''}${row.kind === 'event' && row.startLocal ? ` · ${row.originalStart && row.startLocal === osloLocal(row.originalStart) ? calendarInstantLabel(row.originalStart, { includeDate: true }) : row.startLocal.replace('T', ' ')}` : ''}${row.kind === 'event' && row.point ? ` · Punkt uten varighet – ${row.pointProvenance === 'user' ? 'ditt valg' : 'fra kilden'}` : ''}${row.resolutionNote === 'Emnekoden er godkjent som foreløpig navn.' && row.title === row.code ? ' · foreløpig navn' : ''}${row.kind === 'course' && row.sourceObjectId ? ` · Kildevalg: ${row.sourceObjectId}` : ''}${row.kind === 'course' && row.campus ? ` · Campus: ${row.campus}` : ''}${row.selected ? ' · valgt' : ' · utelatt'}` }
+      const updateRowSummary = () => { const linked = row.kind === 'course' && linkedCourse(row); section.dataset.pending = String(Boolean((row.selected || referenced(row)) && needsChoice(row))); summary.textContent = `${row.index + 1}. ${rowTypeName(row)} · ${(row.kind === 'course' ? rowCourseLabel(row) : rowDisplayName(row)) || (row.draftCourse && !row.selected ? 'Ubrukt emneforslag' : 'Mangler navn')}${row.kind === 'course' ? ` · Lærested: ${(linked ? linked.university : row.university) || 'Ukjent / velg senere'}` : ''}${row.kind === 'event' && row.startLocal ? ` · ${row.originalStart && row.startLocal === osloLocal(row.originalStart) ? calendarInstantLabel(row.originalStart, { includeDate: true }) : row.startLocal.replace('T', ' ')}` : ''}${row.kind === 'event' && row.point ? ` · Punkt uten varighet – ${row.pointProvenance === 'user' ? 'ditt valg' : 'fra kilden'}` : ''}${row.kind === 'task' ? deadlineSummary(row) : ''}${row.resolutionNote === 'Emnekoden er godkjent som foreløpig navn.' && row.title === row.code ? ' · foreløpig navn' : ''}${row.kind === 'course' && row.sourceObjectId ? ` · Kildevalg: ${row.sourceObjectId}` : ''}${row.kind === 'course' && row.campus ? ` · Campus: ${row.campus}` : ''}${row.selected ? ' · valgt' : ' · utelatt'}` }
       updateRowSummary()
       let editorRendered = false
       section.renderEditor = () => {
@@ -600,13 +606,29 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
           if (row.deadlineRaw || row.deadlineIssues.length) fields.append(el('p', `Frist i kilden: ${row.deadlineRaw || 'ikke entydig'}. ${row.deadlineIssues.join(' ')}`, 'form-hint'))
           else if (!row.deadlineLocal) fields.append(el('p', 'Frist: Ikke funnet i dokumentet.', 'form-hint'))
           if (row.retainedCorrection) fields.append(el('p', 'Din tidligere avklaring av fristen er beholdt.'))
-          const deadlineMode = rowChoice('deadlineMode', fields, 'Frist', [['?', 'Avklar fristen'], ['none', 'Uten frist'], ['value', 'Oppgi dato og klokkeslett']], row.deadlineMode, value => { row.deadlineMode = value })
-          rowField('deadlineLocal', fields, 'Dato og klokkeslett i norsk tid', row.deadlineLocal, value => { row.deadlineLocal = value; row.deadlineMode = value ? 'value' : '?' }, 'datetime-local')
+          const dateOnly = row.deadlineDateOnly ?? row.deadlineLocal.length === 10
+          const deadlineLabel = dateOnly => dateOnly ? 'Dato uten klokkeslett' : 'Dato og klokkeslett i norsk tid'
+          const deadlineMode = rowChoice('deadlineMode', fields, 'Frist', [['?', 'Avklar fristen'], ['none', 'Uten frist'], ['date', 'Oppgi dato uten klokkeslett'], ['value', 'Oppgi dato og klokkeslett']], row.deadlineMode === 'value' && dateOnly ? 'date' : row.deadlineMode, value => {
+            row.deadlineMode = value === 'date' ? 'value' : value
+            if (value === 'date' || value === 'value') {
+              row.deadlineDateOnly = value === 'date'
+              if (value === 'date') row.deadlineLocal = row.deadlineLocal.slice(0, 10)
+              deadlineInput.type = value === 'date' ? 'date' : 'datetime-local'
+              deadlineInput.value = row.deadlineLocal
+              deadlineInput.parentElement.firstChild.textContent = deadlineLabel(value === 'date')
+              // Switching from a date to a timestamp requires the user to supply
+              // its clock; the native editor must not imply a midnight value.
+              row.deadlineLocal = deadlineInput.value
+            }
+            if (value === 'none') { row.deadlineLocal = ''; deadlineInput.value = '' }
+            updateRowSummary(); updateSummary()
+          })
+          const deadlineInput = rowField('deadlineLocal', fields, deadlineLabel(dateOnly), row.deadlineLocal, value => { row.deadlineLocal = value; row.deadlineMode = value ? 'value' : '?'; deadlineMode.value = value ? deadlineInput.type === 'date' ? 'date' : 'value' : '?'; updateRowSummary() }, dateOnly ? 'date' : 'datetime-local')
           const remaining = rowField('remainingMinutes', fields, 'Gjenstående minutter (tomt = vet ikke)', row.remainingMinutes, value => { row.remainingMinutes = value === '' ? null : Number(value); row.remainingEstimate = null; row.remainingChoice = ''; remainingChoice.value = ''; row.estimateResolved = true }, 'number'); remaining.min = '0'; remaining.step = '1'
           const remainingChoice = rowChoice('remainingChoice', fields, 'Hvor mye arbeid tror du gjenstår?', [['', 'Vet ikke'], ['under30', 'Under 30 min'], ['from30to60', '30–60 min'], ['from60to120', '1–2 timer'], ['from120to240', '2–4 timer'], ['over240', 'Mer enn 4 timer']], row.remainingChoice || '', value => { row.remainingChoice = value; row.remainingEstimate = estimateChoiceRange(value); row.remainingMinutes = null; remaining.value = ''; row.estimateResolved = true })
           if (!row.deadlineLocal && !row.deadlinePromptDismissed) {
-            const addDeadline = el('button', 'Legg til frist'); addDeadline.type = 'button'; addDeadline.onclick = () => { row.deadlineMode = 'value'; section.open = true; fields.querySelector('[data-field=deadlineLocal]')?.focus() }
-            const dismissDeadline = el('button', 'Ikke spør igjen for denne oppgaven'); dismissDeadline.type = 'button'; dismissDeadline.className = 'secondary'; dismissDeadline.onclick = () => { row.deadlineMode = 'none'; row.deadlinePromptDismissed = true; deadlineMode.value = 'none'; dismissDeadline.textContent = 'Fristpåminnelse slått av' }
+            const addDeadline = el('button', 'Legg til frist'); addDeadline.type = 'button'; addDeadline.onclick = () => { row.deadlineMode = 'value'; deadlineMode.value = deadlineInput.type === 'date' ? 'date' : 'value'; section.open = true; deadlineInput.focus(); updateRowSummary(); updateSummary() }
+            const dismissDeadline = el('button', 'Ikke spør igjen for denne oppgaven'); dismissDeadline.type = 'button'; dismissDeadline.className = 'secondary'; dismissDeadline.onclick = () => { row.deadlineMode = 'none'; row.deadlineLocal = ''; deadlineInput.value = ''; row.deadlinePromptDismissed = true; deadlineMode.value = 'none'; dismissDeadline.textContent = 'Fristpåminnelse slått av'; updateRowSummary(); updateSummary() }
             fields.append(addDeadline, dismissDeadline)
           } else if (!row.deadlineLocal) fields.append(el('p', 'Fristpåminnelse er slått av for denne oppgaven. Fristen er fortsatt ukjent.', 'form-hint'))
           if (row.estimateIssue) { fields.append(el('p', row.estimateIssue)); const unknown = el('button', 'Vet ikke'); unknown.type = 'button'; unknown.addEventListener('click', () => { row.remainingMinutes = null; row.remainingEstimate = null; row.remainingChoice = ''; row.estimateResolved = true; remaining.value = ''; remainingChoice.value = '' }); fields.append(unknown) }
