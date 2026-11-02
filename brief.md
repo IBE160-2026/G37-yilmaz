@@ -2,7 +2,7 @@
 title: "Product Brief: Ajour"
 status: bounded-delivery-documented
 created: 2026-09-06
-updated: 2026-11-01
+updated: 2026-11-02
 ---
 
 # Product brief: Ajour
@@ -48,6 +48,8 @@ Hver rad har krav, story, kode, test/metode og evidensstatus i [sporbarhetsmatri
 | SC-07 | Prosjekteieren gjennomfører sju manuelle scenarier med syntetiske data i isolert testmiljø og dokumenterer forventet mot faktisk resultat, feil og eventuell omprøving. |
 
 **Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. SC-07 beholder ID-en og følger [prøveplanen](.docs/planning-artifacts/USER-TRIAL-PLAN.md). Den tidligere planlagte studentprøven ble ikke gjennomført eller bestått. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner; målgruppen er uendret.
+
+**Dokumentasjonsstatus avstemt 2026-11-02:** SC-07s sjuscenariokrav beholdes. [Scenariooversikten](.docs/planning-artifacts/USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) viser eksisterende observasjoner og dekningsgrenser; full oppfyllelse av alle opprinnelige detaljer er ikke dokumentert. Rapporterte omprøvinger beholder bestått innen sitt omfang. Dette er en statuspresisering, ikke et endret akseptkrav eller en bestilling av nye prøver.
 
 ## Utenfor v1 og videre visjon
 
