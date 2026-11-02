@@ -8,7 +8,7 @@ Låst installasjon, **2529/2529 enhetstester i 147 filer**, produksjonsbygg og *
 
 Metode for fontsammenligningen: Chromium 153.0.8010.12, viewport 1440 × 1000, `deviceScaleFactor: 1` og fersk kontekst med lyst tema. Fontene definert i appens faktiske CSS ble lastet med `document.fonts.load` for vektene 400/500/600. En separat, fast tekstprøve brukte 32 px, linjehøyde 1,5 og «Ajour – Planer endrer seg. ÆØÅ æøå 0123456789» med vektetikett. Etter at fontene var ferdig lastet, ble tekstmålinger og PNG-ens SHA-256 sammenlignet mellom produksjonens tidligere WOFF2-adresser og de nye lokale TTF-adressene. Kontrollen brukte et midlertidig lokalt skript, ikke et publisert testverktøy i repoet.
 
-[Refleksjonsrapportens Markdown](../.docs/submission/reflection-report.md) er uendret. Word-kopien og dens `.gitignore`-unntak er fjernet etter prosjekteierens ønske; historiske kontrollopplysninger nedenfor beholdes, men Word-lenker er gjort til vanlig tekst. Ingen DOCX/PDF er opprettet. De tilsiktede fixturene `connected-semester.docx`, `uit-programs/pdf/868803.pdf` og `public-pdf-hung.worker.js` er bevart uendret. Ingen Outlook-prøve eller generell egenutprøving er gjentatt. Endelig CI-/publiseringsbevis etter loggcommiten føres i PR-en som [sesjonsloggen](../.logs/goplayer007/993-2026-11-01-22-34-20-ajour-sluttleveranse.md) lenker til.
+[Refleksjonsrapportens Markdown](../.docs/submission/reflection-report.md) er uendret. Word-kopien og dens `.gitignore`-unntak er fjernet etter prosjekteierens ønske; historiske kontrollopplysninger nedenfor beholdes, men Word-lenker er gjort til vanlig tekst. Ingen DOCX/PDF er opprettet. De tilsiktede fixturene `connected-semester.docx`, `uit-programs/pdf/868803.pdf` og `public-pdf-hung.worker.js` er bevart uendret. Ingen Outlook-prøve eller generell egenutprøving er gjentatt. Endelig CI-/publiseringsbevis etter loggcommiten føres i PR-en som [sesjonsloggen](../.logs/993-2026-11-01-22-34-20-ajour-sluttleveranse.md) lenker til.
 
 ## Sluttrapport og avgrenset leveringskontroll — 2026-11-01
 
@@ -16,7 +16,7 @@ Den brukerleverte [refleksjonsrapporten](../.docs/submission/reflection-report.m
 
 Låst installasjon (`npm ci`), full enhetssuite **2529/2529 i 147 filer** og produksjonsbygg bestod i en isolert arbeidskopi fra `246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`. Dette er dokumentasjonsendringer; appkode, fixturer, lagringsformat og CI er uendret. Bundlevarselet består: hovedfil **957,30 kB / 292,79 kB gzip**. Det er ingen avtalt numerisk V1-grense; mulig nedlastings-/oppstartskostnad er fortsatt et kjent forbehold.
 
-Publisering av endelig commit kontrolleres separat gjennom eksisterende PR, `Ajour quality`, Vercels domenesperre og `Ajour deployment smoke`. [GitHub Actions](https://github.com/IBE160-2026/G37-yilmaz/actions) og produksjonens `/release.json` gir commitbundet bevis; eldre hasher nedenfor er historiske. Den kuraterte [sesjonsloggen](../.logs/goplayer007) samler oppfølgingen uten å hevde sin egen commit-hash.
+Publisering av endelig commit kontrolleres separat gjennom eksisterende PR, `Ajour quality`, Vercels domenesperre og `Ajour deployment smoke`. [GitHub Actions](https://github.com/IBE160-2026/G37-yilmaz/actions) og produksjonens `/release.json` gir commitbundet bevis; eldre hasher nedenfor er historiske. Den kuraterte [sesjonsloggen](../.logs) samler oppfølgingen uten å hevde sin egen commit-hash.
 
 ## Egenutprøving utført av prosjekteier — 2026-11-01
 
