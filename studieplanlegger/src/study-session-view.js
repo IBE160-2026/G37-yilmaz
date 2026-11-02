@@ -17,6 +17,7 @@ export function createStudySessionView(actions) {
       opener = document.activeElement; taskId = task.id; started = false
       plannedMinutes = getSessionMinutes(task, availableMinutes)
       const step = primaryWorkStep(task)
+      const stepId = step?.id
       const heading = el('h2', step ? step.title || step.description : task.title); heading.id = 'study-session-heading'
       dialog.setAttribute('aria-labelledby', heading.id)
       const partial = getActionMinutes(task) > plannedMinutes
@@ -28,7 +29,7 @@ export function createStudySessionView(actions) {
         if (!started) {
           started = true; start.textContent = 'Avslutt økten'; context.textContent = `${step ? step.title || step.description : task.title} · ${plannedMinutes} minutter planlagt.`; note.textContent = 'Økten er startet lokalt. Ingenting regnes som utført før du velger et utfall.'; start.focus()
         } else {
-          close(); actions.finish(taskId, plannedMinutes, Boolean(step), partial)
+          close(); actions.finish(taskId, plannedMinutes, stepId, partial)
         }
       }
       actionsRow.append(start, cancel); dialog.replaceChildren(heading, context, note, actionsRow); dialog.showModal(); start.focus()
