@@ -4,7 +4,7 @@
 
 ## Avgrenset kildeoppfølging — 2026-11-01
 
-Faktiske offentlige forespørsler kl. 16:21–16:25 Europe/Oslo er dokumentert i [ny verifikasjon](VERIFICATION.md#lagring-gjenoppretting-og-import--2026-11-01), separat fra syntetiske UI-prøver. NTNUs samlede programindeks svarte HTTP 200 med null dokumenter før søkefiltrering; komplett 2026-katalog er derfor ikke bekreftet. UI-en sier nå at kilden er tom, gir offentlig kildelenke og viser alternativet for ett emne. Direkte MTDT-kull/plan var fortsatt tilgjengelig, uten bekreftet programcampus. TDT4109-emnesøk ga Trondheim og faktisk lenket undervisning ga **115 beholdte hendelser**. Dette bekrefter det konkrete emneforløpet, ikke full programdekning.
+Faktiske offentlige forespørsler kl. 16:21–16:25 Europe/Oslo er dokumentert i [ny verifikasjon](VERIFICATION-HISTORY.md#lagring-gjenoppretting-og-import--2026-11-01), separat fra syntetiske UI-prøver. NTNUs samlede programindeks svarte HTTP 200 med null dokumenter før søkefiltrering; komplett 2026-katalog er derfor ikke bekreftet. UI-en sier nå at kilden er tom, gir offentlig kildelenke og viser alternativet for ett emne. Direkte MTDT-kull/plan var fortsatt tilgjengelig, uten bekreftet programcampus. TDT4109-emnesøk ga Trondheim og faktisk lenket undervisning ga **115 beholdte hendelser**. Dette bekrefter det konkrete emneforløpet, ikke full programdekning.
 
 AHOs arkitekturplan har selv årshoppet høst 2029 → vår 2031. De publiserte årstallene og 44 emneforekomstene beholdes, mens studiesemesternummer følger kalenderavstanden (**1–7, 10, 11**) og manglende 2030-perioder forklares. Dette avklarer det konkrete F06-kildespørsmålet, uten å korrigere originalkilden eller love komplett studieløp.
 
