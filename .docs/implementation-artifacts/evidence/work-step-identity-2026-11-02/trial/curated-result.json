@@ -1,0 +1,358 @@
+{
+  "label": "Codex-utført teknisk nettlesertest",
+  "method": "Lokal bygd kandidat, faktisk Playwright/Chromium, to nye tomme contexts, bare syntetiske UI-data. Ingen direkte skriving til applagring eller klokkeendring.",
+  "startedOslo": "2026-11-02 23:21:23",
+  "finishedUiOslo": "2026-11-02 23:57:25",
+  "browserClosedOslo": "2026-11-02 23:57:27",
+  "timeZone": "Europe/Oslo",
+  "asset": {
+    "name": "index-DiSpRgob.js",
+    "sha256": "6c0bb92e48edde6778758b12025b7d7e4a047764f395dfbcecfc3150b0b923ce",
+    "unchangedAtEnd": true
+  },
+  "dates": {
+    "preparedAtOslo": "2026-11-02 23:21:27",
+    "original": "D+1 10–12, busy10–10:30, first10:30–11; D+2 10–12, future11–11:30; D+3deadline16",
+    "firstWindow": [
+      "2026-11-02T22:57",
+      "2026-11-03T00:57"
+    ],
+    "busy": [
+      "2026-11-02T22:57",
+      "2026-11-02T23:27"
+    ],
+    "first": [
+      "2026-11-02T23:27",
+      "2026-11-02T23:57"
+    ],
+    "nextWindow": [
+      "2026-11-03T10:00",
+      "2026-11-03T12:00"
+    ],
+    "future": [
+      "2026-11-03T11:00",
+      "2026-11-03T11:30"
+    ],
+    "deadline": "2026-11-04T16:00",
+    "clockManipulated": false
+  },
+  "scenarioScope": "Alle sju flyter utført innen dokumenterte dato-/UI-/oppgaveflyttilpasninger. Ikke personlig egenutprøving eller alene full R-07.",
+  "originalEstimateBoundary": {
+    "checkedAtOslo": "2026-11-02 23:57:07",
+    "originalEstimateVisible": false,
+    "originalEstimateValue": "",
+    "remainingVisible": true,
+    "remainingValue": "60",
+    "explanation": "Original estimate is an explicitly hidden legacy field; only total remaining is editable through this UI. Main step has an independently visible60-minute estimate. No hidden control was changed."
+  },
+  "actualOutcomeOslo": "2026-11-02 23:57:09.891",
+  "selectedStepOutcomeOslo": "2026-11-02 23:21:42.634",
+  "rows": [
+    {
+      "control": "Miljø",
+      "expected": "To nye tomme BrowserContext åpner kandidaten.",
+      "actual": "Begge åpnet faktisk Chromium med tom lagring. B ble kontrollert tom på nytt før gjenoppretting.",
+      "status": "Bestått",
+      "evidence": [
+        "asset-start.json",
+        "07-target-empty.json"
+      ]
+    },
+    {
+      "control": "1a. Bare tittel",
+      "expected": "Lagre uten emne, frist eller anslag.",
+      "actual": "Samme oppgave-ID ble lagret med tomt emne/frist og ukjent anslag/gjenstående (null, ikke 0).",
+      "status": "Bestått",
+      "evidence": [
+        "01-title-only-export.json",
+        "01-title-only.png"
+      ]
+    },
+    {
+      "control": "1b. Senere opplysninger",
+      "expected": "Legg til emne, steg, startanslag, frist og innleveringskrav.",
+      "actual": "TEST101, steg med 60 minutters anslag, synlig gjenstående 60, frist og innleveringskrav lagret. Legacy task.estimatedMinutes er null og feltet er skjult; det ble ikke manipulert.",
+      "status": "Bestått innen dokumentert UI-tilpasning",
+      "evidence": [
+        "01-enriched-task-export.json",
+        "01-estimate-control-boundary.json"
+      ]
+    },
+    {
+      "control": "2a. Forslag og avbrudd",
+      "expected": "Ingen økt lagres ved avbrudd.",
+      "actual": "Eksportert data var identisk før forslag og etter avbrudd.",
+      "status": "Bestått",
+      "evidence": [
+        "02-before-preview.json",
+        "02-after-cancel.json",
+        "02-preview.png"
+      ]
+    },
+    {
+      "control": "2b. Godkjent oppgaveplan",
+      "expected": "Ledig tid og rett oppgave, uten konflikt.",
+      "actual": "To økter på 30 minutter fikk riktig taskId. Denne UI-flyten velger oppgave, ikke konkret steg.",
+      "status": "Bestått som oppgaveplanlegging",
+      "evidence": [
+        "02-checks.json",
+        "02-approved.json"
+      ]
+    },
+    {
+      "control": "3a. Faktisk/gjenstående",
+      "expected": "Etter virkelig slutt: 30 faktiske og 75 gjenstående, uten automatisk fullføring eller mestring.",
+      "actual": "30/75 lagret separat. Steg/oppgave/levering forble ufullført; topics/assessments/reviewDecisions ble ikke opprettet eller endret. Tidligere 60 er bevart i taskSnapshot.",
+      "status": "Bestått",
+      "evidence": [
+        "03-outcome-before-save.png",
+        "03-outcome-checks.json"
+      ]
+    },
+    {
+      "control": "3b. Koblinger og historie",
+      "expected": "Riktig økt/oppgave og bevart utfall.",
+      "actual": "Arbeidsloggen har riktig sessionId/taskId og øktkopi. Økten er fjernet fra planen. Konkret stegkobling prøves separat nedenfor.",
+      "status": "Bestått innen faktisk valgt oppgaveflyt",
+      "evidence": [
+        "03-outcome-checks.json",
+        "03-after-outcome.json"
+      ]
+    },
+    {
+      "control": "4a. Omplanlegg",
+      "expected": "Forslag er skrivefritt; godkjenning respekterer ledig tid og frist.",
+      "actual": "Forhåndsvisning bevarte lagring; godkjent plan reserverte 75 minutter uten konflikt.",
+      "status": "Bestått",
+      "evidence": [
+        "04-replan-checks.json",
+        "04-applied-state.json"
+      ]
+    },
+    {
+      "control": "4b. Angre",
+      "expected": "Gjenopprett plan samlet og behold registrert arbeid.",
+      "actual": "Umiddelbar Angre gjenopprettet de tidligere øktene; arbeidslogg og 75 gjenstående var uendret.",
+      "status": "Bestått",
+      "evidence": [
+        "04-replan-checks.json",
+        "04-replan-undone.png"
+      ]
+    },
+    {
+      "control": "5a. Fullfør steg",
+      "expected": "Oppgave og levering skal fortsatt være ufullført.",
+      "actual": "Steget ble fullført, oppgaven var fortsatt ufullført/ikke levert med 75 gjenstående. Eksisterende arbeidslogg og taskSnapshot var uendret.",
+      "status": "Bestått",
+      "evidence": [
+        "05-step-complete-task-open.png",
+        "05-completion-checks.json"
+      ]
+    },
+    {
+      "control": "5b. Fullfør arbeid",
+      "expected": "Ferdig arbeid betyr ikke levert.",
+      "actual": "Oppgaven fikk 0 gjenstående og completed=true, submitted=false. Framtidig reservasjon ble frigitt etter bekreftelse. Tidligere 30 minutter beholdt.",
+      "status": "Bestått",
+      "evidence": [
+        "05-task-complete-not-submitted.png",
+        "05-completion-checks.json"
+      ]
+    },
+    {
+      "control": "5c. Bekreft levering",
+      "expected": "Egen handling gir levert-status.",
+      "actual": "Bare separat Bekreft levert satte submitted=true. Ingen virkelig innlevering inngikk.",
+      "status": "Bestått",
+      "evidence": [
+        "05-submitted.png",
+        "05-submitted.json"
+      ]
+    },
+    {
+      "control": "6a. Kalender, tekst og farger",
+      "expected": "Riktig framtidig økt; navn/kode/status supplerer farge.",
+      "actual": "Dag/måned/agenda/uke, 3. november 11:00–11:30 og begge emners navn/koder kontrollert. Oppgavetekst viste status; fargemarkører samsvarte.",
+      "status": "Bestått",
+      "evidence": [
+        "06-color-checks.json",
+        "06-text-status-checks.json",
+        "06-calendar-agenda.png",
+        "06-calendar-renamed.png"
+      ]
+    },
+    {
+      "control": "6b. Navn og rekkefølge",
+      "expected": "Samme emne beholder farge gjennom navne-/rekkefølgeskifte.",
+      "actual": "TEST101 ble midlertidig Abc… for faktisk sorteringsendring og deretter Endret eksempelfag. Oppgave-/emne-ID-er og farger beholdt.",
+      "status": "Bestått",
+      "evidence": [
+        "06-color-checks.json",
+        "06-rename-identity-checks.json"
+      ]
+    },
+    {
+      "control": "6c. Tema og dato",
+      "expected": "System/Lyst/Mørkt og temaknapp bevarer kalenderdato og domene.",
+      "actual": "Alle tre valg og knapp prøvd. Dato ble kontrollert etter hvert valg; domenedata uendret.",
+      "status": "Bestått",
+      "evidence": [
+        "06-theme-checks.json",
+        "06-date-through-each-theme.json"
+      ]
+    },
+    {
+      "control": "6d. Åpent utkast",
+      "expected": "Tema bevarer utkast/fokus uten lagring.",
+      "actual": "System-tema fulgte OS mørkt/lyst med uendret tittel, 47 minutter, fokus og dato. Native modal blokkerer bakgrunnskontroller; de ble prøvd separat. Feltet ved 390 px var synlig og fokusert.",
+      "status": "Bestått for faktisk tilgjengelig metode",
+      "evidence": [
+        "06-theme-checks.json",
+        "06-draft-narrow-focus.png"
+      ]
+    },
+    {
+      "control": "6e. Plan kontra historie",
+      "expected": "Avsluttet førsteøkt er historie; TEST102 er fortsatt planlagt.",
+      "actual": "Førsteøkt beholdt i arbeidslogg/øktkopi og borte fra planen. TEST102 er eneste gjenværende framtidige økt.",
+      "status": "Bestått",
+      "evidence": [
+        "06-future-session-agenda.png",
+        "06-plan-history-checks.json",
+        "07-source-export.json"
+      ]
+    },
+    {
+      "control": "7a. Omlasting i A",
+      "expected": "Data og lokale visningsvalg bevares.",
+      "actual": "Hele .data identisk før/etter omlasting; mørkt tema, dagvisning, dato og synlig emnefarge beholdt.",
+      "status": "Bestått",
+      "evidence": [
+        "07-restore-checks.json",
+        "07-source-before-reload.json",
+        "07-source-export.json"
+      ]
+    },
+    {
+      "control": "7b. Tom B og gjenoppretting",
+      "expected": "UI-forhåndsvisning/bekreftelse og omlasting bevarer data/koblinger.",
+      "actual": "Hele .data lik i kilde, gjenopprettet B og B etter omlasting: 2 emner, 3 oppgaver, 1 framtidig økt og 3 arbeidslogger med historikk. B beholdt lyst tema.",
+      "status": "Bestått",
+      "evidence": [
+        "07-restore-preview.png",
+        "07-target-tasks-reloaded.png",
+        "07-restore-checks.json"
+      ]
+    },
+    {
+      "control": "Ekstra: faktisk valgt steg",
+      "expected": "Valgt steg og eksplisitt 75 skal overleve Start→Avslutt.",
+      "actual": "Utfallsdialog viste valgt steg og hele oppgavens gjenstående. stepId, 75 og uendret arbeidslogg/snapshot er bevart etter stegnavn/omrekkefølge, omplanlegging/Angre og gjenoppretting. Faktisk 0 minutter, begge steg fortsatt ufullført.",
+      "status": "Bestått",
+      "evidence": [
+        "08-step-75-before-save.png",
+        "08-step-checks.json",
+        "08-identity-through-edits.json",
+        "07-restore-checks.json"
+      ]
+    }
+  ],
+  "harnessHistory": "run-final og run-final-2 ble avbrutt på lokatorantakelser. I run-final-3 ble norsk Aa=Å-sorteringsantakelse korrigert; contexts beholdt. run-final-3 og run-final-4 er daterte delprøver på tidligere appbygg og ble avbrutt da re-review krevde nye rettinger. Dette er ikke appfeil i sluttbygget.",
+  "executionOrder": {
+    "setupAndApproval": "1–2",
+    "duringRealWait": "Ekte Start-steg på tredje syntetiske oppgave og uavhengige kalender-/farge-/tema-/utkastkontroller fra scenario 6.",
+    "afterRealEnd": "Supplerende dato-/etikett-/identitetskontroller, deretter 3–5, avsluttende plan-/historikkontroll fra 6 og gjenoppretting 7."
+  },
+  "environment": {
+    "browser": "153.0.8010.12",
+    "contextsCreatedWith": "browser.newContext()",
+    "initialA": {
+      "cookies": [],
+      "origins": []
+    },
+    "initialB": {
+      "cookies": [],
+      "origins": []
+    },
+    "ordinaryBrowserProfileUsed": false
+  },
+  "versionBoundary": {
+    "sameApplicationCodeCommittedAfterBuild": "a929c412341a38e786a68b0740f7b80c402a8614",
+    "localReleaseMetadata": {
+      "commit": null
+    },
+    "note": "Lokalt dist ble bygget før denne commiten. release.json hadde commit=null ved start og slutt; kandidatens faktiske prøvefingeravtrykk er assetnavn og SHA-256. Vercel-preview/publisert commit verifiseres separat."
+  },
+  "baselineReproduction": {
+    "commit": "285dfac8e8513ce969da50017531622f40f15a7f",
+    "steps": [
+      "Opprett en syntetisk oppgave med 60 minutter gjenstående og to navngitte steg.",
+      "Oversikt: velg Start for oppgaven; kontroller at første steg vises, og velg Start økten.",
+      "Avslutt den faktisk startede økten etter noen sekunder. Velg Trenger mer tid, faktisk 0 og eksakt 75 gjenstående.",
+      "Lagre og eksporter gjennom UI."
+    ],
+    "observed": "Start viste steget; utfallet viste bare oppgaven. Rest ble 60 og arbeidsloggen manglet stepId.",
+    "candidateObserved": "Samme flyt viser og bevarer navngitt steg/stepId og eksplisitt 75."
+  },
+  "publishedEvidence": {
+    "png": [
+      "06-calendar-agenda.png",
+      "01-title-only.png",
+      "02-preview.png",
+      "03-outcome-before-save.png",
+      "04-replan-undone.png",
+      "05-step-complete-task-open.png",
+      "05-task-complete-not-submitted.png",
+      "05-submitted.png",
+      "06-calendar-renamed.png",
+      "06-draft-narrow-focus.png",
+      "06-future-session-agenda.png",
+      "07-restore-preview.png",
+      "07-target-tasks-reloaded.png",
+      "08-step-75-before-save.png"
+    ],
+    "json": [
+      "asset-start.json",
+      "07-target-empty.json",
+      "01-title-only-export.json",
+      "01-enriched-task-export.json",
+      "01-estimate-control-boundary.json",
+      "02-before-preview.json",
+      "02-after-cancel.json",
+      "02-checks.json",
+      "02-approved.json",
+      "03-outcome-checks.json",
+      "03-after-outcome.json",
+      "04-replan-checks.json",
+      "04-applied-state.json",
+      "05-completion-checks.json",
+      "05-submitted.json",
+      "06-color-checks.json",
+      "06-text-status-checks.json",
+      "06-rename-identity-checks.json",
+      "06-theme-checks.json",
+      "06-date-through-each-theme.json",
+      "06-plan-history-checks.json",
+      "07-source-export.json",
+      "07-restore-checks.json",
+      "07-source-before-reload.json",
+      "08-step-checks.json",
+      "08-identity-through-edits.json",
+      "dates.json",
+      "asset-end.json",
+      "asset-html-end.json",
+      "finished.json"
+    ],
+    "baselinePng": [
+      "../baseline-03-start-step-dialog.png",
+      "../baseline-05-step-outcome-75-before-save.png"
+    ],
+    "excluded": [
+      "events.jsonl",
+      "trace-a.zip",
+      "trace-b.zip",
+      "runner and harness scripts",
+      "absolute local paths"
+    ]
+  }
+}

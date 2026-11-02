@@ -1,0 +1,23 @@
+﻿{
+    "started":  "2026-11-02 22:00:50",
+    "sharing":  "Only two synthetic UI text excerpts are shared here; full original report hash identifies the source without publishing raw logs or local paths.",
+    "files":  [
+                  {
+                      "sha256":  "b0fa10a4d3e2d3f6109fb5e6347fb8d8d17a1a2e312458af4a3dcbc8b96fbe44",
+                      "name":  "report.html"
+                  },
+                  {
+                      "sha256":  "6f2fa3bc13d3db5ffc1919d179a6268887e3365c7dc13ccb7015ce018bdeef70",
+                      "name":  "02-preview.txt"
+                  },
+                  {
+                      "sha256":  "bdf148844808d8bbcb10c2c7947cb9eb1865b9f62b143b7825e3ba0d64dd9477",
+                      "name":  "03-outcome-before-save.txt"
+                  }
+              ],
+    "source":  "Original synthetic browser trial, immutable local originals retained",
+    "label":  "Codex-utført teknisk nettlesertest",
+    "ended":  "2026-11-02 22:40:12",
+    "timeZone":  "Europe/Oslo",
+    "publishedCommit":  "285dfac8e8513ce969da50017531622f40f15a7f"
+}

@@ -1,0 +1,83 @@
+{
+  "label": "Codex-utført teknisk nettlesertest og tekniske regresjonskontroller",
+  "codeCommit": "a929c412341a38e786a68b0740f7b80c402a8614",
+  "baselineProductionCommit": "285dfac8e8513ce969da50017531622f40f15a7f",
+  "timezone": "Europe/Oslo",
+  "candidate": {
+    "bundle": "index-DiSpRgob.js",
+    "sha256": "6c0bb92e48edde6778758b12025b7d7e4a047764f395dfbcecfc3150b0b923ce",
+    "note": "Built before the code commit; unchanged app contents were committed as codeCommit. Local release.json was not used as proof of the new published version."
+  },
+  "checks": [
+    {
+      "command": "npm run test:unit",
+      "passed": 2652,
+      "files": 150,
+      "started": "2026-11-02T23:19:20.1824066+01:00",
+      "ended": "2026-11-02T23:20:16.8566061+01:00",
+      "exit": 0,
+      "rawLogSha256": "98edf134b58a081f109055eaa7858c2c7d91d1474009721cd4963e5e14229288"
+    },
+    {
+      "command": "npm run test:e2e:ci",
+      "passed": 153,
+      "started": "2026-11-02T23:21:06.9094046+01:00",
+      "ended": "2026-11-02T23:27:02.4957764+01:00",
+      "exit": 0,
+      "rawLogSha256": "92230cfaa8a6f9abf5ef3372b08340e397f088d6902157682ae2f3ce007626ff"
+    },
+    {
+      "command": "npm run test:e2e:database",
+      "passed": 14,
+      "started": "2026-11-02T23:20:28.7745968+01:00",
+      "ended": "2026-11-02T23:21:15.4106784+01:00",
+      "exit": 0,
+      "rawLogSha256": "6500272b7e6a873ff1aa14bf4b92c85117aec57b8ac741f8f58bd4dcfb04e13e"
+    },
+    {
+      "command": "npm run verify:teaching",
+      "passed": 141,
+      "files": 10,
+      "started": "2026-11-02T22:59:38.5817254+01:00",
+      "ended": "2026-11-02T22:59:58.4913130+01:00",
+      "exit": 0,
+      "rawLogSha256": "0f2dfb6f44a356d408b8cad4dca35f0164d6fc53377820b59f762cef7cba26e2"
+    },
+    {
+      "command": "npm run verify:teaching:live",
+      "passed": 5,
+      "started": "2026-11-02T23:10:46.0289794+01:00",
+      "ended": "2026-11-02T23:10:58.4395852+01:00",
+      "exit": 0,
+      "rawLogSha256": "d4ea7072a6a8d8e73a13e2b8e665e458c19597aa00f73313f64d4c0c880823e3"
+    }
+  ],
+  "releaseGate": {
+    "command": "npm run build:release",
+    "passed": 145,
+    "files": 5,
+    "productionBuild": "passed",
+    "evidence": "Observed final implementation-agent execution before frozen candidate; no new build performed to create this record.",
+    "bundleKb": 961.13,
+    "gzipKb": 293.89,
+    "remainingWarning": "Existing main chunk exceeds 500 kB; no numeric V1 acceptance threshold."
+  },
+  "independentReview": {
+    "legacyCombinationsPassed": 18,
+    "explicitIdentityVariantsPassed": 3,
+    "method": "Read-only model/export/restore/undo/trash checks after final patch; no browser tests claimed for this matrix."
+  },
+  "intermediateHarnessFailure": {
+    "passed": 142,
+    "failed": 1,
+    "didNotRun": 10,
+    "observation": "HTTP 404 for document-parser.worker-DkFqMbKv.js at 2026-11-02 23:14:47 Europe/Oslo while another local check rebuilt dist.",
+    "resolution": "Final full browser run used unchanged dist and passed 153; no application or assertion weakening."
+  },
+  "limits": [
+    "All user/browser data are synthetic. Fixture tests are separate from the five explicitly identified real public-source teaching queries.",
+    "The real-time seven-scenario trial has separate evidence and is not inferred from these suite totals.",
+    "These results do not establish owner self-trial or automatically fulfill R-07.",
+    "Raw local tool logs and traces are not published."
+  ]
+}

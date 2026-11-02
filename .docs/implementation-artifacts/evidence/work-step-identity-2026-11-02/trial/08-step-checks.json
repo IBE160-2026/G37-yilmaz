@@ -1,0 +1,87 @@
+{
+  "realStartedAt": "2026-11-02T22:21:39.679Z",
+  "finishedAt": "2026-11-02T22:21:42.994Z",
+  "actualMinutes": 0,
+  "expectedRemaining": 75,
+  "observedRemaining": 75,
+  "expectedStepId": "66105d66-9698-4277-a733-665ddd5dfd61",
+  "work": {
+    "id": "work-3b834270-9228-48b6-95d5-ce8c9a86af71",
+    "operationId": "3b834270-9228-48b6-95d5-ce8c9a86af71",
+    "taskId": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+    "at": "2026-11-02T22:21:42.634Z",
+    "outcome": "more",
+    "actualMinutes": 0,
+    "plannedMinutes": 30,
+    "remainingMinutes": 75,
+    "interrupted": false,
+    "historyComplete": false,
+    "taskCompleted": false,
+    "taskSnapshot": {
+      "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+      "title": "Syntetisk kontroll av konkret steg",
+      "course": "TEST101",
+      "deadlineLocal": "",
+      "estimatedMinutes": null,
+      "completed": false,
+      "remainingMinutes": 60,
+      "requiresSubmission": false,
+      "submitted": false,
+      "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "steps": [
+        {
+          "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+          "title": "Les første syntetiske avsnitt",
+          "completed": false,
+          "provenance": {
+            "kind": "manual"
+          },
+          "estimatedMinutes": 30
+        },
+        {
+          "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+          "title": "Oppsummer andre syntetiske avsnitt",
+          "completed": false,
+          "provenance": {
+            "kind": "manual"
+          },
+          "estimatedMinutes": 30
+        }
+      ]
+    },
+    "stepId": "66105d66-9698-4277-a733-665ddd5dfd61"
+  },
+  "task": {
+    "id": "41ddaf74-9a44-4447-84e1-8de7f7fe7207",
+    "title": "Syntetisk kontroll av konkret steg",
+    "course": "TEST101",
+    "deadlineLocal": "",
+    "estimatedMinutes": null,
+    "completed": false,
+    "remainingMinutes": 75,
+    "requiresSubmission": false,
+    "submitted": false,
+    "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+    "steps": [
+      {
+        "id": "66105d66-9698-4277-a733-665ddd5dfd61",
+        "title": "Les første syntetiske avsnitt",
+        "completed": false,
+        "provenance": {
+          "kind": "manual"
+        },
+        "estimatedMinutes": 30
+      },
+      {
+        "id": "2c34085e-985b-4bf4-a78c-1b358507c4b2",
+        "title": "Oppsummer andre syntetiske avsnitt",
+        "completed": false,
+        "provenance": {
+          "kind": "manual"
+        },
+        "estimatedMinutes": 30
+      }
+    ]
+  },
+  "plannedFutureSessionNotUsed": true
+}

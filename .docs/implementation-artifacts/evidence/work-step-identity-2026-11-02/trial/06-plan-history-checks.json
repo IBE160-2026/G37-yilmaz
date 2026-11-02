@@ -1,0 +1,59 @@
+{
+  "visibleFutureSessions": [
+    "3. november 2026 · 11:00–11:30TEST102 · Studieøkt: Les neste syntetiske eksempelStudieøkt · Annet eksempelfag · TEST102"
+  ],
+  "firstSessionAbsentFromPlan": true,
+  "archivedFirstWork": {
+    "id": "work-close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+    "operationId": "close-2b2af576-aa8e-401c-90bb-960c75b4a455",
+    "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+    "at": "2026-11-02T22:57:09.891Z",
+    "outcome": "more",
+    "actualMinutes": 30,
+    "plannedMinutes": 30,
+    "remainingMinutes": 75,
+    "interrupted": false,
+    "historyComplete": false,
+    "taskCompleted": false,
+    "taskSnapshot": {
+      "id": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "title": "Les syntetisk eksempelkapittel",
+      "course": "TEST101",
+      "deadlineLocal": "2026-11-04T16:00",
+      "estimatedMinutes": null,
+      "completed": false,
+      "remainingMinutes": 60,
+      "requiresSubmission": true,
+      "submitted": false,
+      "courseId": "ac3fb0f6-7407-4df6-a9b1-87f2d453f01c",
+      "steps": [
+        {
+          "id": "25387a62-884c-400d-a4cd-2f5d25b822e6",
+          "title": "Les første del",
+          "completed": false,
+          "provenance": {
+            "kind": "manual"
+          },
+          "estimatedMinutes": 60
+        }
+      ]
+    },
+    "sessionId": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+    "sessionSnapshot": {
+      "id": "2b2af576-aa8e-401c-90bb-960c75b4a455",
+      "taskId": "40a2ce49-b94a-4896-90d0-7fe92999c4f7",
+      "dateLocal": "2026-11-02",
+      "startTime": "23:27",
+      "endDateLocal": "2026-11-02",
+      "endTime": "23:57",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    }
+  },
+  "workHistoryPreserved": true
+}

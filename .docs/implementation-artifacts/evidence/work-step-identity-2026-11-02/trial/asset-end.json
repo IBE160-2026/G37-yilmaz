@@ -1,0 +1,22 @@
+[
+  {
+    "url": "http://127.0.0.1:58856/theme-init.js",
+    "bytes": 2422,
+    "sha256": "8d3f0239f08de1a38df95aa8e3f958ced5fdfd8975fc1e5abefd26d4b0531f20"
+  },
+  {
+    "url": "http://127.0.0.1:58856/fonts/manrope.css",
+    "bytes": 495,
+    "sha256": "eb02ce8151db626bc6f17f2799ea7484a856bdde85e77ef68e9aed334b87dad1"
+  },
+  {
+    "url": "http://127.0.0.1:58856/assets/index-DiSpRgob.js",
+    "bytes": 961135,
+    "sha256": "6c0bb92e48edde6778758b12025b7d7e4a047764f395dfbcecfc3150b0b923ce"
+  },
+  {
+    "url": "http://127.0.0.1:58856/assets/index-9d3E6xgs.css",
+    "bytes": 99759,
+    "sha256": "91eaf8bd4f47f3cccd7af09a3043c451439ff952644185bab1434c20234d2d34"
+  }
+]

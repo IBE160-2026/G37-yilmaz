@@ -1,5 +1,16 @@
 # Epics og stories for Ajour
 
+## Oppgavearbeid og navngitt arbeidssteg — 2026-11-02
+
+Presisering av eksisterende S-03/S-04/S-05/S-06, uten nytt funksjonsomfang:
+
+- **Given** oppgaveplanlegging med null, ett eller flere steg, **when** et oppgaveforslag godkjennes og økten avsluttes, **then** riktig oppgave-/øktkobling bevares uten å gjette hvilket steg arbeidet gjaldt.
+- **Given** Start viser et bestemt steg, **when** utfallet lagres, **then** samme steg er navngitt og entydig identifisert, også ved flere steg med like navn og senere navneendring eller omrekkefølge.
+- **Given** arbeid på et steg og et nytt eksakt gjenstående oppgaveanslag, **when** studenten lagrer faktisk tid og anslaget, **then** begge verdiene bevares separat; fullføring av steget fullfører ikke oppgaven eller leveringen.
+- **Given** eldre logger og nye stegkoblede utfall, **when** planen omplanlegges/angres, lastes på nytt eller gjenopprettes, **then** registrert arbeid og kjente koblinger bevares; ukjent historisk steg forblir ukjent.
+
+[Datert avklaring og tekniske resultater](../implementation-artifacts/work-step-identity-2026-11-02.md) er Codex-utført kontroll og ferdigmelder ikke S-07/R-07 på vegne av prosjekteieren. Tidligere daterte resultater nedenfor beholdes.
+
 **Gjeldende status 2026-11-01:** Egenutprøving er utført av prosjekteier; de rapporterte omprøvingene er bestått innen [dokumentert omfang](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). SC-07/1200–30 og Outlook-prøven fra 30. oktober beholder bestått. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown i repoet; personlig sluttgjennomlesing og innlevering er ikke bekreftet. Tidligere daterte statusutsagn nedenfor er historikk; automatiske tester og tekniske rapporter tilskrives ikke prosjekteieren.
 
 **Rekonstruert 2026-10-16; status samordnet 2026-11-01.** Produktomfang og S-01–S-08 er beholdt. Etter prosjekteierens beslutning 26. oktober gjelder S-07 egenutprøving uten andre testpersoner. Tidligere plan om ekstern studentprøve ble ikke gjennomført eller bestått. Daterte tekniske oppfølginger nedenfor er historikk, ikke resultater fra egenutprøvingen. [Automatiske kontroller og publisering](../../studieplanlegger/VERIFICATION.md) dokumenteres separat.

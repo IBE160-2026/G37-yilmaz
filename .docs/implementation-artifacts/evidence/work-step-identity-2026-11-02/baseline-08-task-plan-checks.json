@@ -1,0 +1,86 @@
+{
+  "testedAtOslo": "2026-11-02 22:57:19",
+  "sessions": [
+    {
+      "id": "1f823886-e57c-4121-b571-198789800344",
+      "taskId": "2a769753-2204-4642-8502-44fd8c9a89dc",
+      "dateLocal": "2026-11-03",
+      "startTime": "10:00",
+      "endDateLocal": "2026-11-03",
+      "endTime": "10:30",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    },
+    {
+      "id": "d50ae47f-e91f-404a-82ff-a446671b671b",
+      "taskId": "2a769753-2204-4642-8502-44fd8c9a89dc",
+      "dateLocal": "2026-11-03",
+      "startTime": "10:40",
+      "endDateLocal": "2026-11-03",
+      "endTime": "11:10",
+      "locked": false,
+      "planningRules": {
+        "sessionMinutes": 30,
+        "minimumMinutes": 15,
+        "maximumMinutes": 60,
+        "breakMinutes": 10
+      }
+    }
+  ],
+  "workLogs": [
+    {
+      "id": "work-a13ede7b-72a1-4369-91b9-79dd079b26f7",
+      "operationId": "a13ede7b-72a1-4369-91b9-79dd079b26f7",
+      "taskId": "2a769753-2204-4642-8502-44fd8c9a89dc",
+      "at": "2026-11-02T21:56:44.686Z",
+      "outcome": "more",
+      "actualMinutes": 0,
+      "plannedMinutes": 30,
+      "remainingMinutes": 60,
+      "interrupted": false,
+      "historyComplete": false,
+      "taskSnapshot": {
+        "id": "2a769753-2204-4642-8502-44fd8c9a89dc",
+        "title": "Syntetisk stegkontroll – to tydelige steg",
+        "course": "",
+        "deadlineLocal": "",
+        "estimatedMinutes": null,
+        "completed": false,
+        "remainingMinutes": 60,
+        "requiresSubmission": false,
+        "submitted": false,
+        "steps": [
+          {
+            "id": "7e81391f-f33a-46fd-a0d8-819bc6a57b52",
+            "title": "Les første syntetiske avsnitt",
+            "completed": false,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 30
+          },
+          {
+            "id": "7657a5f8-aa99-41a1-ab8f-ce7d5fa02c2c",
+            "title": "Oppsummer andre syntetiske avsnitt",
+            "completed": false,
+            "provenance": {
+              "kind": "manual"
+            },
+            "estimatedMinutes": 30
+          }
+        ]
+      }
+    }
+  ],
+  "expectedScope": "Task-level reservation; no step selected in this UI",
+  "allFuture": true,
+  "explicitStepIds": [
+    null,
+    null
+  ]
+}
