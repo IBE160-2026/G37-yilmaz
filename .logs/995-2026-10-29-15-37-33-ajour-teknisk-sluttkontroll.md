@@ -11,7 +11,7 @@ Gjennomføre avgrenset teknisk sluttkontroll, rette dokumenterte mangler og full
 - Videreføre [Vercel-arbeidet](997-2026-10-29-13-35-00-ajour-vercel.md), lese prosjektinstrukser, lærerfeedback og siste verifikasjon, og undersøke faktisk Git-/GitHub-/Vercel-status før tiltak.
 - Fordele avgrenset implementasjon, sikkerhetskontroll og verifikasjon; bruke egen branch, låst testkopi og bare syntetiske data/profiler.
 - Bevise negativ og positiv publiseringssperre, prøve faktisk preview, gjøre separat gjennomgang, integrere via PR og kontrollere produksjon og eksisterende syntetisk lagring.
-- Oppdatere eksisterende [verifikasjon](../../studieplanlegger/VERIFICATION.md#teknisk-sluttkontroll-og-publiseringssperrer--2026-10-29), driftsbeskrivelse og sporbarhet. Den interne arbeidsspesifikasjonen og råartefaktene beholdes lokalt.
+- Oppdatere eksisterende [verifikasjon](../studieplanlegger/VERIFICATION.md#teknisk-sluttkontroll-og-publiseringssperrer--2026-10-29), driftsbeskrivelse og sporbarhet. Den interne arbeidsspesifikasjonen og råartefaktene beholdes lokalt.
 
 ### Resultat
 
