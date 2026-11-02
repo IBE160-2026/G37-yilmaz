@@ -1,19 +1,72 @@
-# Sequential production acceptance
+<a id="sequential-production-acceptance"></a>
 
-Build the current source first. From the app directory, run `node tests/run-production-acceptance.mjs`. Set `RUN_LIVE_TEACHING=1` to include the bounded genuine NTNU EXPH0100, autumn 2026 import. Without it, the import scenario is skipped and must not be reported as accepted.
+# Sekvensiell akseptkontroll av lokal Node-/SQLite-drift
 
-The runner creates an isolated temporary SQLite database and a random loopback port, runs registration and import in one browser worker, restarts its own server with the same database, runs fresh-browser and UI backup/restore checks, stops the server, and opens SQLite read-only for integrity and foreign-key checks. It preserves its synthetic evidence directory and prints its location. It uses the existing production build; it does not rebuild or operate Docker.
+Denne kontrollen gjelder den bygde appen på en lokal Node-server med SQLite, eventuelt i en isolert Docker-container. Den kontrollerer ikke nettutgavens `localStorage` eller hvilken commit Vercel har publisert. [Vercel-kontroll og publiseringsbevis](../../README.md#nettleserdrift-med-vercel--2026-10-29) har egne oppskrifter.
 
-For an owned Docker container or another isolated production server, set these environment variables and run `node node_modules/@playwright/test/cli.js test --config=tests/playwright.production.config.js tests/production/acceptance.spec.js`:
+## Kjør med midlertidig SQLite-database
 
-- `STUDIEPLAN_ACCEPTANCE_PORT`: the explicitly owned loopback port, never 80.
-- `STUDIEPLAN_ACCEPTANCE_PHASE`: `create` against empty synthetic state, then `restore` after recreation with the same volume.
-- `STUDIEPLAN_ACCEPTANCE_SNAPSHOT`: an absolute local file for the full API envelope and revision shared by both phases.
-- `STUDIEPLAN_ACCEPTANCE_OUTPUT`: a distinct ignored output directory for each sequential run.
-- `RUN_LIVE_TEACHING=1`: explicit live-source opt-in for the create phase.
+Du trenger **Node.js 24** og Playwrights Chromium. Fra repository-roten, i PowerShell:
 
-The caller owns Docker recreation, image/build provenance, health, runtime identity, volume protection, read-only SQLite inspection and container cleanup. Do not run another browser suite concurrently. The expected phase-inapplicable skips are one in `create` and three in `restore`; together the phases execute all four scenarios. The added replan scenario uses an explicit estimate, inspects the actual UI preview without writing, moves an overlapping reservation, accepts the plan and verifies its saved intervals. The genuine import scenario also clicks the saved source's actual “Oppdater nå” control, intercepts its production calendar refresh endpoint, and checks failed-attempt metadata separately from the retained last success, event data and activity choices.
+```powershell
+cd studieplanlegger
+npm.cmd ci
+npx.cmd --no-install playwright install chromium
+npm.cmd run build
+if ($LASTEXITCODE -ne 0) { throw 'Bygget feilet.' }
+$env:STUDIEPLAN_SEED = 'false'
+Remove-Item Env:STUDIEPLAN_SEED_JSON -ErrorAction SilentlyContinue
+node tests/run-production-acceptance.mjs
+```
 
-Recreation compares the complete API state and revision exactly. Backup preserves task/session/event identities, relations, types and times, while intentionally disconnecting URL feeds according to the product privacy contract. Restore must exactly match the downloaded portable envelope and advance revision by exactly two after the intervening UI edit. Screenshots show desktop and mobile calendar content, with a second mobile image for the internally scrolled lower entries; open them before claiming visual verification.
+På andre systemer brukes `npm`/`npx` og miljøvariabelsyntaksen til det aktuelle skallet. Linux kan trenge `npx playwright install --with-deps chromium`; se [forutsetninger og tester](../../README.md#tester-og-bygg).
 
-The separate `bounded-workflow.spec.js` is entirely synthetic. Set `STUDIEPLAN_ACCEPTANCE_TEST_FILE=tests/production/bounded-workflow.spec.js` before running `node tests/run-production-acceptance.mjs`, or pass that file explicitly to the Playwright command for Docker. It exercises mixed legacy steps, dependency-safe removal, completion and undo, reused-topic date clearing, preserved independent/historical session links, parser-checked topic titles and deadline omission explanations. Its two phases execute one create and one restore case, with one phase-inapplicable skip each. The exact changed envelope, step completion, assessments, history and work-log snapshots survive SQLite reopen/recreation, fresh context, backup/restore and recovery. Desktop and enlarged 390 px export images are saved outside Git through the caller's output directory.
+Testkjøreren oppretter en midlertidig SQLite-database og velger en ledig loopback-port. Den kjører registrering og import i én nettleserprosess, starter sin egen server på nytt med samme database, prøver en ny nettleserkontekst og sikkerhetskopi/gjenoppretting i brukergrensesnittet, stopper serveren og åpner SQLite bare for lesing for å kontrollere integritet og fremmednøkler. Kjøreren beholder mappen med syntetiske testbevis og skriver ut plasseringen. Den bruker eksisterende `dist`, bygger ikke på nytt og starter eller endrer ingen Docker-container.
+
+Faktisk offentlig NTNU-import av **EXPH0100 høsten 2026** er et uttrykkelig tilvalg. Sett variabelen før samme kjøring:
+
+```powershell
+$env:RUN_LIVE_TEACHING = '1'
+node tests/run-production-acceptance.mjs
+Remove-Item Env:RUN_LIVE_TEACHING
+```
+
+Uten tilvalget hoppes importscenarioet over, og det skal ikke rapporteres som bestått. Dette er en teknisk kildeprøve, ikke prosjekteierens manuelle egenutprøving.
+
+## Kjør mot en egen isolert Node-server eller Docker-container
+
+Bygg og start først serveren du eier for prøven. Sett disse miljøvariablene i PowerShell med `$env:NAVN = 'verdi'`:
+
+| Variabel | Betydning |
+| --- | --- |
+| `STUDIEPLAN_ACCEPTANCE_PORT` | Den uttrykkelig eide loopback-porten, aldri port 80. |
+| `STUDIEPLAN_ACCEPTANCE_PHASE` | Først `create` mot tom syntetisk tilstand, deretter `restore` etter gjenskaping med samme database/volum. |
+| `STUDIEPLAN_ACCEPTANCE_SNAPSHOT` | Absolutt filsti til hele API-tilstanden og revisjonen, delt mellom begge faser. |
+| `STUDIEPLAN_ACCEPTANCE_OUTPUT` | En egen ignorert resultatmappe for hver sekvensielle kjøring. |
+| `RUN_LIVE_TEACHING` | Verdien `1` velger faktisk offentlig kildeimport i `create`-fasen. |
+
+Kjør fra `studieplanlegger/` for hver fase:
+
+```powershell
+node node_modules/@playwright/test/cli.js test --config=tests/playwright.production.config.js tests/production/acceptance.spec.js
+```
+
+Den som kjører prøven, har ansvar for Docker-gjenskaping, opphav til image/bygg, helsesjekk, identifisering av kjørende versjon, vern av volumet, SQLite-kontroll bare for lesing og opprydding av egne testcontainere. Bruk bare syntetiske data og egne testressurser. Ikke kjør en annen nettlesersuite samtidig.
+
+Med faktisk import valgt er det én forventet utelatelse i `create` og tre i `restore`, fordi scenariene tilhører ulike faser. Samlet utføres alle fire. Uten faktisk import blir også det scenarioet utelatt i `create`. Omplanleggingsscenarioet bruker et uttrykkelig anslag, undersøker forhåndsvisningen uten å lagre, flytter en overlappende reservasjon, godtar planen og kontrollerer lagrede tidsintervaller. Importscenarioet bruker den lagrede kildens **Oppdater nå**, fanger opp kalenderforespørselen fra den lokale serveren og kontrollerer feilet forsøk separat fra bevart siste suksess, hendelser og aktivitetsvalg.
+
+Gjenskaping sammenligner hele API-tilstanden og revisjonen nøyaktig. Sikkerhetskopien bevarer ID-er, relasjoner, typer og tider for oppgaver, økter og hendelser, mens kalenderlenker bevisst kobles fra etter produktets personvernkontrakt. Gjenoppretting skal samsvare nøyaktig med den nedlastede portable tilstanden og øke revisjonen med nøyaktig to etter den mellomliggende UI-endringen. Skjermbilder viser kalenderinnhold på desktop og mobil, med et ekstra mobilbilde av de nedre radene etter intern rulling. Åpne bildene før du rapporterer visuell kontroll.
+
+## Avgrenset syntetisk arbeidsflyt
+
+Den separate `bounded-workflow.spec.js` er helt syntetisk. Velg den før du bruker kjøreren:
+
+```powershell
+$env:STUDIEPLAN_ACCEPTANCE_TEST_FILE = 'tests/production/bounded-workflow.spec.js'
+node tests/run-production-acceptance.mjs
+Remove-Item Env:STUDIEPLAN_ACCEPTANCE_TEST_FILE
+```
+
+For en egen Docker-container brukes samme fil i stedet for `acceptance.spec.js` i Playwright-kommandoen ovenfor. Flyten prøver blandede eldre arbeidssteg, sletting som ivaretar avhengigheter, fullføring og angre, tømming av dato ved gjenbruk av tema, bevarte uavhengige/historiske øktkoblinger, parserkontrollerte tematitler og forklaringer på utelatte frister. De to fasene kjører ett opprettingsscenario og ett gjenopprettingsscenario, med én fasebestemt utelatelse hver.
+
+Hele den endrede tilstanden, stegfullføring, egenvurderinger, historikk og arbeidsloggens øyeblikksbilder skal overleve gjenåpning/gjenskaping av SQLite, ny nettleserkontekst, sikkerhetskopi/gjenoppretting og recovery. Kalenderens eksportdialog lagres som bilder i desktopbredde og ved 390 piksler med forstørret tekst, utenfor Git i den valgte resultatmappen.
