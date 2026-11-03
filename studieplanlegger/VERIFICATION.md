@@ -2,6 +2,12 @@
 
 **Kortoversikt, redigert 3. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
 
+## Avklaringssteg og lokal forespørselsvalidering — 2026-11-03
+
+[Den tekniske rapporten](../.docs/implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) beskriver to reproduksjoner, retting og dokumentasjon. En faktisk fullføring av et eksisterende avklaringssteg opphever nå venting gjennom felles steglogikk; vanlig arbeid, historisk fullføring og avbrutte utkast gjør det ikke. Ugyldige forespørselsadresser avvises med HTTP 400 før lokal database-/kildetilgang, og samme tjeneste fortsetter å svare normalt. README og importveiledningen er avstemt mot faktisk fullføringsomfang og forskjellen mellom lokal og publisert lenkeimport.
+
+**Lokal kontroll 3. november:** 2664/2664 enhetstester i 151 filer, 141/141 undervisningsfixturer og produksjonsbygg bestod. Hovedbundle er 961,20 kB / 293,91 kB gzip; eksisterende størrelsesvarsel består. To nye nettleserregresjoner er skrevet, men lokal kjøring var blokkert av manglende Chromium og mislykket nedlasting. Dette er ikke en ny sjuscenarioprøve eller prosjekteierens egenutprøving. Dette daterte kontrollpunktet ligger før nye GitHub-kontroller og publisering.
+
 ## Omfang og hvordan resultatene skal leses
 
 Ajour støtter **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**. Fullført steg, ferdig arbeid og bekreftet innlevering er separate handlinger; faktisk tidsbruk og gjenstående arbeid registreres separat. Appen bruker lokale regler, ikke generativ KI under kjøring.

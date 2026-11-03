@@ -20,6 +20,67 @@ const mixed = () => ({ ...base, nextStep: { description: 'Behold eldre tekst', e
 ] })
 
 describe('bounded mixed work-step preservation', () => {
+  it('saves manager completion of the existing unblocking ID atomically and restores the original wait with undo', () => {
+    const task = { ...base, waitingReason: 'Avklar syntetisk spørsmål', steps: [
+      { id: 'ordinary', title: 'Samme navn', completed: false },
+      { id: 'clarify', title: 'Samme navn', completed: false, unblocksWaiting: true },
+    ] }
+    const initial = { schemaVersion: 1, tasks: [task] }, before = structuredClone(initial)
+    const toggled = completeWorkStep(task, 'clarify')
+    expect(toggled.ok).toBe(true)
+    // The manager holds only its draft steps until "Lagre alle steg"; discarding
+    // this draft must leave the original task and waiting reason untouched.
+    expect(initial).toEqual(before)
+    const saved = saveWorkSteps(task, toggled.task.steps.slice().reverse())
+    expect(saved.ok).toBe(true)
+    expect(saved.task.waitingReason).toBe('')
+    expect(saved.task.steps.map(step => [step.id, step.completed])).toEqual([['clarify', true], ['ordinary', false]])
+    expect(saved.task).toMatchObject({ completed: false, remainingMinutes: 60 })
+    const updated = { ...initial, tasks: [saved.task] }
+    expect(validEnvelope(updated, { relations: true })).toBe(true)
+    const restored = undoLast(updated, recordChange(initial, updated, undefined, 'Syntetisk stegredigering'))
+    expect(restored.ok).toBe(true)
+    expect(restored.state).toEqual(initial)
+  })
+
+  it('preserves waiting for ordinary completion, unchanged old completion, reopening, removal and draft cancellation', () => {
+    const task = { ...base, waitingReason: 'Ny syntetisk venting', steps: [
+      { id: 'ordinary', title: 'Samme navn', completed: false },
+      { id: 'clarify', title: 'Samme navn', completed: false, unblocksWaiting: true },
+      { id: 'old', title: 'Tidligere avklaring', completed: true, unblocksWaiting: true },
+    ] }
+    const original = structuredClone(task)
+    const pendingDone = completeWorkStep(task, 'clarify').task.steps
+    const cancelledCompletion = completeWorkStep({ ...task, steps: pendingDone }, 'clarify', false).task.steps
+    const candidates = [
+      completeWorkStep(task, 'ordinary'),
+      saveWorkSteps(task, task.steps.map(step => step.id === 'old' ? { ...step, title: 'Endret historisk navn' } : step)),
+      completeWorkStep(task, 'old', false),
+      reorderWorkSteps(task, ['old', 'clarify', 'ordinary']),
+      removeWorkStep(task, 'clarify'),
+      saveWorkSteps(task, cancelledCompletion),
+      saveWorkSteps(task, [...task.steps, { id: 'new', title: 'Nytt fullført steg', completed: true, unblocksWaiting: true }]),
+      saveWorkSteps(task, task.steps.map(step => step.id === 'clarify' ? { ...step, completed: true, unblocksWaiting: false } : step)),
+    ]
+    for (const result of candidates) {
+      expect(result.ok).toBe(true)
+      expect(result.task.waitingReason).toBe(task.waitingReason)
+      expect(validTasks([result.task])).toBe(true)
+    }
+    expect(task).toEqual(original)
+  })
+
+  it('does not resolve waiting when completion is rejected by a prerequisite or invalid draft', () => {
+    const task = { ...base, waitingReason: 'Avklar syntetisk spørsmål', steps: [
+      { id: 'prerequisite', title: 'Forutsetning', completed: false },
+      { id: 'clarify', title: 'Avklar', completed: false, unblocksWaiting: true, dependencyIds: ['prerequisite'] },
+    ] }
+    const before = structuredClone(task)
+    expect(completeWorkStep(task, 'clarify')).toMatchObject({ ok: false, error: 'Fullfør stegets forutsetninger først.' })
+    expect(saveWorkSteps(task, task.steps.map(step => step.id === 'clarify' ? { ...step, completed: true, title: '' } : step)).ok).toBe(false)
+    expect(task).toEqual(before)
+  })
+
   it.each([
     { titleLength: 2000, idLength: 1983, collision: false },
     { titleLength: 2001, idLength: 20, collision: false },
