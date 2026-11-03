@@ -7,7 +7,7 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-11-01
+updated: 2026-11-03
 binds: [R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, Q-01, Q-02, Q-03]
 historical_binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
@@ -21,6 +21,8 @@ sources:
 ---
 
 # Technical plan: Ajour
+
+**Completion and request-boundary correction, 2026-11-03:** `saveWorkSteps` owns the incomplete-to-complete transition of an existing, explicitly marked unblocking step. Start closeout, direct completion and the step-list save therefore clear the same waiting state; history snapshots and unrelated prerequisites remain intact. Reopening, unchanged completed steps and cancelled drafts do not clear waiting. Local state and import middleware catch malformed request URLs before routing, database access or source fetches, return HTTP 400 and keep serving subsequent requests. No schema, hosting boundary or supported-source expansion is introduced. [Dated verification](../../../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) distinguishes test execution from publication.
 
 **Documentation revision, 2026-10-26:** R-07 now uses the project owner's planned manual self-trial with synthetic data, following the owner's decision on this date. It is not completed and establishes no result for unfamiliar users. The product scope and technical contracts are unchanged. The name audit corrected three runtime/error display strings to Ajour. Existing import transport identifiers (`Studieplanlegger/1.0` User-Agent and adapter-generated ICS `PRODID` values), package identity and the data/runtime names below remain compatibility exceptions; visible calendar exports already use Ajour.
 

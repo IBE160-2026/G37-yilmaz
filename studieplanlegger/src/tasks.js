@@ -193,9 +193,7 @@ export function completeNextStep(tasks, id) {
   if (!active) return { ok: true, tasks }
   const completed = completeWorkStep(task, active.id)
   if (!completed.ok) return completed
-  const result = { ok: true, tasks: tasks.map(item => item.id === id ? completed.task : item) }
-  if (active?.unblocksWaiting) result.tasks = result.tasks.map(item => item.id === id ? { ...item, waitingReason: '' } : item)
-  return result
+  return { ok: true, tasks: tasks.map(item => item.id === id ? completed.task : item) }
 }
 
 export function getActionMinutes(task) {

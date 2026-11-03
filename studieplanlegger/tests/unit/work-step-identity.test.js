@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { closeWork, validWorkLogs } from '../../src/work-log.js'
 import { taskSteps, reorderWorkSteps, saveWorkSteps, removeWorkStep } from '../../src/work-steps.js'
 import { getRemainingRange, setTaskSubmitted } from '../../src/tasks.js'
+import { canStartTask } from '../../src/task-dependencies.js'
 import { createReplan, applyReplan } from '../../src/replanning.js'
 import { recordChange, undoLast } from '../../src/history.js'
 import { createStorage, STORAGE_KEY, validEnvelope } from '../../src/storage.js'
@@ -30,6 +31,43 @@ const browserStore = initial => {
 }
 
 describe('explicit work-step identity and independent task remainder', () => {
+  it('clears waiting only for the captured unblocking step and restores it with the complete closeout on undo', () => {
+    const original = task({ waitingReason: 'Avklar den syntetiske oppgaven', steps: task().steps.map(step =>
+      step.id === 'step-a' ? { ...step, unblocksWaiting: true } : step) })
+    const capturedId = taskSteps(original)[0].id
+    const reordered = reorderWorkSteps(original, ['step-b', 'step-a']).task
+    const initial = state({ tasks: [reordered], sessions: [{ id: 'keep-reservation', taskId: original.id,
+      dateLocal: '2026-11-03', startTime: '10:00', endTime: '10:30' }] })
+    const before = structuredClone(initial)
+    const result = close(initial, draft({ stepId: capturedId, outcome: 'done' }))
+    expect(result.ok).toBe(true)
+    expect(result.state.tasks[0]).toMatchObject({ waitingReason: '', remainingMinutes: 60, completed: false, submitted: false })
+    expect(result.state.tasks[0].steps.map(step => [step.id, step.completed])).toEqual([['step-b', false], ['step-a', true]])
+    expect(canStartTask(result.state.tasks[0], result.state.tasks, { nextStep: true })).toBe(true)
+    expect(result.state.sessions).toEqual(initial.sessions)
+    expect(result.log).toMatchObject({ stepId: capturedId, stepCompleted: true, taskCompleted: false, taskSnapshot: reordered })
+    expect(validEnvelope(result.state, { relations: true })).toBe(true)
+    expect(initial).toEqual(before)
+    const restored = undoLast(result.state, recordChange(initial, result.state, undefined, 'Syntetisk avklaringssteg', now))
+    expect(restored.ok).toBe(true)
+    expect(restored.state).toEqual(initial)
+  })
+
+  it.each([
+    { stepId: 'step-b', outcome: 'done' },
+    { stepId: 'step-a', outcome: 'more' },
+    { stepId: 'step-a', outcome: 'not-started' },
+    { stepId: undefined, outcome: 'done' },
+  ])('does not infer a resolved wait from a different step or incomplete unblocking work: %j', input => {
+    const initial = state({ tasks: [task({ waitingReason: 'Avklar den syntetiske oppgaven', steps: task().steps.map(step =>
+      step.id === 'step-a' ? { ...step, unblocksWaiting: true } : step) })] })
+    const result = close(initial, draft(input))
+    expect(result.ok).toBe(true)
+    expect(result.state.tasks[0].waitingReason).toBe(initial.tasks[0].waitingReason)
+    expect(result.log.taskSnapshot).toEqual(initial.tasks[0])
+    expect(validEnvelope(result.state, { relations: true })).toBe(true)
+  })
+
   it.each(['done', 'more', 'not-started'])('retains the selected identity for %s even with equal step titles', outcome => {
     const initial = state(), before = structuredClone(initial)
     const result = close(initial, draft({ stepId: 'step-b', outcome }))

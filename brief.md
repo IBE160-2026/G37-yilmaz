@@ -2,7 +2,7 @@
 title: "Product Brief: Ajour"
 status: bounded-delivery-documented
 created: 2026-09-06
-updated: 2026-11-02
+updated: 2026-11-03
 ---
 
 # Product brief: Ajour
@@ -28,6 +28,8 @@ Kalenderapper viser avtaler og frister, Canvas samler fagets informasjon og innl
 **Oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering.** Registrer oppgaven manuelt eller bekreft et importforslag, velg et gjennomførbart neste steg, og kontroller økten før den lagres. Etter arbeid registrerer studenten utfallet og godkjenner eventuelle planendringer. Bare oppgavetittel er obligatorisk; et eget arbeidssteg er valgfritt. Ukjent tid og manglende frist skal fortsatt være ukjent. Fullført steg, fullført oppgave og manuelt bekreftet innlevering er tre forskjellige tilstander. Logget tid er verken automatisk gjenstående arbeid eller dokumentasjon på mestring.
 
 Kjernen omfatter emner og oppgaver, undervisning og tilgjengelig tid, forklarte handlingsforslag, arbeidsutfall, godkjent omplanlegging med angre, samt varig lokal lagring og dokumentert Docker-oppstart. Forslagene bygger på lokale regler og registrerte opplysninger. Import gir støttedata til denne flyten; manuell registrering gjør kjernen brukbar uten eksterne kilder.
+
+Når studenten fullfører et avklaringssteg som uttrykkelig opphever venting, skal videre arbeid kunne starte hvis øvrige forutsetninger er oppfylt. Vanlig stegfullføring eller registrerte minutter opphever ikke annen venting. Dette presiserer den eksisterende arbeidsflyten, uten å utvide V1.
 
 **Avgrensede importprøver i v1 — «HiMolde IT 2026–27 og NTNU emneutvalg høst 2026»:** HiMolde IT 2026–27 med IBE110 og IBE430 samt kildevalget **IBE160 eller IBE102 + IBE152**. Undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026. NTNU omfatter emnemetadata og emnelenket undervisning for ARK1001 og EXPH0100 høsten 2026; dette lover ikke komplett NTNU-program. Det loves ikke full eksamensdekning eller personlig gruppetilhørighet. [Importdekning](studieplanlegger/IMPORT-COVERAGE.md) beskriver hvilke kilder og forløp som faktisk er kontrollert.
 

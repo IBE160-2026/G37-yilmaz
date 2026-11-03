@@ -2,14 +2,14 @@
 title: "PRD: Ajour"
 status: final
 created: 2026-10-16
-updated: 2026-11-02
+updated: 2026-11-03
 ---
 
 # PRD: avgrenset Ajour-leveranse
 
 Denne PRD-en beskriver produktbehov, krav og avgrensninger. Prosjekteierens manuelle resultater står i [prøveplanen](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), automatiske kontroller i [verifikasjonen](../../studieplanlegger/VERIFICATION.md) og gjeldende leveringsoversikt i [planindeksen](README.md). Detaljert testutførelse føres der, ikke som produktkrav her.
 
-**Rekonstruert 2026-10-16, revidert 2026-11-02.** Dette er den eksisterende PRD-en, oppdatert etter [lærerens tilbakemelding](../../tilbakemelding-product-brief.md) og PRD-forberedelsene gjengitt i prosjekteierens oppdrag. Den beskriver allerede utviklet funksjonalitet og kravene til egenutprøving; den er ikke en opprinnelig plan for koden. [Briefen](../../brief.md) eier produktløftet, og [planindeksen](README.md) dokumenterer proveniens.
+**Rekonstruert 2026-10-16, revidert 2026-11-03.** Dette er den eksisterende PRD-en, oppdatert etter [lærerens tilbakemelding](../../tilbakemelding-product-brief.md) og PRD-forberedelsene gjengitt i prosjekteierens oppdrag. Den beskriver allerede utviklet funksjonalitet og kravene til egenutprøving; den er ikke en opprinnelig plan for koden. [Briefen](../../brief.md) eier produktløftet, og [planindeksen](README.md) dokumenterer proveniens.
 
 ## Hva vi skal lage og hvilket problem det skal løse
 
@@ -46,7 +46,7 @@ ID-ene er stabile. [Stories](EPICS-CURRENT.md) utdyper Given/When/Then, og [spor
 | R-01 | En oppgave kan lagres med bare tittel, også uten emne. Frivillige felt kan fylles senere; omlasting bevarer lagrede emne-/oppgave-/øktkoblinger. | SC-01 / S-01 |
 | R-02 | Import bevarer kildens påkrevde emner og alternative grener. Kilde, periode, usikkerhet og endringer vises før bekreftelse. Feilet oppdatering bevarer tidligere undervisning og valg. | SC-02 / S-02 |
 | R-03 | Neste handling, kapasitetsberegning og omplanlegging følger [tre separate resultatkrav](#r-03-tre-forskjellige-planleggingsresultater). Nye økter respekterer registrerte begrensninger og kjente konflikter. Oppgavenære forslag kan bruke uttrykkelig merket, betinget tilgjengelighet; den teller ikke som bekreftet kapasitet. Ukjent grunnlag forklares, og ingen økt lagres uten godkjenning. | SC-03 / S-03 |
-| R-04 | Faktiske minutter og nytt gjenstående anslag registreres hver for seg. Fullført steg fullfører ikke oppgaven; fullført oppgave bekrefter ikke innlevering. | SC-04 / S-04 |
+| R-04 | Faktiske minutter og nytt gjenstående anslag registreres hver for seg. Fullført steg fullfører ikke automatisk oppgaven; fullført oppgave bekrefter ikke innlevering. Når et eksisterende steg uttrykkelig merket som avklaring av venting fullføres, oppheves denne ventingen; andre uoppfylte forutsetninger beholdes. | SC-04 / S-04 |
 | R-05 | Forhåndsvisning skriver ikke planen. Godkjenning kontrollerer grunnlaget på nytt og lagrer samlet. Angre gjenoppretter endringen samlet når historikkoppføringen er beholdt og relevant grunnlag er uendret; foreldet grunnlag avvises uten delvis lagring. Se [bruksgrenser for R-05 og R-06](#bruksgrenser-for-r-05-og-r-06). | SC-05 / S-05 |
 | R-06 | Lokal Node-/Docker-lagring bevarer identiteter og relasjoner etter omstart/gjenskaping med samme datavolum. Nettleserutgaven bevarer data på samme adresse/profil med én redigerende fane. Lagring og sikkerhetskopi/gjenoppretting følger [bruksgrenser for R-05 og R-06](#bruksgrenser-for-r-05-og-r-06); avvist eller mislykket skriving bevarer tidligere data. | SC-06 / S-06 |
 | R-07 | Egenutprøving utføres av prosjekteieren etter prøveplanens sju scenarier, med syntetiske data, isolert lagring og registrerte observasjoner per scenario. Automatiske tester erstatter ikke den manuelle prøven. | SC-07 / S-07 |
@@ -156,5 +156,6 @@ Nasjonal dekning er en **visjon**, ikke et uoppfylt V1-krav. Kontoer, betaling, 
 | 2026-11-01 | Dokumentasjonsgrensene tydeliggjort: mål, brukerbehov, krav og omfang her; eierens sluttresultater og automatiske kontrollresultater i prøve-/verifikasjonsdokumentasjonen. Krav-ID-er og V1 er uendret. |
 | 2026-11-02 | Etter godkjent PRD-kritikk: R-03s tre resultater, eksisterende Angre-/lagringsgrenser, behovsbegrunnelse for R-08, nyttehypoteser og oppfølging av åpne spørsmål presisert. R-07 er avstemt mot dokumentert scenariodekning uten nye prøveresultater eller endret V1. |
 | 2026-11-02, etter validering | R-03/S-03 avstemt mot eksisterende betingede og utforskende startøkter. Q-01 har observerbar innholdsrekkefølge, og kravtabellen har direkte avsnittslenker. Dette retter tre dokumentfunn uten ny funksjonalitet eller nye manuelle prøveresultater. |
+| 2026-11-03 | Eksisterende avklaringssteg og separate fullføringshandlinger presisert i R-04 og S-04. [Teknisk oppfølging](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) beskriver retting, lokal forespørselsvalidering og dokumentkontroll. V1 og prosjekteierens R-07 er uendret. |
 
 Implementasjonsvalg og kontrakter hører til arkitekturen. Detaljerte kjøreresultater hører til verifikasjonen. Denne PRD-en beskriver produktbehov, krav og grensen for hva dokumentasjonen kan underbygge.

@@ -1,5 +1,7 @@
 # Ajour: planlegging og leveranseevidens
 
+**Teknisk oppfølging 2026-11-03:** [Avklaringssteg og lokal forespørselsvalidering](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) samler retting av ventemarkering, avvisning av ugyldige forespørselsadresser og samordnet brukerveiledning. Resultater og publiseringsstatus er datert i rapporten; dette er ikke nye personlige R-07-observasjoner.
+
 **Teknisk oppfølging 2026-11-02:** [Oppgave- og stegidentitet](../implementation-artifacts/work-step-identity-2026-11-02.md) avklarer den første Codex-rapportens testantakelse og dokumenterer den separate navngitte Start-flyten, retting og tekniske kontroller. Oppgavearbeid er fortsatt gyldig uten stegkobling. Codex-prøvene erstatter ikke prosjekteierens R-07; eldre daterte resultater beholdes.
 
 **Leveringsoversikt oppdatert 2026-11-01.** [Brief](../../brief.md) og [PRD](PRD.md) beskriver produktmål, brukerbehov, krav og avgrensninger. V1 og krav-/story-ID-er er uendret. Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**.
@@ -17,7 +19,7 @@ Planene ble **rekonstruert 2026-10-16** mot kodegrunnlag `1a58ffce782fd4e42a7153
 | Status / behov | Autoritativ inngang |
 | --- | --- |
 | Ferdig og dokumentert: produkt, oppstart og bruk | [Ajour på nett](https://ajour-sooty.vercel.app/), [README](../../README.md), [brukerveiledning](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [løsningsguide](../implementation-artifacts/solution-guide.md). Lokal kjøring er valgfri. |
-| Ferdig og dokumentert: prosjekteierens egenutprøving | [Prøveplan og sluttresultater](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). De konkrete avvikene er lukket innen oppgitt omfang; den opprinnelige scenariooppskriften utvides ikke til udokumenterte beståttresultater. |
+| Prosjekteierens dokumenterte omprøvinger | [Prøveplan og sluttresultater](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). De konkrete avvikene er lukket innen oppgitt omfang; den opprinnelige scenariooppskriften utvides ikke til udokumenterte beståttresultater. |
 | Automatiske kontroller og publisering | [VERIFICATION](../../studieplanlegger/VERIFICATION.md) skiller automatiske tester, CI og kontroll av publisert commit fra eierens manuelle observasjoner. Funksjonsprøver alene bekrefter ikke produksjonscommit, interne skriveoperasjoner eller full sikkerhet. |
 | Kjente begrensninger | [Samlet begrensningsoversikt](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) med status, V1-betydning og oppfølging; [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) gir kildegrunnlaget. Historisk F03, F05, personvernfunn og bundlevarselet står åpne. Den [rettede fredags-/fristregresjonen 2. november](../../studieplanlegger/VERIFICATION.md#fristavklaring-oppgavebekreftelse-og-lagringshjelp--2026-11-02) lukker ikke historisk F03; originalen `stress-text-005.txt` er ikke funnet eller omprøvd. |
 | Prosess, krav og sporbarhet | [Utviklingsprosess](../implementation-artifacts/development-process.md), dokumentlisten nedenfor og [sporbarhetsmatrisen](TRACEABILITY.md). |
