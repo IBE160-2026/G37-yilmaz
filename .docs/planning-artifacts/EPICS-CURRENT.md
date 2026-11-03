@@ -141,6 +141,7 @@ Som student vil jeg registrere arbeid uten at systemet gjetter fullføring eller
 
 - **Given** 30 planlagte minutter og 120 opprinnelig anslag, **When** jeg registrerer 30 faktiske minutter og 45 gjenstående, **Then** begge opplysninger beholdes hver for seg.
 - **Given** en oppgave med steg og innleveringskrav, **When** et steg fullføres, **Then** hele oppgaven og innleveringen forblir ufullført; når oppgaven senere fullføres, kreves fortsatt separat leveringsbekreftelse.
+- **Given** en ventende oppgave med et eksisterende steg uttrykkelig merket som avklaring av ventingen, **When** akkurat dette steget går fra åpent til fullført via Start, direkte fullføring eller lagring av steglisten, **Then** ventingen oppheves; andre uoppfylte forutsetninger, oppgaveanslag og leveringsstatus beholdes. Avbrudd, gjenåpning og vanlig steg-/tekstredigering opphever ikke venting. Angre gjenoppretter den samlede endringen. [Datert kontroll](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md).
 - **Given** en ikke utført økt, **When** utfallet registreres, **Then** ingen produktiv tid eller mestring utledes.
 
 Status: implementert; automatiserte domene-/stegtester, ikke dokumentasjon på læring.

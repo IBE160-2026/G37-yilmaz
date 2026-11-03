@@ -1,5 +1,13 @@
 # Ajour: sporbarhet fra løfte til evidens
 
+## Avklaringssteg og lokal forespørselsvalidering — 2026-11-03
+
+| Krav | Kontroll og grunnlag |
+| --- | --- |
+| R-03/R-04/R-05; S-03/S-04/S-05 | [Felles stegfullføring](../../studieplanlegger/src/work-steps.js) opphever venting bare ved en faktisk fullføring av det eksisterende avklaringssteget. [Identitetsprøver](../../studieplanlegger/tests/unit/work-step-identity.test.js), [steglisteprøver](../../studieplanlegger/tests/unit/bounded-work-steps.test.js) og [nettleserregresjoner](../../studieplanlegger/tests/e2e/own-trial-work-step-identity.spec.js) kontrollerer bevaring, avbrudd og Angre. |
+| R-06/Q-02; S-06 | [Tilstandsgrensen](../../studieplanlegger/server/state-api.js) og [importgrensen](../../studieplanlegger/server/import-api.js) avviser ugyldige forespørselsadresser før sidevirkninger. [Isolerte HTTP-prøver](../../studieplanlegger/tests/unit/local-request-boundary.test.js) kontrollerer HTTP 400 og videre normal drift, med bevarte lokale og publiserte kildevern. |
+| Q-03 | [Datert teknisk rapport](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md#avklaringssteg-og-lokal-forespørselsvalidering--2026-11-03) oppgir faktisk metode, resultat og publiseringsgrense. README og importveiledningen skiller oppgave-/stegfullføring og lokal/publisert lenkeimport. |
+
 ## Oppgave- og stegidentitet — 2026-11-02
 
 | Krav | Observerbar kontroll | Kode / testgrunnlag | Datert evidens |

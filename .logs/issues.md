@@ -18,6 +18,8 @@ Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere øn
 
 ## Kjente tekniske begrensninger
 
+- [ ] 2026-11-03 [Avklaringssteg og lokal validering](988-2026-11-03-19-29-10-avklaringssteg-og-lokal-validering.md) — De fire funnene er rettet og lokalt kontrollert med 2664 enhetstester og bygg. Faktisk nettleserkontroll av nye fullføringsveier, avbrudd og Angre gjenstår ved dette kontrollpunktet fordi lokal Chromium-kjøring var utilgjengelig. Tekniske resultater erstatter ikke personlig R-07.
+
 - [x] 2026-11-03 [Arbeidssteg og teknisk prøving](989-2026-11-03-00-32-35-ajour-arbeidssteg-og-teknisk-proving.md) — Første rapport brukte legitim oppgaveplanlegging; separat Start-reproduksjon påviste tapt navngitt steg og ignorert nytt anslag. Stabil stegidentitet, separat faktisk/gjenstående og bakoverkompatibilitet er rettet. Sju scenarioer med 20 delkontroller, regresjoner, main-CI og faktisk produksjon er prøvd med syntetiske data. Dette er Codex-utført teknisk nettlesertest og lukker ikke automatisk prosjekteierens R-07-dekningsforbehold (løst innen beskrevet omfang 2026-11-03).
 
 - [x] 2026-11-02 [Fristavklaring og lagringshjelp](991-2026-11-02-12-11-30-ajour-frist-og-hjelp.md) — Det nye fredags-eksemplet er reprodusert og rettet, med atomisk import, uttrykkelige valg og bevaring ved omlasting. Klokkeslett før oppgavebekreftelse og driftsavhengig hjelp er også rettet og prøvd i faktisk Chromium/SQLite (løst innen dette omfanget 2026-11-02). Dette lukker ikke historisk F03 nedenfor; rapporten er funnet, men originalen `stress-text-005.txt` er ikke funnet eller omprøvd.

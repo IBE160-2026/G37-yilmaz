@@ -82,10 +82,16 @@ export function saveWorkSteps(task, steps) {
   if (!Array.isArray(steps)) return { ok: false, error: 'Stegene har en ugyldig eller sirkulær kobling.' }
   // Callers using the stored steps array must not silently discard an additional
   // legacy row. An explicit removal first normalizes the task via removeWorkStep.
-  const legacyAdditions = taskSteps(task).filter(step => !task.steps?.some(item => item.id === step.id) && !steps.some(item => item.id === step.id))
+  const previousSteps = taskSteps(task)
+  const legacyAdditions = previousSteps.filter(step => !task.steps?.some(item => item.id === step.id) && !steps.some(item => item.id === step.id))
   steps = [...steps, ...legacyAdditions]
   if (!validWorkSteps(steps)) return { ok: false, error: 'Stegene har en ugyldig eller sirkulær kobling.' }
   const saved = { ...task, steps: structuredClone(steps) }
+  // Resolve waiting only on a newly confirmed completion of the same existing
+  // unblocking step. Saving an old completion or an unrelated edit proves nothing.
+  const previousById = new Map(previousSteps.map(step => [step.id, step]))
+  if (steps.some(step => step.completed && step.unblocksWaiting === true &&
+    previousById.get(step.id)?.completed === false && previousById.get(step.id)?.unblocksWaiting === true)) saved.waitingReason = ''
   delete saved.nextStep
   return { ok: true, task: saved }
 }

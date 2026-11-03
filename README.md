@@ -16,6 +16,8 @@ Hovedflyten er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → u
 
 **Oppgave eller arbeidssteg:** Planforslag reserverer tid til oppgaven. Når **Start** viser et bestemt arbeidssteg, følger dette steget med til arbeidsutfallet. Gjenstående arbeid gjelder fortsatt hele oppgaven. [Avklaring, retting og teknisk nettleserprøve 2. november](.docs/implementation-artifacts/work-step-identity-2026-11-02.md) skiller disse flytene og dokumenterer testomfanget.
 
+Et fullført avklaringssteg som er merket for å oppheve venting, åpner for videre arbeid når øvrige forutsetninger er oppfylt. [Oppfølgingen 3. november](.docs/implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) dokumenterer denne rettingen og kontroll av lokal server og veiledning.
+
 <a id="nettleserutgave--2026-10-29"></a>
 
 ## Ta vare på planen
