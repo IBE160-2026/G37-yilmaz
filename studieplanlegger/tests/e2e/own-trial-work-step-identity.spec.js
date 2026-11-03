@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { freeze, key, navigate, openMenu, reveal, row, saved } from './helpers.js'
 
 // Synthetic regression fixtures and a frozen clock, separate from the real-time
-// seven-scenario production trial. Only initial setup writes fixture storage;
+// seven-scenario production-build trial. Only initial setup writes fixture storage;
 // every action under test uses the UI in fresh Playwright BrowserContexts.
 const now = '2026-11-02T12:00:00+01:00'
 const title = 'Syntetisk arbeid med to steg'
@@ -71,6 +71,67 @@ async function exportFile(page) {
   await (await reveal(page.getByRole('button', { name: 'Eksporter sikkerhetskopi', exact: true }))).click()
   return readFile(await (await download).path())
 }
+
+test('finishing a named unblocking step releases the wait, preserves its snapshot and can be undone after reload', async ({ page }) => {
+  const initial = fixture({ waitingReason: 'Avklar den syntetiske oppgaven',
+    steps: [{ ...first, estimatedMinutes: 10, unblocksWaiting: true }, second] })
+  await boot(page, initial)
+  const outcome = await startOutcome(page, first.title)
+  await expect(outcome.getByText(`Arbeidssteg: ${first.title}`, { exact: true })).toBeVisible()
+  await outcome.getByRole('radio', { name: 'Utført', exact: true }).check()
+  await outcome.getByLabel('Faktisk arbeidstid (minutter, valgfritt)', { exact: true }).fill('10')
+  await outcome.getByRole('button', { name: 'Lagre utfallet', exact: true }).click()
+  await expect(outcome).not.toBeVisible()
+  const completed = await saved(page)
+  expect(completed.tasks[0]).toMatchObject({ waitingReason: '', remainingMinutes: 60, completed: false, submitted: false })
+  expect(completed.tasks[0].steps).toEqual([{ ...initial.tasks[0].steps[0], completed: true }, second])
+  expect(completed.workLogs[0]).toMatchObject({ stepId: first.id, stepCompleted: true, taskCompleted: false,
+    actualMinutes: 10, taskSnapshot: initial.tasks[0] })
+  expect(completed.sessions).toEqual(initial.sessions)
+  await expect(page.locator('#dashboard-suggestions')).toContainText(second.title)
+  await expect(page.locator('#dashboard-suggestions').getByRole('button', { name: `Start «${title}»`, exact: true })).toBeEnabled()
+  await page.reload()
+  expect(await saved(page)).toEqual(completed)
+  await navigate(page, 'settings')
+  await page.locator('#settings-panel').getByRole('button', { name: 'Angre siste endring', exact: true }).click()
+  const undone = await saved(page)
+  expect(undone.tasks).toEqual(initial.tasks)
+  expect(undone.workLogs).toEqual(initial.workLogs)
+  expect(undone.sessions).toEqual(initial.sessions)
+  await navigate(page, 'overview')
+  await expect(page.locator('#dashboard-suggestions')).toContainText(first.title)
+  await page.reload()
+  expect(await saved(page)).toEqual(undone)
+})
+
+test('the step manager resolves waiting only after saving completion and cancellation and undo preserve the original wait', async ({ page }) => {
+  const initial = fixture({ waitingReason: 'Avklar den syntetiske oppgaven',
+    steps: [{ ...first, unblocksWaiting: true }, second] })
+  await boot(page, initial)
+  let editor = await steps(page)
+  await editor.locator(`[data-step-id="${first.id}"]`).getByRole('button', { name: 'Marker fullført', exact: true }).click()
+  expect(await saved(page)).toEqual(initial)
+  await editor.getByRole('button', { name: 'Avbryt', exact: true }).click()
+  expect(await saved(page)).toEqual(initial)
+  editor = await steps(page)
+  await editor.locator(`[data-step-id="${first.id}"]`).getByRole('button', { name: 'Marker fullført', exact: true }).click()
+  await editor.getByRole('button', { name: 'Lagre alle steg', exact: true }).click()
+  const completed = await saved(page)
+  expect(completed.tasks[0]).toMatchObject({ waitingReason: '', remainingMinutes: 60, completed: false, submitted: false })
+  expect(completed.tasks[0].steps).toEqual([{ ...initial.tasks[0].steps[0], completed: true }, second])
+  expect(completed.workLogs).toEqual(initial.workLogs)
+  expect(completed.sessions).toEqual(initial.sessions)
+  await navigate(page, 'overview')
+  await expect(page.locator('#dashboard-suggestions')).toContainText(second.title)
+  await page.reload()
+  expect(await saved(page)).toEqual(completed)
+  await navigate(page, 'settings')
+  await page.locator('#settings-panel').getByRole('button', { name: 'Angre siste endring', exact: true }).click()
+  const undone = await saved(page)
+  expect(undone.tasks).toEqual(initial.tasks)
+  expect(undone.workLogs).toEqual(initial.workLogs)
+  expect(undone.sessions).toEqual(initial.sessions)
+})
 
 test('named step identity survives replan undo, equal titles, reorder, removal and fresh-context backup restore', async ({ page, browser }, info) => {
   const initial = fixture()

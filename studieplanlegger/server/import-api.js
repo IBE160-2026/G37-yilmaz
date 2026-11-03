@@ -165,10 +165,20 @@ export async function readImportBody(req, { maxBytes = 8192, signal } = {}) {
   return body
 }
 export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicText, fetchBytesImpl = fetchPublicBytes, providerRequestImpl = providerRequest, hostedPolicy } = {}) {
-  const url = new URL(req.url, 'http://localhost')
+  let timer
+  const send = (status, data, headers = {}) => {
+    clearTimeout(timer)
+    if (res.destroyed || res.writableEnded) return
+    let body = JSON.stringify(data)
+    if (hostedPolicy && Buffer.byteLength(body) > 3_000_000) { status = 502; body = JSON.stringify({ error: 'Kildeutvalget er for stort. Velg færre emner eller bruk filimport.' }) }
+    res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers }); res.end(body)
+  }
+  let url
+  try { url = new URL(req.url, 'http://localhost') }
+  catch { return send(400, { error: 'Ugyldig forespørselsadresse.' }) }
   if (!url.pathname.startsWith('/api/import/')) return next()
   const controller = new AbortController()
-  let timer, fetches = 0, totalBytes = 0, finishDeadline, limitError
+  let fetches = 0, totalBytes = 0, finishDeadline, limitError
   const deadline = new Promise(resolve => { finishDeadline = resolve })
   res.on('close', () => { clearTimeout(timer); if (!res.writableEnded) { controller.abort(); finishDeadline() } })
   const exhaustImport = message => {
@@ -195,13 +205,6 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
   fetchText.cacheKey = hostedPolicy ? fetchText : fetchTextImpl; fetchText.signal = controller.signal
   fetchBytes.cacheKey = hostedPolicy ? fetchBytes : fetchBytesImpl; fetchBytes.signal = controller.signal
   const ntnuDetails = query => universityProviders.ntnu(query, { fetchText })
-  const send = (status, data, headers = {}) => {
-    clearTimeout(timer)
-    if (res.destroyed || res.writableEnded) return
-    let body = JSON.stringify(data)
-    if (hostedPolicy && Buffer.byteLength(body) > 3_000_000) { status = 502; body = JSON.stringify({ error: 'Kildeutvalget er for stort. Velg færre emner eller bruk filimport.' }) }
-    res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers }); res.end(body)
-  }
   if (hostedPolicy) {
     try { hostedPolicy.authorize(req) } catch (error) { return send(403, { error: error.message }) }
     if (Buffer.byteLength(req.url) > 8192) return send(414, { error: 'Kildevalget er for langt.' })

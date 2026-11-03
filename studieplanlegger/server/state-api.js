@@ -29,13 +29,15 @@ function writeBody(value) {
 
 export function stateMiddleware(database) {
   return function handleState(req, res, next) {
-    const url = new URL(req.url, 'http://localhost')
-    if (!url.pathname.startsWith('/api/state') && url.pathname !== '/api/health') return next()
     const send = (status, value) => {
       if (res.destroyed || res.writableEnded) return
       res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' })
       res.end(JSON.stringify(value))
     }
+    let url
+    try { url = new URL(req.url, 'http://localhost') }
+    catch { return send(400, { error: 'invalid-request-url' }) }
+    if (!url.pathname.startsWith('/api/state') && url.pathname !== '/api/health') return next()
     if (!allowedHost(req.headers.host)) return send(403, { error: 'local-only' })
     if (req.headers.origin && ![`http://${req.headers.host}`, `https://${req.headers.host}`].includes(req.headers.origin)) return send(403, { error: 'origin-refused' })
     if (/^cross-site$/i.test(req.headers['sec-fetch-site'] || '')) return send(403, { error: 'cross-site-refused' })

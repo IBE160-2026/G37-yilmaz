@@ -132,7 +132,7 @@ Det oppgavenære forslaget viser oppgave, dag, klokkeslett, varighet og forutset
 
 Planlagt tid betyr ikke utført arbeid. Etter en planlagt økt eller arbeid registrert i etterkant velger du:
 
-- **Utført:** det aktuelle arbeidssteget fullføres. Hele oppgaven og innlevering avklares separat.
+- **Utført:** Når dialogen gjelder et bestemt arbeidssteg, fullføres dette steget. Velg **Hele oppgaven er ferdig** hvis hele arbeidet også er ferdig. Når dialogen gjelder oppgaven uten et valgt steg, markerer **Utført** hele oppgaven som ferdig. Innlevering krever alltid en egen bekreftelse.
 - **Trenger mer tid:** oppgi nytt anslag på gjenstående arbeid eller «Vet ikke».
 - **Ikke utført:** ingen faktisk arbeidstid eller fremdrift registreres, og ingen økter flyttes automatisk.
 
