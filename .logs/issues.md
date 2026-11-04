@@ -8,7 +8,7 @@ Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere øn
 
 Prosjekteierens sju scenarioer og navngitte Start-prøve er gjennomført og bestått innen dokumentert prøveomfang. Det tidligere R-07-forbeholdet om gjenoppretting i separat tomt miljø er lukket: Chrome Gjest og tomme førverdier er synlige, omlasting er brukerbekreftet, og hele sluttdataene er identiske med kildekopien. [Rapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) bevarer metodeavvik og skiller eierens handlinger fra teknisk filsammenligning.
 
-Ingen dokumentert funksjonsblokkering i avtalt V1 er identifisert i denne dokumentkontrollen. De åpne punktene nedenfor skiller historiske funn og aksepterte drifts-/kildegrenser fra personlig sluttlesing, faktisk innlevering og eieroppfølging av historisk eksponering. Disse siste forholdene kan ikke ferdigmeldes av grønne tester eller en publisering.
+Den etterfølgende auditrapporten identifiserte to konkrete rekkefølgefeil ved filimport. [Oppfølgingen 4. november](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) dokumenterer retting, regresjoner og faktiske kontrollresultater. Tidligere personlige prøver beholdes med sitt omfang. GitHub-administrasjon, historisk tilgangsmateriale, formelle leveringsopplysninger og personlig sluttlesing er separate restpunkter; grønne tester eller publisering kan ikke alene lukke dem.
 
 ## Gjenstående aktiviteter
 
@@ -23,6 +23,11 @@ Ingen dokumentert funksjonsblokkering i avtalt V1 er identifisert i denne dokume
 - [x] 2026-10-26 [PRD og egenutprøving](998-2026-10-26-23-09-41-ajour-prd-og-egenutproving.md) — Hel HiMolde-programgjentakelse kontrollert med syntetiske kilder på faktisk Vercel-preview og produksjon, med stabile ID-er, bevarte valg/notater og ingen duplikater. [Avgrenset teknisk evidens](995-2026-10-29-15-37-33-ajour-teknisk-sluttkontroll.md); hel gjentakelse med faktisk kildetransport påstås ikke (løst 2026-10-29).
 
 ## Kjente tekniske begrensninger
+
+- [x] 2026-11-04 [Importrekkefølge](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) — A-01/A-02 er rettet med operasjonsidentitet, avbrudd og filnavn i backupforhåndsvisningen. Femten målrettede regresjoner er lagt til; faktisk sluttkontroll og publisering spores i [PR #24](https://github.com/IBE160-2026/G37-yilmaz/pull/24). Første testmenyavvik er bevart i rapporten. Egenutprøvingen gjenåpnes ikke.
+
+- [ ] 2026-11-04 [Auditoppfølging](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) — A-04/A-05: administrator må beskytte `main` med påkrevd **Ajour quality** og rette About til `https://ajour-sooty.vercel.app/`. Tilkoblingen mangler administrasjonsrettigheter og nettleserinnlogging ble ikke fullført. Begge offentlige adresser svarer uten omdirigering; eventuell flytting må bevare eksporttilgang til adresselokale data.
+- [ ] 2026-11-04 [Plattformkontroll](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) — Vercels rate-/samtidighetsgrenser og forbruksvarsler er ikke verifisert. Per-forespørselsbudsjett og same-origin-vern er ikke global ratebegrensning. Ingen betalt tjeneste eller nytt prosjekt er bestilt.
 
 - [x] 2026-11-03 [Avklaringssteg og lokal validering](988-2026-11-03-19-29-10-avklaringssteg-og-lokal-validering.md) — De fire funnene er rettet, dokumentert og publisert gjennom PR #21. GitHub-kvalitet på kandidat og integrert main bestod med 2664 enhetstester, 155 Chromium-prøver og 14 SQLite-/nettleserprøver, inkludert nye fullføringsveier, avbrudd og Angre. Faktisk forhåndsvisning og produksjonsdeploy bestod hver 60 runtimeprøver og seks kildeprøver. Offentlig produksjonsadresse leverte riktig SHA og byteidentiske appfiler. Den lokale Chromium-begrensningen er fulgt opp av faktisk CI-kjøring; tekniske resultater erstatter ikke personlig R-07 (løst innen kontrollert omfang 2026-11-03).
 
