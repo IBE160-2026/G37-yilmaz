@@ -1,17 +1,34 @@
-import { parseOsloDeadline, parseTextRegistration } from './text-registration.js'
+import { parseOsloDeadline, parseTextRegistration, validateTextRegistrationProposal } from './text-registration.js'
 import { formatDeadline } from './calendar.js'
+import { osloLocal } from './planner.js'
 
 const node = (tag, text, className = '') => { const value = document.createElement(tag); value.className = className; if (text) value.textContent = text; return value }
 const fullDate = value => { try { return new Intl.DateTimeFormat('nb-NO', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Oslo' }).format(new Date(`${value}T12:00:00+02:00`)) } catch { return value } }
-const dateWithYear = (value, year) => {
-  const match = String(value || '').match(/(?:^|\s)(\d{1,2})[.]\s*(\d{1,2})(?:[.]|\s|$)/)
-  if (!match || !year) return ''
-  const iso = `${year}-${match[2].padStart(2, '0')}-${match[1].padStart(2, '0')}`
-  try { return fullDate(iso) } catch { return '' }
-}
 const field = (label, name, value, type = 'text') => {
   const wrapper = node('label', '', 'text-registration-field'); wrapper.append(node('span', label))
-  const input = document.createElement('input'); input.name = name; input.type = type; input.value = value ?? ''; wrapper.append(input); return wrapper
+  const input = document.createElement('input'); input.name = name; input.type = type; input.value = value ?? ''
+  // Native time fields clear invalid values. Retain the rejected parser input
+  // until an explicit edit so it cannot silently become an unknown clock.
+  if (type === 'time' && value && !input.value) {
+    input.dataset.invalidClock = value; input.setCustomValidity('Oppgi et gyldig klokkeslett.')
+    for (const eventName of ['input', 'change']) input.addEventListener(eventName, () => { delete input.dataset.invalidClock; input.setCustomValidity('') })
+    input.addEventListener('keydown', event => {
+      if (['Backspace', 'Delete'].includes(event.key) && !input.value && input.dataset.invalidClock !== undefined) {
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+      }
+    })
+  }
+  wrapper.append(input); return wrapper
+}
+const proposalValues = form => {
+  const values = Object.fromEntries(new FormData(form))
+  for (const input of form.querySelectorAll('input[type="time"]')) {
+    const clock = input.dataset.invalidClock ?? input.value, match = clock.match(/^([01]?\d|2[0-3]):([0-5]\d)(?::00)?$/u)
+    // Engines differ in native range/step validation. Only whole minutes may
+    // reach the shared validator, matching the precision shown in the summary.
+    values[input.name] = !input.validity.valid || clock && !match ? 'ugyldig klokkeslett' : match ? `${match[1].padStart(2, '0')}:${match[2]}` : ''
+  }
+  return values
 }
 
 // The visible deadline and confirmation use the same edited values, including
@@ -37,6 +54,23 @@ export function textRegistrationDeadlineSummary(proposal) {
   return parsed.ok ? formatDeadline(parsed.deadlineLocal, { year: true }) : `må avklares – ${parsed.error}`
 }
 
+export function textRegistrationSummary(proposal, courses = []) {
+  const action = proposal.action === 'create' ? 'create' : 'activity'
+  const checked = validateTextRegistrationProposal({ ...proposal, action }, { courses })
+  const unresolved = error => `må avklares – ${error}`
+  const title = checked.errors.title ? unresolved(checked.errors.title) : String(proposal.title || '').trim() || unresolved('Skriv et navn.')
+  if (action === 'create') {
+    return { title, course: checked.errors.course ? unresolved(checked.errors.course) : checked.draft.course || 'Uten emne',
+      deadline: checked.errors.deadline ? unresolved(checked.errors.deadline) : checked.draft.deadlineLocal ? formatDeadline(checked.draft.deadlineLocal, { year: true }) : 'ikke oppgitt',
+      remaining: checked.errors.remaining ? unresolved(checked.errors.remaining) : checked.draft.remainingMinutes == null ? 'ikke oppgitt' : `${checked.draft.remainingMinutes} min`,
+      type: 'Type: Oppgave med frist' }
+  }
+  const start = checked.timing?.start ? osloLocal(checked.timing.start).slice(11) : '', end = checked.timing?.end ? osloLocal(checked.timing.end).slice(11) : ''
+  return { title, course: 'Uten emne', date: checked.errors.date ? unresolved(checked.errors.date) : fullDate(checked.dateLocal),
+    time: checked.errors.date || checked.errors.time ? unresolved(checked.errors.date || checked.errors.time) : start ? `${start}${end ? `–${end}` : ' · Varighet ikke oppgitt'}` : 'ikke oppgitt',
+    type: proposal.action === 'activity' ? 'Type: Egen aktivitet' : 'Velg type før lagring' }
+}
+
 export function createTextRegistrationView(host, actions) {
   const form = node('form', '', 'text-registration-form'), label = node('label'), input = document.createElement('textarea')
   input.name = 'command'; input.rows = 2; input.placeholder = 'Legg til rapport i IBE160 med frist fredag kl. 14.'
@@ -48,28 +82,36 @@ export function createTextRegistrationView(host, actions) {
   const disclosure = node('details', '', 'text-registration-disclosure')
   disclosure.append(node('summary', 'Skriv en oppgave eller endring'), form, feedback, proposal)
   form.append(label, help, propose); host.append(disclosure)
-  let current = null, busy = false, lastModel = null, updateDeadlineSummary = () => {}
+  let current = null, busy = false, lastModel = null, updateSummary = () => {}
 
   function show(parsed) {
-    updateDeadlineSummary = () => {}
+    updateSummary = () => {}
     feedback.replaceChildren()
     if (!parsed.ok) for (const error of parsed.errors) feedback.append(node('p', error, 'field-error'))
     if (!parsed.proposal) { proposal.hidden = true; current = null; return }
     current = structuredClone(parsed.proposal); proposal.replaceChildren(node('h3', parsed.ok ? 'Kontroller før lagring' : 'Korriger forslaget'))
-    let actionSelect, yearSelect, ambiguousDateSummary
+    let actionSelect, yearSelect
+    const summaryFor = kind => {
+      const summary = node('div', '', 'text-registration-summary'), title = node('p'), date = node('p'), amount = node('p'), type = node('p')
+      date.setAttribute('aria-live', 'polite')
+      summary.append(title, date)
+      if (kind !== 'ambiguous-date') summary.append(amount)
+      if (kind !== 'create') summary.append(type)
+      updateSummary = () => {
+        const edited = editTextRegistrationProposal(current, proposalValues(proposal)), values = textRegistrationSummary(edited, lastModel.planner?.courses || [])
+        title.textContent = `Tittel: ${values.title}`
+        date.textContent = `${kind === 'create' ? 'Frist' : 'Dato'}: ${values.deadline ?? values.date} · ${values.course}`
+        amount.textContent = kind === 'create' ? `Arbeidsmengde: ${values.remaining}` : `Tid: ${values.time}`
+        type.textContent = values.type
+      }
+      return summary
+    }
     if (current.action === 'ambiguous-date') {
-      const summary = node('div', '', 'text-registration-summary'); ambiguousDateSummary = node('p', `Dato: ${current.dateLocal ? fullDate(current.dateLocal) : 'velg år'} · Uten emne`); summary.append(node('p', `Tittel: ${current.title}`), ambiguousDateSummary, node('p', 'Velg type før lagring')); proposal.append(summary)
+      proposal.append(summaryFor('ambiguous-date'))
       const wrapper = node('label', '', 'text-registration-field'); actionSelect = document.createElement('select'); actionSelect.name = 'actionChoice'; actionSelect.append(new Option('Velg type', ''), new Option('Oppgave med frist', 'create'), new Option('Egen aktivitet', 'activity')); wrapper.append(node('span', 'Er dette en oppgave eller egen aktivitet?'), actionSelect); proposal.append(wrapper)
       const details = node('details', '', 'text-registration-details'); details.append(node('summary', 'Endre detaljer'), field('Tittel', 'title', current.title), field('Dato', 'dateInput', current.dateLocal || current.dateInput || '')); proposal.append(details)
     } else if (current.action === 'create') {
-      const summary = node('div', '', 'text-registration-summary'), deadlineSummary = node('p')
-      deadlineSummary.setAttribute('aria-live', 'polite')
-      updateDeadlineSummary = () => {
-        const edited = editTextRegistrationProposal(current, Object.fromEntries(new FormData(proposal)))
-        deadlineSummary.textContent = `Frist: ${textRegistrationDeadlineSummary(edited)} · ${edited.course || 'Uten emne'}`
-      }
-      summary.append(node('p', `Tittel: ${current.title}`), deadlineSummary, node('p', `Arbeidsmengde: ${current.remainingMinutes == null ? 'ikke oppgitt' : `${current.remainingMinutes} min`}`))
-      proposal.append(summary)
+      proposal.append(summaryFor('create'))
       const courseField = field('Emne (valgfritt, nøyaktig kode eller navn)', 'course', current.course || ''), courseInput = courseField.querySelector('input'), suggestions = node('datalist'); suggestions.id = `text-registration-courses-${crypto.randomUUID()}`
       suggestions.append(new Option('Uten emne', 'uten emne'))
       for (const course of lastModel.planner?.courses || []) suggestions.append(new Option([course.code, course.name].filter(Boolean).join(' · '), course.code || course.name))
@@ -77,8 +119,7 @@ export function createTextRegistrationView(host, actions) {
       const details = node('details', '', 'text-registration-details'); details.open = !parsed.ok; details.append(node('summary', 'Endre detaljer'), field('Tittel', 'title', current.title), courseField, suggestions, field('Frist (valgfritt)', 'deadlineInput', current.deadlineLocal || current.deadlineInput || ''), field('Gjenstående arbeid (valgfritt)', 'remainingInput', current.remainingMinutes != null ? `${current.remainingMinutes} min` : current.remainingInput || ''))
       proposal.append(details)
     } else if (current.action === 'activity') {
-      const summary = node('div', '', 'text-registration-summary')
-      summary.append(node('p', `Tittel: ${current.title}`), node('p', `Dato: ${fullDate(current.dateLocal)} · Uten emne`), node('p', `Tid: ${current.startLocal ? `${current.startLocal}${current.endLocal ? `–${current.endLocal}` : ' · Varighet ikke oppgitt'}` : 'ikke oppgitt'}`), node('p', 'Type: Egen aktivitet'))
+      const summary = summaryFor('activity')
       const details = node('details', '', 'text-registration-details'); details.open = !parsed.ok; details.append(node('summary', 'Endre detaljer'), field('Tittel', 'title', current.title), field('Dato', 'dateInput', current.dateLocal || current.dateInput || ''), field('Start (valgfri)', 'startLocal', current.startLocal || '', 'time'), field('Slutt (valgfri)', 'endLocal', current.endLocal || '', 'time'))
       proposal.append(summary, details)
     } else if (current.action === 'deadline') {
@@ -109,11 +150,11 @@ export function createTextRegistrationView(host, actions) {
     }
     const controls = node('div', '', 'actions'), actionLabel = current.action === 'ambiguous-date' ? 'Velg handling' : current.action === 'activity' ? 'Legg til aktivitet' : current.action === 'create' ? 'Legg til oppgave' : 'Lagre endring', confirm = node('button', actionLabel), cancel = node('button', 'Avbryt', 'secondary')
     const refreshConfirm = () => { confirm.disabled = Boolean(actionSelect && !actionSelect.value || yearSelect && !yearSelect.value); if (actionSelect) confirm.textContent = actionSelect.value === 'activity' ? 'Legg til aktivitet' : actionSelect.value === 'create' ? 'Legg til oppgave' : 'Velg handling' }
-    actionSelect?.addEventListener('change', refreshConfirm); yearSelect?.addEventListener('change', () => { refreshConfirm(); if (ambiguousDateSummary) ambiguousDateSummary.textContent = `Dato: ${dateWithYear(current.dateInput || current.deadlineInput, yearSelect.value) || 'velg år'} · Uten emne` }); refreshConfirm()
+    actionSelect?.addEventListener('change', refreshConfirm); yearSelect?.addEventListener('change', refreshConfirm); refreshConfirm()
     confirm.type = 'submit'; cancel.type = 'button'; cancel.addEventListener('click', () => { current = null; proposal.hidden = true; feedback.replaceChildren(); input.focus() })
-    controls.append(confirm, cancel); proposal.append(controls); updateDeadlineSummary(); proposal.hidden = false; (actionSelect || confirm).focus({ preventScroll: true })
+    controls.append(confirm, cancel); proposal.append(controls); updateSummary(); proposal.hidden = false; (actionSelect || confirm).focus({ preventScroll: true })
   }
-  for (const eventName of ['input', 'change']) proposal.addEventListener(eventName, () => { if (current) updateDeadlineSummary() })
+  for (const eventName of ['input', 'change']) proposal.addEventListener(eventName, () => { if (current) updateSummary() })
   form.addEventListener('submit', event => { event.preventDefault(); show(parseTextRegistration(input.value, { tasks: lastModel.tasks, courses: lastModel.planner?.courses, now: lastModel.now })) })
   host.addEventListener('focusin', event => queueMicrotask(() => {
     const nav = document.querySelector('.view-actions'), navTop = nav && getComputedStyle(nav).position === 'fixed' ? nav.getBoundingClientRect().top : innerHeight
@@ -124,7 +165,7 @@ export function createTextRegistrationView(host, actions) {
     event.preventDefault(); if (!current || busy) return
     const pageScroll = { x: scrollX, y: scrollY }, confirmButton = proposal.querySelector('button[type=submit]')
     busy = true; confirmButton.disabled = true
-    const values = Object.fromEntries(new FormData(proposal))
+    const values = proposalValues(proposal)
     const edited = editTextRegistrationProposal(current, values)
     const result = actions.confirm(edited)
     busy = false
@@ -142,7 +183,7 @@ export function createTextRegistrationView(host, actions) {
     } else input.focus({ preventScroll: true })
   })
   return {
-    render(model) { lastModel = model; host.hidden = !['overview', 'all', 'week'].includes(model.view); form.querySelector('button').disabled = !model.readable || model.editing; input.disabled = !model.readable || model.editing },
+    render(model) { lastModel = model; if (current) updateSummary(); host.hidden = !['overview', 'all', 'week'].includes(model.view); form.querySelector('button').disabled = !model.readable || model.editing; input.disabled = !model.readable || model.editing },
     hasDraft: () => Boolean(input.value || current),
   }
 }
