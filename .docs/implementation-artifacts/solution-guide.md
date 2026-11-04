@@ -1,10 +1,10 @@
 # Slik virker Ajour
 
-**Oppgave eller steg:** Kalenderens planforslag reserverer tid til oppgaven. Neste-handling-knappen **Start** kan vise et bestemt startklart arbeidssteg; dette målet følger med til utfallsdialogen og arbeidsloggen med stabil identitet. Navneendring eller omrekkefølge endrer ikke tidligere arbeid. Gjenstående arbeid i utfallet gjelder hele oppgaven, uavhengig av faktisk tid. Eldre logger uten kjent stegkobling beholdes uten gjetting. [Datert avklaring og tekniske kontroller](work-step-identity-2026-11-02.md) forklarer forskjellen mellom den opprinnelige oppgaveprøven og den faktiske stegflyten.
-
 **[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.** Begynn med en oppgave, kontroller en studieøkt og registrer utfallet etter arbeidet. [Brukerveiledningen](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) viser de første stegene; [lokal drift og utvikling](../../studieplanlegger/README.md#lokal-drift-og-utvikling) er alternativer for sensor og utviklere.
 
 Planen i nettutgaven tilhører nettleserprofilen og den nøyaktige nettadressen. Sletting av nettleserdata kan slette planen; det finnes ingen konto eller enhetssynkronisering. Bruk **Innstillinger → Data og sikkerhetskopi** for å oppbevare en separat kopi eller flytte data. Lokal Node-/Docker-drift bruker SQLite; tabellen nedenfor skiller driftsformene.
+
+**Oppgave eller steg:** Kalenderens planforslag reserverer tid til oppgaven. Neste-handling-knappen **Start** kan vise et bestemt startklart arbeidssteg; dette målet følger med til utfallsdialogen og arbeidsloggen med stabil identitet. Navneendring eller omrekkefølge endrer ikke tidligere arbeid. Gjenstående arbeid i utfallet gjelder hele oppgaven, uavhengig av faktisk tid. Eldre logger uten kjent stegkobling beholdes uten gjetting. [Datert avklaring og tekniske kontroller](work-step-identity-2026-11-02.md) forklarer forskjellen mellom den opprinnelige oppgaveprøven og den faktiske stegflyten.
 
 <a id="hovedflyt-og-gjeldende-løfte--2026-10-16"></a>
 
@@ -23,13 +23,13 @@ flowchart LR
   E --> C
 ```
 
-Tekniske beslutninger og sammenhengen med krav står i [arkitekturen](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). Etter prosjekteierens beslutning **2026-10-26** gjelder [egenutprøvingen](../planning-artifacts/USER-TRIAL-PLAN.md) prosjekteieren alene, med syntetiske data i et isolert miljø. Prøveplanen har gjeldende daterte resultater og skiller dem fra automatiske kontroller. Resultatene dokumenterer egne observasjoner, ikke ukjente brukeres forståelse eller generell studentnytte. Dokumentasjonsarbeidet bruker Codex; den manuelle egenutprøvingen er utført av prosjekteieren. Sensorveiledningen for del 1 er lest i sin helhet, senest i leveringskontrollen 1. november.
+Tekniske beslutninger og sammenhengen med krav står i [arkitekturen](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). Etter prosjekteierens beslutning **2026-10-26** gjelder [egenutprøvingen](../planning-artifacts/USER-TRIAL-PLAN.md) prosjekteieren alene, med syntetiske data i et isolert miljø. [Prøverapporten 4. november](owner-trial-2026-11-04.md) dokumenterer beståtte sju scenarier og navngitt Start-tillegg, med rettet prøveutførelse og metodegrenser. Resultatene dokumenterer egne observasjoner, ikke ukjente brukeres forståelse eller generell studentnytte. Dokumentasjonsarbeidet bruker Codex; den manuelle egenutprøvingen er utført av prosjekteieren. Lesing av hele sensorveiledningen for del 1 er sist dokumentert i leveringskontrollen 1. november.
 
 Ajour er en studieplanlegger for nettleseren, med valgfri lokal Node-/Docker-drift, skrevet med vanlig JavaScript, HTML og CSS. Reglene er faste og forklarbare; appen bruker ingen KI-tjeneste under kjøring. KI har bidratt i utviklingsarbeidet, som er dokumentert i [utviklingsprosessen](development-process.md). Dokumentet er ikke studentens personlige refleksjonsrapport.
 
 ## Nettleserutgave — 2026-10-29
 
-[Ajour på nett](https://ajour-sooty.vercel.app/) bruker den samme hovedflyten med planen i nettleserprofilens `localStorage` og avgrensede Vercel-funksjoner for offentlig import. Profiler og nøyaktige nettadresser har separate data; localhost, forhåndsvisning og publisert adresse deler ikke automatisk plan. Sikkerhetskopi brukes til flytting og oppbevaring. Ingen konto, skydatabase eller enhetssynkronisering er innført. [Publiseringskontrollen fra 29. oktober](../../.logs/997-2026-10-29-13-35-00-ajour-vercel.md) er teknisk historikk; gjeldende egenutprøving står i [prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). De lokale alternativene i tabellen beholdes.
+[Ajour på nett](https://ajour-sooty.vercel.app/) bruker den samme hovedflyten med planen i nettleserprofilens `localStorage` og avgrensede Vercel-funksjoner for offentlig import. Profiler og nøyaktige nettadresser har separate data; localhost, forhåndsvisning og publisert adresse deler ikke automatisk plan. Sikkerhetskopi brukes til flytting og oppbevaring. Ingen konto, skydatabase eller enhetssynkronisering er innført. [Publiseringskontrollen fra 29. oktober](../../.logs/997-2026-10-29-13-35-00-ajour-vercel.md) er teknisk historikk; gjeldende egenutprøving står i [prøverapporten 4. november](owner-trial-2026-11-04.md). De lokale alternativene i tabellen beholdes.
 
 <a id="to-lokale-kjøremåter"></a>
 
@@ -156,9 +156,9 @@ Egne kalenderaktiviteter ligger i `planner.events` med `activityKind: "personal"
 
 ## Datert leveringsstatus og utviklingshistorikk
 
-**Leveringsstatus 1. november 2026:** De rapporterte omprøvingene er bestått innen dokumentert omfang som [egenutprøving utført av prosjekteier](../planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). SC-07/1200–30 og Outlook 30. oktober beholder bestått. [Begrensningsoversikten](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) og [leveringsoversikten](../../README.md#leveringsoversikt--1-november-2026) viser åpne punkter. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown; personlig sluttgjennomlesing og innlevering er ikke bekreftet.
+**Leveringsstatus 4. november 2026:** Prosjekteieren har bestått alle sju scenarier og navngitt Start-tillegg 3.–4. november, inkludert gjenoppretting i et separat, tomt Chrome Gjest-miljø. [Prøverapporten](owner-trial-2026-11-04.md) lukker det tidligere SC-07/R-07-dekningsforbeholdet innen dokumentert omfang og oppgir rettet prøveutførelse og metodegrenser. Tidligere daterte omprøvinger, SC-07/1200–30 og Outlook-prøven beholder sine resultater. [Begrensningsoversikten](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) og [leveringsoversikten](../../README.md#leveringsoversikt--4-november-2026) viser gjeldende status. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown; personlig sluttgjennomlesing og innlevering er ikke bekreftet.
 
-[Planindeksens leveringskontroll](../planning-artifacts/README.md#leveringskontroll--2026-11-01) bevarer vurderingsgrunnlaget og rapportens avgrensning. [Teknisk verifikasjon](../../studieplanlegger/VERIFICATION.md) samler daterte kontroller og publiseringsbevis. Historisk F03 og personvernfunn er fortsatt åpne; den rettede fredags-/fristregresjonen 2. november lukker ikke historisk F03.
+[Planindeksens leveringskontroll](../planning-artifacts/README.md#leveringskontroll--2026-11-04) bevarer vurderingsgrunnlaget og rapportens avgrensning. [Teknisk verifikasjon](../../studieplanlegger/VERIFICATION.md) samler daterte kontroller og publiseringsbevis. Historisk F03 og personvernoppfølging er ikke lukket av egenutprøvingen; den rettede fredags-/fristregresjonen 2. november lukker heller ikke historisk F03.
 
 ## Lokal oppfølging — 2026-10-26
 

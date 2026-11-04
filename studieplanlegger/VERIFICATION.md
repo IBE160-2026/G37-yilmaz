@@ -1,6 +1,16 @@
 # Verifisering av Ajour
 
-**Kortoversikt, redigert 3. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
+**Kortoversikt, redigert 4. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
+
+## Prosjekteierens sjuscenarioprøve — 2026-11-04
+
+**SC-07/R-07: gjennomført og bestått innen dokumentert prøveomfang.** Prosjekteieren utførte scenario 1–7 og den ekstra Start-prøven 3.–4. november med syntetiske data. [Den kuraterte rapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) skiller egne handlinger og bekreftelser fra Codex sin tekniske sammenligning av innsendte filer. [Gjeldende prøveplan](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#egenutproving-2026-11-04) viser dekningen.
+
+Gjenopprettingen ble avsluttet i en tom Chrome-gjesteøkt, synlig i skjermbildene før import. Prosjekteieren bekreftet omlasting og etterkontroll. Slutteksporten 4. november kl. **09:23:51.366 Europe/Oslo** har identisk `data` med kildekopien: to emner, tre oppgaver, én studieøkt, tre arbeidslogger, arbeids-/opptattvinduer, stegidentiteter, historikk og kalenderinnstillinger er bevart. Det tidligere forbeholdet om isolert målmiljø er lukket av denne prøven.
+
+Det for tidlig registrerte første utfallet i scenario 3 ble angret og registrert på nytt etter øktslutt; både forsøket og korrigeringen er dokumentert. Navngitt Start ble prøvd med ett minutts økt og 70 sekunders faktisk ventetid. Stegkoblingen overlevde navneendring, omordning, omplanlegging/Angre, omlasting og gjenoppretting. Dette er avgrensede prøveobservasjoner, ikke en generell sikkerhetsrevisjon, måling av studentnytte eller bekreftelse på formell innlevering.
+
+**Dokumentkontroll 4. november:** Full lokal enhetssuite bestod med **2664/2664 tester i 151 filer**, og produksjonsbygget bestod. Bygget beholdt hovedbundle **961,20 kB / 293,91 kB gzip** og det eksisterende størrelsesvarselet. Dette er en ny teknisk kjøring; daterte nettleser-/SQLite- og publiseringsresultater nedenfor tilhører sine oppgitte versjoner. Gjeldende publiseringsoppfølging føres i [sesjonsloggen](../.logs/987-2026-11-04-09-50-17-eierprove-og-dokumentstatus.md).
 
 ## Avklaringssteg og lokal forespørselsvalidering — 2026-11-03
 
@@ -20,7 +30,7 @@ Ajour støtter **oppgave → valgfritt arbeidssteg → godkjent studieøkt → u
 
 Avtalt V1 er de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md). Flere eksisterende adaptere betyr ikke full nasjonal dekning. [Sporbarheten](../.docs/planning-artifacts/TRACEABILITY.md) kobler krav og stories til kode og tester. Nettutgaven lagrer planen i nettleserprofilen på den nøyaktige adressen, uten konto eller skysynk; lokal Node-/Docker-drift bruker SQLite. Disse driftsformene har forskjellige lagringsgrenser.
 
-**Eierens egenutprøving, automatiske tester med syntetiske data og faktiske offentlige kildeprøver er forskjellige bevis.** Et bestått resultat gjelder den daterte prøven og dens versjon, ikke automatisk dagens produksjon, alle kilder eller generell studentnytte. Denne forkortingen er dokumentarbeid og innebærer ingen ny manuell egenutprøving.
+**Eierens egenutprøving, automatiske tester med syntetiske data og faktiske offentlige kildeprøver er forskjellige bevis.** Et bestått resultat gjelder den daterte prøven og dens versjon, ikke automatisk dagens produksjon, alle kilder eller generell studentnytte. Dokumentoppdateringen 4. november registrerer den nye eierprøven ovenfor; eldre resultater beholder sine datoer og avgrensninger.
 
 ## Oppgavearbeid og navngitt arbeidssteg — 2026-11-02
 
@@ -70,7 +80,7 @@ Eierens omprøving bekreftet følgende:
 
 Attribusjonen er korrigert etter eierens uttrykkelige bekreftelse: dette er **eierens egenutprøving**, selv om vedlegget tidligere kalte den agentutført. Kildegrunnlag og avgrensning står i [prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). Underliggende private backupfiler ble ikke lest i dokumentarbeidet.
 
-Outlook-resultatet gjelder eierens viste import av **37 hendelser**, ikke alle sluttider, oppdateringsatferd, gjentatt import eller alle Outlook-klienter. Den siste omprøvingen omfattet omlasting i samme profil, men ikke full nettleseromstart, separat tom profil, alle backupstørrelser eller aktivering av «Gjenopprett forrige kopi». Interne skriveoperasjoner ble ikke målt manuelt. Automatiske prøver er et eget grunnlag og erstatter ikke denne egenutprøvingen.
+Outlook-resultatet gjelder eierens viste import av **37 hendelser**, ikke alle sluttider, oppdateringsatferd, gjentatt import eller alle Outlook-klienter. Omprøvingen **1. november** omfattet omlasting i samme profil, men ikke full nettleseromstart, separat tom profil, alle backupstørrelser eller aktivering av «Gjenopprett forrige kopi». Separat tomt målmiljø og omlasting etter gjenoppretting ble senere kontrollert i [eierprøven 3.–4. november](#prosjekteierens-sjuscenarioprøve--2026-11-04). Full nettleseravslutning og «Gjenopprett forrige kopi» er ikke ferdigmeldt av denne oppfølgingen og er ikke tilleggskrav til de sju scenarioene. Interne skriveoperasjoner ble ikke målt manuelt. Automatiske prøver er et eget grunnlag og erstatter ikke egenutprøvingen.
 
 ## Hva som ble rettet og kontrollert
 

@@ -1,5 +1,7 @@
 # Epics og stories for Ajour
 
+**Gjeldende status 2026-11-04:** S-07/R-07/SC-07 er gjennomført og bestått av prosjekteieren gjennom de sju scenariene og navngitt Start 3.–4. november. [Resultatmatrisen](USER-TRIAL-PLAN.md#egenutproving-2026-11-04) og [evidensrapporten](../implementation-artifacts/owner-trial-2026-11-04.md) viser observasjoner, metodevalg, korrigert utfallsregistrering og isolert gjenoppretting i Chrome-gjesteøkt. Tidligere daterte resultater beholder sitt omfang. Personlig sluttgjennomlesing og formell innlevering er ikke bekreftet.
+
 ## Oppgavearbeid og navngitt arbeidssteg — 2026-11-02
 
 Presisering av eksisterende S-03/S-04/S-05/S-06, uten nytt funksjonsomfang:
@@ -11,9 +13,9 @@ Presisering av eksisterende S-03/S-04/S-05/S-06, uten nytt funksjonsomfang:
 
 [Datert avklaring og tekniske resultater](../implementation-artifacts/work-step-identity-2026-11-02.md) er Codex-utført kontroll og ferdigmelder ikke S-07/R-07 på vegne av prosjekteieren. Tidligere daterte resultater nedenfor beholdes.
 
-**Gjeldende status 2026-11-01:** Egenutprøving er utført av prosjekteier; de rapporterte omprøvingene er bestått innen [dokumentert omfang](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). SC-07/1200–30 og Outlook-prøven fra 30. oktober beholder bestått. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown i repoet; personlig sluttgjennomlesing og innlevering er ikke bekreftet. Tidligere daterte statusutsagn nedenfor er historikk; automatiske tester og tekniske rapporter tilskrives ikke prosjekteieren.
+**Historisk status 2026-11-01:** Egenutprøving er utført av prosjekteier; de rapporterte omprøvingene er bestått innen [dokumentert omfang](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). SC-07/1200–30 og Outlook-prøven fra 30. oktober beholder bestått. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown i repoet; personlig sluttgjennomlesing og innlevering er ikke bekreftet. Tidligere daterte statusutsagn nedenfor er historikk; automatiske tester og tekniske rapporter tilskrives ikke prosjekteieren.
 
-**Rekonstruert 2026-10-16; status samordnet 2026-11-01.** Produktomfang og S-01–S-08 er beholdt. Etter prosjekteierens beslutning 26. oktober gjelder S-07 egenutprøving uten andre testpersoner. Tidligere plan om ekstern studentprøve ble ikke gjennomført eller bestått. Daterte tekniske oppfølginger nedenfor er historikk, ikke resultater fra egenutprøvingen. [Automatiske kontroller og publisering](../../studieplanlegger/VERIFICATION.md) dokumenteres separat.
+**Rekonstruert 2026-10-16; status samordnet 2026-11-04.** Produktomfang og S-01–S-08 er beholdt. Etter prosjekteierens beslutning 26. oktober gjelder S-07 egenutprøving uten andre testpersoner. Tidligere plan om ekstern studentprøve ble ikke gjennomført eller bestått. Daterte tekniske oppfølginger nedenfor er historikk, ikke resultater fra egenutprøvingen. [Automatiske kontroller og publisering](../../studieplanlegger/VERIFICATION.md) dokumenteres separat.
 
 ## Lokal Ajour-oppfølging — 2026-10-26
 
@@ -180,9 +182,11 @@ Som prosjekteier vil jeg gjennomføre en manuell prøve med syntetiske data og d
 - **Given** syntetisk kalender og lagrede oppgaver, **When** jeg prøver emnefarger, temabytte, omlasting og isolert sikkerhetskopi/gjenoppretting, **Then** registrerer jeg hva som faktisk bevares og eventuelle avvik. Lokale visningspreferanser loves ikke overført i sikkerhetskopien.
 - **Given** tekniske tester eller tomme observasjonsfelt, **When** status oppsummeres, **Then** teller de ikke som mine manuelle erfaringer eller som bevis for ukjente brukeres forståelse.
 
-**Status 2026-11-01: egenutprøving utført av prosjekteier; rapporterte omprøvinger bestått innen dokumentert omfang.** [Prøveplanen](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) beholder de tidligere avvikene som før-/etter-bevis og angir hva siste omprøving ikke dekket. Den opprinnelige sjuscenariooppskriften er ikke fylt ut med antatte observasjoner. Endret til egenutprøving etter prosjekteierens beslutning **2026-10-26**; ingen andre testpersoner rekrutteres. Den tidligere eksterne studentprøven ble ikke gjennomført eller bestått. Prosjekteierens leverte [refleksjonsrapport](../submission/reflection-report.md) foreligger med oppgitt KI-hjelp til struktur og formulering; personlig sluttgjennomlesing og formell innlevering er separate restpunkter i [leveringskontrollen](README.md#leveringskontroll--2026-11-01).
+**Status 2026-11-04: S-07 gjennomført og bestått av prosjekteieren.** [Prøveplanens resultatmatrise](USER-TRIAL-PLAN.md#egenutproving-2026-11-04) dokumenterer alle sju scenarier 3.–4. november. Den separate Start-flyten med flere steg bevarer det presenterte steget gjennom navneendring, omrekkefølge, omplanlegging/Angre og gjenoppretting. Dato-/UI-tilpasninger, den korrigerte utfallsregistreringen og Chrome-gjesteøkten som isolert mål er beskrevet i [evidensrapporten](../implementation-artifacts/owner-trial-2026-11-04.md). Eierens bekreftelser og bilder er skilt fra assistentens kontroll av eksporterte data. Ingen krav eller tidligere resultater endres.
 
-**Statuspresisering 2026-11-02:** [Scenariodekningen](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) skiller dokumenterte deler fra detaljer i den opprinnelige oppskriften som ikke er dokumentert. R-07/S-07 har derfor ikke dokumentasjon for full gjennomføring av alle opprinnelige detaljer. Dette endrer ikke beståtte omprøvinger, SC-07/1200–30 eller Outlook-prøven og pålegger ingen ny prøverunde.
+De dokumenterte omprøvingene [1. november](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), SC-07/1200–30 og Outlook 30. oktober beholder sine beståttstatuser. Egenutprøving ble valgt av prosjekteieren **2026-10-26**; den tidligere eksterne studentprøven ble ikke gjennomført. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger med oppgitt KI-hjelp; personlig sluttgjennomlesing og formell innlevering er ikke bekreftet, jf. [leveringskontrollen](README.md#leveringskontroll--2026-11-01).
+
+**Historisk statuspresisering 2026-11-02:** [Datidens scenariodekning](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) viste at full gjennomføring ennå ikke var dokumentert. Dette er førgrunnlag for den senere fullførte prøven 3.–4. november, og beholdes uten å gjenåpne tidligere beståtte prøver.
 
 ### S-08 — Bevare eksisterende tillegg (R-08; støtter SC-04/SC-05)
 

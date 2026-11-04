@@ -2,14 +2,14 @@
 title: "PRD: Ajour"
 status: final
 created: 2026-10-16
-updated: 2026-11-03
+updated: 2026-11-04
 ---
 
 # PRD: avgrenset Ajour-leveranse
 
-Denne PRD-en beskriver produktbehov, krav og avgrensninger. Prosjekteierens manuelle resultater står i [prøveplanen](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), automatiske kontroller i [verifikasjonen](../../studieplanlegger/VERIFICATION.md) og gjeldende leveringsoversikt i [planindeksen](README.md). Detaljert testutførelse føres der, ikke som produktkrav her.
+Denne PRD-en beskriver produktbehov, krav og avgrensninger. Prosjekteierens manuelle resultater står i [prøveplanen](USER-TRIAL-PLAN.md#egenutproving-2026-11-04), automatiske kontroller i [verifikasjonen](../../studieplanlegger/VERIFICATION.md) og gjeldende leveringsoversikt i [planindeksen](README.md). Detaljert testutførelse føres der, ikke som produktkrav her.
 
-**Rekonstruert 2026-10-16, revidert 2026-11-03.** Dette er den eksisterende PRD-en, oppdatert etter [lærerens tilbakemelding](../../tilbakemelding-product-brief.md) og PRD-forberedelsene gjengitt i prosjekteierens oppdrag. Den beskriver allerede utviklet funksjonalitet og kravene til egenutprøving; den er ikke en opprinnelig plan for koden. [Briefen](../../brief.md) eier produktløftet, og [planindeksen](README.md) dokumenterer proveniens.
+**Rekonstruert 2026-10-16, revidert 2026-11-04.** Dette er den eksisterende PRD-en, oppdatert etter [lærerens tilbakemelding](../../tilbakemelding-product-brief.md) og PRD-forberedelsene gjengitt i prosjekteierens oppdrag. Den beskriver allerede utviklet funksjonalitet og kravene til egenutprøving; den er ikke en opprinnelig plan for koden. [Briefen](../../brief.md) eier produktløftet, og [planindeksen](README.md) dokumenterer proveniens.
 
 ## Hva vi skal lage og hvilket problem det skal løse
 
@@ -129,7 +129,9 @@ Prosjekteieren kan knytte allerede dokumenterte erfaringer til hypotesene ved pe
 
 **Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. Dette erstatter den tidligere planlagte prøven med en ny student; den tidligere prøven ble ikke gjennomført eller bestått. Samme SC-07/R-07/S-07 beholdes. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner. Personlig refleksjon må fortsatt bygge på prosjekteierens egne erfaringer.
 
-**Avstemt dokumentasjonsstatus 2026-11-02:** R-07s sjuscenariokrav er beholdt. Full oppfyllelse av alle opprinnelige scenariodetaljer er ikke dokumentert; de rapporterte omprøvingene beholder bestått innen sitt omfang. [Scenariooversikten](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) kobler eksisterende observasjoner til hvert scenario og viser grensene. Denne presiseringen endrer ikke akseptomfanget i ettertid og bestiller ingen ny prøverunde.
+**Gjeldende dokumentasjonsstatus 2026-11-04:** Prosjekteieren gjennomførte og bestod de sju scenariene og tillegget for navngitt Start 3.–4. november. [Resultatmatrisen](USER-TRIAL-PLAN.md#egenutproving-2026-11-04) og [evidensrapporten](../implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer faktiske observasjoner, korrigert for tidlig utfallsregistrering, tilpassede datoer, temaprøve med åpent tekstutkast og gjenoppretting i en separat tom Chrome-gjesteøkt. R-07 er dermed oppfylt innen dokumentert prøveomfang; kravene og V1 er uendret. Personlig sluttgjennomlesing og formell innlevering er ikke bekreftet.
+
+**Historisk dokumentasjonsstatus 2026-11-02:** Full oppfyllelse var da ikke dokumentert. [Datidens scenariooversikt](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) bevarer observasjonene og dekningsgrensene; senere prøver gjør ikke de gamle resultatene mer omfattende enn de var.
 
 ## Reelle åpne spørsmål og diskusjonstemaer
 
@@ -157,5 +159,6 @@ Nasjonal dekning er en **visjon**, ikke et uoppfylt V1-krav. Kontoer, betaling, 
 | 2026-11-02 | Etter godkjent PRD-kritikk: R-03s tre resultater, eksisterende Angre-/lagringsgrenser, behovsbegrunnelse for R-08, nyttehypoteser og oppfølging av åpne spørsmål presisert. R-07 er avstemt mot dokumentert scenariodekning uten nye prøveresultater eller endret V1. |
 | 2026-11-02, etter validering | R-03/S-03 avstemt mot eksisterende betingede og utforskende startøkter. Q-01 har observerbar innholdsrekkefølge, og kravtabellen har direkte avsnittslenker. Dette retter tre dokumentfunn uten ny funksjonalitet eller nye manuelle prøveresultater. |
 | 2026-11-03 | Eksisterende avklaringssteg og separate fullføringshandlinger presisert i R-04 og S-04. [Teknisk oppfølging](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) beskriver retting, lokal forespørselsvalidering og dokumentkontroll. V1 og prosjekteierens R-07 er uendret. |
+| 2026-11-04 | R-07s status oppdatert etter prosjekteierens dokumenterte sjuscenarioprøve og navngitte Start-flyt 3.–4. november. Krav, V1 og historiske resultater beholdes; manuelle observasjoner, eksportsammenligning og metodevalg føres i prøveplanen og evidensrapporten. |
 
 Implementasjonsvalg og kontrakter hører til arkitekturen. Detaljerte kjøreresultater hører til verifikasjonen. Denne PRD-en beskriver produktbehov, krav og grensen for hva dokumentasjonen kan underbygge.
