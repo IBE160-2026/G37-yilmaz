@@ -13,7 +13,7 @@ const dist = fileURLToPath(new URL('../../dist/', import.meta.url))
 await stat(resolve(dist, 'index.html'))
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json', '.woff2': 'font/woff2', '.wasm': 'application/wasm' }
 const server = createServer(async (req, res) => {
-  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'")
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'; object-src 'none'; base-uri 'none'")
   res.setHeader('X-Content-Type-Options', 'nosniff')
   res.setHeader('X-Frame-Options', 'DENY')
   try {

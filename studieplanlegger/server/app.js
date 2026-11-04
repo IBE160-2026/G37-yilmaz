@@ -32,7 +32,7 @@ async function staticFiles(req, res) {
     res.writeHead(200, {
       'Content-Type': mime[extname(filename)] || 'application/octet-stream',
       'Cache-Control': immutable ? 'public, max-age=31536000, immutable' : 'no-cache',
-      'Content-Security-Policy': "frame-ancestors 'none'",
+      'Content-Security-Policy': "frame-ancestors 'none'; object-src 'none'; base-uri 'none'",
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
     })

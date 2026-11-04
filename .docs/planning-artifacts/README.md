@@ -8,6 +8,8 @@
 
 [Refleksjonsrapporten](../submission/reflection-report.md) foreligger; personlig sluttgjennomlesing og innlevering er ikke bekreftet. [Leveringskontrollen](#leveringskontroll--2026-11-04) skiller disse formelle restpunktene fra produkt- og prøvearbeidet.
 
+**Teknisk auditoppfølging 2026-11-04:** [Importrekkefølge og kvalitetskontroller](../implementation-artifacts/import-sequencing-audit-2026-11-04.md) følger opp to bekreftede feil ved overlappende filvalg med retting og regresjonstester. Den omfatter også eksplisitt avhengighetskontroll og oppdateringsrutine, gradvis utvidelse av Content Security Policy og avgrensede prøver i flere nettlesere. Rapporten eier faktisk test-/publiseringsstatus og skiller kodeendringer fra fortsatt nødvendig eier- og administratoroppfølging. Dette følger eksisterende R-02/R-05/R-06 og endrer ikke V1 eller tidligere personlige prøveresultater.
+
 **Teknisk oppfølging 2026-11-03:** [Avklaringssteg og lokal forespørselsvalidering](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) samler retting av ventemarkering, avvisning av ugyldige forespørselsadresser og samordnet brukerveiledning. Resultater og publiseringsstatus er datert i rapporten; dette er tekniske kontroller, adskilt fra de senere personlige R-07-observasjonene.
 
 **Teknisk oppfølging 2026-11-02:** [Oppgave- og stegidentitet](../implementation-artifacts/work-step-identity-2026-11-02.md) avklarer den første Codex-rapportens testantakelse og dokumenterer den separate navngitte Start-flyten, retting og tekniske kontroller. Oppgavearbeid er fortsatt gyldig uten stegkobling. Codex-prøvene erstatter ikke prosjekteierens R-07; eldre daterte resultater beholdes.
@@ -20,13 +22,14 @@ Planene ble **rekonstruert 2026-10-16** mot kodegrunnlag `1a58ffce782fd4e42a7153
 
 | Status / behov | Autoritativ inngang |
 | --- | --- |
-| Ferdig og dokumentert: produkt, oppstart og bruk | [Ajour på nett](https://ajour-sooty.vercel.app/), [README](../../README.md), [brukerveiledning](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [løsningsguide](../implementation-artifacts/solution-guide.md). Lokal kjøring er valgfri. |
+| Produkt, oppstart og bruk | [Ajour på nett](https://ajour-sooty.vercel.app/), [README](../../README.md), [brukerveiledning](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [løsningsguide](../implementation-artifacts/solution-guide.md). Lokal kjøring er valgfri; seneste tekniske oppfølging fremgår av [auditrapporten](../implementation-artifacts/import-sequencing-audit-2026-11-04.md). |
 | Prosjekteierens sju scenarier og navngitt Start bestått | [Prøverapport 4. november](../implementation-artifacts/owner-trial-2026-11-04.md) og [prøveplan med datert historikk](USER-TRIAL-PLAN.md). SC-07/R-07/S-07 er oppfylt innen det dokumenterte omfanget og med rapportens metodeavklaringer. |
 | Automatiske kontroller og publisering | [VERIFICATION](../../studieplanlegger/VERIFICATION.md) skiller automatiske tester, CI og kontroll av publisert commit fra eierens manuelle observasjoner. Funksjonsprøver alene bekrefter ikke produksjonscommit, interne skriveoperasjoner eller full sikkerhet. |
 | Kjente begrensninger | [Samlet begrensningsoversikt](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) med status, V1-betydning og oppfølging; [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) gir kildegrunnlaget. Historisk F03, F05, personvernfunn og bundlevarselet står åpne. Den [rettede fredags-/fristregresjonen 2. november](../../studieplanlegger/VERIFICATION.md#fristavklaring-oppgavebekreftelse-og-lagringshjelp--2026-11-02) lukker ikke historisk F03; originalen `stress-text-005.txt` er ikke funnet eller omprøvd. |
 | Prosess, krav og sporbarhet | [Utviklingsprosess](../implementation-artifacts/development-process.md), dokumentlisten nedenfor og [sporbarhetsmatrisen](TRACEABILITY.md). |
 | Refleksjonsrapport foreligger | [Lesbar Markdown-rapport](../submission/reflection-report.md), med prosjekteierens uttrykkelige tillatelse til inkludering i repoet. Markdown er rapportens eneste format i dagens repo. |
 | Prosjekteieren må fullføre | Personlig sluttgjennomlesing, kontroll av formelle leveringsopplysninger og selve innleveringen med kvittering. Se [vurderingsgrunnlag og manglende opplysninger](#leveringskontroll--2026-11-04). |
+| Eier-/administratoroppfølging | Historisk tilgangsmateriale, GitHub About/grenbeskyttelse og plattformkontroller har egen status i [auditoppfølgingen](../implementation-artifacts/import-sequencing-audit-2026-11-04.md). Hovedadressen er fortsatt `https://ajour-sooty.vercel.app/`; andre adresser har separat nettleserlagring. |
 
 Den siste egenutprøvingen omfatter omlasting og gjenoppretting i et separat, tomt Chrome Gjest-miljø. Full avslutning og omstart av nettleserprosessen og handlingen **Gjenopprett forrige kopi** inngikk ikke i prøven; dette er metodegrenser, ikke nye påviste appfeil. Tidligere tekniske kontroller og verktøyblokkerte sikkerhetsprøver beholder sin egen dato og metode og omgjøres ikke til personlige resultater.
 
@@ -58,6 +61,8 @@ Sensorvedleggets sju sider er lest på nytt 2026-11-01, med samme SHA-256 som id
 ## Leveringskontroll — 2026-11-04
 
 [Faglærertilbakemeldingen 6. oktober](../../tilbakemelding-product-brief.md) er lest ved denne oppfølgingen. Lesing og identifikasjon av sensorvedlegget ble sist dokumentert 1. november; omtalen nedenfor bevarer dette vurderingsgrunnlaget og er ingen ny gjennomlesing av PDF-en. Oppfølgingen 4. november samordner leveringsstatus og prosjekteierens dokumenterte egenutprøving. Avgrenset V1, produktmål, sporbare testbevis og synlig styring av KI-arbeidet beholdes; ingen ny funksjon eller kilde er lagt til som leveransekrav.
+
+Sensor-PDF-en er ikke tilgjengelig for ny lesing i denne auditoppfølgingen. [Den nye rapporten](../implementation-artifacts/import-sequencing-audit-2026-11-04.md) dokumenterer tekniske funn og tiltak; den fastsetter ikke manglende kurskrav og avslutter ikke historisk eieroppfølging eller administratoroppgaver uten bevis.
 
 Sensorveiledningen beskriver vurdering av repoets siste commit før innleveringsfristen (s. 2), kjøring etter README (s. 2 og 5–6), prosess-/KI-spor og relevante manuelle og automatiske tester (s. 2–4). Del 1 teller 70 prosent; personlig refleksjon i del 2 teller 30 prosent (s. 1 og 7). Dette bekrefter vurderingsområdene, ikke at innleveringen allerede er godkjent.
 
