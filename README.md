@@ -48,11 +48,13 @@ V1-import gjelder **HiMolde IT 2026–27** med IBE110/IBE430 og enten IBE160 ell
 
 Avgrensningen og [rekonstruerte planer fra 16. oktober](.docs/planning-artifacts/README.md) følger opp [faglærerens tilbakemelding](tilbakemelding-product-brief.md). Eksisterende adaptere og funksjoner er beholdt, men utvider ikke leveranseløftet. [Verifikasjonen](studieplanlegger/VERIFICATION.md) bevarer datoene for tidligere rettinger, Ajour-utformingen og nettutgaven som ble godkjent 29. oktober. Teknisk testing dokumenterer ikke generell studentnytte.
 
-## Leveringsoversikt — 1. november 2026
+<a id="leveringsoversikt--1-november-2026"></a>
 
-De rapporterte omprøvingene er bestått innen det dokumenterte omfanget som **egenutprøving utført av prosjekteier**. SC-07/1200–30 og Outlook-prøven fra 30. oktober beholder bestått. [Prøveplan og egenresultater](.docs/planning-artifacts/USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01) gir detaljene; [automatiske kontroller](studieplanlegger/VERIFICATION.md) er et separat bevisgrunnlag.
+## Leveringsoversikt — 4. november 2026
 
-**Refleksjonsrapporten foreligger bare som Markdown; personlig sluttgjennomlesing og innlevering er ikke bekreftet.** [Planindeksens leveringskontroll](.docs/planning-artifacts/README.md#leveringskontroll--2026-11-01) samler vurderingsgrunnlag og formelle restpunkter. Historisk F03 og personvernfunn står fortsatt åpne i [begrensningsoversikten](studieplanlegger/README.md#kjente-begrensninger-ved-levering); den rettede fredags-/fristregresjonen 2. november lukker ikke historisk F03.
+**Prosjekteierens sju scenarier og tilleggsprøven for navngitt Start er bestått 3.–4. november.** [Prøverapporten](.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktisk gjennomføring, rettet prøveutførelse og metodegrenser. Den inkluderer gjenoppretting i et separat, tomt Chrome Gjest-miljø og lukker det tidligere dekningsforbeholdet for SC-07/R-07. Tidligere daterte omprøvinger, SC-07/1200–30 og Outlook-prøven beholder sine resultater. [Automatiske kontroller](studieplanlegger/VERIFICATION.md) er et separat bevisgrunnlag.
+
+**Refleksjonsrapporten foreligger bare som Markdown; personlig sluttgjennomlesing og innlevering er ikke bekreftet.** [Planindeksens leveringskontroll](.docs/planning-artifacts/README.md#leveringskontroll--2026-11-04) samler vurderingsgrunnlag og formelle restpunkter. [Begrensningsoversikten](studieplanlegger/README.md#kjente-begrensninger-ved-levering) skiller V1-grenser og historiske funn fra dagens prøver; historisk F03 og personvernoppfølging er ikke lukket av egenutprøvingen.
 
 <a id="kjør-den-komplette-lokale-leveransen"></a>
 <a id="tester-og-produksjonsbygg"></a>

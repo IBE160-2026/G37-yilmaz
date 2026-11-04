@@ -2,12 +2,12 @@
 title: "Product Brief: Ajour"
 status: bounded-delivery-documented
 created: 2026-09-06
-updated: 2026-11-03
+updated: 2026-11-04
 ---
 
 # Product brief: Ajour
 
-Denne briefen beskriver produktmål, brukerbehov og avtalt omfang. Gjeldende leveringsstatus finnes i [planindeksen](.docs/planning-artifacts/README.md), prosjekteierens egenutprøving i [prøveplanen](.docs/planning-artifacts/USER-TRIAL-PLAN.md) og automatiske kontroller i [verifikasjonen](studieplanlegger/VERIFICATION.md). Resultater og testutførelse føres der, med riktig dato og utfører.
+Denne briefen beskriver produktmål, brukerbehov og avtalt omfang. [Åpne Ajour på nett](https://ajour-sooty.vercel.app/) uten installasjon. Gjeldende leveringsstatus finnes i [planindeksen](.docs/planning-artifacts/README.md), prosjekteierens egenutprøving i [prøverapporten 4. november](.docs/implementation-artifacts/owner-trial-2026-11-04.md) og automatiske kontroller i [verifikasjonen](studieplanlegger/VERIFICATION.md). Resultater og testutførelse føres der, med riktig dato og utfører.
 
 Ajour hjelper studenten å gjøre oppgaver og tilgjengelig tid om til en gjennomførbar plan, registrere hva som faktisk skjedde og godkjenne nødvendige endringer. Appen kan kjøres lokalt eller som nettleserutgave uten konto eller betalte tjenester. Studenten beholder kontroll over import, arbeidsanslag og planvalg.
 
@@ -51,7 +51,7 @@ Hver rad har krav, story, kode, test/metode og evidensstatus i [sporbarhetsmatri
 
 **Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. SC-07 beholder ID-en og følger [prøveplanen](.docs/planning-artifacts/USER-TRIAL-PLAN.md). Den tidligere planlagte studentprøven ble ikke gjennomført eller bestått. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner; målgruppen er uendret.
 
-**Dokumentasjonsstatus avstemt 2026-11-02:** SC-07s sjuscenariokrav beholdes. [Scenariooversikten](.docs/planning-artifacts/USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) viser eksisterende observasjoner og dekningsgrenser; full oppfyllelse av alle opprinnelige detaljer er ikke dokumentert. Rapporterte omprøvinger beholder bestått innen sitt omfang. Dette er en statuspresisering, ikke et endret akseptkrav eller en bestilling av nye prøver.
+**Dokumentasjonsstatus 2026-11-04:** Prosjekteieren har bestått alle sju scenarier og tilleggsprøven for navngitt Start med syntetiske data 3.–4. november. [Prøverapporten](.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer observasjoner, rettet prøveutførelse og metodegrenser, inkludert gjenoppretting i et separat, tomt Chrome Gjest-miljø. Det tidligere dekningsforbeholdet for SC-07/R-07 er dermed lukket innen dette omfanget. [Scenariooversikten fra 2. november](.docs/planning-artifacts/USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) og tidligere omprøvinger beholdes som datert historikk. Krav, målgruppe og V1 er uendret; egenutprøvingen dokumenterer ikke generell studentnytte.
 
 ## Utenfor v1 og videre visjon
 
