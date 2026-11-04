@@ -1,4 +1,4 @@
-import { emptyPlanner, validatePersonalActivity } from './planner.js'
+import { emptyPlanner } from './planner.js'
 import { initializeAppearance } from './appearance.js'
 import { registerCourseColors } from './course-colors.js'
 import { createSubjectsView } from './subjects-view.js'
@@ -24,7 +24,7 @@ import { rankedSuggestions } from './daily-guidance.js'
 import { createStudySessionView } from './study-session-view.js'
 import { createWorkStepsView } from './work-steps-view.js'
 import { createTextRegistrationView } from './text-registration-view.js'
-import { resolveExactCourse, resolveExactTask, parseOsloDeadline, parseRemainingMinutes } from './text-registration.js'
+import { resolveExactTask, parseOsloDeadline, parseRemainingMinutes, validateTextRegistrationProposal } from './text-registration.js'
 import { detachMissingTopicRelations, detachRemovedReviewSessions } from './review-planning.js'
 
 initializeAppearance()
@@ -380,30 +380,18 @@ function confirmTextRegistration(proposal) {
     const referenceTime = Number.isFinite(+capturedNow) ? capturedNow : new Date()
     let candidate, savedTitle
     if (proposal.action === 'activity') {
-      const parsedDate = parseOsloDeadline(proposal.dateInput, referenceTime)
-      if (!parsedDate.ok) return { ok: false, error: parsedDate.error }
-      let activity
-      try { activity = validatePersonalActivity({ id: crypto.randomUUID(), title: proposal.title, dateLocal: parsedDate.deadlineLocal, startLocal: proposal.startLocal, endLocal: proposal.endLocal }) } catch (error) { return { ok: false, error: error.message } }
+      const checked = validateTextRegistrationProposal(proposal, { id: crypto.randomUUID() })
+      if (!checked.ok) return { ok: false, error: checked.error }
+      const activity = checked.activity
       const nextPlanner = { ...(planner || emptyPlanner()), events: [...(planner?.events || []), activity] }
       const written = commitState({ ...snapshot(), planner: nextPlanner }, `Egen aktivitet: ${activity.title}`)
       if (!written.ok) return { ok: false, error: written.error || 'Aktiviteten kunne ikke lagres. Forslaget er beholdt.' }
       planner = nextPlanner; refresh()
       return { ok: true, undoId: written.historyEntryId, message: `Egen aktivitet «${activity.title}» er lagt til.` }
     } else if (proposal.action === 'create') {
-      let courseId = proposal.courseId || '', course = String(proposal.course || '').trim()
-      if (['uten emne', 'ikke et emne'].includes(course.toLocaleLowerCase('nb'))) { course = ''; courseId = '' }
-      if (course) {
-        const resolved = resolveExactCourse(planner?.courses || [], course)
-        if (!resolved.ok) return { ok: false, error: resolved.reason === 'ambiguous' ? 'Flere emner matcher nøyaktig. Korriger emnet.' : 'Emnet finnes ikke med nøyaktig kode eller navn.' }
-        courseId = resolved.value.id; course = resolved.value.code || resolved.value.name
-      } else courseId = ''
-      const deadline = proposal.deadlineInput ? parseOsloDeadline(proposal.deadlineInput, referenceTime) : { ok: true, deadlineLocal: '' }
-      if (!deadline.ok) return { ok: false, error: deadline.error }
-      const remaining = proposal.remainingInput ? parseRemainingMinutes(proposal.remainingInput) : { ok: true, minutes: undefined }
-      if (!remaining.ok) return { ok: false, error: remaining.error }
       let id; do { id = crypto.randomUUID() } while (tasks.some(task => task.id === id))
-      const checked = validateDraft({ id, title: proposal.title, course, courseId, deadlineLocal: deadline.deadlineLocal, estimatedMinutes: null, ...(remaining.minutes === undefined ? {} : { remainingMinutes: remaining.minutes }) })
-      if (!checked.ok) return { ok: false, error: Object.values(checked.errors)[0] }
+      const checked = validateTextRegistrationProposal(proposal, { courses: planner?.courses || [], id })
+      if (!checked.ok) return { ok: false, error: checked.error }
       candidate = [...tasks, checked.task]; savedTitle = checked.task.title
     } else {
       let saved = tasks.find(task => task.id === proposal.taskId)

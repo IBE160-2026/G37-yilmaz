@@ -1,5 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill'
-import { validDeadline } from './tasks.js'
+import { validDeadline, validateDraft } from './tasks.js'
+import { validatePersonalActivity } from './planner.js'
 
 const OSLO = 'Europe/Oslo'
 const fold = value => String(value || '').trim().toLocaleLowerCase('nb')
@@ -60,6 +61,51 @@ export function parseRemainingMinutes(value) {
   return Number.isSafeInteger(minutes) && minutes >= 0 ? { ok: true, minutes } : { ok: false, error: 'Arbeidstiden må bli et helt antall minutter.' }
 }
 
+// Preview and confirmation share normalization and domain validation. The fixed
+// preview id keeps this read-only; confirmation supplies the real new identity.
+export function validateTextRegistrationProposal(proposal, { courses = [], id = 'text-registration-preview' } = {}) {
+  const capturedNow = new Date(proposal.referenceTime), now = Number.isFinite(+capturedNow) ? capturedNow : new Date()
+  const errors = {}
+  if (proposal.action === 'activity') {
+    const date = parseOsloDeadline(proposal.dateInput, now)
+    if (!date.ok) errors.date = date.error
+    let activity, timing
+    if (date.ok) {
+      const draft = { id, title: proposal.title, dateLocal: date.deadlineLocal, startLocal: proposal.startLocal, endLocal: proposal.endLocal }
+      try { activity = validatePersonalActivity(draft); timing = { start: activity.start, end: activity.end } }
+      catch (error) {
+        errors[proposal.title?.trim() ? 'time' : 'title'] = error.message
+        if (errors.title) {
+          // Validate only the interval for display; the rejected title still
+          // prevents returning a saveable activity or a successful result.
+          try { const checked = validatePersonalActivity({ ...draft, title: 'Forhåndsvisning' }); timing = { start: checked.start, end: checked.end } }
+          catch (timeError) { errors.time = timeError.message }
+        }
+      }
+    }
+    const error = Object.values(errors)[0]
+    return { ok: !error, error, errors, activity, timing, dateLocal: date.ok ? date.deadlineLocal.slice(0, 10) : '' }
+  }
+  if (proposal.action !== 'create') return { ok: false, error: 'Velg type før lagring.', errors: { action: 'Velg type før lagring.' } }
+  let course = String(proposal.course || '').trim(), courseId = ''
+  if (['uten emne', 'ikke et emne'].includes(course.toLocaleLowerCase('nb'))) course = ''
+  if (course) {
+    const resolved = resolveExactCourse(courses, course)
+    if (!resolved.ok) errors.course = resolved.reason === 'ambiguous' ? 'Flere emner matcher nøyaktig. Korriger emnet.' : 'Emnet finnes ikke med nøyaktig kode eller navn.'
+    else { courseId = resolved.value.id; course = resolved.value.code || resolved.value.name }
+  }
+  const deadline = proposal.deadlineInput ? parseOsloDeadline(proposal.deadlineInput, now) : { ok: true, deadlineLocal: '' }
+  if (!deadline.ok) errors.deadline = deadline.error
+  const remaining = proposal.remainingInput ? parseRemainingMinutes(proposal.remainingInput) : { ok: true, minutes: undefined }
+  if (!remaining.ok) errors.remaining = remaining.error
+  const draft = { id, title: proposal.title, course, courseId, deadlineLocal: deadline.deadlineLocal || '', estimatedMinutes: null,
+    ...(remaining.ok && remaining.minutes !== undefined ? { remainingMinutes: remaining.minutes } : {}) }
+  const checked = validateDraft(draft)
+  if (!checked.ok) Object.assign(errors, checked.errors)
+  const error = Object.values(errors)[0]
+  return { ok: !error, error, errors, task: error ? undefined : checked.task, draft }
+}
+
 const taskContext = task => ({ id: task.id, title: task.title, course: task.course || '', courseId: task.courseId || '', deadlineLocal: task.deadlineLocal || '', remainingMinutes: task.remainingMinutes ?? null })
 const failed = (proposal, ...errors) => ({ ok: false, proposal, errors: errors.flat().filter(Boolean) })
 const completed = proposal => ({ ok: true, proposal, errors: [] })
@@ -112,11 +158,17 @@ function parseTextRegistrationAt(input, { tasks = [], courses = [], now }) {
   match = raw.match(/^(?:sett|endre)\s+(?:gjenstår|gjenstående(?:\s+arbeid)?)\s+(?:for|på)\s+[«"]?(.+?)[»"]?\s+til\s+(.+)$/iu)
   if (match) return taskProposal('remaining', match[1], match[2], tasks, now)
   if (/\b(?:endr(?:e|er)|flytt(?:e|er)?|slett(?:e|er)?|fjern(?:e|er)?|avlys(?:e|er)?|utsett(?:e|er)?)\b/iu.test(raw)) return failed(null, 'Jeg kjenner ikke igjen en trygg og entydig endring. Presiser handling og mål.')
-  const activity = cleanSentence(raw).match(/^(?:legg\s+til\s+)?(?:(?:egen|personlig)\s+aktivitet:?\s*)?(.+?)\s+(\d{1,2}[.]\d{1,2}[.]?(?:\s*\d{4})?|\d{1,2}[.]?\s+(?:januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)(?:\s+\d{4})?)(?:\s+kl\.?\s*(\d{1,2}(?::[0-5]\d)?)(?:\s*[–-]\s*(\d{1,2}(?::[0-5]\d)?))?)?$/iu)
+  const activity = cleanSentence(raw).match(/^(?:legg\s+til\s+)?(?:(?:egen|personlig)\s+aktivitet:?\s*)?(.+?)\s+(\d{1,2}[.]\d{1,2}[.]?(?:\s*\d{4})?|\d{1,2}[.]?\s+(?:januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)(?:\s+\d{4})?)(?:\s+kl\.?\s*(\d{1,2}(?::\d{1,2})?)(?:\s*[–-]\s*(\d{1,2}(?::\d{1,2})?))?)?$/iu)
   if (activity && !/\b(?:innen|frist|leveres)\b/iu.test(raw) && (activity[3] || /^(?:legg\s+til\s+)?(?:egen|personlig)\s+aktivitet/iu.test(raw))) {
-    const clock = value => value ? value.includes(':') ? value : String(value).padStart(2, '0') + ':00' : ''
+    const clock = value => {
+      if (!value) return ''
+      const match = value.match(/^([01]?\d|2[0-3])(?::([0-5]\d))?$/u)
+      return match ? `${match[1].padStart(2, '0')}:${match[2] || '00'}` : value
+    }
     const parsed = parseOsloDeadline(activity[2], now), proposal = { action: 'activity', title: cleanSentence(activity[1]), dateInput: activity[2], dateLocal: parsed.deadlineLocal || '', startLocal: clock(activity[3]), endLocal: clock(activity[4]) }
     if (!parsed.ok) return failed({ ...proposal, needsYearChoice: parsed.needsYearChoice, yearChoices: parsed.yearChoices }, parsed.error)
+    const checked = validateTextRegistrationProposal({ ...proposal, referenceTime: now.toISOString() })
+    if (!checked.ok) return failed(proposal, checked.error)
     return completed(proposal)
   }
   if (activity && !/\b(?:innen|frist|leveres)\b/iu.test(raw) && !/^(?:legg\s+til|lag\s+oppgave|opprett|ny\s+oppgave)\b/iu.test(raw)) {

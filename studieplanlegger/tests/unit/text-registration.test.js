@@ -35,6 +35,20 @@ describe('local rule-based text registration', () => {
     expect(parseTextRegistration('Egen aktivitet: Ring banken 4.10', { tasks, courses, now })).toMatchObject({ ok: true, proposal: { action: 'activity', dateLocal: '2026-10-04', startLocal: '', endLocal: '' } })
   })
 
+  it.each([
+    ['9:00–9:30', '09:00', '09:30'],
+    ['09:00–09:30', '09:00', '09:30'],
+    ['9:30–10:30', '09:30', '10:30'],
+  ])('normalizes activity clocks for native time fields: %s', (interval, startLocal, endLocal) => {
+    expect(parseTextRegistration(`Tannlege 5.11.2026 kl. ${interval}`, { now })).toMatchObject({
+      ok: true, proposal: { action: 'activity', dateLocal: '2026-11-05', startLocal, endLocal },
+    })
+  })
+
+  it.each(['24:00–24:30', '25:00–26:00', '9:60–10:30', '9:99–10:30', '9:75–10:30', '9:30–9:00', '9:30–9:30'])('rejects invalid parsed activity clocks: %s', interval => {
+    expect(parseTextRegistration(`Tannlege 5.11.2026 kl. ${interval}`, { now })).toMatchObject({ ok: false, proposal: { action: 'activity' } })
+  })
+
   it.each([['30 min', 30], ['90 minutter', 90], ['to timer', 120], ['1,5 timer', 90]])('parses bounded work units %s', (input, minutes) => {
     const result = parseRemainingMinutes(input)
     if (minutes === undefined) expect(result.ok).toBe(false)
