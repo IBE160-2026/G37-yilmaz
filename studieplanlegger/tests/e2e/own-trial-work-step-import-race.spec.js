@@ -7,6 +7,12 @@ const tasks = ['first', 'second'].map(id => ({ id: `synthetic-step-${id}`, title
 const fileInput = dialog => dialog.getByLabel('Eller velg lokal tekst-, PDF- eller DOCX-fil')
 
 async function openEditor(page, task = tasks[0]) {
+  // Closing the editor restores focus to its still-open task menu. Close that
+  // disclosure before choosing another task so its popup cannot cover the row.
+  for (const expanded of await page.locator('#task-list .task-menu[open]').all()) {
+    await expanded.locator(':scope > summary').click()
+    await expect(expanded).toHaveJSProperty('open', false)
+  }
   const item = row(page, task.title), menu = item.locator('.task-menu')
   if (!await menu.evaluate(node => node.open)) await menu.locator(':scope > summary').click()
   await item.getByRole('button', { name: /Administrer arbeidssteg/ }).click()
