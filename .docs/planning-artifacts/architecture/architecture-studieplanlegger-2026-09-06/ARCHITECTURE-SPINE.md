@@ -7,7 +7,7 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-11-03
+updated: 2026-11-04
 binds: [R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, Q-01, Q-02, Q-03]
 historical_binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
@@ -22,9 +22,11 @@ sources:
 
 # Technical plan: Ajour
 
+**Owner acceptance evidence, 2026-11-04:** The owner completed the seven R-07 scenarios and the named Start supplement on 3–4 November. Stable task/step/work-log links survived rename, reorder, replanning/undo, reload and restoration into an empty Chrome guest session. The final portable export retained the source's complete domain data. [The curated report](../../../implementation-artifacts/owner-trial-2026-11-04.md) separates owner-confirmed actions, visible browser evidence and Codex's file comparisons, including the corrected early outcome attempt. This closes the earlier manual coverage reservation within the recorded scope; it does not change any runtime contract or establish general student benefit.
+
 **Completion and request-boundary correction, 2026-11-03:** `saveWorkSteps` owns the incomplete-to-complete transition of an existing, explicitly marked unblocking step. Start closeout, direct completion and the step-list save therefore clear the same waiting state; history snapshots and unrelated prerequisites remain intact. Reopening, unchanged completed steps and cancelled drafts do not clear waiting. Local state and import middleware catch malformed request URLs before routing, database access or source fetches, return HTTP 400 and keep serving subsequent requests. No schema, hosting boundary or supported-source expansion is introduced. [Dated verification](../../../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) distinguishes test execution from publication.
 
-**Documentation revision, 2026-10-26:** R-07 now uses the project owner's planned manual self-trial with synthetic data, following the owner's decision on this date. It is not completed and establishes no result for unfamiliar users. The product scope and technical contracts are unchanged. The name audit corrected three runtime/error display strings to Ajour. Existing import transport identifiers (`Studieplanlegger/1.0` User-Agent and adapter-generated ICS `PRODID` values), package identity and the data/runtime names below remain compatibility exceptions; visible calendar exports already use Ajour.
+**Documentation revision, 2026-10-26 (historical):** R-07 uses the project owner's manual self-trial with synthetic data, following the owner's decision on that date. At this checkpoint it was not completed and established no result for unfamiliar users; the 4 November evidence above supplies the later owner result. The product scope and technical contracts are unchanged. The name audit corrected three runtime/error display strings to Ajour. Existing import transport identifiers (`Studieplanlegger/1.0` User-Agent and adapter-generated ICS `PRODID` values), package identity and the data/runtime names below remain compatibility exceptions; visible calendar exports already use Ajour.
 
 ## AD-17 — Bounded import bookkeeping and lossless local recovery, 2026-11-01
 
@@ -107,7 +109,7 @@ At this 2026-10-16 decision, production is a local Node API plus authoritative S
 | R-03, R-05 | AD-9/AD-11 and acceptance hardening: shared capacity/dependency rules, fingerprinted proposals, atomic commit and history/undo. |
 | R-04, R-08 | AD-9/AD-12: actual work and remaining estimates independent; stable ordered steps, optional assessment/review, read-only calendar copy, controlled plan comparison. |
 | R-06, Q-02 | AD-10: SQLite authority, automatic transactional migrations, optimistic revisions, backup/recovery and same-volume persistence. |
-| R-07, Q-03 | [Owner self-trial](../../USER-TRIAL-PLAN.md), revised 2026-10-26, is planned / not performed. Synthetic manual observations remain separate from technical verification and do not establish general student benefit. |
+| R-07, Q-03 | [Owner self-trial](../../USER-TRIAL-PLAN.md#egenutproving-2026-11-04): seven scenarios and named Start supplement completed and passed 3–4 November within documented scope. The 26 October plan preceded these observations. Synthetic manual observations remain separate from technical verification and do not establish general student benefit. |
 
 **Reading the history:** AD-1–AD-8, the older screen description, stack snapshot and scaffold/setup instructions below are historical. Conflicting required task fields, browser-only storage, one-step/no-history exclusions and port-80 setup are superseded by AD-9–AD-12 and this map. Do not rerun scaffold/install instructions or use actual port-80 storage for verification. Use the current [README](../../../../README.md) for startup. Old decisions remain to show evolution, not as active contradictory instructions.
 

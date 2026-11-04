@@ -1,0 +1,511 @@
+{
+  "reportVersion": 1,
+  "analysisDate": "2026-11-04",
+  "timezone": "Europe/Oslo",
+  "method": "Read-only comparison of owner-uploaded JSON, canonical sorted object keys with array order preserved; application validEnvelope with relations enabled; raw backups and screenshots not copied into repository.",
+  "canonicalization": "JSON.stringify with recursively sorted object keys; UTF-8, no whitespace; array order preserved",
+  "sources": [
+    {
+      "id": "J01",
+      "attachment": "ajour-sikkerhetskopi-2026-11-03(1).json",
+      "purpose": "Tidlig registrering, beholdt som prøveavvik",
+      "sha256": "4893c0655cdbb1d7f92663417e00e224898a8ad511d82d201e62ba3a7ea4104d",
+      "createdAtUtc": "2026-11-03T21:42:41.064Z",
+      "createdAtOslo": "2026-11-03T22:42:41.064+01:00",
+      "canonicalDataSha256": "ca0f62a1ea18fd60f8b2d30bea79a8d8afc9a1cd8fffed337d85bc160caa2851",
+      "rekeyedIds": 0,
+      "counts": {
+        "courses": 1,
+        "tasks": 1,
+        "sessions": 1,
+        "workLogs": 1,
+        "workWindows": 2,
+        "busyWindows": 1,
+        "undo": 8,
+        "trash": 1
+      },
+      "validEnvelopeWithRelations": true
+    },
+    {
+      "id": "J02",
+      "attachment": "ajour-sikkerhetskopi-etter-angre-og-ny-lagring(1).json",
+      "purpose": "Korrigert scenario 3",
+      "sha256": "5b294caaf2f351936688e98bb5c12ec52f21dc6e8b279a190928b221daa7a7dc",
+      "createdAtUtc": "2026-11-03T21:51:32.559Z",
+      "createdAtOslo": "2026-11-03T22:51:32.559+01:00",
+      "canonicalDataSha256": "5ddf46f7e9938d80508e0590e725cff50a257cd5dd092ca391eccfa7fe952549",
+      "rekeyedIds": 0,
+      "counts": {
+        "courses": 1,
+        "tasks": 1,
+        "sessions": 1,
+        "workLogs": 1,
+        "workWindows": 2,
+        "busyWindows": 1,
+        "undo": 8,
+        "trash": 1
+      },
+      "validEnvelopeWithRelations": true
+    },
+    {
+      "id": "J03",
+      "attachment": "ajour-test-4-etter-angre(1).json",
+      "purpose": "Scenario 4 etter Angre",
+      "sha256": "3f9a9921d5c55954626776749465b2611c9a96535e9db907b0a70015113619f0",
+      "createdAtUtc": "2026-11-03T21:57:56.275Z",
+      "createdAtOslo": "2026-11-03T22:57:56.275+01:00",
+      "canonicalDataSha256": "5ddf46f7e9938d80508e0590e725cff50a257cd5dd092ca391eccfa7fe952549",
+      "rekeyedIds": 0,
+      "counts": {
+        "courses": 1,
+        "tasks": 1,
+        "sessions": 1,
+        "workLogs": 1,
+        "workWindows": 2,
+        "busyWindows": 1,
+        "undo": 8,
+        "trash": 1
+      },
+      "validEnvelopeWithRelations": true
+    },
+    {
+      "id": "J04",
+      "attachment": "ajour-test-5-etter-levert(1).json",
+      "purpose": "Scenario 5 etter separat levering",
+      "sha256": "27671258344e8de104ebd27da0f7212a153cb654895c72c84f6e9aa9c1dd601c",
+      "createdAtUtc": "2026-11-03T22:05:17.194Z",
+      "createdAtOslo": "2026-11-03T23:05:17.194+01:00",
+      "canonicalDataSha256": "0329cdf2e486cb06a28c652b34d929eb08adceace5ae51ddf4efd9ff780dc6e2",
+      "rekeyedIds": 0,
+      "counts": {
+        "courses": 1,
+        "tasks": 1,
+        "sessions": 0,
+        "workLogs": 2,
+        "workWindows": 2,
+        "busyWindows": 1,
+        "undo": 11,
+        "trash": 2
+      },
+      "validEnvelopeWithRelations": true
+    },
+    {
+      "id": "J05",
+      "attachment": "ajour-steg-for-navneendring(1).json",
+      "purpose": "Start-supplement før stegendring",
+      "sha256": "942f355dee059ffff6d27880a43ec3cc72c82511e9b81bc8020b7b2f7aad1ffd",
+      "createdAtUtc": "2026-11-03T23:21:28.989Z",
+      "createdAtOslo": "2026-11-04T00:21:28.989+01:00",
+      "canonicalDataSha256": "3050af0eb40f0680b1c143c0b57bbd464ed4f35a6f51978d7f9dbe0db6825d33",
+      "rekeyedIds": 0,
+      "counts": {
+        "courses": 2,
+        "tasks": 3,
+        "sessions": 1,
+        "workLogs": 3,
+        "workWindows": 2,
+        "busyWindows": 1,
+        "undo": 17,
+        "trash": 2
+      },
+      "validEnvelopeWithRelations": true
+    },
+    {
+      "id": "J06",
+      "attachment": "ajour-for-omlasting(1).json",
+      "purpose": "Kilde før omlasting",
+      "sha256": "625796c23462707b60f6fae84275a4b9aa6ff14134d9a55834999a6fdcfa1003",
+      "createdAtUtc": "2026-11-03T23:22:37.166Z",
+      "createdAtOslo": "2026-11-04T00:22:37.166+01:00",
+      "canonicalDataSha256": "2497cc859b0ef8045167bd5b84484897eec00cce79e106ead08ccb4322214e32",
+      "rekeyedIds": 0,
+      "counts": {
+        "courses": 2,
+        "tasks": 3,
+        "sessions": 1,
+        "workLogs": 3,
+        "workWindows": 2,
+        "busyWindows": 1,
+        "undo": 18,
+        "trash": 2
+      },
+      "validEnvelopeWithRelations": true
+    },
+    {
+      "id": "J07",
+      "attachment": "ajour-for-gjenoppretting(1).json",
+      "purpose": "Kilde etter omlasting / før gjenoppretting",
+      "sha256": "cef01b8861959f5677ded47b8e2b3d2b857d425a549dcde62d02ff5b1ccf4dd8",
+      "createdAtUtc": "2026-11-03T23:23:34.283Z",
+      "createdAtOslo": "2026-11-04T00:23:34.283+01:00",
+      "canonicalDataSha256": "2497cc859b0ef8045167bd5b84484897eec00cce79e106ead08ccb4322214e32",
+      "rekeyedIds": 0,
+      "counts": {
+        "courses": 2,
+        "tasks": 3,
+        "sessions": 1,
+        "workLogs": 3,
+        "workWindows": 2,
+        "busyWindows": 1,
+        "undo": 18,
+        "trash": 2
+      },
+      "validEnvelopeWithRelations": true
+    },
+    {
+      "id": "J08",
+      "attachment": "ajour-etter-gjenoppretting.json",
+      "purpose": "Første gjenoppretting; isolasjon da ubekreftet",
+      "sha256": "ee53a070ee1775a6443d0f05c9fc915a80e85a4f1479a871bc024cf0efb0cd2e",
+      "createdAtUtc": "2026-11-04T07:38:49.934Z",
+      "createdAtOslo": "2026-11-04T08:38:49.934+01:00",
+      "canonicalDataSha256": "2497cc859b0ef8045167bd5b84484897eec00cce79e106ead08ccb4322214e32",
+      "rekeyedIds": 0,
+      "counts": {
+        "courses": 2,
+        "tasks": 3,
+        "sessions": 1,
+        "workLogs": 3,
+        "workWindows": 2,
+        "busyWindows": 1,
+        "undo": 18,
+        "trash": 2
+      },
+      "validEnvelopeWithRelations": true
+    },
+    {
+      "id": "J09",
+      "attachment": "ajour-2026-11-04.json",
+      "purpose": "Slutteksport fra bekreftet Chrome Gjest etter omlasting",
+      "sha256": "46b7876feeda266192e1df1d9a2d12d94653924b202b5935f2bc7bc0af54d783",
+      "createdAtUtc": "2026-11-04T08:23:51.366Z",
+      "createdAtOslo": "2026-11-04T09:23:51.366+01:00",
+      "canonicalDataSha256": "2497cc859b0ef8045167bd5b84484897eec00cce79e106ead08ccb4322214e32",
+      "rekeyedIds": 0,
+      "counts": {
+        "courses": 2,
+        "tasks": 3,
+        "sessions": 1,
+        "workLogs": 3,
+        "workWindows": 2,
+        "busyWindows": 1,
+        "undo": 18,
+        "trash": 2
+      },
+      "validEnvelopeWithRelations": true
+    }
+  ],
+  "images": [
+    {
+      "id": "I01",
+      "attachment": "image(20261103-204959).png",
+      "purpose": "Scenario 1 ferdig utfylt oppgave",
+      "sha256": "8c74c7b9a6a926482516a570b04d59b71b5b8af7be27eae6fc16ea0e771a4184",
+      "pixelWidth": 1393,
+      "pixelHeight": 485
+    },
+    {
+      "id": "I02",
+      "attachment": "image(20261103-211657).png",
+      "purpose": "Scenario 2 godkjente økter",
+      "sha256": "8eadd57748f428cba27f6159d7969b8242790eb0e6663a0c7efa4f78dc26b142",
+      "pixelWidth": 2048,
+      "pixelHeight": 1481
+    },
+    {
+      "id": "I03",
+      "attachment": "image(20261103-213853).png",
+      "purpose": "Tidlig scenario 3-resultat; tidspunkt må vurderes mot J01",
+      "sha256": "92d2d082275342f553b4a7c0a26e8a754aad5b97497c23dc16713aa36171c597",
+      "pixelWidth": 2048,
+      "pixelHeight": 1488
+    },
+    {
+      "id": "I04",
+      "attachment": "image(20261103-220027).png",
+      "purpose": "Scenario 4 etter Angre",
+      "sha256": "a9446a93470c5e613dfecf7d467bb019d8db2e80703b0e530d038eb6d8e54a4a",
+      "pixelWidth": 2048,
+      "pixelHeight": 1496
+    },
+    {
+      "id": "I05",
+      "attachment": "image(20261103-220646).png",
+      "purpose": "Scenario 5 steg fullført",
+      "sha256": "782aecb5c7083fba4007f25427e40d5e47c751dfd6788f5b1a2fdebbe5fca9ac",
+      "pixelWidth": 2048,
+      "pixelHeight": 1509
+    },
+    {
+      "id": "I06",
+      "attachment": "image(20261103-220655).png",
+      "purpose": "Scenario 5 arbeid fullført",
+      "sha256": "402970d2a90f2e585cc2cd65d92c4f73710f9ea1167682db3517b6f18e864821",
+      "pixelWidth": 2048,
+      "pixelHeight": 1505
+    },
+    {
+      "id": "I07",
+      "attachment": "image(20261103-220702).png",
+      "purpose": "Scenario 5 levering bekreftet",
+      "sha256": "2312a055d114e1f21f7855c173d75b809c1639783901a817c17d1636d6ac806c",
+      "pixelWidth": 2048,
+      "pixelHeight": 1512
+    },
+    {
+      "id": "I08",
+      "attachment": "image(20261103-221442).png",
+      "purpose": "Scenario 6 måned",
+      "sha256": "e52b0835d4ee34858175ab2864a86d9d7c270f8176b751acde7017f031693a2b",
+      "pixelWidth": 2048,
+      "pixelHeight": 1374
+    },
+    {
+      "id": "I09",
+      "attachment": "image(20261103-221458).png",
+      "purpose": "Scenario 6 dag",
+      "sha256": "bb324dd5f9a577db60f103a6d62609bfbb4ac1312e62ab0f8090907c9c45d2b5",
+      "pixelWidth": 2048,
+      "pixelHeight": 1377
+    },
+    {
+      "id": "I10",
+      "attachment": "image(20261103-221514).png",
+      "purpose": "Scenario 6 uke",
+      "sha256": "8318f247137995db917cb97aa4b7e526f3f75ffc4d8ab0a2d74596a948ef3ab7",
+      "pixelWidth": 2048,
+      "pixelHeight": 1382
+    },
+    {
+      "id": "I11",
+      "attachment": "image(20261104-071824).png",
+      "purpose": "Scenario 6 utkast i lyst tema",
+      "sha256": "66b06ece273bc91deeafd58498e5fc0a96cd5003a029868a3b78b76476f118c0",
+      "pixelWidth": 2048,
+      "pixelHeight": 1505
+    },
+    {
+      "id": "I12",
+      "attachment": "image(20261104-071833).png",
+      "purpose": "Scenario 6 samme utkast i mørkt tema",
+      "sha256": "46d54f513a3ac6abde93728a5fa37594fc8b30627233ab814f34c0de8fdf8d8b",
+      "pixelWidth": 2048,
+      "pixelHeight": 1498
+    },
+    {
+      "id": "I13",
+      "attachment": "image(20261104-071849).png",
+      "purpose": "Start viser første teststeg og 1 minutt",
+      "sha256": "e56da8e2146afd4b5ff27e7f5dbb8fc6d333a58f8c5e846f2050bf43dd35535b",
+      "pixelWidth": 2048,
+      "pixelHeight": 1505
+    },
+    {
+      "id": "I14",
+      "attachment": "image(20261104-071859).png",
+      "purpose": "Oppgaver etter steg-/rekkefølgeendring",
+      "sha256": "79d35c8185e88d541f6ce6634db405a6985b01b68e4d5e6e024960831d120c5b",
+      "pixelWidth": 1621,
+      "pixelHeight": 1694
+    },
+    {
+      "id": "I15",
+      "attachment": "image(20261104-082302).png",
+      "purpose": "Chrome Gjest med tom oppstart",
+      "sha256": "62e9f63e174347f3592dfdf1f3689c1f37d81ae34dfb6c02049e99da7d6b84ed",
+      "pixelWidth": 2048,
+      "pixelHeight": 1109
+    },
+    {
+      "id": "I16",
+      "attachment": "image(20261104-082333).png",
+      "purpose": "Chrome Gjest med gjenopprettingsforhåndsvisning",
+      "sha256": "17f4e541d09cd151a933905bd3846cbee9786d2069086d4b95a44a595d468f8f",
+      "pixelWidth": 2047,
+      "pixelHeight": 998
+    },
+    {
+      "id": "I17",
+      "attachment": "image(20261104-082345).png",
+      "purpose": "Chrome Gjest med gjenopprettet kalender",
+      "sha256": "c03f720c33e3bdcc6f1c3f1663ae0e90898064a75208db4353f475c89cb07538",
+      "pixelWidth": 2048,
+      "pixelHeight": 976
+    }
+  ],
+  "checks": {
+    "titleOnlyHistoryHasUnknownOptionalFields": true,
+    "titleOnlySameTaskIdentity": true,
+    "initialPlanHasTwoThirtyMinuteTaskSessions": true,
+    "initialPlanWithinKnownAvailableTime": true,
+    "earlyOutcomeBeforePlannedEnd": true,
+    "correctedOutcomeAfterPlannedEnd": true,
+    "correctedOutcomeHasOneWorkLog": true,
+    "correctionPreservesDomainExceptLogTime": true,
+    "correctionPreservesEarlierUndo": true,
+    "correctedOutcome30Actual75Remaining": true,
+    "taskAndSessionIdentityPreserved": true,
+    "scenario4AllDataExactlyRestored": true,
+    "scenario5SeparateStepTaskSubmissionTransitions": true,
+    "original30MinuteLogPreservedThroughCompletionAndRestore": true,
+    "completionReleasesRemainingFirstTaskReservation": true,
+    "completionAddsNoInventedActualMinutes": true,
+    "namedStartHas1Planned1Actual75Remaining": true,
+    "namedStartHasStepIdentityWithoutInventedSessionIdentity": true,
+    "namedStepOriginallyFirstNowSecond": true,
+    "namedStepTitleChangedWithSameIdentity": true,
+    "namedTaskAndBothStepsRemainOpen": true,
+    "namedStartHistoricalSnapshotPreserved": true,
+    "allWorkLogsUnchangedAfterStepEditsReloadRestore": true,
+    "allDataEqualAcrossSourceReload": true,
+    "firstRestoreDataEqualButIsolationNotProvenByFiles": true,
+    "allDataEqualAfterConfirmedGuestRestoreAndReload": true,
+    "uniqueTaskSessionLogIds": true,
+    "uniqueStepIdsWithinEachTask": true,
+    "allTaskCourseReferencesValid": true,
+    "allSessionTaskReferencesValid": true,
+    "allWorkLogTaskAndSnapshotReferencesValid": true,
+    "allLoggedStepReferencesMatchHistoricalSnapshot": true,
+    "allLoggedSessionReferencesMatchHistoricalSnapshot": true,
+    "noSavedTestDraft": true,
+    "noAutomaticMasteryRecords": true,
+    "restoredRekeyedIdsZero": true
+  },
+  "observed": {
+    "firstSavedTaskAtOslo": "2026-11-03T22:03:04.888+01:00",
+    "initialPlanAtOslo": "2026-11-03T22:12:16.081+01:00",
+    "initialSessions": [
+      {
+        "id": "22d9e37c-b4cb-4444-99c7-8bdfadb85758",
+        "taskId": "e3b5fd22-f150-49a1-bddb-421a21971069",
+        "dateLocal": "2026-11-03",
+        "startTime": "22:15",
+        "endTime": "22:45"
+      },
+      {
+        "id": "4a93c9b0-4c7d-49e9-982d-94b219633a03",
+        "taskId": "e3b5fd22-f150-49a1-bddb-421a21971069",
+        "dateLocal": "2026-11-03",
+        "startTime": "22:55",
+        "endTime": "23:25"
+      }
+    ],
+    "earlyOutcomeAtOslo": "2026-11-03T22:37:27.176+01:00",
+    "correctedOutcomeAtOslo": "2026-11-03T22:51:16.362+01:00",
+    "completionTransitions": [
+      {
+        "atUtc": "2026-11-03T22:03:24.141Z",
+        "atOslo": "2026-11-03T23:03:24.141+01:00",
+        "label": "Oppgave: Les syntetisk eksempelkapittel",
+        "status": {
+          "completed": false,
+          "submitted": false,
+          "remainingMinutes": 75,
+          "allStepsCompleted": true
+        }
+      },
+      {
+        "atUtc": "2026-11-03T22:04:18.051Z",
+        "atOslo": "2026-11-03T23:04:18.051+01:00",
+        "label": "Arbeid fullført og reservasjoner frigjort",
+        "status": {
+          "completed": true,
+          "submitted": false,
+          "remainingMinutes": 0,
+          "allStepsCompleted": true
+        }
+      },
+      {
+        "atUtc": "2026-11-03T22:04:42.007Z",
+        "atOslo": "2026-11-03T23:04:42.007+01:00",
+        "label": "Oppgave: Les syntetisk eksempelkapittel",
+        "status": {
+          "completed": true,
+          "submitted": true,
+          "remainingMinutes": 0,
+          "allStepsCompleted": true
+        }
+      }
+    ],
+    "namedStart": {
+      "taskId": "447c948a-55b8-47d2-8d36-36e74103e33f",
+      "logId": "work-f75f87e3-e9b0-4821-a566-6ab0323e7aad",
+      "stepId": "51111f63-5a97-4a36-a487-c8d92d616850",
+      "atOslo": "2026-11-04T00:21:19.386+01:00",
+      "initialStepEstimates": [
+        30,
+        30
+      ],
+      "plannedMinutes": 1,
+      "actualMinutes": 1,
+      "remainingMinutes": 75,
+      "oldPosition": 1,
+      "newPosition": 2,
+      "snapshotRemainingMinutes": 60
+    },
+    "restoredCounts": {
+      "courses": 2,
+      "tasks": 3,
+      "sessions": 1,
+      "workLogs": 3,
+      "workWindows": 2,
+      "busyWindows": 1,
+      "undo": 18,
+      "trash": 2
+    },
+    "restoredCalendarPreferences": {
+      "version": 2,
+      "view": "week",
+      "weekMode": "full",
+      "date": "2026-11-04",
+      "courseId": "",
+      "kinds": [
+        "teaching",
+        "personal",
+        "deadline",
+        "session",
+        "work",
+        "busy",
+        "information"
+      ],
+      "scroll": {
+        "week:2026-11-03": {
+          "top": 440,
+          "left": 0
+        },
+        "day:2026-11-04": {
+          "top": 440,
+          "left": 0
+        },
+        "month:2026-11-04": {
+          "top": 0,
+          "left": 0
+        },
+        "week:2026-11-04": {
+          "top": 440,
+          "left": 0
+        }
+      },
+      "completed": true,
+      "cancelled": false
+    }
+  },
+  "ownerConfirmedOnly": {
+    "initialIsolatedSourceSetupAndFirstReload": true,
+    "scenario2CancelWithoutSaving": true,
+    "scenario4PreviewApprovalAndImmediateUndo": true,
+    "themeModesDraftColorsAndCalendarDate": true,
+    "namedStartElapsedSeconds": 70,
+    "namedOutcomeDisplayedCorrectStep": true,
+    "namedStartReplanAndUndoAfterStepEdits": true,
+    "sourceReload": true,
+    "guestTargetSetupAndPostImportReload": true
+  },
+  "limitations": [
+    "User-entered synthetic work minutes are not independently measured study activity.",
+    "Files alone do not prove elapsed wait, UI button sequence, reload or intermediate plans.",
+    "Screenshot attachment names are evidence identifiers, not verified event timestamps.",
+    "Source browser/OS version, zoom, exact initial test start and release SHA throughout the entire run were not established.",
+    "Theme and local course-color preferences are not claimed to transfer to the guest profile."
+  ]
+}
