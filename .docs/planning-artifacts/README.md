@@ -1,32 +1,34 @@
 # Ajour: planlegging og leveranseevidens
 
-**Teknisk oppfølging 2026-11-03:** [Avklaringssteg og lokal forespørselsvalidering](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) samler retting av ventemarkering, avvisning av ugyldige forespørselsadresser og samordnet brukerveiledning. Resultater og publiseringsstatus er datert i rapporten; dette er ikke nye personlige R-07-observasjoner.
+**[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.** [Brukerveiledningen](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) forklarer de første stegene og sikkerhetskopi. Nettutgaven lagrer planen i nettleserprofilen på den nøyaktige adressen, uten konto eller synkronisering. [Lokal Node-/Docker-drift med SQLite og Vite-utvikling med nettleserlagring](../../studieplanlegger/README.md#lokal-drift-og-utvikling) er egne alternativer for sensor og utviklere.
+
+**Leveringsoversikt oppdatert 2026-11-04.** [Brief](../../brief.md) og [PRD](PRD.md) beskriver produktmål, brukerbehov, krav og avgrensninger. V1 og krav-/story-ID-er er uendret. Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**.
+
+**Egenutprøving utført av prosjekteier:** Alle sju scenarier og tilleggsprøven for navngitt Start bestod 3.–4. november. [Prøverapporten](../implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktiske observasjoner, rettet prøveutførelse og metodegrenser. Gjenoppretting er kontrollert i et separat, tomt Chrome Gjest-miljø; det tidligere dekningsforbeholdet for SC-07/R-07/S-07 er lukket innen rapportens omfang. [Omprøvingene 1. november](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), SC-07/1200–30 og Outlook-prøven beholder sine daterte resultater. Ingen andre testpersoner er rekruttert; resultatene dokumenterer prosjekteierens observasjoner, ikke generell studentnytte.
+
+[Refleksjonsrapporten](../submission/reflection-report.md) foreligger; personlig sluttgjennomlesing og innlevering er ikke bekreftet. [Leveringskontrollen](#leveringskontroll--2026-11-04) skiller disse formelle restpunktene fra produkt- og prøvearbeidet.
+
+**Teknisk oppfølging 2026-11-03:** [Avklaringssteg og lokal forespørselsvalidering](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) samler retting av ventemarkering, avvisning av ugyldige forespørselsadresser og samordnet brukerveiledning. Resultater og publiseringsstatus er datert i rapporten; dette er tekniske kontroller, adskilt fra de senere personlige R-07-observasjonene.
 
 **Teknisk oppfølging 2026-11-02:** [Oppgave- og stegidentitet](../implementation-artifacts/work-step-identity-2026-11-02.md) avklarer den første Codex-rapportens testantakelse og dokumenterer den separate navngitte Start-flyten, retting og tekniske kontroller. Oppgavearbeid er fortsatt gyldig uten stegkobling. Codex-prøvene erstatter ikke prosjekteierens R-07; eldre daterte resultater beholdes.
 
-**Leveringsoversikt oppdatert 2026-11-01.** [Brief](../../brief.md) og [PRD](PRD.md) beskriver produktmål, brukerbehov, krav og avgrensninger. V1 og krav-/story-ID-er er uendret. Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**.
-
-**[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.** [Brukerveiledningen](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) forklarer de første stegene og sikkerhetskopi. Nettutgaven lagrer planen i nettleserprofilen på den nøyaktige adressen, uten konto eller synkronisering. [Lokal Node-/Docker-drift med SQLite og Vite-utvikling med nettleserlagring](../../studieplanlegger/README.md#lokal-drift-og-utvikling) er egne alternativer for sensor og utviklere.
-
-**Egenutprøving utført av prosjekteier:** De rapporterte omprøvingene 1. november er bestått innen [dokumentert omfang](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). SC-07/1200–30 og Outlook-prøven fra 30. oktober beholder bestått. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger; personlig sluttgjennomlesing og innlevering er ikke bekreftet. Ingen andre testpersoner rekrutteres; den tidligere planlagte eksterne studentprøven ble ikke gjennomført. Resultatene dokumenterer prosjekteierens observasjoner, ikke ukjente brukeres forståelse eller generell studentnytte. Eldre daterte avvik og tekniske rapporter beholdes som før-/etter-bevis.
-
 Planene ble **rekonstruert 2026-10-16** mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae00268`. De er ikke opprinnelige planer for allerede skrevet kode. Revisjonen følger opp lærerens krav om avgrenset V1, sjekkbare kriterier, tekniske detaljer i arkitekturen og synlig kontroll av KI-generert arbeid.
 
-**PRD-presisering 2026-11-02:** [Gjeldende PRD](PRD.md) skiller de tre planleggingsfunksjonene og synliggjør eksisterende bruksgrenser og nyttehypoteser. SC-07/R-07/S-07 beholder sjuscenariokravet, men full oppfyllelse av alle opprinnelige detaljer er ikke dokumentert. [Scenariooversikten](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) viser grunnlaget; de avgrensede omprøvingene beholder bestått. V1, tidligere resultater og bestillingen om egenutprøving er uendret.
+**PRD-presisering 2026-11-02:** [Gjeldende PRD](PRD.md) skiller de tre planleggingsfunksjonene og synliggjør eksisterende bruksgrenser og nyttehypoteser. [Scenariooversikten fra 2. november](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) bevarer det daværende dekningsforbeholdet som historikk; [egenutprøvingen 3.–4. november](../implementation-artifacts/owner-trial-2026-11-04.md) lukker dette forbeholdet. Sjuscenariokravet, V1 og tidligere daterte resultater er uendret.
 
 ## Finn leveransen
 
 | Status / behov | Autoritativ inngang |
 | --- | --- |
 | Ferdig og dokumentert: produkt, oppstart og bruk | [Ajour på nett](https://ajour-sooty.vercel.app/), [README](../../README.md), [brukerveiledning](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [løsningsguide](../implementation-artifacts/solution-guide.md). Lokal kjøring er valgfri. |
-| Prosjekteierens dokumenterte omprøvinger | [Prøveplan og sluttresultater](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01). De konkrete avvikene er lukket innen oppgitt omfang; den opprinnelige scenariooppskriften utvides ikke til udokumenterte beståttresultater. |
+| Prosjekteierens sju scenarier og navngitt Start bestått | [Prøverapport 4. november](../implementation-artifacts/owner-trial-2026-11-04.md) og [prøveplan med datert historikk](USER-TRIAL-PLAN.md). SC-07/R-07/S-07 er oppfylt innen det dokumenterte omfanget og med rapportens metodeavklaringer. |
 | Automatiske kontroller og publisering | [VERIFICATION](../../studieplanlegger/VERIFICATION.md) skiller automatiske tester, CI og kontroll av publisert commit fra eierens manuelle observasjoner. Funksjonsprøver alene bekrefter ikke produksjonscommit, interne skriveoperasjoner eller full sikkerhet. |
 | Kjente begrensninger | [Samlet begrensningsoversikt](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) med status, V1-betydning og oppfølging; [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) gir kildegrunnlaget. Historisk F03, F05, personvernfunn og bundlevarselet står åpne. Den [rettede fredags-/fristregresjonen 2. november](../../studieplanlegger/VERIFICATION.md#fristavklaring-oppgavebekreftelse-og-lagringshjelp--2026-11-02) lukker ikke historisk F03; originalen `stress-text-005.txt` er ikke funnet eller omprøvd. |
 | Prosess, krav og sporbarhet | [Utviklingsprosess](../implementation-artifacts/development-process.md), dokumentlisten nedenfor og [sporbarhetsmatrisen](TRACEABILITY.md). |
 | Refleksjonsrapport foreligger | [Lesbar Markdown-rapport](../submission/reflection-report.md), med prosjekteierens uttrykkelige tillatelse til inkludering i repoet. Markdown er rapportens eneste format i dagens repo. |
-| Prosjekteieren må fullføre | Personlig sluttgjennomlesing, kontroll av formelle leveringsopplysninger og selve innleveringen med kvittering. Se [vurderingsgrunnlag og manglende opplysninger](#leveringskontroll--2026-11-01). Ingen ny full funksjonsprøve er bestilt. |
+| Prosjekteieren må fullføre | Personlig sluttgjennomlesing, kontroll av formelle leveringsopplysninger og selve innleveringen med kvittering. Se [vurderingsgrunnlag og manglende opplysninger](#leveringskontroll--2026-11-04). |
 
-Full nettleseromstart og separat tom profil ble ikke verifisert i prosjekteierens siste omprøving. Tidligere, separat dokumenterte tekniske kontroller beholder sin egen dato og metode; de omgjøres ikke til personlige resultater. Den samme grensen gjelder sikkerhetsprøver som tidligere ble stoppet av verktøyvern.
+Den siste egenutprøvingen omfatter omlasting og gjenoppretting i et separat, tomt Chrome Gjest-miljø. Full avslutning og omstart av nettleserprosessen og handlingen **Gjenopprett forrige kopi** inngikk ikke i prøven; dette er metodegrenser, ikke nye påviste appfeil. Tidligere tekniske kontroller og verktøyblokkerte sikkerhetsprøver beholder sin egen dato og metode og omgjøres ikke til personlige resultater.
 
 ## Gjeldende dokumenter
 
@@ -37,7 +39,7 @@ Sensorvedleggets sju sider er lest på nytt 2026-11-01, med samme SHA-256 som id
 3. [Gjeldende epics og stories](EPICS-CURRENT.md): S-01–S-08 med Given/When/Then.
 4. [Arkitektur](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md): gjeldende beslutninger og tydelig merket historikk.
 5. [Sporbarhet](TRACEABILITY.md): forventet resultat, metode, kode, test og faktisk evidensstatus.
-6. [Prøveplan og egenutprøving](USER-TRIAL-PLAN.md): opprinnelig scenariooppskrift, rapporterte avvik og eierens beståtte omprøvinger med dato og avgrensning.
+6. [Prøveplan og egenutprøving](USER-TRIAL-PLAN.md) og [prøverapport 4. november](../implementation-artifacts/owner-trial-2026-11-04.md): scenariooppskrift, daterte avvik og eierens beståtte sjuscenarioprøve med navngitt Start-tillegg og metodeavklaringer.
 7. [Importavtale og brukerflyt](../../studieplanlegger/IMPORT.md): forhåndsvisning, identiteter, emnevalg, tidspunkt og kildenes grenser.
 8. [Kuratert TP CSV-formatkontrakt, 2026-10-23](../implementation-artifacts/tp-csv-format-contract-2026-10-23.md): offentlig formatgrunnlag og avgrensning mot private originalfiler.
 9. [Daterte kontrollresultater](../../studieplanlegger/VERIFICATION.md): konkrete feil, rettelser, tester og begrensninger. Testkode er lenket fra sporbarheten; interne arbeidsspesifikasjoner beholdes lokalt og er ikke del av den offentlige dokumentkjeden.
@@ -51,9 +53,11 @@ Sensorvedleggets sju sider er lest på nytt 2026-11-01, med samme SHA-256 som id
 
 [Briefen](../../brief.md), [PRD-en](PRD.md) og [AD-16](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-16--browser-deployment-with-bounded-stateless-imports-2026-10-29) beskriver den uttrykkelig godkjente nettleserutgaven i ett gratis Vercel-prosjekt. Hele hovedflyten og lokale Node-/Docker-valg beholdes. Nettutgaven har nettleser-/adresselokal lagring og avgrensede importfunksjoner, uten konto, skydatabase eller synkronisering. Historiske lokalavgrensninger er datert; importløftet og krav-ID-ene endres ikke. [Verifikasjonen fra 29. oktober](../../.logs/997-2026-10-29-13-35-00-ajour-vercel.md) dokumenterer den rundens publisering, adskilt fra tidligere klargjøring og lokale prøver.
 
-## Leveringskontroll — 2026-11-01
+<a id="leveringskontroll--2026-11-01"></a>
 
-[Faglærertilbakemeldingen 6. oktober](../../tilbakemelding-product-brief.md) og den identifiserte sensorveiledningen er tilgjengelige og lest. Denne dokumentoppfølgingen adresserer avgrenset V1, produktmål i brief/PRD, sporbare testbevis og synlig styring av KI-arbeidet. Ingen ny funksjon eller kilde er lagt til som leveransekrav.
+## Leveringskontroll — 2026-11-04
+
+[Faglærertilbakemeldingen 6. oktober](../../tilbakemelding-product-brief.md) er lest ved denne oppfølgingen. Lesing og identifikasjon av sensorvedlegget ble sist dokumentert 1. november; omtalen nedenfor bevarer dette vurderingsgrunnlaget og er ingen ny gjennomlesing av PDF-en. Oppfølgingen 4. november samordner leveringsstatus og prosjekteierens dokumenterte egenutprøving. Avgrenset V1, produktmål, sporbare testbevis og synlig styring av KI-arbeidet beholdes; ingen ny funksjon eller kilde er lagt til som leveransekrav.
 
 Sensorveiledningen beskriver vurdering av repoets siste commit før innleveringsfristen (s. 2), kjøring etter README (s. 2 og 5–6), prosess-/KI-spor og relevante manuelle og automatiske tester (s. 2–4). Del 1 teller 70 prosent; personlig refleksjon i del 2 teller 30 prosent (s. 1 og 7). Dette bekrefter vurderingsområdene, ikke at innleveringen allerede er godkjent.
 
