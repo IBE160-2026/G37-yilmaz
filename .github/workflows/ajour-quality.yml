@@ -36,6 +36,11 @@ jobs:
           cache-dependency-path: studieplanlegger/package-lock.json
       - name: Install locked dependencies
         run: npm ci
+      # Audit both runtime and build/test dependencies. The install summary is
+      # informational; this explicit gate fails on high/critical advisories or
+      # an unavailable audit service. Dependency changes still require review.
+      - name: Reject high and critical dependency advisories
+        run: npm audit --audit-level=high
       - name: Full unit suite
         run: npm run test:unit
       - name: Production build
@@ -44,5 +49,9 @@ jobs:
         run: npx --no-install playwright install --with-deps chromium
       - name: Deterministic browser contracts against built dist
         run: npm run test:e2e:ci
+      - name: Install Firefox and WebKit for bounded smoke coverage
+        run: npx --no-install playwright install --with-deps firefox webkit
+      - name: Firefox and WebKit core smoke against built dist
+        run: node tests/run-cross-browser-e2e.mjs
       - name: Isolated SQLite migration, recovery and repeat
         run: npm run test:e2e:database
