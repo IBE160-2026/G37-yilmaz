@@ -34,10 +34,11 @@ export function createDataTools(actions) {
   let notifiedId = null, undoConfirmed = false
   const feedback = node('p'); feedback.setAttribute('role', 'status')
   const dialog = node('dialog'); dialog.className = 'editor-dialog data-dialog'; document.body.append(dialog)
-  let opener, preview, signature = ''
-  const close = () => { dialog.close(); preview = null; opener?.focus({ preventScroll: true }) }
+  let opener, signature = '', importRequest = 0
+  const invalidateImport = () => { importRequest++ }
+  const close = () => { invalidateImport(); dialog.close(); opener?.focus({ preventScroll: true }) }
   dialog.addEventListener('cancel', event => { event.preventDefault(); close() })
-  const open = title => { opener = document.activeElement; dialog.replaceChildren(node('h2', title)); dialog.firstChild.id = 'data-dialog-title'; dialog.setAttribute('aria-labelledby', 'data-dialog-title'); dialog.showModal() }
+  const open = title => { invalidateImport(); opener = document.activeElement; dialog.replaceChildren(node('h2', title)); dialog.firstChild.id = 'data-dialog-title'; dialog.setAttribute('aria-labelledby', 'data-dialog-title'); dialog.showModal() }
   const report = result => { feedback.textContent = result?.ok ? 'Opplysningene er gjenopprettet.' : result?.error || 'Kunne ikke lagre. Dataene er beholdt.'; return result?.ok }
   const undo = button('Angre siste endring', () => report(actions.undo()))
   const trash = button('Papirkurv', () => { open('Papirkurv'); renderTrash() })
@@ -54,16 +55,28 @@ export function createDataTools(actions) {
   }
   const save = button('Eksporter sikkerhetskopi', () => { try { downloadBackup(exportBackup(actions.state())); feedback.textContent = 'Lokal fil er laget. Abonnementslenker og innlogging er utelatt; kilder må kobles til igjen ved gjenoppretting.' } catch (error) { feedback.textContent = error.message } })
   const input = node('input'); input.type = 'file'; input.accept = '.json,application/json'; input.id = 'backup-file'; input.hidden = true
-  const restore = button('Importer sikkerhetskopi', () => input.click())
+  const restore = button('Importer sikkerhetskopi', () => { invalidateImport(); feedback.textContent = ''; input.click() })
+  input.addEventListener('cancel', () => { invalidateImport(); feedback.textContent = '' })
   input.onchange = async () => {
+    const request = ++importRequest
+    // A new selection supersedes both a pending read and any previous preview.
+    // File.text() cannot be aborted, so every continuation checks its identity.
+    if (dialog.open) dialog.close()
+    feedback.textContent = ''
     const file = input.files[0]; input.value = ''; if (!file) return
     if (file.size > 20_000_000) { feedback.textContent = 'Filen må være mindre enn 20 MB.'; return }
-    try { preview = previewBackup(await file.text(), actions.state()) } catch { feedback.textContent = 'Filen kunne ikke leses. Velg sikkerhetskopien på nytt.'; return }
-    if (!preview.ok) { feedback.textContent = preview.error; return }
-    showReplacement(preview)
+    try {
+      const text = await file.text()
+      if (request !== importRequest) return
+      const value = previewBackup(text, actions.state())
+      if (!value.ok) { feedback.textContent = value.error; return }
+      showReplacement(value, file.name)
+    } catch { if (request === importRequest) feedback.textContent = 'Filen kunne ikke leses. Velg sikkerhetskopien på nytt.' }
   }
-  function showReplacement(value) {
-    preview = value; const baseline = JSON.stringify(actions.state()); open('Forhåndsvis gjenoppretting')
+  function showReplacement(value, filename) {
+    const baseline = JSON.stringify(actions.state()); open('Forhåndsvis gjenoppretting')
+    const request = importRequest
+    if (filename) dialog.append(node('p', `Valgt fil: ${filename}`))
     if (!value.localRecovery) dialog.append(node('p', `Sikkerhetskopi fra ${displayTimestamp(value.createdAt)}.`))
     const labels = { tasks: 'Oppgaver', courses: 'Emner', events: 'Undervisning', sessions: 'Studieøkter', sources: 'Kilder', trash: 'Papirkurv' }
     for (const key of Object.keys(labels)) dialog.append(node('p', `${labels[key]}: ${value.before[key]} nå, ${value.after[key]} i filen`))
@@ -71,6 +84,7 @@ export function createDataTools(actions) {
     if (value.rekeyedIds) dialog.append(node('p', `${value.rekeyedIds} eldre identiteter er erstattet med trygge ID-er bare i eksportfilen. Tilhørende relasjoner og historikk følger de samme ID-ene.`))
     const error = node('p'); error.setAttribute('role', 'alert'); dialog.append(error)
     dialog.append(button('Erstatt lokale data', () => {
+      if (request !== importRequest || !dialog.open) return
       if (JSON.stringify(actions.state()) !== baseline) { error.textContent = 'Dataene er endret etter forhåndsvisningen. Åpne filen på nytt.'; return }
       const result = actions.replace(value.data)
       if (result.ok) { close(); feedback.textContent = result.unchanged ? 'Sikkerhetskopien inneholder de samme dataene. Ingenting er skrevet, og eventuell tidligere gjenopprettingskopi er beholdt.' : 'Sikkerhetskopien er gjenopprettet. Forrige datasett kan hentes med Gjenopprett forrige kopi.' }
@@ -78,6 +92,7 @@ export function createDataTools(actions) {
     }), button('Avbryt', close))
   }
   const recovery = button('Gjenopprett forrige kopi', () => {
+    invalidateImport()
     const saved = actions.recovery(); if (!saved) return
     try {
       const result = previewLocalRecovery(saved, actions.state())

@@ -2,6 +2,14 @@
 
 This document records verifiable facts about how Ajour was developed with AI assistance and BMAD. It is not the student's personal reflection report and does not claim personal learning, user value, or experience that has not been documented.
 
+## Import sequencing audit follow-up — 2026-11-04
+
+The supplied audit identified two additional defects despite the earlier passing suites: an older work-step document read or backup read could finish after a newer selection and replace its proposal. [The follow-up report](import-sequencing-audit-2026-11-04.md) records the fixes, targeted regression tests, actual execution results and publication status. This is technical follow-up to the existing requirement that delayed responses must not overwrite newer drafts; it does not expand V1 or invalidate the owner's documented seven-scenario trial.
+
+The bounded maintenance work also covers an explicit dependency-audit gate and update configuration, incremental Content Security Policy changes, and a small cross-browser smoke suite. The report distinguishes these controls from unverified platform settings and broader security or browser-equivalence claims. The canonical app address remains `https://ajour-sooty.vercel.app/`; repository metadata and branch protection are separate administrative concerns, and origin-local data must be considered before any address change.
+
+The tracked 6 October feedback and current brief, PRD and planning index were read. This work addresses traceable tests, visible correction of AI-assisted code and repository hygiene. The identified assessment-guide PDF was unavailable for a fresh reading. Historical access-material assessment, official submission details, the owner's final reading and actual submission remain distinct from technical fixes; no secret values, new personal experiences or retrospective test results are added to the record.
+
 ## Owner acceptance trial and documentation reconciliation — 2026-11-04
 
 The owner personally completed the seven R-07 scenarios and the named Start supplement on 3–4 November. [The curated trial report](owner-trial-2026-11-04.md) links each result to the supplied screenshots, explicit confirmations and technical comparisons of synthetic backup data. It records the initially premature scenario-3 outcome, its undo and corrected save after the real session end, and the first restore attempt whose isolation could not be established. A later empty Chrome guest session, visible in the supplied browser screenshots, resolved that remaining environment gap. The final export after the owner's confirmed reload preserved the source's complete domain data, including work-log and step identities.

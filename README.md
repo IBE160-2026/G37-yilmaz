@@ -24,6 +24,8 @@ Et fullført avklaringssteg som er merket for å oppheve venting, åpner for vid
 
 Nettutgaven lagrer planen i den aktuelle nettleserprofilen på den nøyaktige nettadressen. En annen profil, enhet, localhost eller Vercel-forhåndsvisning har egne data. **Sletting av nettleserdata kan slette planen.** Det finnes ingen konto eller automatisk synkronisering mellom enheter.
 
+Den faste hovedadressen er **[ajour-sooty.vercel.app](https://ajour-sooty.vercel.app/)**. Bruk denne også i bokmerker og prosjektlenker. Har du allerede data på en annen adresse, eksporter en sikkerhetskopi der før du flytter planen; adressene deler ikke lagring.
+
 Åpne **Innstillinger → Data og sikkerhetskopi** (på mobil under **Mer**) for å eksportere en lokal JSON-fil. Oppbevar kopien trygt, og bruk forhåndsvist gjenoppretting når du vil flytte planen. Gjenoppretting erstatter data etter uttrykkelig bekreftelse. Kalenderlenker kan kreve ny tilkobling fordi tilgangsopplysninger utelates. Kalenderens `.ics`-eksport er en kalenderkopi, ikke en full sikkerhetskopi. [Lagring og sikkerhetskopi](studieplanlegger/README.md#lagring-og-sikkerhetskopi) beskriver forskjellene mellom nettutgaven og lokal drift.
 
 <a id="arkitektur-og-dokumentasjon"></a>
@@ -52,9 +54,13 @@ Avgrensningen og [rekonstruerte planer fra 16. oktober](.docs/planning-artifacts
 
 ## Leveringsoversikt — 4. november 2026
 
+**Teknisk oppfølging av ny audit:** [Importrekkefølge og kvalitetskontroller](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) samler de to bekreftede feilene ved overlappende filvalg, retting med regresjonstester, avhengighetskontroll og avgrenset sikkerhets-/nettleseroppfølging. Rapporten angir faktisk test- og publiseringsstatus; tidligere grønne tester alene lukker ikke de nye funnene.
+
 **Prosjekteierens sju scenarier og tilleggsprøven for navngitt Start er bestått 3.–4. november.** [Prøverapporten](.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktisk gjennomføring, rettet prøveutførelse og metodegrenser. Den inkluderer gjenoppretting i et separat, tomt Chrome Gjest-miljø og lukker det tidligere dekningsforbeholdet for SC-07/R-07. Tidligere daterte omprøvinger, SC-07/1200–30 og Outlook-prøven beholder sine resultater. [Automatiske kontroller](studieplanlegger/VERIFICATION.md) er et separat bevisgrunnlag.
 
 **Refleksjonsrapporten foreligger bare som Markdown; personlig sluttgjennomlesing og innlevering er ikke bekreftet.** [Planindeksens leveringskontroll](.docs/planning-artifacts/README.md#leveringskontroll--2026-11-04) samler vurderingsgrunnlag og formelle restpunkter. [Begrensningsoversikten](studieplanlegger/README.md#kjente-begrensninger-ved-levering) skiller V1-grenser og historiske funn fra dagens prøver; historisk F03 og personvernoppfølging er ikke lukket av egenutprøvingen.
+
+Eieroppfølging av historisk tilgangsmateriale og administrativ kontroll av GitHub About, grenbeskyttelse og plattformgrenser føres separat i [auditoppfølgingen](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md). De ferdigmeldes først når den aktuelle handlingen er bekreftet, ikke som følge av en kode- eller dokumentendring.
 
 <a id="kjør-den-komplette-lokale-leveransen"></a>
 <a id="tester-og-produksjonsbygg"></a>
