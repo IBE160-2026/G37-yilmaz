@@ -18,6 +18,8 @@ function syntheticPdf() {
 function securityHeaders(response, { api = false } = {}) {
   const headers = response.headers()
   expect(headers['content-security-policy']).toContain("frame-ancestors 'none'")
+  expect(headers['content-security-policy']).toContain("object-src 'none'")
+  expect(headers['content-security-policy']).toContain("base-uri 'none'")
   expect(headers['x-frame-options']).toBe('DENY')
   expect(headers['x-content-type-options']).toBe('nosniff')
   if (api) expect(headers['cache-control']).toContain('no-store')

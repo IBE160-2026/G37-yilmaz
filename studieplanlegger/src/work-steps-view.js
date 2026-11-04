@@ -9,7 +9,15 @@ const button = (text, action, className = 'secondary') => { const node = el('but
 export function createWorkStepsView(actions) {
   const dialog = el('dialog', null, 'editor-dialog connected-dialog work-steps-dialog'); document.body.append(dialog)
   let opener, taskId, draft = [], baseline = '', importText = '', importOpen = false, importMessage = '', pendingProposal = null, generation = 0
-  const close = () => { generation += 1; dialog.close(); actions.onClose?.(); opener?.focus({ preventScroll: true }) }
+  let importRequest = 0, importController = null, importUi = null
+  const invalidateImport = () => {
+    importRequest += 1
+    importController?.abort(); importController = null
+    pendingProposal = null; importMessage = ''
+    importUi?.preview.replaceChildren()
+    if (importUi) importUi.status.textContent = ''
+  }
+  const close = () => { generation += 1; invalidateImport(); dialog.close(); actions.onClose?.(); opener?.focus({ preventScroll: true }) }
   dialog.addEventListener('cancel', event => { event.preventDefault(); close() })
   function render(requestedFocus) {
     const previousScroll = dialog.scrollTop, activeStep = requestedFocus ? requestedFocus.stepId : document.activeElement?.closest?.('[data-step-id]')?.dataset.stepId, activeKey = requestedFocus?.key || document.activeElement?.dataset?.focusKey, activeLabel = document.activeElement?.getAttribute?.('aria-label'), activeText = document.activeElement?.textContent
@@ -71,7 +79,7 @@ export function createWorkStepsView(actions) {
     const add = button('Legg til manuelt steg', () => { draft.push({ id: crypto.randomUUID(), title: 'Nytt steg', completed: false, provenance: { kind: 'manual' } }); render(); list.lastElementChild?.querySelector('input')?.select() })
     add.dataset.focusKey = 'add'
     const importBox = el('details', null, 'planning-rules'), summary = el('summary', 'Foreslå steg fra tekst eller dokumentutdrag'), area = el('textarea')
-    area.placeholder = 'Én linje per punkt. Bruk «Krav:», «Metode:» eller vanlig tekst for uavklart.'; area.rows = 5; area.value = importText; area.oninput = () => { importText = area.value }; area.setAttribute('aria-label', 'Lokalt dokumentutdrag'); importBox.open = importOpen
+    area.placeholder = 'Én linje per punkt. Bruk «Krav:», «Metode:» eller vanlig tekst for uavklart.'; area.rows = 5; area.value = importText; area.oninput = () => { importText = area.value; invalidateImport(); file.value = '' }; area.setAttribute('aria-label', 'Lokalt dokumentutdrag'); importBox.open = importOpen
     const fileLabel = el('label', 'Eller velg lokal tekst-, PDF- eller DOCX-fil'), file = el('input')
     file.type = 'file'; file.accept = '.txt,.text,.pdf,.docx'; fileLabel.append(file)
     const preview = el('div'), importStatus = el('p', '', 'muted'); importStatus.setAttribute('role', 'status')
@@ -90,32 +98,40 @@ export function createWorkStepsView(actions) {
         return { key: String(index + 1), title: match?.[2] || line.trim(), text: line.trim(), kind: match?.[1]?.toLowerCase() === 'krav' ? 'requirement' : match ? 'method' : 'unresolved' }
       })
     const prepare = button('Forbered forslag', () => {
-      importStatus.textContent = importMessage = ''
+      invalidateImport(); file.value = ''
       if (!area.value.trim()) { importStatus.textContent = importMessage = 'Lim inn tekst eller velg en lokal fil. Du kan alltid legge til steg manuelt.'; return }
       showProposal(textRows(area.value), `local:${task.id}:${crypto.randomUUID()}`)
     })
+    // Rendering draft edits can replace the import controls while a read is
+    // pending. Always publish into the current controls for this dialog.
+    importUi = { status: importStatus, preview, showProposal, box: importBox }
     file.onchange = async () => {
-      if (!file.files[0]) return
-      const activeGeneration = generation, activeTaskId = taskId
+      const selectedFile = file.files[0]
+      invalidateImport()
+      if (!selectedFile) return
+      const activeGeneration = generation, activeTaskId = taskId, requestId = importRequest, controller = new AbortController()
+      importController = controller
+      const isCurrent = () => activeGeneration === generation && activeTaskId === taskId && requestId === importRequest && !controller.signal.aborted && dialog.open
+      const setStatus = message => { importMessage = message; importUi.status.textContent = message }
       // Keep the disclosure open while the asynchronous reader reports progress/errors.
       // Some browsers toggle <details> when a file picker returns focus to its label.
       importBox.open = importOpen = true
-      importStatus.textContent = importMessage = 'Leser dokumentet lokalt …'; preview.replaceChildren()
+      setStatus('Leser dokumentet lokalt …')
       try {
-        const parsed = await parseDocumentInput(file.files[0], { onProgress: message => { if (activeGeneration === generation && activeTaskId === taskId && dialog.open) importStatus.textContent = message } })
-        if (activeGeneration !== generation || activeTaskId !== taskId || !dialog.open) return
+        const parsed = await parseDocumentInput(selectedFile, { signal: controller.signal, onProgress: message => { if (isCurrent()) setStatus(message) } })
+        if (!isCurrent()) return
         const rows = parsed.rows.map((row, index) => {
           const source = row.snippet || row.title || ''
           const match = source.match(/^\s*(Krav|Metode)\s*:\s*(.+)$/i)
           return { key: row.key || String(index + 1), title: match?.[2] || row.title || source, text: source, kind: match?.[1]?.toLowerCase() === 'krav' ? 'requirement' : match ? 'method' : 'unresolved' }
         })
-        importStatus.textContent = importMessage = `${parsed.fileName}: ${rows.length} forslag funnet. Kontroller dem mot kildeutdraget.`
-        showProposal(rows, `document:${parsed.contentHash}`)
+        setStatus(`${parsed.fileName}: ${rows.length} forslag funnet. Kontroller dem mot kildeutdraget.`)
+        importUi.showProposal(rows, `document:${parsed.contentHash}`)
       } catch (error) {
-        if (activeGeneration !== generation || activeTaskId !== taskId || !dialog.open) return
-        importBox.open = importOpen = true
-        importStatus.textContent = importMessage = `${error.message || 'Dokumentet kunne ikke leses.'} Lim inn teksten eller legg til steg manuelt; ingen data er lagret.`
-      }
+        if (!isCurrent()) return
+        importUi.box.open = importOpen = true
+        setStatus(`${error.message || 'Dokumentet kunne ikke leses.'} Lim inn teksten eller legg til steg manuelt; ingen data er lagret.`)
+      } finally { if (importController === controller) importController = null }
     }
     importBox.append(summary, area, fileLabel, prepare, importStatus, preview)
     importStatus.textContent = importMessage
@@ -139,5 +155,5 @@ export function createWorkStepsView(actions) {
       target?.focus({ preventScroll: true })
     }, 0)
   }
-  return { isOpen: () => dialog.open, open(id) { const task = actions.state().tasks.find(item => item.id === id); if (!task) return; generation += 1; opener = document.activeElement; taskId = id; draft = structuredClone(taskSteps(task)); baseline = JSON.stringify(actions.state()); importText = ''; importOpen = false; importMessage = ''; pendingProposal = null; dialog.replaceChildren(); render(); dialog.showModal(); dialog.querySelector('input')?.focus() } }
+  return { isOpen: () => dialog.open, open(id) { const task = actions.state().tasks.find(item => item.id === id); if (!task) return; generation += 1; invalidateImport(); opener = document.activeElement; taskId = id; draft = structuredClone(taskSteps(task)); baseline = JSON.stringify(actions.state()); importText = ''; importOpen = false; dialog.replaceChildren(); render(); dialog.showModal(); dialog.querySelector('input')?.focus() } }
 }

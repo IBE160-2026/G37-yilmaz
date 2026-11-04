@@ -25,7 +25,7 @@ Planen lagres i nettleserprofilen på den nøyaktige nettadressen. Bruk samme ad
 Fullført arbeidssteg, ferdig oppgave og bekreftet innlevering er separate handlinger. Planlagt tid betyr ikke utført arbeid, og logget tid dokumenterer ikke mestring.
 
 - **Oversikt:** dagens aktiviteter, uavklarte frister og ett begrunnet hovedforslag, med alternativer.
-- **Kalender:** undervisning, andre aktiviteter, frister og reserverte studieøkter, vist som dag, uke eller agenda.
+- **Kalender:** undervisning, andre aktiviteter, frister og reserverte studieøkter, vist som dag, uke, måned eller agenda.
 - **Alle oppgaver:** hele arbeidslisten. «Denne uken» er et oppgavefilter.
 - **Mine emner:** fag, emnekoblinger og samlet import.
 - **Planlegg uken:** tilgjengelig arbeidstid, faste opptatte tidsrom, kapasitet og planforslag.
@@ -172,6 +172,8 @@ Tema (`ajour:appearance:v1`) og emnefarger (`ajour.course-colors.v1`) er separat
 
 **Oversikt oppdatert 4. november 2026; prøvene beholder sine egne datoer.** V1 er fortsatt avgrenset til de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md); full støtte for alle læresteder er ikke et leveringskrav. Tidligere feil og rettinger er oppsummert i [verifikasjonsoversikten](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert). Tabellen beskriver restpunkter og bevisgrenser, ikke nye funksjonsbestillinger.
 
+[Auditoppfølgingen 4. november](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) behandler bekreftede feil der et eldre filvalg kunne erstatte et nyere forslag ved arbeidsstegimport eller gjenoppretting. Den samler retting og regresjonstester, eksplisitt avhengighetskontroll og oppdateringsrutine, gradvis utvidelse av Content Security Policy og avgrensede prøver i flere nettlesere. Faktiske kjøreresultater og publiseringsstatus står i rapporten; dette er ikke en generell sikkerhetsattest eller garanti om lik oppførsel i alle nettlesere.
+
 | Punkt og dokumentert status | Betydning for avtalt V1 og eventuell oppfølging |
 | --- | --- |
 | **NTNU:** Den samlede programkilden returnerte tomt før filtrering. TDT4109 fungerte og ga 115 undervisningshendelser i den tekniske kontrollen 1. november. | Komplett NTNU-programdekning er ikke lovet. Emnesøk og manuell registrering er alternativer. Kontroller katalogen på nytt bare ved et konkret behov eller kildeendring; TDT4109 erstatter ikke de navngitte V1-prøvene. |
@@ -183,6 +185,7 @@ Tema (`ajour:appearance:v1`) og emnefarger (`ajour.course-colors.v1`) er separat
 | **Bundlevarsel:** Bygget varsler om hovedbundle over 500 kB. Bygget 1. november målte 957,30 kB / 292,79 kB gzip, og fristrettingen 2. november målte 959,61 kB / 293,45 kB gzip. [Stegidentitetsrettingen 2. november](VERIFICATION.md#oppgavearbeid-og-navngitt-arbeidssteg--2026-11-02) målte 961,13 kB / 293,89 kB gzip; [oppfølgingen 3. november](../.docs/implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) målte 961,20 kB / 293,91 kB gzip. Byggene bestod. | Varslet stopper ikke bygget, men er relevant for nedlasting og oppstart på tregt nett. Ingen konkret numerisk bundlegrense er avtalt som V1-akseptkrav. Mål ved et dokumentert ytelsesproblem før eventuell oppdeling; varslet er ikke fjernet eller løst her. |
 | **Andre kildegrenser:** BI har ikke automatisk undervisningshenting; kalenderlenker utenfor kildevernet avvises med filalternativ. | Bevar kildevern og manuell/filbasert reserveflyt. Flere integrasjoner er eventuell senere utvikling. |
 | **Personvern og historikk:** Tidligere eksponering står fortsatt åpen for eieroppfølging. | Kontroll av dagens filer beviser ikke ren Git-historikk. Se [dokumentert historikk og restpunkter](../.docs/implementation-artifacts/submission-audit-2026-11-01.md#git-historikk-og-gjenstående-oppfølging); denne dokumentendringen lukker dem ikke. |
+| **Repo- og plattformadministrasjon:** GitHub About skal vise hovedadressen `https://ajour-sooty.vercel.app/`; grenbeskyttelse og plattformens misbruks-/forbruksgrenser krever egne kontroller. | [Auditoppfølgingen](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) skiller bekreftede innstillinger fra uavklarte tiltak. Bestått CI er ikke i seg selv en påkrevd grensjekk, og same-origin-vern er ikke ratebegrensning. Eksporter eksisterende data før et eventuelt adressebytte. |
 | **Sikkerhetsbevis:** Tidligere verktøyblokkerte sikkerhetsprøver er ikke gjennomført. | Funksjonsprøver og avgrenset kontroll av dokumenter/fixturer bekrefter ikke full sikkerhet. Ingen sikkerhetssperrer er omgått. |
 
 AHOs korrekte kildeårstall er beholdt: vår 2031 vises som studiesemester 10 og høst 2031 som 11. Etikettavviket er lukket innen den prøvde forhåndsvisningen; selve årshullet i kilden består. SC-07/1200–30 og prosjekteierens Outlook-prøve beholder sine tidligere beståttresultater. [Prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og [prøverapporten 4. november](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) avgrenser hva som er personlig prøvd.

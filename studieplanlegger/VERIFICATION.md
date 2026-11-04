@@ -2,6 +2,12 @@
 
 **Kortoversikt, redigert 4. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
 
+## Filimport og auditoppfølging — 2026-11-04
+
+[Auditoppfølgingen](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) retter to bekreftede feil der en eldre filavlesning kunne erstatte et nyere arbeidsstegforslag eller en nyere sikkerhetskopiforhåndsvisning. Den knytter rettingene til 15 nye nettleserregresjoner og bevarer prosjekteierens tidligere prøve som et separat bevisgrunnlag. CI får eksplisitt avhengighetskontroll, ukentlige oppdateringsforslag og fire avgrensede Firefox-/WebKit-prøver; lokal server og Vercel får `object-src 'none'; base-uri 'none'` i eksisterende CSP.
+
+**Lokal kontroll:** Node 24.22.1, **2669/2669 enhetstester i 152 filer**, null kjente avhengighetssårbarheter og bestått produksjonsbygg. Hovedbundle **961,68 kB / 294,18 kB gzip** beholder størrelsesvarselet. Lokal nettlesernedlasting var blokkert av ugyldig nedlastingsarkiv; forfatting av tester regnes ikke som bestått kjøring. Første kandidat fikk 169 beståtte Chromium-prøver og én feil i testens menybetjening; denne prøvefeilen er rettet uten appendring. [PR #24](https://github.com/IBE160-2026/G37-yilmaz/pull/24) samler endelig kvalitets-, forhåndsvisnings- og produksjonsbevis, mens rapporten bevarer første kjøring. Administrator-/eierpunkter og manglende formelle kursopplysninger er uttrykkelig holdt åpne.
+
 ## Prosjekteierens sjuscenarioprøve — 2026-11-04
 
 **SC-07/R-07: gjennomført og bestått innen dokumentert prøveomfang.** Prosjekteieren utførte scenario 1–7 og den ekstra Start-prøven 3.–4. november med syntetiske data. [Den kuraterte rapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) skiller egne handlinger og bekreftelser fra Codex sin tekniske sammenligning av innsendte filer. [Gjeldende prøveplan](../.docs/planning-artifacts/USER-TRIAL-PLAN.md#egenutproving-2026-11-04) viser dekningen.
