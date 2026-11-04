@@ -9,8 +9,9 @@ const fileInput = dialog => dialog.getByLabel('Eller velg lokal tekst-, PDF- ell
 async function openEditor(page, task = tasks[0]) {
   // Closing the editor restores focus to its still-open task menu. Close that
   // disclosure before choosing another task so its popup cannot cover the row.
-  for (const expanded of await page.locator('#task-list .task-menu[open]').all()) {
-    await expanded.locator(':scope > summary').click()
+  // Keep the locator stable after removing the open attribute.
+  for (const expanded of await page.locator('#task-list .task-menu').all()) {
+    if (await expanded.evaluate(node => node.open)) await expanded.locator(':scope > summary').click()
     await expect(expanded).toHaveJSProperty('open', false)
   }
   const item = row(page, task.title), menu = item.locator('.task-menu')
