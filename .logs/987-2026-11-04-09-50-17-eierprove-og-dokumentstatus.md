@@ -34,6 +34,25 @@ Lokale tekniske kontroller 4. november bestod:
 
 Den innledende mønsterkontrollen av 51 sporede Markdown-filer og 288 tekstfixturer, med 11 ICS-filer utfoldet før kontroll, fant ingen treff på de kontrollerte tilgangs-/personstipatternene. Dette er en avgrenset kontroll av dagens utvalg, ikke bevis på ren Git-historikk. Endelig lenke-, staged diff- og publiseringskontroll føres i oppfølgingen nedenfor.
 
+### Publisering og etterkontroll — 2026-11-04 kl. 10:49
+
+Dokumentasjonen ble publisert gjennom [PR #23](https://github.com/IBE160-2026/G37-yilmaz/pull/23). Commitrekken bestod av loggcommit `81e5b26a4e54c7f4181435f834cea7503edd4736` og dokumentcommit `b2359e49a09e0f4b089a23448213eb623f42e2a5`. Den siste commiten hadde samme Git-tre som den lokalt kontrollerte arbeidskopien og den integrerte main-versjonen **`9c55fd68bd9b4d33b01061aa60148c89d9237a2f`**.
+
+- [PR-kvalitet](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41807195868), kandidatens push-kontroll og [main-kvalitet](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41808544888) bestod. De fullførte loggene bekrefter **2664 enhetstester i 151 filer, produksjonsbygg, 155 Chromium-prøver og 14 SQLite-/nettleserprøver**. Dette er faktiske nye CI-kjøringer; samme tester summeres ikke på tvers av kjøringene.
+- [Forhåndsvisningens publiseringskontroll](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41808385203) bestod med **60 runtimeprøver og seks faktiske kildeprøver**, mot kandidatens eksakte deployment og SHA. Siste kildefase sluttet **kl. 10:38:25 Europe/Oslo**.
+- [Produksjonens publiseringskontroll](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41809430923) bestod med **60 runtimeprøver og seks faktiske kildeprøver**, mot den integrerte main-versjonens eksakte deployment. Runtimefasen sluttet **kl. 10:47:22**, kildefasen **kl. 10:48:20 Europe/Oslo**.
+- Vercel rapporterte vellykket publisering i det eksisterende prosjektet **ajour**. [Offentlig produksjon](https://ajour-sooty.vercel.app/) og [release.json](https://ajour-sooty.vercel.app/release.json) svarte HTTP 200. Kontrollen **kl. 10:43:59 Europe/Oslo** viste main-SHA-en ovenfor, samt byteidentiske appfiler mot lokalt bygg.
+- Dokumentkontrollen før PR-en omfattet **53 Markdown-filer, 915 relative lenker og 240 ankerlenker**, uten feil eller lokale maskinstier. `git diff --cached --check` bestod, og alle 16 publiserte filer ble gjennomgått. Rå vedlegg og private mellomfiler er ikke med i Git-treet.
+
+| Produksjonsfil | Byte | SHA-256 |
+| --- | ---: | --- |
+| `index-DVKPiKe7.js` | 961202 | `de14a17167ad815adb7535a9600aba3e5b6deba7b2e12eccd2b5df443ad0fbf3` |
+| `index-9d3E6xgs.css` | 99759 | `91eaf8bd4f47f3cccd7af09a3043c451439ff952644185bab1434c20234d2d34` |
+
+Den gamle [PR #3](https://github.com/IBE160-2026/G37-yilmaz/pull/3) ble gjennomgått og lukket uten merge **kl. 10:34:11 Europe/Oslo**. Produktløfte, driftsformer og sporbarhet er dekket av senere arbeid, og gammel R-07-status er foreldet. Dette betyr ikke at alle tekstforslag er integrert: frivillige måleforslag, foreslått nettlesermatrise og den daterte sesjonsloggen beholdes i PR-en og grenen. [Lukkekommentaren](https://github.com/IBE160-2026/G37-yilmaz/pull/3#issuecomment-6627531777) dokumenterer avgrensningen. Ingen gren eller Git-historikk ble slettet.
+
+Denne oppfølgingen fører ferdige, daterte resultater og inngår i rene dokumentcommiter. Senere publisering av selve oppfølgingsteksten kan kontrolleres med [Actions](https://github.com/IBE160-2026/G37-yilmaz/actions) og produksjonens versjonsmarkør; den endrer ikke appfilene eller prøvegrunnlaget. Ingen sikkerhetsinnstilling eller kvalitetskontroll er slått av.
+
 ### Åpne punkter
 
 - Personlig sluttlesing og faktisk innlevering er ikke bekreftet. Frist, kanal og obligatorisk format må fortsatt knyttes til emnets offisielle beskjed; se [issues](issues.md#vurderingskilder-som-ikke-er-identifisert).
