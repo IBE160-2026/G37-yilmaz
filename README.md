@@ -38,7 +38,8 @@ Den faste hovedadressen er **[ajour-sooty.vercel.app](https://ajour-sooty.vercel
 | Importere eller forstå kildegrenser | [Importavtale](studieplanlegger/IMPORT.md), [importdekning](studieplanlegger/IMPORT-COVERAGE.md) og [TP CSV-formatkontrakt](.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md). |
 | Se mål, krav og sporbarhet | [Brief](brief.md), [planindeks med PRD og stories](.docs/planning-artifacts/README.md) og [arkitektur](.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). |
 | Kontrollere tester og kjente begrensninger | [Daterte verifikasjonsresultater](studieplanlegger/VERIFICATION.md), [samlet begrensningsoversikt](studieplanlegger/README.md#kjente-begrensninger-ved-levering) og [åpne punkter](.logs/issues.md). |
-| Vurdere prosess og KI-bruk | [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md). |
+| Vurdere prosess og KI-bruk | [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md), [KI-bruk](.docs/implementation-artifacts/development-process.md#use-of-ai-and-bmad) og [konkrete funn og feilrettinger](.docs/implementation-artifacts/development-process.md#concrete-findings-and-corrections). |
+| Forstå historikkoppryddingen | [Delbar oppsummering fra 9. november](.docs/implementation-artifacts/history-cleanup-2026-11-09.md): hva som ble bevart, dokumenterte kontroller og gjenstående eieroppfølging. |
 | Lese refleksjonsrapporten | [Refleksjonsrapport — Markdown](.docs/submission/reflection-report.md), med prosjekteierens erfaringer og oppgitt KI-hjelp til struktur og formulering. |
 | Kjøre eller utvikle lokalt | [Lokale alternativer og oppskrifter](studieplanlegger/README.md#lokal-drift-og-utvikling) og [tester og bygg](studieplanlegger/README.md#tester-og-bygg). |
 

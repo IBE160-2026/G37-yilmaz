@@ -4,6 +4,8 @@
 
 **Leveringsoversikt oppdatert 2026-11-04.** [Brief](../../brief.md) og [PRD](PRD.md) beskriver produktmål, brukerbehov, krav og avgrensninger. V1 og krav-/story-ID-er er uendret. Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**.
 
+**Historikkoppfølging 2026-11-09:** [Delbar oppsummering av oppryddingen](../implementation-artifacts/history-cleanup-2026-11-09.md) beskriver den publiserte rensingen, bevart appkode og utviklingshistorikk, påvirkede commit-ID-er/signaturer og daterte kontroller. Gamle PR-kopier og eventuell sperring av tilganger er fortsatt egne oppfølgingspunkter. Tidligere resultater og krav nedenfor er uendret.
+
 **Egenutprøving utført av prosjekteier:** Alle sju scenarier og tilleggsprøven for navngitt Start bestod 3.–4. november. [Prøverapporten](../implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktiske observasjoner, rettet prøveutførelse og metodegrenser. Gjenoppretting er kontrollert i et separat, tomt Chrome Gjest-miljø; det tidligere dekningsforbeholdet for SC-07/R-07/S-07 er lukket innen rapportens omfang. [Omprøvingene 1. november](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), SC-07/1200–30 og Outlook-prøven beholder sine daterte resultater. Ingen andre testpersoner er rekruttert; resultatene dokumenterer prosjekteierens observasjoner, ikke generell studentnytte.
 
 [Refleksjonsrapporten](../submission/reflection-report.md) foreligger; personlig sluttgjennomlesing og innlevering er ikke bekreftet. [Leveringskontrollen](#leveringskontroll--2026-11-04) skiller disse formelle restpunktene fra produkt- og prøvearbeidet.
