@@ -1,5 +1,9 @@
 # Åpne punkter
 
+## Arkitekturvalidering — 2026-11-12
+
+- [x] 2026-11-12 [Ajour-arkitektur mot PRD](984-2026-11-12-13-47-31-ajour-arkitekturvalidering.md) — N1–N5 er rettet etter prosjekteierens godkjenning: planleggingsresultater/betingede forslag, gjeldende driftskart, backupgrenser, språkmodellavgrensning og korrekt pako-omtale. Tre uavhengige etterkontroller har ingen gjenstående funn innen omfanget. V1, AD-ID-er og daterte resultater er bevart; produktkoden er uendret. O1–O3 er fortsatt valgfrie (løst 2026-11-12).
+
 Gjeldende åpne punkter etter [retting og dokumentert egenutprøving](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md), oppdatert 2026-11-04 med [fullført personlig sjuscenarioprøve og Start-tillegg](../.docs/implementation-artifacts/owner-trial-2026-11-04.md). Etter prosjekteierens sluttbekreftelse 2026-11-01 er de konkrete omprøvingene bestått som **egenutprøving utført av prosjekteier**; tekniske prøver føres separat. [Leveringsoversikten](../README.md#leveringsoversikt--4-november-2026) og [samlede begrensninger med V1-betydning](../studieplanlegger/README.md#kjente-begrensninger-ved-levering) er gjeldende innganger. Eldre loggseksjoner bevarer statusen på sine tidspunkter.
 
 Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere ønske; Manrope-fontnavnene er rettet til TrueType. Se [Sluttrapport og leveringskontroll med datert oppfølging](993-2026-11-01-22-34-20-ajour-sluttleveranse.md). Ingen nye produktpunkter følger av oppryddingen. Historisk eksponering er kontrollert separat og står åpen for videre vurdering; dagens filer er ikke bevis på ren historikk.
