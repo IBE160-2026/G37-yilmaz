@@ -1,5 +1,5 @@
 import { primaryWorkStep } from './work-steps.js'
-import { deadlineInstant } from './tasks.js'
+import { compareDeadlines } from './deadline.js'
 
 const ids = value => Array.isArray(value) && value.every(id => typeof id === 'string' && id.trim() === id && id.length > 0) && new Set(value).size === value.length
 
@@ -76,9 +76,8 @@ export function reachableUnfinishedDependents(task, tasks) {
 
 export function actionUrgency(task, tasks) {
   const dependents = reachableUnfinishedDependents(task, tasks)
-  const boundary = item => { try { return item.deadlineLocal ? deadlineInstant(item.deadlineLocal) : Infinity } catch { return Infinity } }
   const downstream = dependents.filter(other => other.deadlineLocal)
-    .sort((a, b) => boundary(a) - boundary(b))[0] || null
-  const deadlineLocal = [task, downstream].filter(Boolean).sort((a, b) => boundary(a) - boundary(b))[0]?.deadlineLocal || ''
-  return { deadlineLocal, downstream, count: dependents.length }
+    .sort(compareDeadlines)[0] || null
+  const effective = [task, downstream].filter(value => value?.deadlineLocal).sort(compareDeadlines)[0]
+  return { deadlineLocal: effective?.deadlineLocal || '', ...(effective?.deadlineDisambiguation ? { deadlineDisambiguation: effective.deadlineDisambiguation } : {}), downstream, count: dependents.length }
 }

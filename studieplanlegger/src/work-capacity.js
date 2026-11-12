@@ -1,6 +1,7 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { toInstant, osloLocal, eventBlocksTime, OSLO, uncertainPersonalTiming } from './planner.js'
 import { getRemainingMinutes, getRemainingRange, deadlineInstant } from './tasks.js'
+import { compareDeadlines } from './deadline.js'
 import { taskBlockers } from './task-dependencies.js'
 import { capacityPlanningNote, validPlanningRules } from './planning-rules.js'
 
@@ -76,7 +77,7 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     if (!task) { warnings.push('En reservasjon mangler tilknyttet oppgave.'); continue }
     if (task.completed || task.submitted) { warnings.push('En eldre reservasjon for fullført arbeid bruker ikke kapasitet.'); continue }
     let deadline = Infinity
-    try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig ved tidsskifte. Presiser fristen.'); }
+    try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig ved tidsskifte. Presiser fristen.'); }
     const occupied = intersectIntervals(available, [reservation])
     const usable = subtractIntervals(intersectIntervals(available, [{ ...reservation, end: Math.min(reservation.end, deadline) }]), reservedCovered)
     if (intervalMinutes(intersectIntervals(occupied, reservedCovered))) warnings.push('Overlappende reservasjoner er telt én gang; rediger oppgavevalget eller tidsrommet.')
@@ -87,7 +88,7 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     for (const i of usable) entry.allocations.push({ sessionId: reservation.sessionId, startLocal: osloLocal(new Date(i.start).toISOString()), endLocal: osloLocal(new Date(i.end).toISOString()), minutes: intervalMinutes([i]), reserved: true })
   }
   free = subtractIntervals(available, reservedCovered)
-  for (const { task, index } of tasks.map((task, index) => ({ task, index })).sort((a, b) => (a.task.deadlineLocal || '9999').localeCompare(b.task.deadlineLocal || '9999'))) {
+  for (const { task, index } of tasks.map((task, index) => ({ task, index })).sort((a, b) => compareDeadlines(a.task, b.task))) {
     const entry = entries[index], range = getRemainingRange(task), required = range?.maxMinutes ?? null
     if (task.completed || task.submitted) { entry.state = 'done'; continue }
     const blockers = taskBlockers(task, tasks)
@@ -98,7 +99,7 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     const reservedFits = indivisible ? ownReservations.length === 1 && Boolean(contiguousWorkInterval(reservedIntervals.get(task.id), required)) : entry.reservedMinutes >= required
     entry.allocatedMinutes = indivisible ? reservedFits ? required : 0 : Math.min(required, entry.reservedMinutes)
     let need = required - entry.allocatedMinutes, deadline = Infinity
-    try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig eller ugyldig. Ingen tid foreslås.'); }
+    try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig eller ugyldig. Ingen tid foreslås.'); }
     const retainedReservation = ownReservations.length > 0
     if (known && Number.isFinite(deadline)) entry.availableBeforeMinutes = entry.reservedMinutes + intervalMinutes(free.map(item => ({ start: item.start, end: Math.min(item.end, deadline) })))
     if (indivisible && need > 0) entry.reasons.push(`Arbeidet kan ikke deles: ${required} min må få plass sammenhengende${retainedReservation ? '. Kontroller reservasjonene; atskilte deler kan ikke fullføre oppgaven' : ''}.`)

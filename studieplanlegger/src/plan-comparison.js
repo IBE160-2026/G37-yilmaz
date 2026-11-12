@@ -32,7 +32,7 @@ function currentPlanPreview(state, template, now) {
       const interval = extendedSessionInterval(session)
       if (interval.end > floor) occupied.push({ start: Math.max(interval.start, floor), end: interval.end })
       const task = state.tasks.find(item => item.id === session.taskId)
-      const end = Math.min(interval.end, task?.deadlineLocal ? deadlineInstant(task.deadlineLocal) : Infinity)
+      const end = Math.min(interval.end, task?.deadlineLocal ? deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) : Infinity)
       if (task && !task.completed && !task.submitted && end > Math.max(interval.start, floor)) taskIntervals.set(task.id, [...(taskIntervals.get(task.id) || []), ...subtractIntervals([{ start: Math.max(interval.start, floor), end }], credited)])
       credited.push(interval)
     } catch { problems.push('En eksisterende økt har ugyldig tidspunkt og kan ikke regnes som kapasitet.') }

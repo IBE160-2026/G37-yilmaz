@@ -3,6 +3,7 @@ import { extendedSessionInterval } from './work-capacity.js'
 import { applyCourseColor, courseColorSlot, resolvedCourseId } from './course-colors.js'
 import { isExamEvent } from './event-kind.js'
 import { deadlineInstant } from './tasks.js'
+import { inspectDeadline } from './deadline.js'
 
 // One data source for the compact agenda, independent of the selected month.
 export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, courseFilter = '', now = new Date() }) {
@@ -23,14 +24,15 @@ export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, course
       courseId: event.courseId, course: subject?.code || subject?.name || '', location: event.location || '', allDay: !!event.allDay })
   }
   for (const task of tasks) {
-    let deadline
-    try { deadline = task.deadlineLocal ? deadlineInstant(task.deadlineLocal) : NaN } catch { continue }
-    if (!task.deadlineLocal || task.submitted || (task.completed && !task.requiresSubmission) || deadline <= +now) continue
+    let deadline, warning = ''
+    try { deadline = task.deadlineLocal ? deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) : NaN } catch { deadline = -Infinity; warning = 'Fristens klokkeslett må presiseres.' }
+    if (!task.deadlineLocal || task.submitted || (task.completed && !task.requiresSubmission) || !warning && deadline <= +now) continue
     if (!matchesCourse(task, courseFilter, course)) continue
     const subject = courses.find(item => item.id === task.courseId)
     entries.push({ key: `task:${task.id}`, id: task.id, kind: 'deadline', title: task.title, sortTime: deadline,
       date: task.deadlineLocal.slice(0, 10), time: task.deadlineLocal.slice(11), allDay: task.deadlineLocal.length === 10, course: subject?.code || task.course,
-      courseId: resolvedCourseId(task, courses), ready: !!task.completed })
+      courseId: resolvedCourseId(task, courses), ready: !!task.completed, warning,
+      occurrence: inspectDeadline(task.deadlineLocal).options.find(option => option.value === task.deadlineDisambiguation)?.label || '' })
   }
   for (const session of sessions) {
     const task = tasks.find(item => item.id === session.taskId)
@@ -91,7 +93,7 @@ export function createAgenda(host, actions) {
       const meta = node('span', 'agenda-item-meta')
       const time = entry.kind === 'deadline' && entry.allDay ? 'Frist – klokkeslett ikke oppgitt' : entry.kind === 'personal' && !entry.time ? 'Tid ikke oppgitt' : entry.kind === 'personal' && !entry.endTime ? `kl. ${entry.time} · Varighet ikke oppgitt` : entry.allDay ? 'Hele dagen' : `kl. ${entry.time}${entry.endTime ? `–${entry.endDate && entry.endDate !== entry.date ? `${entry.endDate} kl. ` : ''}${entry.endTime}` : ''}`
       meta.append(node('span', 'agenda-kind', entry.isExam ? '📝 Eksamen' : labels[entry.kind]), node('span', '', entry.ongoing ? `Pågår · ${time}` : time))
-      const detail = [entry.course, entry.location, entry.ready ? 'Klar til levering' : ''].filter(Boolean).join(' · ')
+      const detail = [entry.course, entry.location, entry.occurrence, entry.warning, entry.ready ? 'Klar til levering' : ''].filter(Boolean).join(' · ')
       const title = entry.course && !entry.title.toLocaleUpperCase('nb').startsWith(entry.course.toLocaleUpperCase('nb')) ? `${entry.course} · ${entry.title}` : entry.title
       content.append(meta, node('span', 'agenda-item-title', title), node('span', 'agenda-item-details', detail))
       button.setAttribute('aria-label', `${entry.isExam ? 'Eksamen, ' : ''}${entry.title}, ${entry.date}, ${time}${detail ? `, ${detail}` : ''}`)

@@ -1,7 +1,7 @@
-import { Temporal } from '@js-temporal/polyfill'
-import { subtractTeaching, osloLocal, toInstant, OSLO, uncertainPersonalTiming } from './planner.js'
+import { subtractTeaching, osloLocal, uncertainPersonalTiming } from './planner.js'
 import { extendedSessionInterval, deriveWorkCapacity, wholeMinuteIntervals, contiguousWorkInterval } from './work-capacity.js'
-import { getRemainingMinutes, getRemainingRange } from './tasks.js'
+import { getRemainingMinutes, getRemainingRange, deadlineInstant } from './tasks.js'
+import { compareDeadlines } from './deadline.js'
 import { taskBlockers } from './task-dependencies.js'
 import { capacityPlanningNote, validPlanningRules } from './planning-rules.js'
 const MINUTE = 60_000
@@ -9,22 +9,6 @@ const MAX_MINUTES = Number.MAX_SAFE_INTEGER
 
 function localLabel(date) {
   return osloLocal(date.toISOString())
-}
-
-function localDate(value) {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2})?$/.test(value)) return null
-  if (Number(value.slice(0, 4)) < 1) return null
-  try {
-    if (value.length === 10) return new Date(Temporal.PlainDate.from(value).add({ days: 1 }).toZonedDateTime(OSLO).epochMilliseconds)
-    const date = new Date(Temporal.PlainDateTime.from(value).toZonedDateTime(OSLO, { disambiguation: 'compatible' }).epochMilliseconds)
-    return localLabel(date) === value ? date : null
-  } catch { return null }
-}
-
-// Offset-free input cannot distinguish the two occurrences of an autumn clock
-// time. Reject either occurrence, even when both session endpoints share offset.
-function ambiguousTime(date) {
-  try { toInstant(localLabel(date)); return false } catch { return true }
 }
 
 function sessionInterval(session) {
@@ -139,7 +123,7 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
     reasons: [],
   }})
   const order = tasks.map((task, index) => ({ task, index }))
-    .sort((a, b) => (a.task.deadlineLocal || '9999').localeCompare(b.task.deadlineLocal || '9999') || a.index - b.index)
+    .sort((a, b) => compareDeadlines(a.task, b.task) || a.index - b.index)
   for (const { task, index } of order) {
     const entry = entries[index]
     if (task.completed) continue
@@ -164,13 +148,15 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
       entry.reasons.push(...blockers.map(blocker => blocker.reason), 'Blokkert arbeid er ikke fordelt i frie studieøkter. Avklar forutsetningene, eller bruk Planlegg uken for et forslag med riktig rekkefølge.')
       continue
     }
-    const deadlineDate = localDate(task.deadlineLocal)
-    if (!deadlineDate || !validNow) {
+    if (!task.deadlineLocal || !validNow) {
       entry.reasons.push(!task.deadlineLocal ? 'Ingen frist er registrert. Legg til en frist for å fordele studietid.' : 'Fristen eller klokken er ugyldig. Ingen studietid er fordelt.')
       continue
     }
-    const deadline = deadlineDate.getTime()
-    if (ambiguousTime(deadlineDate)) entry.reasons.push('Fristen forekommer to ganger ved skiftet til vintertid. Beregningen bruker den første forekomsten.')
+    let deadline
+    try { deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) } catch {
+      entry.reasons.push('Fristen er tvetydig eller ugyldig i norsk tid og må presiseres før studietid kan fordeles.')
+      continue
+    }
     if (deadline <= now.getTime()) {
       entry.reasons.push(`Fristen er nådd eller passert. ${entry.requiredMinutes} min gjenstår; framtidige økter brukes ikke til denne oppgaven.`)
       continue

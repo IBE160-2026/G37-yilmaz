@@ -1,5 +1,6 @@
 ﻿import { calendarEntries, calendarToday, dayBounds, timeLabel } from './calendar-model.js'
-import { formatDay, taskStatus } from './calendar.js'
+import { formatDay, formatDeadlineTime, taskStatus } from './calendar.js'
+import { compareDeadlines } from './deadline.js'
 import { OSLO, osloLocal } from './planner.js'
 import { dailyStatus } from './daily-guidance.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
@@ -17,14 +18,14 @@ const compactTime = (entry, date) => {
     const lastDate = osloLocal(new Date(entry.end - 1).toISOString()).slice(0, 10)
     return day + ' · Hele dagen' + (lastDate !== localDate ? ' (til ' + formatDay(lastDate, { year: true }) + ')' : '')
   }
-  if (entry.point) return day + ' kl. ' + eventClock.format(new Date(entry.start))
+  if (entry.point) return day + ' kl. ' + (entry.kind === 'deadline' ? formatDeadlineTime(entry.local, entry.deadlineDisambiguation) : eventClock.format(new Date(entry.start)))
   const endDate = osloLocal(new Date(entry.end).toISOString()).slice(0, 10)
   return day + ' kl. ' + timeLabel(entry) + (endDate !== localDate ? ' (til ' + formatDay(endDate, { year: true }) + ')' : '')
 }
 export function dailyOverview(model) {
   const now = +model.now, date = calendarToday(model.now), bounds = dayBounds(date), entries = calendarEntries(model)
   const activity = entries.filter(e => !e.cancelled && ['teaching', 'personal', 'session'].includes(e.kind) && (e.end > now || e.point && (e.start >= now || e.kind === 'personal' && e.dateLocal >= date))).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key))[0]
-  const deadlines = entries.filter(e => e.kind === 'deadline' && !e.done).sort((a, b) => (a.local || '').localeCompare(b.local || '') || a.key.localeCompare(b.key))
+  const deadlines = entries.filter(e => e.kind === 'deadline' && !e.done).sort((a, b) => compareDeadlines(a, b) || a.key.localeCompare(b.key))
   const today = model.tasks.filter(task => pending(task) && (task.deadlineLocal?.slice(0, 10) === date || entries.some(e => e.kind === 'session' && e.taskId === task.id && e.start < bounds.end && e.end > bounds.start)))
   const deadline = deadlines.find(e => e.start >= now) || deadlines.at(-1)
   const relevant = new Set([...today.map(t => t.id), ...deadlines.filter(e => e.start < now).map(e => e.id), deadline?.id, activity?.kind === 'session' ? activity.taskId : null].filter(Boolean))

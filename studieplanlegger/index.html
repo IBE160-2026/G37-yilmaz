@@ -101,6 +101,15 @@
               </div>
               <input id="deadlineLocal" name="deadlineLocal" type="hidden" />
               <p class="field-error" id="deadlineLocal-error"></p>
+              <div id="deadlineOccurrence" class="field" hidden>
+                <label for="deadlineDisambiguation">Hvilket klokkeslett mener du?</label>
+                <p id="deadline-occurrence-help" class="muted">Dette klokkeslettet finnes to ganger når klokken stilles tilbake. Velg hvilken forekomst du mener.</p>
+                <select id="deadlineDisambiguation" name="deadlineDisambiguation" aria-describedby="deadline-occurrence-help deadline-choice-info deadlineDisambiguation-error" disabled>
+                  <option value="">Velg første eller andre gang</option>
+                </select>
+                <p id="deadline-choice-info" class="muted" aria-live="polite" hidden></p>
+                <p class="field-error" id="deadlineDisambiguation-error"></p>
+              </div>
             </fieldset>
             <div class="field">
               <label for="priority">Prioritet</label>

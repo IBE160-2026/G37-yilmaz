@@ -134,7 +134,7 @@ export function createTaskList(list, actions) {
         const ready = Boolean(task.requiresSubmission && task.completed && !task.submitted)
         setText(row.status, taskStatus(task))
         row.status.className = `status-badge ${task.submitted ? 'is-submitted' : ready ? 'is-ready' : task.completed ? 'is-completed' : 'is-open'}`
-        setText(row.deadline, formatDeadline(task.deadlineLocal, { year: Number((task.deadlineLocal || '').slice(0, 4)) !== now.getFullYear() }))
+        setText(row.deadline, formatDeadline(task.deadlineLocal, { year: Number((task.deadlineLocal || '').slice(0, 4)) !== now.getFullYear(), disambiguation: task.deadlineDisambiguation }))
         row.deadline.dateTime = task.deadlineLocal || ''
         row.estimate.hidden = task.estimatedMinutes == null
         setText(row.estimate, task.estimatedMinutes == null ? '' : `Opprinnelig anslag: ${task.estimatedMinutes} min`)

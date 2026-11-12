@@ -6,6 +6,7 @@ import { extendedSessionInterval } from './work-capacity.js'
 import { comparePlans, applyComparedPlan } from './plan-comparison.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 import { uncertainPersonalTiming } from './planner.js'
+import { formatDeadline } from './calendar.js'
 
 const el = (tag, text, className = '') => { const node = document.createElement(tag); if (text) node.textContent = text; if (className) node.className = className; return node }
 const duration = session => {
@@ -166,7 +167,7 @@ export function createReplanningView(actions) {
       const session = preview.proposed.find(item => item.id === change.proposed.id)
       row.append(el('p', sessionLabel(session), 'proposed-session-time'))
       row.append(el('p', change.original ? sameTime(change) ? 'Tidspunktet beholdes.' : `Flyttes fra ${sessionLabel(change.original)}.` : `Arbeid videre på «${change.title}».`))
-      if (change.deadlineLocal) row.append(el('p', `Frist: ${change.deadlineLocal.replace('T', ' ')}.`))
+      if (change.deadlineLocal) row.append(el('p', `Frist: ${formatDeadline(change.deadlineLocal, { year: true, disambiguation: change.deadlineDisambiguation })}.`))
       if (change.exploratory) row.append(el('p', 'Kort avklaringsøkt; total arbeidsmengde er fortsatt ukjent.', 'assumption-note'))
       const move = el('button', 'Flytt', 'secondary'); move.type = 'button'; move.onclick = () => showMoves(row, session, error)
       row.append(move); host.append(row)

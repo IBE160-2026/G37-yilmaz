@@ -17,7 +17,7 @@ function sessionFrom(id, taskId, start, end, rules) {
     return represented.start === start && represented.end === end ? session : null
   } catch { return null }
 }
-function deadline(task) { return task.deadlineLocal ? deadlineInstant(task.deadlineLocal) : Infinity }
+function deadline(task) { return task.deadlineLocal ? deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) : Infinity }
 function deadlineOrder(task) { try { return deadline(task) } catch { return Infinity } }
 function fixedBusy(state) {
   return [...(state.busyWindows || []), ...(state.planner?.events || []).filter(eventBlocksTime)].map(item => ({ start: Date.parse(item.start), end: Date.parse(item.end) }))
@@ -125,7 +125,7 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
           if (!session) continue
         }
         proposed.push(session); used.push(session)
-        changes.push({ taskId: task.id, title: task.title, original: original || null, proposed: session, exploratory: remaining === null, dependencyNote: task.dependencyIds?.length ? 'Forutsetningene må være fullført før arbeidet starter. Tidene bygger på registrerte estimater.' : '', deadlineLocal: task.deadlineLocal || '' })
+        changes.push({ taskId: task.id, title: task.title, original: original || null, proposed: session, exploratory: remaining === null, dependencyNote: task.dependencyIds?.length ? 'Forutsetningene må være fullført før arbeidet starter. Tidene bygger på registrerte estimater.' : '', deadlineLocal: task.deadlineLocal || '', ...(task.deadlineDisambiguation ? { deadlineDisambiguation: task.deadlineDisambiguation } : {}) })
         // A break can cross into a separately registered work window. Reserve
         // both sides against the complete free set before placing any next task.
         free = wholeMinuteIntervals(subtractIntervals(free, [{ start: start - breakMs, end: end + breakMs }]))
@@ -136,7 +136,7 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
       }
       if (!placed) break
     }
-    for (const removed of old.slice(used.length)) changes.push({ taskId: task.id, title: task.title, original: removed, proposed: null, deadlineLocal: task.deadlineLocal || '' })
+    for (const removed of old.slice(used.length)) changes.push({ taskId: task.id, title: task.title, original: removed, proposed: null, deadlineLocal: task.deadlineLocal || '', ...(task.deadlineDisambiguation ? { deadlineDisambiguation: task.deadlineDisambiguation } : {}) })
     const allocated = reserved + intervalMinutes(used.map(extendedSessionInterval))
     const minimumNeed = remainingRange ? Math.max(0, remainingRange.minMinutes - allocated) : need
     if (need > 0 || minimumNeed > 0 || openEnded) {
@@ -149,7 +149,7 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
   }
   for (const old of movable) if (!changes.some(change => change.original?.id === old.id)) {
     const task = state.tasks.find(item => item.id === old.taskId)
-    changes.push({ taskId: task.id, title: task.title, original: old, proposed: null, deadlineLocal: task.deadlineLocal || '' })
+    changes.push({ taskId: task.id, title: task.title, original: old, proposed: null, deadlineLocal: task.deadlineLocal || '', ...(task.deadlineDisambiguation ? { deadlineDisambiguation: task.deadlineDisambiguation } : {}) })
   }
   if (proposed.length >= 500) problems.push('Forslaget er avgrenset til 500 økter. Gjenstående arbeid er fortsatt oppgitt; del opp planleggingsperioden før du planlegger videre.')
   const allocatedMinutes = Object.fromEntries(active.map(task => [task.id, intervalMinutes(proposed.filter(item => item.taskId === task.id).map(extendedSessionInterval))]))

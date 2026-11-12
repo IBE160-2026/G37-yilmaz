@@ -24,7 +24,7 @@ import { rankedSuggestions } from './daily-guidance.js'
 import { createStudySessionView } from './study-session-view.js'
 import { createWorkStepsView } from './work-steps-view.js'
 import { createTextRegistrationView } from './text-registration-view.js'
-import { resolveExactTask, parseOsloDeadline, parseRemainingMinutes, validateTextRegistrationProposal } from './text-registration.js'
+import { resolveExactTask, parseOsloDeadline, parseRemainingMinutes, validateTextRegistrationProposal, textRegistrationEditDraft } from './text-registration.js'
 import { detachMissingTopicRelations, detachRemovedReviewSessions } from './review-planning.js'
 
 initializeAppearance()
@@ -411,7 +411,7 @@ function confirmTextRegistration(proposal) {
       if (!parsed.ok) return { ok: false, error: parsed.error }
       const nextValue = proposal.action === 'deadline' ? parsed.deadlineLocal : parsed.minutes
       if (currentValue === nextValue) return { ok: true, undoable: false, message: 'Ingen endring å lagre.' }
-      const draft = { ...saved, [key]: nextValue, estimatedMinutes: saved.estimatedMinutes == null ? '' : String(saved.estimatedMinutes), remainingMinutes: key === 'remainingMinutes' ? nextValue : saved.remainingMinutes }
+      const draft = textRegistrationEditDraft(saved, proposal.action, nextValue)
       const checked = editTask(tasks, saved.id, draft)
       if (!checked.ok) return { ok: false, error: Object.values(checked.errors || {})[0] || 'Endringen er ikke gyldig.' }
       candidate = checked.tasks; savedTitle = saved.title

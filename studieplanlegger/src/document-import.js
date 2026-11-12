@@ -4,6 +4,7 @@ import { invalidateDocumentCourseName } from './document-course-identity.js'
 import { DOCUMENT_LIMITS } from './document-parsers.js'
 import { createDocumentImportPreview, buildDocumentImportCommit, refreshDocumentConflicts, changeDocumentRowKind, refreshDocumentImportPreview, documentSourceChanged, addDocumentCourseDraft, chooseDocumentCourse, chooseDocumentTime, chooseDocumentSelection } from './import-preview.js'
 import { estimateChoiceRange, validDeadline } from './tasks.js'
+import { deadlineInstant } from './deadline.js'
 import { isExamEvent } from './event-kind.js'
 import { institutions } from './institutions.js'
 import { documentInstitution } from './document-course-identity.js'
@@ -94,12 +95,13 @@ const provisionalCourse = row => row.kind === 'course' && row.nameStatus === 'pr
 const rowDisplayName = row => row.kind === 'course' ? visibleName({ ...row, name: row.title }) : row.title
 const rowCourseLabel = row => nameFirstLabel({ ...row, name: row.title })
 const unresolvedTime = row => row.kind === 'event' && (!row.startLocal || !row.point && (!row.endLocal || row.endLocal <= row.startLocal) && !(row.originalStart && row.originalEnd && Date.parse(row.originalEnd) > Date.parse(row.originalStart) && row.startLocal === osloLocal(row.originalStart) && row.endLocal === osloLocal(row.originalEnd)))
-const unresolvedDeadline = row => {
+export function documentDeadlineNeedsChoice(row, current) {
   if (row.kind !== 'task' || row.deadlineMode === 'none') return false
   if (row.deadlineMode === '?' || !validDeadline(row.deadlineLocal)) return true
-  try { if (row.deadlineLocal.length > 10) toInstant(row.deadlineLocal); return false } catch { return true }
+  const occurrence = current?.id === row.targetId && current.deadlineLocal === row.deadlineLocal ? current.deadlineDisambiguation : undefined
+  try { deadlineInstant(row.deadlineLocal, occurrence); return false } catch { return true }
 }
-const deadlineSummary = row => unresolvedDeadline(row) ? ` · Frist må avklares: ${row.deadlineMode === '?' && row.deadlineRaw ? 'uttrykket kunne ikke tolkes' : 'dato eller klokkeslett mangler eller er ugyldig'}. Oppgi dato, velg «Uten frist» eller utelat oppgaven.` : ''
+const deadlineSummary = (row, current) => documentDeadlineNeedsChoice(row, current) ? ` · Frist må avklares: ${row.deadlineMode === '?' && row.deadlineRaw ? 'uttrykket kunne ikke tolkes' : 'dato eller klokkeslett mangler eller er ugyldig'}. Oppgi dato, velg «Uten frist» eller utelat oppgaven.` : ''
 const fieldNames = { title: 'navn', name: 'emnenavn', deadlineLocal: 'frist', remainingMinutes: 'gjenstående minutter', courseId: 'emne', course: 'emne', start: 'start', end: 'slutt', location: 'sted', description: 'beskrivelse', semester: 'semester', year: 'år' }
 const courseOptionLabel = course => {
   const identity = nameFirstLabel(course) || 'Emne uten navn'
@@ -140,7 +142,8 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
   const selectionSummary = el('p', undefined, 'document-selection-summary'); form.append(selectionSummary)
   form.append(el('p', 'Importen er et øyeblikksbilde. Den oppdateres ikke automatisk.', 'form-hint'))
   const referenced = row => row.kind === 'course' && preview.rows.some(item => item.kind !== 'course' && item.selected && item.courseChoice === `row:${row.index}`)
-  const needsChoice = row => !row.selected && referenced(row) || row.kind !== 'course' && !row.title || row.courseTarget === '?' || row.kind !== 'course' && row.courseChoice === '?' || row.matchChoice === '?' || unresolvedDeadline(row) || row.statusNeedsChoice && row.statusChoice !== 'open' || row.deletedLocally && !row.recreate || row.typeChanged && row.typeChangeChoice !== 'replace' || row.estimateIssue && !row.estimateResolved || row.conflicts.some(conflict => !row.conflictChoices[conflict.field]) || row.kind === 'course' && !row.courseTarget && (!row.title && !provisionalCourse(row) || !row.year || !row.semester) || unresolvedTime(row)
+  const currentTask = row => row.kind === 'task' ? getState().tasks.find(task => task.id === row.targetId) : undefined
+  const needsChoice = row => !row.selected && referenced(row) || row.kind !== 'course' && !row.title || row.courseTarget === '?' || row.kind !== 'course' && row.courseChoice === '?' || row.matchChoice === '?' || documentDeadlineNeedsChoice(row, currentTask(row)) || row.statusNeedsChoice && row.statusChoice !== 'open' || row.deletedLocally && !row.recreate || row.typeChanged && row.typeChangeChoice !== 'replace' || row.estimateIssue && !row.estimateResolved || row.conflicts.some(conflict => !row.conflictChoices[conflict.field]) || row.kind === 'course' && !row.courseTarget && (!row.title && !provisionalCourse(row) || !row.year || !row.semester) || unresolvedTime(row)
   const updateSummary = () => {
     cancelPreviewSummary(container)
     const currentState = getState()
@@ -480,7 +483,7 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
         return mark(key, field(parent, label, value, onChange, type, savedCourse ? undefined : editor))
       }, rowChoice = (key, ...args) => mark(key, choice(...args))
       const summary = el('summary'); section.append(summary)
-      const updateRowSummary = () => { const linked = row.kind === 'course' && linkedCourse(row); section.dataset.pending = String(Boolean((row.selected || referenced(row)) && needsChoice(row))); summary.textContent = `${row.index + 1}. ${rowTypeName(row)} · ${(row.kind === 'course' ? rowCourseLabel(row) : rowDisplayName(row)) || (row.draftCourse && !row.selected ? 'Ubrukt emneforslag' : 'Mangler navn')}${row.kind === 'course' ? ` · Lærested: ${(linked ? linked.university : row.university) || 'Ukjent / velg senere'}` : ''}${row.kind === 'event' && row.startLocal ? ` · ${row.originalStart && row.startLocal === osloLocal(row.originalStart) ? calendarInstantLabel(row.originalStart, { includeDate: true }) : row.startLocal.replace('T', ' ')}` : ''}${row.kind === 'event' && row.point ? ` · Punkt uten varighet – ${row.pointProvenance === 'user' ? 'ditt valg' : 'fra kilden'}` : ''}${row.kind === 'task' ? deadlineSummary(row) : ''}${row.resolutionNote === 'Emnekoden er godkjent som foreløpig navn.' && row.title === row.code ? ' · foreløpig navn' : ''}${row.kind === 'course' && row.sourceObjectId ? ` · Kildevalg: ${row.sourceObjectId}` : ''}${row.kind === 'course' && row.campus ? ` · Campus: ${row.campus}` : ''}${row.selected ? ' · valgt' : ' · utelatt'}` }
+      const updateRowSummary = () => { const linked = row.kind === 'course' && linkedCourse(row); section.dataset.pending = String(Boolean((row.selected || referenced(row)) && needsChoice(row))); summary.textContent = `${row.index + 1}. ${rowTypeName(row)} · ${(row.kind === 'course' ? rowCourseLabel(row) : rowDisplayName(row)) || (row.draftCourse && !row.selected ? 'Ubrukt emneforslag' : 'Mangler navn')}${row.kind === 'course' ? ` · Lærested: ${(linked ? linked.university : row.university) || 'Ukjent / velg senere'}` : ''}${row.kind === 'event' && row.startLocal ? ` · ${row.originalStart && row.startLocal === osloLocal(row.originalStart) ? calendarInstantLabel(row.originalStart, { includeDate: true }) : row.startLocal.replace('T', ' ')}` : ''}${row.kind === 'event' && row.point ? ` · Punkt uten varighet – ${row.pointProvenance === 'user' ? 'ditt valg' : 'fra kilden'}` : ''}${row.kind === 'task' ? deadlineSummary(row, currentTask(row)) : ''}${row.resolutionNote === 'Emnekoden er godkjent som foreløpig navn.' && row.title === row.code ? ' · foreløpig navn' : ''}${row.kind === 'course' && row.sourceObjectId ? ` · Kildevalg: ${row.sourceObjectId}` : ''}${row.kind === 'course' && row.campus ? ` · Campus: ${row.campus}` : ''}${row.selected ? ' · valgt' : ' · utelatt'}` }
       updateRowSummary()
       let editorRendered = false
       section.renderEditor = () => {

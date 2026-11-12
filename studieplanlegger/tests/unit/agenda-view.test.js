@@ -58,14 +58,16 @@ describe('rolling agenda from registered data', () => {
     data.tasks = [{ ...task, id: 'done' }, { ...task, id: 'ready', requiresSubmission: true }, { ...task, id: 'delivered', requiresSubmission: true, submitted: true }]
     expect(upcomingAgenda(data).map(row => row.id)).toEqual(['ready'])
   })
-  it('omits only ambiguous repeated-hour deadlines and expires date-only personal entries by Oslo date', () => {
+  it('keeps ambiguous repeated-hour deadlines visible for repair and expires date-only personal entries by Oslo date', () => {
     const data = structuredClone(model); data.now = new Date('2026-10-05T12:00:00Z')
     data.tasks = [
       { id: 'ambiguous', title: 'Tvetydig', course: '', deadlineLocal: '2026-10-25T02:30', completed: false },
       { id: 'valid', title: 'Gyldig', course: '', deadlineLocal: '2026-10-26T12:00', completed: false },
     ]
     data.planner.events = [{ id: 'old-personal', title: 'I går', activityKind: 'personal', courseId: '', dateLocal: '2026-10-04' }]
-    expect(upcomingAgenda(data).map(row => row.id)).toEqual(['valid'])
+    const entries = upcomingAgenda(data)
+    expect(entries.map(row => row.id)).toEqual(['ambiguous', 'valid'])
+    expect(entries[0].warning).toMatch(/må presiseres/)
   })
   it('filters course events and legacy task text, without misattributing general study sessions', () => {
     const data = structuredClone(model)

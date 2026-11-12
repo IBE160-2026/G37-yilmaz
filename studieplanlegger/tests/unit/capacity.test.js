@@ -239,11 +239,12 @@ describe('tid som gjenstår før fristen', () => {
     expect(result.tasks[0].allocatedMinutes).toBe(60)
   })
 
-  it('bruker første forekomst av tvetydig frist og forklarer begrensningen', () => {
+  it('krever presisering av en tvetydig frist før kapasitet fordeles', () => {
     const result = plan([task('a', { deadlineLocal: '2026-10-25T02:30' })],
       [session('a', { dateLocal: '2026-10-25', startTime: '03:00', endTime: '04:00' })], new Date('2026-10-25T02:15:00+01:00'))
     expect(result.tasks[0]).toMatchObject({ allocatedMinutes: 0, missingMinutes: 90 })
-    expect(result.tasks[0].reasons.join(' ')).toMatch(/første forekomsten.*Fristen er nådd/)
+    expect(result.tasks[0].availableBeforeMinutes).toBeNull()
+    expect(result.tasks[0].reasons.join(' ')).toMatch(/tvetydig.*presiseres/)
     expect(result.spareMinutes).toBe(60)
   })
 

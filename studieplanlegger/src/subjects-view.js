@@ -15,6 +15,7 @@ import { mountPublicTeaching } from './public-teaching-view.js'
 import { checkedTeaching, teachingCheckText, failedCalendarRefresh, teachingCalendarResult } from './teaching-check.js'
 import { eventPresentation } from './event-kind.js'
 import { deadlineInstant } from './tasks.js'
+import { inspectDeadline } from './deadline.js'
 import { IMPORT_FIELDS } from './import-source-contract.js'
 import { calendarInstantLabel } from './calendar-model.js'
 
@@ -48,8 +49,8 @@ export function semanticRefreshNoop(previousSource, nextSource, counts) {
   return ['groups','excludedKeys','allGroups'].every(key => JSON.stringify(normalizedChoice(previousSource[key])) === JSON.stringify(normalizedChoice(nextSource[key])))
     && JSON.stringify(stableSourceMetadata(previousSource,nextSource)) === JSON.stringify(stableSourceMetadata(nextSource))
 }
-export const subjectDeadlineTime = task => { try { return new Date(deadlineInstant(task.deadlineLocal)).toISOString() } catch { return null } }
-export const subjectDeadlineUpcoming = (task, now) => { try { return deadlineInstant(task.deadlineLocal) > +now } catch { return false } }
+export const subjectDeadlineTime = task => { try { return new Date(deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation)).toISOString() } catch { return null } }
+export const subjectDeadlineUpcoming = (task, now) => { try { return deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) > +now } catch { return false } }
 const previewSnapshot = root => ({focus:root.contains(document.activeElement)?document.activeElement.dataset.previewKey:null,open:[...root.querySelectorAll('details[data-preview-key][open]')].map(node=>node.dataset.previewKey),scroll:Object.fromEntries([...root.querySelectorAll('[data-preview-scroll-key]')].map(node=>[node.dataset.previewScrollKey,node.scrollTop]))})
 const restorePreviewSnapshot = (root,snapshot) => {if(!snapshot)return;for(const key of snapshot.open)root.querySelector(`details[data-preview-key="${CSS.escape(key)}"]`)?.setAttribute('open','');for(const [key,top] of Object.entries(snapshot.scroll)){const node=root.querySelector(`[data-preview-scroll-key="${CSS.escape(key)}"]`);if(node)node.scrollTop=top}root.querySelector(`[data-preview-key="${CSS.escape(snapshot.focus||'')}"]`)?.focus({preventScroll:true})}
 export async function api(path, options) {
@@ -581,9 +582,9 @@ export function createSubjectsView(actions) {
       const entries = subjectEventAgendaEntries(planner, now, course).map(entry => ({ ...entry, open: () => { actions.view('subjects'); openEditor('event', entry.event) } }))
       for (const task of model.tasks.filter(t => t.deadlineLocal && (!t.completed || (t.requiresSubmission && !t.submitted)) && matchesCourse(t, course?.id, course))) {
         const time = subjectDeadlineTime(task)
-        if (!time) continue
+        const unresolved = !time && inspectDeadline(task.deadlineLocal).status === 'ambiguous'
         const taskCourse=planner.courses.find(item=>item.id===task.courseId),code=taskCourse?.code||task.course
-        if (subjectDeadlineUpcoming(task, now)) entries.push({ time, title: `F · ${code ? `${code} · ` : ''}${task.title}`, detail: `${formatDeadline(task.deadlineLocal, { year: true })} · ${code}`, open: () => actions.editTask(task.id), kind: 'deadline', courseId: resolvedCourseId(task, planner.courses), course: code })
+        if (unresolved || subjectDeadlineUpcoming(task, now)) entries.push({ time: time || '', title: `F · ${code ? `${code} · ` : ''}${task.title}`, detail: `${formatDeadline(task.deadlineLocal, { year: true, disambiguation: task.deadlineDisambiguation })} · ${code}`, open: () => actions.editTask(task.id), kind: 'deadline', courseId: resolvedCourseId(task, planner.courses), course: code })
       }
       entries.sort((a, b) => a.time.localeCompare(b.time) || a.title.localeCompare(b.title, 'nb'))
       if (!entries.length) agenda.append(el('p', 'Ingen kommende undervisning eller frister for dette emnevalget.'))

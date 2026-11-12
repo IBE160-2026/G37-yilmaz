@@ -3,6 +3,7 @@ import { createCalendar, dateKey, formatDay } from './calendar.js'
 import { createTaskList } from './task-view.js'
 import { createCapacityView } from './capacity-view.js'
 import { createTaskForm } from './task-form.js'
+import { createDeadlineForm } from './deadline-form.js'
 import { primaryWorkStep } from './work-steps.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 import { suggestionExclusions } from './daily-guidance.js'
@@ -29,6 +30,7 @@ export function createUI(actions) {
 
   const form = $('#task-form')
   const taskForm = createTaskForm(form)
+  const deadlineForm = createDeadlineForm(form)
   const stepForm = $('#step-form')
   const unblocks = document.createElement('label'); unblocks.className = 'check-label'; unblocks.innerHTML = '<input type="checkbox" name="unblocksWaiting">Dette registrerte steget avklarer det oppgaven venter på'; stepForm.querySelector('.form-grid').after(unblocks)
   const create = $('#new-task')
@@ -39,7 +41,7 @@ export function createUI(actions) {
   const empty = $('#empty-tasks')
   const emptyDashboard = $('#empty-dashboard')
   const emptyDashboardText = $('#empty-dashboard-text')
-  const fields = ['title', 'course', 'deadlineLocal', 'estimatedMinutes', 'remainingMinutes', 'priority', 'courseId']
+  const fields = ['title', 'course', 'deadlineLocal', 'deadlineDisambiguation', 'estimatedMinutes', 'remainingMinutes', 'priority', 'courseId']
   const stepFields = ['description', 'estimatedMinutes']
   const taskList = createTaskList(list, actions)
   const suggestions = createTaskList($('#dashboard-suggestions'), actions)
@@ -100,22 +102,16 @@ export function createUI(actions) {
     $('#feedback-plan').disabled = !canChange || draftOpen()
     queueMicrotask(keepFocusVisible)
   }
-  function syncDeadline() {
-    const date = $('#deadlineDate').value, time = $('#deadlineTime').value
-    form.elements.deadlineLocal.value = date ? `${date}${time ? `T${time}` : ''}` : time ? `T${time}` : ''
-  }
-  $('#deadlineDate').addEventListener('input', syncDeadline)
-  $('#deadlineTime').addEventListener('input', syncDeadline)
   function errors(values = {}) {
     for (const name of [...fields, 'requiresSubmission', 'dependencyIds']) {
       form.elements[name].setAttribute('aria-invalid', String(Boolean(values[name])))
       const error = $(`#${name}-error`)
       if (error) error.textContent = values[name] || ''
     }
-    for (const id of ['deadlineDate', 'deadlineTime']) $(`#${id}`).setAttribute('aria-invalid', String(Boolean(values.deadlineLocal)))
+    deadlineForm.errors(values)
     const first = [...fields, 'requiresSubmission', 'dependencyIds'].find(name => values[name])
     if (first) { const details = form.elements[first].closest('details'); if (details) details.open = true }
-    if (first === 'deadlineLocal') ($('#deadlineDate').value ? $('#deadlineTime') : $('#deadlineDate')).focus()
+    if (first === 'deadlineLocal' || first === 'deadlineDisambiguation') deadlineForm.focusError(values)
     else if (first) form.elements[first].focus()
   }
   function celebrate() {
@@ -204,7 +200,7 @@ export function createUI(actions) {
   form.elements.priority.addEventListener('change', () => { priorityChanged = true })
   form.addEventListener('submit', event => {
     event.preventDefault()
-    syncDeadline()
+    deadlineForm.sync()
     actions.save({ ...Object.fromEntries(fields.map(name => [name, form.elements[name].value])), ...taskForm.draft(), priority: !priorityChanged && originalPriority === 2 ? '2' : form.elements.priority.value, requiresSubmission: form.elements.requiresSubmission.checked })
   })
   stepForm.addEventListener('submit', event => {
@@ -273,8 +269,7 @@ export function createUI(actions) {
       originalPriority = task?.priority; priorityChanged = false
       if (originalPriority === 2) form.elements.priority.value = ''
       taskForm.open(task)
-      $('#deadlineDate').value = task?.deadlineLocal?.slice(0, 10) || ''
-      $('#deadlineTime').value = task?.deadlineLocal?.slice(11) || ''
+      deadlineForm.open(task)
       form.elements.requiresSubmission.checked = Boolean(task?.requiresSubmission)
       form.elements.requiresSubmission.disabled = Boolean(task?.submitted)
       $('#submission-locked').hidden = !task?.submitted

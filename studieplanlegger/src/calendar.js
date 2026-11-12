@@ -1,5 +1,6 @@
 import { createTeachingLayer } from './teaching-calendar.js'
 import { isOverdue, sortedTasks } from './tasks.js'
+import { inspectDeadline } from './deadline.js'
 import { applyCourseColor, courseColorSlot, resolvedCourseId } from './course-colors.js'
 export { courseColor } from './course-colors.js'
 
@@ -33,9 +34,20 @@ export function formatDay(label, { weekday = false, year = false } = {}) {
   return `${dayName}${day}. ${MONTHS[month - 1]}${year ? ` ${yearNumber}` : ''}`
 }
 
-export function formatDeadline(localLabel, options) {
+export function formatDeadlineTime(localLabel, disambiguation) {
+  const clock = (localLabel || '').slice(11, 16)
+  const inspection = inspectDeadline(localLabel)
+  if (inspection.status !== 'ambiguous') return clock
+  const option = inspection.options.find(option => option.value === disambiguation)
+  return option ? `${clock} (${option.value === 'earlier' ? 'første' : 'andre'} gang, UTC${option.offset})`
+    : `${clock} (velg første eller andre gang)`
+}
+
+export function formatDeadline(localLabel, options = {}) {
   if (!localLabel) return 'Ingen frist'
-  return localLabel.length === 10 ? formatDay(localLabel, options) : `${formatDay(localLabel, options)} kl. ${localLabel.slice(11, 16)}`
+  if (localLabel.length === 10) return formatDay(localLabel, options)
+  const clock = Object.hasOwn(options, 'disambiguation') ? formatDeadlineTime(localLabel, options.disambiguation) : localLabel.slice(11, 16)
+  return `${formatDay(localLabel, options)} kl. ${clock}`
 }
 
 export function monthGrid(year, month) {
@@ -194,7 +206,7 @@ function createDeadlineCalendar(host, { edit, editSession }) {
         card.item.classList.toggle('is-unassigned', !task.course)
         card.item.classList.toggle('is-ready', Boolean(task.requiresSubmission && task.completed && !task.submitted))
         card.item.classList.toggle('is-completed', task.completed)
-        setText(card.time, task.deadlineLocal?.length === 10 ? 'Frist – klokkeslett ikke oppgitt' : `kl. ${(task.deadlineLocal || '').slice(11, 16)}`)
+        setText(card.time, task.deadlineLocal?.length === 10 ? 'Frist – klokkeslett ikke oppgitt' : `kl. ${formatDeadlineTime(task.deadlineLocal, task.deadlineDisambiguation)}`)
         card.time.dateTime = task.deadlineLocal
         setText(card.course, task.course)
         setText(card.title, task.title)

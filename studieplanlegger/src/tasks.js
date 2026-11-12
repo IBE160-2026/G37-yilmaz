@@ -1,22 +1,19 @@
 import { Temporal } from '@js-temporal/polyfill'
+import { inspectDeadline, deadlineInstant as resolveDeadlineInstant, compareDeadlines } from './deadline.js'
 import { validateDependencyGraph, canStartTask, actionUrgency, preserveMissingDependencies } from './task-dependencies.js'
 import { validWorkSteps, taskSteps, primaryWorkStep, legacyStepId, completeWorkStep, removeWorkStep } from './work-steps.js'
 
 export function validDeadline(value) {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2})?$/.test(value)) return false
-  if (Number(value.slice(0, 4)) < 1) return false
-  try {
-    if (value.length === 10) return Temporal.PlainDate.from(value).toString() === value
-    const plain = Temporal.PlainDateTime.from(value)
-    return ['earlier', 'later'].some(disambiguation => plain.toZonedDateTime('Europe/Oslo', { disambiguation }).toPlainDateTime().equals(plain))
-  } catch { return false }
+  return ['valid', 'ambiguous'].includes(inspectDeadline(value).status)
 }
 
 export function validateDraft(draft, id = draft.id) {
   const errors = {}
   if (typeof draft.title !== 'string' || !draft.title.trim()) errors.title = 'Skriv et navn på oppgaven.'
   if (draft.course != null && typeof draft.course !== 'string') errors.course = 'Emne må være tekst.'
-  if (draft.deadlineLocal && !validDeadline(draft.deadlineLocal)) errors.deadlineLocal = 'Oppgi en gyldig dato, eventuelt med klokkeslett.'
+  const deadline = inspectDeadline(draft.deadlineLocal)
+  if (!['empty', 'valid', 'ambiguous'].includes(deadline.status)) errors.deadlineLocal = deadline.message
+  if (deadline.status === 'ambiguous' && !deadline.options.some(option => option.value === draft.deadlineDisambiguation)) errors.deadlineDisambiguation = deadline.message
   const unknown = draft.estimatedMinutes === '' || draft.estimatedMinutes == null
   if (!unknown && !validateAvailableMinutes(draft.estimatedMinutes).ok) errors.estimatedMinutes = 'Oppgi et positivt heltall i minutter, eller la feltet stå tomt.'
   if (draft.remainingMinutes != null && draft.remainingMinutes !== '' && (!/^\d+$/.test(String(draft.remainingMinutes)) || !Number.isSafeInteger(Number(draft.remainingMinutes)))) errors.remainingMinutes = 'Oppgi et heltall på 0 eller mer, eller velg Vet ikke.'
@@ -24,6 +21,7 @@ export function validateDraft(draft, id = draft.id) {
   if (draft.priority && !['1', '2', '3'].includes(String(draft.priority))) errors.priority = 'Velg en gyldig prioritet.'
   if (Object.keys(errors).length) return { ok: false, errors }
   const task = { id, title: draft.title.trim(), course: (draft.course || '').trim(), deadlineLocal: draft.deadlineLocal || '', estimatedMinutes: unknown ? null : Number(draft.estimatedMinutes), completed: false }
+  if (deadline.status === 'ambiguous') task.deadlineDisambiguation = draft.deadlineDisambiguation
   if (draft.remainingMinutes !== undefined) task.remainingMinutes = draft.remainingMinutes === '' || draft.remainingMinutes === null ? null : Number(draft.remainingMinutes)
   if (draft.requiresSubmission !== undefined) { task.requiresSubmission = draft.requiresSubmission; task.submitted = false }
   if (draft.priority) task.priority = Number(draft.priority)
@@ -47,6 +45,7 @@ export function validTasks(tasks) {
     return typeof task.title === 'string' && !!task.title.trim() && task.title === task.title.trim() &&
       typeof task.course === 'string' && task.course === task.course.trim() &&
       (task.deadlineLocal === '' || task.deadlineLocal == null || validDeadline(task.deadlineLocal)) &&
+      (task.deadlineDisambiguation === undefined || inspectDeadline(task.deadlineLocal).status === 'ambiguous' && ['earlier', 'later'].includes(task.deadlineDisambiguation)) &&
       (task.estimatedMinutes == null || (Number.isSafeInteger(task.estimatedMinutes) && task.estimatedMinutes > 0)) && typeof task.completed === 'boolean' &&
       (task.remainingMinutes == null || (Number.isSafeInteger(task.remainingMinutes) && task.remainingMinutes >= 0)) &&
       (task.remainingEstimate === undefined || validEstimateRange(task.remainingEstimate)) &&
@@ -76,6 +75,7 @@ export function editTask(tasks, id, draft) {
   if (!result.ok) return result
   const edited = { ...saved, ...result.task, completed: saved.completed,
     ...(saved.submitted === undefined ? {} : { submitted: saved.submitted }) }
+  if (!Object.hasOwn(result.task, 'deadlineDisambiguation')) delete edited.deadlineDisambiguation
   // The legacy editor exposes an exact-minute field. A blank field on an
   // interval task means the saved range is still untouched, not "unknown".
   if (draft.remainingMinutes !== undefined && !(validEstimateRange(saved.remainingEstimate) && (draft.remainingMinutes === '' || draft.remainingMinutes === null))) delete edited.remainingEstimate
@@ -99,10 +99,9 @@ export function deleteTask(tasks, id) {
 }
 
 export function sortedTasks(tasks) {
-  const boundary = task => { try { return task.deadlineLocal ? deadlineInstant(task.deadlineLocal) : Infinity } catch { return Infinity } }
   return tasks.map((task, index) => ({ task, index })).sort((a, b) =>
     Number(!a.task.deadlineLocal) - Number(!b.task.deadlineLocal) ||
-    boundary(a.task) - boundary(b.task) ||
+    compareDeadlines(a.task, b.task) ||
     (b.task.priority ?? 2) - (a.task.priority ?? 2) || a.index - b.index
   ).map(entry => entry.task)
 }
@@ -163,15 +162,8 @@ export function setNextStep(tasks, id, draft) {
 
 // Date-only values remain date-only in storage/export. Scheduling uses the
 // exclusive start of the following Oslo day as a calculation boundary only.
-export function deadlineInstant(value) {
-  if (!validDeadline(value)) throw new RangeError('Ugyldig frist.')
-  return value.length === 10
-    ? Temporal.PlainDate.from(value).add({ days: 1 }).toZonedDateTime('Europe/Oslo').toInstant().epochMilliseconds
-    : Temporal.PlainDateTime.from(value).toZonedDateTime('Europe/Oslo', { disambiguation: 'reject' }).toInstant().epochMilliseconds
-}
-
-function deadlineBoundary(value) {
-  try { return value ? deadlineInstant(value) : Infinity } catch { return Infinity }
+export function deadlineInstant(value, disambiguation) {
+  return Date.parse(resolveDeadlineInstant(value, disambiguation))
 }
 
 export function clearNextStep(tasks, id) {
@@ -268,12 +260,14 @@ export function tasksThisWeek(tasks, now) {
 export function isOverdue(task, now) {
   if (!task.deadlineLocal) return false
   if (task.completed && (!task.requiresSubmission || task.submitted)) return false
-  const oslo = Temporal.Instant.from(now.toISOString()).toZonedDateTimeISO('Europe/Oslo')
-  const localMinute = `${oslo.toPlainDate()}T${String(oslo.hour).padStart(2, '0')}:${String(oslo.minute).padStart(2, '0')}`
-  if (task.deadlineLocal.length === 10) return localMinute.slice(0, 10) > task.deadlineLocal
-  // Stored deadlines have no offset: both occurrences of a repeated minute share one wall-clock label.
-  return localMinute > task.deadlineLocal || (localMinute === task.deadlineLocal &&
-    (now.getSeconds() > 0 || now.getMilliseconds() > 0))
+  const info = inspectDeadline(task.deadlineLocal)
+  // Unresolved legacy values remain repairable. Only mark them overdue after
+  // both possible instants; do not resolve or rewrite them as a side effect.
+  const choice = task.deadlineDisambiguation ?? (info.status === 'ambiguous' ? 'later' : undefined)
+  try {
+    const boundary = deadlineInstant(task.deadlineLocal, choice)
+    return info.dateOnly ? now.getTime() >= boundary : now.getTime() > boundary
+  } catch { return false }
 }
 
 export function overdueCount(tasks, now) {
@@ -285,7 +279,7 @@ export function selectTasksForMinutes(tasks, minutes, { includePartial = false }
   return tasks.map((task, index) => ({ task, index }))
     .filter(({ task }) => canStartTask(task, tasks, { nextStep: Boolean(primaryWorkStep(task)) }) && getRemainingRange(task)?.maxMinutes !== 0 && Number.isSafeInteger(getActionMinutes(task)) && getActionMinutes(task) > 0 && (getActionMinutes(task) <= minutes || includePartial && task.splittable !== false))
     .map(entry => ({ ...entry, urgency: actionUrgency(entry.task, tasks) }))
-    .sort((a, b) => deadlineBoundary(a.urgency.deadlineLocal) - deadlineBoundary(b.urgency.deadlineLocal) || b.urgency.count - a.urgency.count || (b.task.priority ?? 2) - (a.task.priority ?? 2) || a.index - b.index)
+    .sort((a, b) => compareDeadlines(a.urgency, b.urgency) || b.urgency.count - a.urgency.count || (b.task.priority ?? 2) - (a.task.priority ?? 2) || a.index - b.index)
     .map(entry => entry.task)
 }
 
@@ -296,13 +290,13 @@ export function suggestionReason(task, minutes, now = new Date(), index = 0, all
     : getActionMinutes(task) > minutes ? `En deløkt på ${minutes} min av ${formatEstimateRange(getRemainingRange(task))} gjenstående arbeid`
       : 'Passer innen ' + minutes + ' minutter'
   const { downstream } = actionUrgency(task, allTasks)
-  const downstreamReason = downstream && (!task.deadlineLocal || downstream.deadlineLocal <= task.deadlineLocal)
+  const downstreamReason = downstream && compareDeadlines(downstream, task) <= 0
     ? ` Oppgaven er en forutsetning for «${downstream.title}», med registrert frist ${downstream.deadlineLocal.replace('T', ' kl. ')}.` : ''
   if (task.waitingReason && activeStep?.unblocksWaiting) return `${fit}. Du har registrert dette som handlingen som avklarer: ${task.waitingReason}.${downstreamReason}`
   if (downstreamReason) return `${fit}.${downstreamReason}`
   if (isOverdue(task, now)) return fit + ' og har en forfalt frist.'
   if (task.deadlineLocal) {
-    const earlier = allTasks.some(other => other.id !== task.id && !other.completed && other.deadlineLocal && other.deadlineLocal < task.deadlineLocal)
+    const earlier = allTasks.some(other => other.id !== task.id && !other.completed && other.deadlineLocal && compareDeadlines(other, task) < 0)
     return fit + (index === 0 && !earlier ? ' og har nærmeste frist.' : ' og har en kommende frist.')
   }
   return fit + '. Ingen frist er registrert.'

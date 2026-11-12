@@ -173,7 +173,7 @@ export function createCapacityView(actions) {
         }
         applyCourseColor(row.item, resolvedCourseId(task))
         setText(row.title, `${task.course} · ${task.title}`)
-        setText(row.deadline, `Frist: ${formatDeadline(task.deadlineLocal, { year: true })} · ${taskStatus(task)}`)
+        setText(row.deadline, `Frist: ${formatDeadline(task.deadlineLocal, { year: true, disambiguation: task.deadlineDisambiguation })} · ${taskStatus(task)}`)
         setText(row.minutes, `Gjenstående: ${formatEstimateRange(getRemainingRange(task))} · Satt av: ${planned.allocatedMinutes} min · Ikke planlagt: ${planned.missingMinMinutes || 0}–${planned.missingMaxMinutes ?? planned.missingMinutes} min`)
         const notice = capacityNotice(task, savedSessions, model.planner?.events || [], model.now, planned)
         setText(row.explanation, task.completed ? 'Arbeidet er ferdig.' : getRemainingMinutes(task) === 0 ? 'Ingen arbeidstid gjenstår. Bekreft om oppgaven er fullført.' : notice && (planned.missingMinutes || !planned.requiredMinutes || notice.tone === 'danger' || notice.tone === 'warning') ? notice.text : planned.reasons?.join(' ') || capacity.planningNote || 'Minuttsummen dekker estimatet. Kontroller øktlengder og pauser i Planlegg uken før du bekrefter en plan.')

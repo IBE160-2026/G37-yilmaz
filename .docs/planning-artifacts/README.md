@@ -4,6 +4,8 @@
 
 **PRD-oppdatering 2026-11-12:** [Tilbakemeldingen 12. november](tilbakemelding-prd.md) følges opp med tydeligere brukerreiser, begreper, suksesskriterier og testbare krav i [PRD-en](PRD.md). Datert historikk og R-07-status er samlet i [PRD-revisjonshistorikken](#prd-revisjonshistorikk). V1, krav-ID-er og dokumenterte resultater er bevart; dette er en redaksjonell oppdatering, ikke en ny funksjons- eller brukerprøve.
 
+**Fristoppfølging 2026-11-12:** [Valg av gjentatt klokkeslett og kort lokal prøve](../implementation-artifacts/deadline-occurrences-2026-11-12.md) knytter konkrete valideringsfunn til rettinger og regresjonstester. Manuelle funn fra den eldre lokale kopien holdes adskilt fra kontrollene av dagens kode. Gjeldende deløktregel, tidligere R-07-evidens og V1 er bevart.
+
 **Leveringsoversikt oppdatert 2026-11-04.** [Brief](../../brief.md) og [PRD](PRD.md) beskriver produktmål, brukerbehov, krav og avgrensninger. V1 og krav-/story-ID-er er uendret. Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**.
 
 **Historikkoppfølging 2026-11-09:** [Delbar oppsummering av oppryddingen](../implementation-artifacts/history-cleanup-2026-11-09.md) beskriver den publiserte rensingen, bevart appkode og utviklingshistorikk, påvirkede commit-ID-er/signaturer og daterte kontroller. Gamle PR-kopier og eventuell sperring av tilganger er fortsatt egne oppfølgingspunkter. Tidligere resultater og krav nedenfor er uendret.

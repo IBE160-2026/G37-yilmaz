@@ -1,6 +1,10 @@
 # Verifisering av Ajour
 
-**Kortoversikt, redigert 4. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
+**Kortoversikt, redigert 12. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
+
+## Frister ved tidsskifte og kort lokal prøve — 2026-11-12
+
+[Fristoppfølgingen](../.docs/implementation-artifacts/deadline-occurrences-2026-11-12.md) dokumenterer eksplisitt valg av gjentatt klokkeslett, presise klokkeslettfeil og bevarte dato-frister. Rapporten skiller prosjekteierens manuelle observasjoner i den eldre lokale kopien fra automatiserte kontroller av dagens Ajour-kode. Den avklarer også gjeldende deløktregel og prøver med oppdeling på og av. Den korte prøven brukte eksempeloppgaver og gir ikke grunnlag for å konkludere om nytte over tid.
 
 ## Filimport og auditoppfølging — 2026-11-04
 

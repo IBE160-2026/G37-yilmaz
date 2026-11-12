@@ -14,6 +14,7 @@ export default defineConfig({
     'himolde-program-repeat.spec.js', 'import-reimport-repair.spec.js',
     'own-trial-*.spec.js',
     'text-registration-exam.spec.js',
+    'deadline-followup.spec.js',
   ],
   outputDir: process.env.AJOUR_BUILT_RESULTS,
   fullyParallel: true, workers: 2, timeout: 60_000,

@@ -1,7 +1,8 @@
 import { Temporal } from '@js-temporal/polyfill'
-import { OSLO, osloLocal, osloLocalExact, toInstant, matchesCourse } from './planner.js'
+import { OSLO, osloLocal, osloLocalExact, matchesCourse } from './planner.js'
 import { extendedSessionInterval } from './work-capacity.js'
 import { isExamEvent } from './event-kind.js'
+import { inspectDeadline, deadlineInstant } from './deadline.js'
 
 export const calendarToday = (now = new Date()) => osloLocal(now.toISOString()).slice(0, 10)
 export const addDays = (date, days) => Temporal.PlainDate.from(date).add({ days }).toString()
@@ -25,7 +26,7 @@ export function calendarEntries({ tasks = [], sessions = [], planner = {}, workW
   for (const task of tasks.filter(t => t.deadlineLocal)) {
     let start, warning = ''
     const allDay = task.deadlineLocal.length === 10
-    try { start = allDay ? dayBounds(task.deadlineLocal).start : Date.parse(toInstant(task.deadlineLocal)) } catch { warning = 'Fristen har et tvetydig eller ugyldig klokkeslett i norsk tid. Rediger for å presisere.' }
+    try { start = allDay ? dayBounds(task.deadlineLocal).start : Date.parse(deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation)) } catch { warning = `${inspectDeadline(task.deadlineLocal).message} Rediger fristen for å presisere.` }
     entries.push({ ...task, courseCode: courseCode(task.courseId), key: `task:${task.id}`, kind: 'deadline', point: true, allDay, start, end: start, local: task.deadlineLocal, warning, done: task.completed && (!task.requiresSubmission || task.submitted) })
   }
   for (const session of sessions) {
@@ -68,6 +69,10 @@ export function timeLabel(entry) {
   if (entry.kind === 'personal' && entry.timingPrecision === 'date') return 'Tid ikke oppgitt'
   if (entry.kind === 'personal' && entry.timingPrecision === 'start') return `${stamp(entry.start)} · Varighet ikke oppgitt`
   if (entry.kind === 'deadline' && entry.allDay) return 'Frist – klokkeslett ikke oppgitt'
+  if (entry.kind === 'deadline' && entry.deadlineDisambiguation) {
+    const option = inspectDeadline(entry.local).options.find(value => value.value === entry.deadlineDisambiguation)
+    if (option) return `Frist kl. ${entry.local.slice(11)} (${option.value === 'earlier' ? 'første' : 'andre'} forekomst, UTC${option.offset})`
+  }
   if (entry.allDay) return 'Hele dagen'
   if (entry.point) return entry.kind === 'deadline' ? `Frist kl. ${stamp(entry.start)}` : `Kl. ${stamp(entry.start)} · Tidspunkt, reserverer ikke tid`
   const start = Temporal.Instant.fromEpochMilliseconds(entry.start).toZonedDateTimeISO(OSLO), end = Temporal.Instant.fromEpochMilliseconds(entry.end).toZonedDateTimeISO(OSLO)

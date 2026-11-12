@@ -1,11 +1,33 @@
 import { describe, expect, it } from 'vitest'
-import { parseOsloDeadline, parseRemainingMinutes, parseTextRegistration } from '../../src/text-registration.js'
+import { parseOsloDeadline, parseRemainingMinutes, parseTextRegistration, textRegistrationEditDraft } from '../../src/text-registration.js'
+import { editTask } from '../../src/tasks.js'
 
 const now = new Date('2026-09-29T10:00:00Z')
 const tasks = [{ id: 't1', title: 'Les kapittel 4', course: 'IBE160', deadlineLocal: '2026-10-01', remainingMinutes: 60, estimatedMinutes: null, completed: false }]
 const courses = [{ id: 'c1', code: 'IBE160', name: 'Digitalisering' }]
 
 describe('local rule-based text registration', () => {
+  it.each(['earlier', 'later'])('requires a new occurrence for changed text deadlines while preserving the %s choice for unrelated edits', occurrence => {
+    const saved = { ...tasks[0], deadlineLocal: '2027-10-31T02:30', deadlineDisambiguation: occurrence }
+    const before = structuredClone(saved)
+    const proposal = parseTextRegistration('Endre fristen for Les kapittel 4 til 31.10.2027 kl. 02:45', { tasks: [saved], courses, now }).proposal
+    const changed = textRegistrationEditDraft(saved, proposal.action, proposal.deadlineLocal)
+    expect(changed).not.toHaveProperty('deadlineDisambiguation')
+    expect(editTask([saved], saved.id, changed)).toMatchObject({ ok: false, errors: { deadlineDisambiguation: expect.stringContaining('to ganger') } })
+    for (const [action, value] of [['deadline', saved.deadlineLocal], ['remaining', 90]]) {
+      const result = editTask([saved], saved.id, textRegistrationEditDraft(saved, action, value))
+      expect(result.ok).toBe(true)
+      expect(result.tasks[0].deadlineDisambiguation).toBe(occurrence)
+      expect(result.tasks[0].deadlineLocal).toBe(saved.deadlineLocal)
+    }
+    for (const value of ['2027-11-01T02:30', '2027-10-31']) {
+      const result = editTask([saved], saved.id, textRegistrationEditDraft(saved, 'deadline', value))
+      expect(result.ok).toBe(true)
+      expect(result.tasks[0]).not.toHaveProperty('deadlineDisambiguation')
+    }
+    expect(saved).toEqual(before)
+  })
+
   it('parses Oslo-local dates without fabricating a time', () => {
     expect(parseOsloDeadline('i morgen', now)).toEqual({ ok: true, deadlineLocal: '2026-09-30' })
     expect(parseOsloDeadline('30.09.2026 kl. 14:05', now)).toEqual({ ok: true, deadlineLocal: '2026-09-30T14:05' })

@@ -61,6 +61,15 @@ export function parseRemainingMinutes(value) {
   return Number.isSafeInteger(minutes) && minutes >= 0 ? { ok: true, minutes } : { ok: false, error: 'Arbeidstiden må bli et helt antall minutter.' }
 }
 
+export function textRegistrationEditDraft(saved, action, value) {
+  const key = action === 'deadline' ? 'deadlineLocal' : 'remainingMinutes'
+  const draft = { ...saved, [key]: value, estimatedMinutes: saved.estimatedMinutes == null ? '' : String(saved.estimatedMinutes), remainingMinutes: key === 'remainingMinutes' ? value : saved.remainingMinutes }
+  // A choice belongs to the exact saved wall-clock value. Text registration
+  // cannot choose an occurrence for a different repeated minute on its behalf.
+  if (action === 'deadline' && saved.deadlineLocal !== value) delete draft.deadlineDisambiguation
+  return draft
+}
+
 // Preview and confirmation share normalization and domain validation. The fixed
 // preview id keeps this read-only; confirmation supplies the real new identity.
 export function validateTextRegistrationProposal(proposal, { courses = [], id = 'text-registration-preview' } = {}) {

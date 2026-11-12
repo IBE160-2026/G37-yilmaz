@@ -1,6 +1,7 @@
 import { documentInstitution, documentCourseIdentity, invalidateDocumentCourseName } from './document-course-identity.js'
 import { emptyPlanner, osloLocalExact as osloLocal, toInstant, validateCourse, validPlanner } from './planner.js'
 import { validDeadline, validTasks } from './tasks.js'
+import { deadlineInstant } from './deadline.js'
 import { IMPORT_FIELDS, importTargets, validImportSources, DOCUMENT_DESCRIPTION_LIMIT, boundedImportWarnings } from './import-source-contract.js'
 import { validEnvelope } from './storage.js'
 import { Temporal } from '@js-temporal/polyfill'
@@ -554,7 +555,11 @@ export function buildDocumentImportCommit(state, preview, { now = new Date() } =
     if (row.kind === 'task' && row.deadlineMode === '?') { fail('Avklar dato og klokkeslett, velg dato uten klokkeslett eller «Uten frist».', 'deadlineMode'); continue }
     if (row.kind === 'task' && row.estimateIssue && !row.estimateResolved) { fail('Avklar minuttene eller velg ukjent.', 'remainingMinutes'); continue }
     if (row.kind === 'task' && row.deadlineMode === 'value' && !validDeadline(row.deadlineLocal)) { fail('Oppgi en gyldig dato, eventuelt med klokkeslett.', 'deadlineLocal'); continue }
-    if (row.kind === 'task' && row.deadlineMode === 'value' && row.deadlineLocal.length > 10) try { toInstant(row.deadlineLocal) } catch { fail('Fristens klokkeslett er ugyldig eller tvetydig ved tidsomstilling. Velg et entydig tidspunkt eller lagre uten frist.', 'deadlineLocal'); continue }
+    if (row.kind === 'task' && row.deadlineMode === 'value' && row.deadlineLocal.length > 10) try {
+      const current = state.tasks.find(task => task.id === row.targetId)
+      const occurrence = current?.deadlineLocal === row.deadlineLocal ? current.deadlineDisambiguation : undefined
+      deadlineInstant(row.deadlineLocal, occurrence)
+    } catch { fail('Fristens klokkeslett er ugyldig eller tvetydig ved tidsomstilling. Velg et entydig tidspunkt, dato uten klokkeslett eller lagre uten frist.', 'deadlineLocal'); continue }
     const proposedCourse = row.courseChoice?.startsWith('row:') ? preview.rows[Number(row.courseChoice.slice(4))] : null
     if (proposedCourse && !proposedCourse.selected) {
       if (!errors.some(error => error.index === proposedCourse.index)) errors.push({ index: proposedCourse.index, field: 'selected', message: 'Dette emneforslaget er utelatt, men valgte aktiviteter er koblet til det. Ta med emnet eller endre aktivitetenes emnekobling.' })
@@ -627,6 +632,7 @@ export function buildDocumentImportCommit(state, preview, { now = new Date() } =
       }
     }
     if (errors.length > rowErrorCount) continue
+    if (row.kind === 'task' && result.deadlineLocal !== existing?.deadlineLocal) delete result.deadlineDisambiguation
     if (row.kind === 'event' && Date.parse(result.end) > Date.parse(result.start)) result.point = false
     if (row.kind === 'event' && (!result.point || result.pointProvenance === undefined)) delete result.pointProvenance
     // The name choice also chooses its provenance. Status never introduces a

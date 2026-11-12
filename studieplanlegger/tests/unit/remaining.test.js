@@ -224,8 +224,8 @@ describe('forfalt krever at nå er strengt etter lokal frist', () => {
     expect(validDeadline(task.deadlineLocal)).toBe(true)
     expect(isOverdue(task, new Date('2026-10-25T02:29:59.999+02:00'))).toBe(false)
     expect(isOverdue(task, new Date('2026-10-25T02:30:00.000+02:00'))).toBe(false)
-    expect(isOverdue(task, new Date('2026-10-25T02:30:00.001+02:00'))).toBe(true)
-    // Fristen er en veggklokkeverdi også etter at klokken er stilt tilbake.
+    expect(isOverdue(task, new Date('2026-10-25T02:30:00.001+02:00'))).toBe(false)
+    // Uten valgt forekomst er fristen først sikkert passert etter begge.
     expect(isOverdue(task, new Date('2026-10-25T02:15:00.000+01:00'))).toBe(false)
     expect(isOverdue(task, new Date('2026-10-25T02:29:59.999+01:00'))).toBe(false)
     expect(isOverdue(task, new Date('2026-10-25T02:30:00.000+01:00'))).toBe(false)

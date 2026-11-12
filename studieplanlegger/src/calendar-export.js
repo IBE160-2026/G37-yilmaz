@@ -1,8 +1,9 @@
 import { Temporal } from '@js-temporal/polyfill'
 import ICAL from 'ical.js'
 import { extendedSessionInterval } from './work-capacity.js'
-import { toInstant, eventBlocksTime } from './planner.js'
+import { eventBlocksTime, toInstant } from './planner.js'
 import { calendarInstantLabel } from './calendar-model.js'
+import { deadlineInstant } from './deadline.js'
 
 const encoder = new TextEncoder()
 const utcStamp = value => new Date(value).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')
@@ -33,6 +34,13 @@ export function foldIcsLine(line) {
 }
 
 const instant = value => typeof value === 'number' ? Temporal.Instant.fromEpochMilliseconds(value) : Temporal.Instant.from(value)
+function taskDeadlineInstant(task) {
+  // Older export input can carry seconds or fractions. Retain that precision
+  // for exact export/omission reporting, with the original strict DST check.
+  // Minute input always uses the explicit occurrence contract.
+  if (typeof task.deadlineLocal === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?$/.test(task.deadlineLocal)) return toInstant(task.deadlineLocal)
+  return deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation)
+}
 function inRange(value, from, to) {
   const date = instant(value).toZonedDateTimeISO('Europe/Oslo').toPlainDate().toString()
   return (!from || date >= from) && (!to || date <= to)
@@ -50,7 +58,7 @@ function calendarExportCandidates(state, { from, to, includeSessions = true, inc
   if (includeDeadlines) for (const task of state.tasks || []) if (task.deadlineLocal) {
     try {
       const allDay = task.deadlineLocal.length === 10
-      const dueInstant = allDay ? undefined : toInstant(task.deadlineLocal)
+      const dueInstant = allDay ? undefined : taskDeadlineInstant(task)
       const due = allDay ? Temporal.PlainDate.from(task.deadlineLocal).toString() : instant(dueInstant).epochMilliseconds
       if (allDay ? (!from || due >= from) && (!to || due <= to) : inRange(dueInstant, from, to)) items.push({ kind: 'deadline', id: task.id, title: task.title, due, ...(dueInstant ? { dueInstant } : {}), allDay, course: task.course })
     } catch { /* invalid legacy values are not exported */ }
@@ -130,7 +138,7 @@ export function calendarExportOmissions(state, options = {}) {
     if (date && ((from && date < from) || (to && date > to))) continue
     try {
       if (task.deadlineLocal.length === 10) Temporal.PlainDate.from(task.deadlineLocal)
-      else toInstant(task.deadlineLocal)
+      else taskDeadlineInstant(task)
     } catch { omitted.push({ ...task, kind: 'deadline', time: task.deadlineLocal, reason: deadlineOmissionReason(task.deadlineLocal) }) }
   }
   for (const item of calendarExportCandidates(state, options)) {

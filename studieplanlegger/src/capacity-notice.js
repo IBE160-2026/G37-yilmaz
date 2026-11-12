@@ -17,7 +17,7 @@ export function capacityNotice(task, sessions = [], events = [], now = new Date(
   }
   const start = now.getTime();
   let deadline = NaN;
-  try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal); } catch { /* Ambiguous deadlines do not prove a shortage. */ }
+  try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation); } catch { /* Ambiguous deadlines do not prove a shortage. */ }
   if (Number.isFinite(deadline) && deadline <= start) {
     return { tone: 'warning', text: 'Fristen er passert. Vurder hva som må følges opp.' };
   }
