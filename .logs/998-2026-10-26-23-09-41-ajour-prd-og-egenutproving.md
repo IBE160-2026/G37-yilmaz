@@ -192,3 +192,35 @@ Denne loggen committes før push. Endelig PR-adresse, integreringscommit, produk
 ### Åpne punkter
 
 Ingen nye produktpunkter. Eksisterende begrensninger i [issues](issues.md) er bevart.
+
+## 2026-11-12 kl. 13:21 — GOplayer007
+
+### Oppgave
+
+Oppdatere Ajours eksisterende PRD etter tilbakemeldingen 12. november, med V1, krav-ID-er og dokumenterte resultater bevart.
+
+### Plan
+
+- Avstemme tilbakemeldingen mot brief, eksisterende PRD, beslutninger og dokumentert egenutprøving.
+- Tydeliggjøre brukerreiser, begreper, suksesskriterier og krav; flytte datert historikk til planindeksen.
+- Kontrollere kildedekning, evidens, struktur, språk, lenker og bevaring av ID-er/resultater.
+
+### Resultat
+
+[PRD](../.docs/planning-artifacts/PRD.md) er oppdatert på samme sti, datert 2026-11-12 og satt til `final`. Tilbakemeldingens punkt 4.1–4.5 og mekaniske funn er fulgt opp med fire uttrykkelig hypotetiske brukerreiser, tolv begreper, SC-01–SC-07 ordrett fra briefen, nummererte konsekvenser under eksisterende krav, egne kvalitetskrav og antakelser med mulige signaler og motmål. Tittel og H1 samsvarer. Ingen intervjuer, nyttegevinster eller nye prøveresultater er konstruert.
+
+[Planindeksen](../.docs/planning-artifacts/README.md#prd-revisjonshistorikk) bevarer sju flyttede historikk-/statusavsnitt og hele revisjonstabellen ordrett. R-07s dokumenterte lukking 3.–4. november og de tidligere metode-/dekningsgrensene er bevart. Aktive krav fra de daterte beslutningene står fortsatt i PRD. Arbeidet følger også opp tilbakemeldingen 6. oktober om avgrensning og sjekkbare kriterier. Den lokale sjusiders sensorveiledningen er faktisk lest og kontrollsummen kontrollert; vedlegget og privat filsti er ikke publisert.
+
+Kildeavstemmingen rettet en utilsiktet innsnevring av kalenderimport: bare nettutgaven avviser vilkårlige kalenderadresser; lokal Node/Docker og Vite beholder eksisterende støtte innen kildevernet. Briefens tone er videreført. Den uavhengige PRD-kontrollen fant ingen kritiske, høye eller middels funn. To små brukerreisefunn er rettet med riktig inngang til studieprogramimport og uttrykkelig bekreftelse ved gjenoppretting. Strukturkontrollen fant ingen endringsbehov; språkpasset presiserte ugyldige kalenderdeler og betydningen av Angre.
+
+Mekanisk kontroll bekrefter bevarte R-/Q-/SC-/S-ID-er, identiske SC-kriterier, ordrett flyttet historikk og uendret brief, prøveplan, sporbarhet, eierprøverapport og verifikasjonsfil. Lokale dokumentlenker og avsnittsreferanser er kontrollert uten nye feil; whitespace-kontrollen bestod. Kode, automatiske appprøver og manuell egenutprøving inngikk ikke i selve dokumentoppdateringen. Underlagsnotater og kontrollskript ligger lokalt i Git-ignorert `.tmp/prd-update-20261112/`; BMADs beslutningslogg er fortsatt ignorert. Ved avslutningen av dokumentoppdateringen lå endringene lokalt uten commit eller publisering.
+
+**Pull og push etter brukerens påfølgende bestilling 2026-11-12:** `git pull --ff-only origin main` bekreftet at arbeidsgrenen allerede var oppdatert. Dokumentcommit `d7b2736` inneholder bare PRD og planindeks og er pushet til `origin/main`; GitHub bekreftet oppdateringen fra `4746473`. Denne kuraterte loggen følger i egen loggcommit. Ingen appkode, låsefil eller publiseringskonfigurasjon er endret.
+
+Nye lokale kontroller før push: **145/145 fokustester i 5 filer**, **2698/2698 enhetstester i 152 filer** og produksjonsbygg bestod. Første fullkjøring hadde én 5000 ms-timeout i mengdetesten for 500 kalenderhendelser; samme fil bestod isolert uten endringer. Hele suiten bestod deretter med `--maxWorkers=2` på 86,18 sekunder. Ingen tidsgrenser eller tester ble svekket. Faktisk lokal Vitest var 5.0.3, mens deklarert/låst versjon er 5.0.5; dette var ikke en ny låsefilverifisert installasjon. Det eksisterende bundlevarselet over 500 kB består, med hovedfil på 963,36 kB / 294,85 kB gzip. GitHub-/Vercel-løp etter push er separate fra disse lokale resultatene.
+
+Filkontrollen omfattet 902 sporede filnavn, 389 dokument-/fixturetekstfiler, 11 utfoldede ICS-filer, 269 JSON-/HTML-metadatafiler og 2 binærmetadatafiler, uten funn i kontrollerte kategorier. De tre utgående dokumentene bestod også. Dokumentkontrollen omfattet 59 Markdown-filer, 972 lokale lenker og 251 avsnittsreferanser uten nye feil; ett eksisterende eksempel i sesjonslogg-skillen er ikke en produktlenke. Staged dokumentdiff bestod whitespace-kontrollen. Lokale test- og kontrollrapporter ligger fortsatt ignorert.
+
+### Åpne punkter
+
+Ingen nye. Akseptert nytteusikkerhet og eksisterende formelle og tekniske restpunkter i [issues](issues.md) er videreført med uendret ansvar og oppfølgingsvilkår.
