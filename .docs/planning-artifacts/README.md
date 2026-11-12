@@ -2,6 +2,8 @@
 
 **[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.** [Brukerveiledningen](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) forklarer de første stegene og sikkerhetskopi. Nettutgaven lagrer planen i nettleserprofilen på den nøyaktige adressen, uten konto eller synkronisering. [Lokal Node-/Docker-drift med SQLite og Vite-utvikling med nettleserlagring](../../studieplanlegger/README.md#lokal-drift-og-utvikling) er egne alternativer for sensor og utviklere.
 
+**PRD-oppdatering 2026-11-12:** [Tilbakemeldingen 12. november](tilbakemelding-prd.md) følges opp med tydeligere brukerreiser, begreper, suksesskriterier og testbare krav i [PRD-en](PRD.md). Datert historikk og R-07-status er samlet i [PRD-revisjonshistorikken](#prd-revisjonshistorikk). V1, krav-ID-er og dokumenterte resultater er bevart; dette er en redaksjonell oppdatering, ikke en ny funksjons- eller brukerprøve.
+
 **Leveringsoversikt oppdatert 2026-11-04.** [Brief](../../brief.md) og [PRD](PRD.md) beskriver produktmål, brukerbehov, krav og avgrensninger. V1 og krav-/story-ID-er er uendret. Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**.
 
 **Historikkoppfølging 2026-11-09:** [Delbar oppsummering av oppryddingen](../implementation-artifacts/history-cleanup-2026-11-09.md) beskriver den publiserte rensingen, bevart appkode og utviklingshistorikk, påvirkede commit-ID-er/signaturer og daterte kontroller. Gamle PR-kopier og eventuell sperring av tilganger er fortsatt egne oppfølgingspunkter. Tidligere resultater og krav nedenfor er uendret.
@@ -81,6 +83,51 @@ Rapporten bygger på prosjekteierens leverte tekst og egne svar; opplysningen om
 - [Vurderingsområdene med bevis og mangler](TRACEABILITY.md#sensorveiledningens-sju-områder) bruker de veiledende vektene uten å sette karakter. Veiledningen vurderer del 1 (70 % av mappen); personlig refleksjon tilhører del 2. Den er et grunnlag for faglig skjønn, ikke en automatisk godkjenning.
 
 Godkjent proposal og den overordnede sensorveiledningen som PDF-en viser til, er ikke identifisert i denne kontrollen. Briefen beholdes som autoritativ inngang i roten; PDF-en krever en lesbar inngang og planlegging, men angir ikke at briefen må flyttes. Rekonstruksjonsdatoen 2026-10-16 beholdes også etter denne supplerende kontrollen samme dag.
+
+## PRD-revisjonshistorikk
+
+Historikken nedenfor er flyttet fra PRD-en 2026-11-12. Avsnittenes datoer, beslutninger og dokumenterte resultater er bevart ordrett fra PRD-versjonen sist oppdatert 2026-11-04; «gjeldende» i sitert status viser til den datoen. [Gjeldende produktkrav](PRD.md), [prøveplan](USER-TRIAL-PLAN.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) beholder sine egne roller.
+
+### Rekonstruksjonsgrunnlag
+
+**Rekonstruert 2026-10-16, revidert 2026-11-04.** Dette er den eksisterende PRD-en, oppdatert etter [lærerens tilbakemelding](../../tilbakemelding-product-brief.md) og PRD-forberedelsene gjengitt i prosjekteierens oppdrag. Den beskriver allerede utviklet funksjonalitet og kravene til egenutprøving; den er ikke en opprinnelig plan for koden. [Briefen](../../brief.md) eier produktløftet, og [planindeksen](README.md) dokumenterer proveniens.
+
+### Daterte beslutninger og presiseringer
+
+**Godkjent driftsutvidelse 2026-10-29:** Den komplette nettleserflyten kan publiseres i ett gratis Vercel-prosjekt uten konto, skydatabase eller delte studentdata. Lokal Node-/Docker-drift beholdes. R-01–R-06/R-08 gjelder også nettleserutgaven: emner, oppgaver, økter, utfall, justering/Angre og sikkerhetskopier skal beholde identiteter og relasjoner ved omlasting og gjenåpning på samme adresse. R-06s lokale datavolumkrav gjelder fortsatt Node/Docker; i nettutgaven er nettleserprofil og nøyaktig nettadresse lagringsgrensen. En ny publisering på samme adresse skal bevare gyldige data. Uavhengige profiler og adresser skal være adskilt. Ugyldig eller mislykket lagring/gjenoppretting skal beholde lagrede data og åpne utkast.
+
+Nettutgaven skal forklare at sletting av nettleserdata kan slette planen, at localhost/forhåndsvisning/produksjon har separate data, og at flytting skjer med sikkerhetskopi uten enhetssynkronisering. Offentlig import bruker bare gjenkjente kildeintegrasjoner og studentens kontroll før lagring; vilkårlige kalenderadresser avvises med veiledning til filimport. Importløftet utvides ikke. Faktisk forhåndsvisning skal kontrolleres før integrering, og publisert adresse, commit og produksjonskontroll skal dokumenteres etterpå. Tekniske prøver, kildetransport og prosjekteierens manuelle egenutprøving skal dokumenteres hver for seg.
+
+**Presisering av eksisterende koblingskrav, 2026-11-02:** Arbeid kan gjelde hele oppgaven eller et bestemt arbeidssteg. At en oppgave inneholder steg gjør ikke en oppgavereservasjon til stegorientert arbeid. Når neste handling/Start faktisk presenterer et bestemt steg som mål, skal utfallet identifisere dette steget entydig og beholde koblingen ved lagring, navneendring og omrekkefølge. R-04s faktiske tid og gjenstående oppgavearbeid holdes fortsatt atskilt; R-06 bevarer kjente koblinger uten å gjette historiske mål. [Avklaring og testgrunnlag](../implementation-artifacts/work-step-identity-2026-11-02.md) endrer ikke V1 eller R-07s krav til prosjekteierens egenutprøving.
+
+### Prøveopplegg og dokumentert R-07-status
+
+**Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. Dette erstatter den tidligere planlagte prøven med en ny student; den tidligere prøven ble ikke gjennomført eller bestått. Samme SC-07/R-07/S-07 beholdes. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner. Personlig refleksjon må fortsatt bygge på prosjekteierens egne erfaringer.
+
+**Gjeldende dokumentasjonsstatus 2026-11-04:** Prosjekteieren gjennomførte og bestod de sju scenariene og tillegget for navngitt Start 3.–4. november. [Resultatmatrisen](USER-TRIAL-PLAN.md#egenutproving-2026-11-04) og [evidensrapporten](../implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer faktiske observasjoner, korrigert for tidlig utfallsregistrering, tilpassede datoer, temaprøve med åpent tekstutkast og gjenoppretting i en separat tom Chrome-gjesteøkt. R-07 er dermed oppfylt innen dokumentert prøveomfang; kravene og V1 er uendret. Personlig sluttgjennomlesing og formell innlevering er ikke bekreftet.
+
+**Historisk dokumentasjonsstatus 2026-11-02:** Full oppfyllelse var da ikke dokumentert. [Datidens scenariooversikt](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) bevarer observasjonene og dekningsgrensene; senere prøver gjør ikke de gamle resultatene mer omfattende enn de var.
+
+### Revisjoner til og med 2026-11-04
+
+| Dato | Betydning |
+| --- | --- |
+| 2026-10-16 | PRD og sporbare ID-er rekonstruert mot eksisterende kode, jf. [proveniens](README.md). |
+| 2026-10-18–24 | Avgrensede import-/kalenderrettinger presiserte eksisterende krav. Aksepteksemplene er bevart i stories; faktiske kjøringer og begrensninger i VERIFICATION. |
+| 2026-10-25–26 | Ajour-grensesnitt, personvernretting, emnefarger og tema innen samme V1. Historiske resultater beholdes med dato. |
+| 2026-10-26 | Produkt/problem/målgruppe, research og åpne spørsmål gjort lettere å finne; egenutprøving innført etter prosjekteierens beslutning; korrigert uriktige dokumentpåstander. Ingen nye produktfunksjoner. |
+| 2026-10-29 | Uttrykkelig godkjent Vercel-nettleserdrift med komplett hovedflyt, lokale data og avgrenset import. Eldre lokalavgrensning beholdes som historikk; faktiske prøver føres separat. |
+| 2026-11-01 | Dokumentasjonsgrensene tydeliggjort: mål, brukerbehov, krav og omfang her; eierens sluttresultater og automatiske kontrollresultater i prøve-/verifikasjonsdokumentasjonen. Krav-ID-er og V1 er uendret. |
+| 2026-11-02 | Etter godkjent PRD-kritikk: R-03s tre resultater, eksisterende Angre-/lagringsgrenser, behovsbegrunnelse for R-08, nyttehypoteser og oppfølging av åpne spørsmål presisert. R-07 er avstemt mot dokumentert scenariodekning uten nye prøveresultater eller endret V1. |
+| 2026-11-02, etter validering | R-03/S-03 avstemt mot eksisterende betingede og utforskende startøkter. Q-01 har observerbar innholdsrekkefølge, og kravtabellen har direkte avsnittslenker. Dette retter tre dokumentfunn uten ny funksjonalitet eller nye manuelle prøveresultater. |
+| 2026-11-03 | Eksisterende avklaringssteg og separate fullføringshandlinger presisert i R-04 og S-04. [Teknisk oppfølging](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) beskriver retting, lokal forespørselsvalidering og dokumentkontroll. V1 og prosjekteierens R-07 er uendret. |
+| 2026-11-04 | R-07s status oppdatert etter prosjekteierens dokumenterte sjuscenarioprøve og navngitte Start-flyt 3.–4. november. Krav, V1 og historiske resultater beholdes; manuelle observasjoner, eksportsammenligning og metodevalg føres i prøveplanen og evidensrapporten. |
+
+### Oppfølging 2026-11-12
+
+Tilbakemeldingens punkt 4.1–4.5 og mekaniske funn er fulgt opp i den eksisterende PRD-en. Krav-ID-ene R-01–R-08 og Q-01–Q-03, suksesskriteriene SC-01–SC-07, V1 og tidligere resultater beholdes. Brukerreisene konkretiserer det eksisterende hypotetiske designscenarioet; de er ikke nye intervjuer eller gjennomførte brukerprøver. Oppdateringen viderefører også tilbakemeldingen fra 6. oktober om avgrenset omfang, sjekkbare kriterier og tekniske valg i arkitekturen.
+
+Sensorvedlegget «Sensorveiledning IBE160 - Del 1 applikasjon og prosess.pdf», høst 2026, er kontrollert og alle sju sider lest på nytt 2026-11-12. SHA-256 er uendret: `a0069856666a32e2e5c886fe1c46ade1d666a99bf800bc42b9e20113adc2e509`. Side 2 etterspør sammenheng mellom plan, kode og forklarte avvik; side 4 etterspør relevante manuelle tester eller testplaner og spor av designarbeid. Vedlegget stiller ikke krav om ekstern studentrekruttering. Dette endrer ikke tidligere daterte kildeopplysninger, prøveutførelse eller manglende formelle leveringsopplysninger. PDF-en publiseres ikke.
 
 ## Historikk og personvern
 
