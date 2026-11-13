@@ -32,3 +32,35 @@ Siste `origin/main` ved innhenting var `392e5a1`. Den ble integrert med ordinær
 ### Åpne punkter
 
 Ingen nye produktpunkter fra rettingen. Eksisterende restpunkter i [issues.md](issues.md), inkludert formell innlevering og historiske kopier, er uendret.
+
+## 2026-11-13 kl. 01:27 — GOplayer007
+
+### Oppgave
+
+Prosjekteieren ba om oppfølging av A1–A7 fra Epic 4-retrospektiven, deretter gjennomgang og uttrykkelig commit og push. Denne fortsettelsen publiserer de ferdige rettelsene fra den eldre lokale arbeidskopien til dagens Ajour.
+
+### Plan
+
+- Bruk det rene målrepoet på `main`, med førgrunnlag `434b14828deae1db0bacfad58d27429ce56c81ad`, og overfør rettelsene selektivt.
+- Bevar nyere dato-frister, personlige aktiviteter, arbeidssteg og dagens deløktregler.
+- Samle før-/ettertilstand, avgrensninger og faktiske prøver i [A1–A7-rapporten](../.docs/implementation-artifacts/epic-4-followup-2026-11-13.md), og kontroller publiserbare filer før commit og bestilt push.
+
+### Resultat
+
+Arbeidscommit `70ccbb021a6bd37e6b95b4912eb2408e12cb7d2c` inneholder 14 filer: fire produksjonsfiler, fem testfiler, utvidet utvalg for nettleserprøver mot bygg og fire dokumenter. Importen validerer den valgte fristen etter konfliktsammenslåing. Agendaer bruker faktiske tidspunkter, sikkert utløpte uavklarte frister fortrenger ikke kommende arbeid, og tastaturfokus bevares ved klokkeoppdatering. Egne regresjoner kontrollerer reserverte minutter og begge dagsoversiktens sorteringer. Arkitekturens eldre regler og den tilbaketrukne månedsprøven er tydelig merket; tidligere R-07-resultater beholdes.
+
+Overføringen avdekket to forhold ved dagens kode: en personlig datoaktivitet måtte få en eksplisitt Oslo-sorteringsnøkkel, og dagsoversiktens selvstendige kommende-liste brukte fortsatt klokketeksten. Begge feilene ble først bekreftet med feilede nettleserassertjoner og deretter rettet. Tre innledende nettleserfeil skyldtes prøveoppsett for den eldre skjermstrukturen; de ble tilpasset dagens synlige navigasjon og duplikatfjerning. Det er ikke gjort nye påstander om manuell studentprøving.
+
+Endelige kontroller 13. november:
+
+- **135/135 fokuserte enhetstester** i ni filer og **2757/2757 i hele enhetstestsuiten**, fordelt på 157 filer. Utvalget inngår i totalen.
+- **13/13 fokuserte Chromium-prøver** mot ferdig produksjonsbygg bestod på 40,6 sekunder, inkludert 360/1280 piksler og en nettleser i America/Los_Angeles. Hele nettlesersuiten er ikke kjørt på nytt.
+- Produksjonsbygg bestod, med hovedbundle **963,57 kB / 294,75 kB gzip**. Det kjente størrelsesvarselet består.
+- Indekskontrollen før arbeidscommiten kontrollerte **1066 relative lenker, 258 ankere og 356 dokument-/fixturefiler**, inkludert 11 utfoldede ICS-filer med 982 hendelser og PDF-/DOCX-metadata. Ingen funn i de kontrollerte kategoriene eller genererte artefakter. Eksterne lenkemål, all PDF-brødtekst og historiske kopier inngår ikke i denne kontrollen.
+- `git diff --cached --check` bestod. Rålogger, lokale snapshots og interne arbeidsspesifikasjoner ble beholdt utenfor Git.
+
+Arbeidet følger lærerens punkter om avgrensning, testbare kriterier og etterprøvbar kvalitetskontroll. Sensorvedlegget var ikke tilgjengelig for ny lesing i denne runden; tidligere daterte vurderinger er bevart. Installert `uv` fungerte ved avgrenset kjøring utenfor sandkassen uten reinstallasjon eller systemendringer. Brukerens bestilling gjelder ordinær push til eksisterende `main`; lokal verifikasjon er ikke en bekreftelse på produksjonsdeployment eller innlevering. Denne fortsettelsen føres i separat loggcommit etter arbeidscommiten.
+
+### Åpne punkter
+
+To eldre begrensninger er registrert separat i [issues.md](issues.md): den skjulte emneagendaens tidsfilter oppdateres ikke innen samme dato når cachen gjenbrukes, og et delvis utfylt native importfelt kan stoppe lagring før et lokalt konfliktvalg behandles. Disse er avgrenset fra de fullførte A1–A7-punktene. Eksisterende leverings-, drifts- og historikkpunkter beholdes.

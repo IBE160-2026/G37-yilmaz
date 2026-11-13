@@ -28,6 +28,9 @@ Den etterfølgende auditrapporten identifiserte to konkrete rekkefølgefeil ved 
 
 ## Kjente tekniske begrensninger
 
+- [ ] 2026-11-13 [Epic 4-oppfølging](982-2026-11-12-21-38-19-fristvalg-og-utproving.md) — Den eldre, CSS-skjulte emneagendaens cache bruker dato i stedet for nøyaktig tidspunkt. Et tidsfilter kan derfor forbli utdatert innen samme dag uten endring i data eller emnevalg. A4 retter rekkefølgen; denne separate oppdateringsbegrensningen er ikke lukket.
+- [ ] 2026-11-13 [Epic 4-oppfølging](982-2026-11-12-21-38-19-fristvalg-og-utproving.md) — Et delvis utfylt native datofelt i en valgt importrad kan bli avvist av `badInput`-kontrollen før konfliktvalget behandles, selv når lokal frist skal beholdes. A3 dekker komplette parsede/redigerte kildeverdier og er rettet; dette separate redigeringsforholdet gjenstår.
+
 - [x] 2026-11-04 [Importrekkefølge](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) — A-01/A-02 er rettet med operasjonsidentitet, avbrudd og filnavn i backupforhåndsvisningen. Femten målrettede regresjoner er lagt til; faktisk sluttkontroll og publisering spores i [PR #24](https://github.com/IBE160-2026/G37-yilmaz/pull/24). Første testmenyavvik er bevart i rapporten. Egenutprøvingen gjenåpnes ikke.
 
 - [ ] 2026-11-04 [Auditoppfølging](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) — A-04/A-05: administrator må beskytte `main` med påkrevd **Ajour quality** og rette About til `https://ajour-sooty.vercel.app/`. About ble kontrollert igjen mot README ved tekstregistreringsrettingen: API-kontoen har `push`, men ikke `admin`/`maintain`; forsøk på å endre bare `homepage` ble avvist med HTTP 404. Administrator må åpne repoets **About → tannhjul → Website**, sette hovedadressen og lagre. Grenbeskyttelse er ikke endret i denne runden. Begge offentlige adresser har separat nettleserlagring; ingen domener eller brukerdata er flyttet.
