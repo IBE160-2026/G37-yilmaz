@@ -552,14 +552,7 @@ export function buildDocumentImportCommit(state, preview, { now = new Date() } =
       if (!errors.some(error => error.field === 'courseChoice' && documentCourseIdentity({ ...preview.rows[error.index], code: preview.rows[error.index].courseHint }) === group)) fail(row.legacyCourseChoice ? 'Tidligere lagring viser ikke om manglende emnekobling var et eget valg. Avklar emnet én gang for denne gruppen, eller velg «Uten emne».' : 'Avklar emnet for gruppen eller velg «Uten emne».', 'courseChoice')
       continue
     }
-    if (row.kind === 'task' && row.deadlineMode === '?') { fail('Avklar dato og klokkeslett, velg dato uten klokkeslett eller «Uten frist».', 'deadlineMode'); continue }
     if (row.kind === 'task' && row.estimateIssue && !row.estimateResolved) { fail('Avklar minuttene eller velg ukjent.', 'remainingMinutes'); continue }
-    if (row.kind === 'task' && row.deadlineMode === 'value' && !validDeadline(row.deadlineLocal)) { fail('Oppgi en gyldig dato, eventuelt med klokkeslett.', 'deadlineLocal'); continue }
-    if (row.kind === 'task' && row.deadlineMode === 'value' && row.deadlineLocal.length > 10) try {
-      const current = state.tasks.find(task => task.id === row.targetId)
-      const occurrence = current?.deadlineLocal === row.deadlineLocal ? current.deadlineDisambiguation : undefined
-      deadlineInstant(row.deadlineLocal, occurrence)
-    } catch { fail('Fristens klokkeslett er ugyldig eller tvetydig ved tidsomstilling. Velg et entydig tidspunkt, dato uten klokkeslett eller lagre uten frist.', 'deadlineLocal'); continue }
     const proposedCourse = row.courseChoice?.startsWith('row:') ? preview.rows[Number(row.courseChoice.slice(4))] : null
     if (proposedCourse && !proposedCourse.selected) {
       if (!errors.some(error => error.index === proposedCourse.index)) errors.push({ index: proposedCourse.index, field: 'selected', message: 'Dette emneforslaget er utelatt, men valgte aktiviteter er koblet til det. Ta med emnet eller endre aktivitetenes emnekobling.' })
@@ -606,7 +599,7 @@ export function buildDocumentImportCommit(state, preview, { now = new Date() } =
     if (existing && !reference && (!previousEntry || previousEntry.kind !== row.kind || !ownsTarget(preview.sourceId, previousEntry, existing))) { fail('Måloppføringen tilhører ikke denne kildeoppføringen. Avklar koblingen uten å overskrive eksisterende data.'); continue }
     const titleField = row.kind === 'course' ? 'name' : 'title'
     const statusField = row.kind === 'course' ? 'nameStatus' : row.kind === 'event' ? 'titleStatus' : null
-    let result, titleFromLocal = false
+    let result, titleFromLocal = false, deadlineFromPreview = true
     try {
       if (reference) {
         result = candidate.planner.courses.find(course => course.id === id)
@@ -618,6 +611,7 @@ export function buildDocumentImportCommit(state, preview, { now = new Date() } =
     if (existing && previousEntry && previousEntry.kind === row.kind && !reference) {
       result = clone(existing)
       titleFromLocal = true
+      deadlineFromPreview = false
       const pointExpired = expiredUserPoint(row, previousEntry, existing)
       for (const field of IMPORT_FIELDS[row.kind].filter(field => !nameStatusFields.has(field))) {
         const baseValue = previousEntry.sourceBase[field], localValue = existing[field], incomingValue = baseline[field]
@@ -628,11 +622,21 @@ export function buildDocumentImportCommit(state, preview, { now = new Date() } =
         if (pointExpired && conditionalPointFields.has(field) || editedInPreview || conflict && row.conflictChoices[field] === 'incoming' || same(localValue, baseValue) || same(localValue, incomingValue)) {
           result[field] = values[field]
           if (field === titleField) titleFromLocal = false
+          if (field === 'deadlineLocal') deadlineFromPreview = true
         }
       }
     }
     if (errors.length > rowErrorCount) continue
-    if (row.kind === 'task' && result.deadlineLocal !== existing?.deadlineLocal) delete result.deadlineDisambiguation
+    if (row.kind === 'task') {
+      // Validate the deadline chosen by the merge. A discarded source deadline
+      // must not block a valid local pair, including parser-unresolved previews.
+      if (result.deadlineLocal !== existing?.deadlineLocal) delete result.deadlineDisambiguation
+      if (deadlineFromPreview && row.deadlineMode === '?') { fail('Avklar dato og klokkeslett, velg dato uten klokkeslett eller «Uten frist».', 'deadlineMode'); continue }
+      if (deadlineFromPreview && row.deadlineMode === 'value' && !validDeadline(result.deadlineLocal)) { fail('Oppgi en gyldig dato, eventuelt med klokkeslett.', 'deadlineLocal'); continue }
+      if (result.deadlineLocal?.length > 10) try {
+        deadlineInstant(result.deadlineLocal, result.deadlineDisambiguation)
+      } catch { fail('Fristens klokkeslett er ugyldig eller tvetydig ved tidsomstilling. Velg et entydig tidspunkt, dato uten klokkeslett eller lagre uten frist.', 'deadlineLocal'); continue }
+    }
     if (row.kind === 'event' && Date.parse(result.end) > Date.parse(result.start)) result.point = false
     if (row.kind === 'event' && (!result.point || result.pointProvenance === undefined)) delete result.pointProvenance
     // The name choice also chooses its provenance. Status never introduces a

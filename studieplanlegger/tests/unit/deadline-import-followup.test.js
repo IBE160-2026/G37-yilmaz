@@ -59,6 +59,57 @@ describe('document reimport after the user resolves a repeated deadline', () => 
     expect(updated.tasks[0]).toMatchObject({ deadlineLocal: repeatedTime, deadlineDisambiguation: 'later' })
   })
 
+  describe.each(['parsed', 'entered'])('%s ambiguous source conflict', path => {
+    function changedPreview(state, sourceDeadline = '2027-10-31T02:45') {
+      // The extra valid row proves that rejecting the selected source deadline
+      // also rejects unrelated additions from this same import transaction.
+      const draft = preview(state, originalText.replace('2027-10-30T12:00', sourceDeadline)
+        + '\n2;Ny oppgave;2027-11-03T12:00;30', true)
+      if (path === 'entered') {
+        draft.rows[0].deadlineMode = 'value'
+        draft.rows[0].deadlineLocal = sourceDeadline
+      }
+      return draft
+    }
+
+    it.each(['earlier', 'later'])('retains the local %s pair and the changed source baseline', occurrence => {
+      const state = resolvedImportedTask(occurrence), before = structuredClone(state)
+      const draft = changedPreview(state)
+      expect(draft.rows[0].conflicts.some(conflict => conflict.field === 'deadlineLocal')).toBe(true)
+      if (path === 'parsed') expect(draft.rows[0].deadlineMode).toBe('?')
+      draft.rows[0].conflictChoices.deadlineLocal = 'local'
+      const updated = success(commit(state, draft))
+      expect(updated.tasks[0]).toEqual(state.tasks[0])
+      expect(updated.tasks[0]).toMatchObject({ deadlineLocal: repeatedTime, deadlineDisambiguation: occurrence })
+      expect(updated.tasks).toHaveLength(2)
+      expect(updated.importSources[0].revision).toBe(2)
+      expect(updated.importSources[0].entries[0].sourceBase.deadlineLocal).toBe(draft.rows[0].sourceRow.deadlineLocal || '')
+      expect(updated.importSources[0].entries[0].sourceBase).not.toHaveProperty('deadlineDisambiguation')
+      expect(state).toEqual(before)
+    })
+
+    it.each(['2027-10-31T02:45', '2027-03-28T02:30'])('rejects selected source %s atomically', sourceDeadline => {
+      const state = resolvedImportedTask(), before = structuredClone(state)
+      const draft = changedPreview(state, sourceDeadline)
+      draft.rows[0].conflictChoices.deadlineLocal = 'incoming'
+      const result = commit(state, draft)
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContainEqual(expect.objectContaining({
+        index: 0, field: path === 'parsed' ? 'deadlineMode' : 'deadlineLocal',
+      }))
+      expect(result).not.toHaveProperty('state')
+      expect(state).toEqual(before)
+    })
+
+    it('requires a conflict choice without changing tasks or source history', () => {
+      const state = resolvedImportedTask(), before = structuredClone(state)
+      const result = commit(state, changedPreview(state))
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContainEqual(expect.objectContaining({ index: 0, field: 'conflict:deadlineLocal' }))
+      expect(state).toEqual(before)
+    })
+  })
+
   it('clears the occurrence when the preview explicitly removes the deadline', () => {
     const state = resolvedImportedTask(), draft = preview(state)
     draft.rows[0].deadlineMode = 'none'

@@ -106,7 +106,7 @@ export function createDailyOverview(actions) {
       row.append(copy, actionsRow); planHost.append(row)
     }
     const shownTaskIds = new Set(visibleRows.map(row => row.task.id))
-    const deadlines = entries.filter(entry => entry.kind === 'deadline' && !entry.done && entry.start >= +model.now && !shownTaskIds.has(entry.id)).sort((a, b) => (a.local || '').localeCompare(b.local || '')).slice(0, 2)
+    const deadlines = entries.filter(entry => entry.kind === 'deadline' && !entry.done && entry.start >= +model.now && !shownTaskIds.has(entry.id)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 2)
     if (deadlines.length) planHost.append(el('h3', 'Kommende frister'))
     else if (!visibleRows.some(row => row.deadline?.start >= +model.now)) planHost.append(el('p', 'Ingen kommende frister er registrert.'))
     for (const entry of deadlines) { const row = el('div', ''); row.className = 'daily-row deadline-row'; applyCourseColor(row, resolvedCourseId(entry)); const open = button('Åpne', `deadline:${entry.id}:open`, () => actions.edit(entry.id)); open.setAttribute('aria-label', `Åpne fristen for ${entry.title}`); row.append(el('p', `${entry.title} · ${compactTime(entry, date)}`), open); planHost.append(row) }

@@ -7,7 +7,7 @@ paradigm: layered browser application
 scope: Individual beginner IBE160 project, including capacity planning
 status: final
 created: 2026-09-06
-updated: 2026-11-12
+updated: 2026-11-13
 binds: [R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, Q-01, Q-02, Q-03]
 historical_binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-1, NFR-2, NFR-3]
 sources:
@@ -22,6 +22,8 @@ sources:
 
 # Technical plan: Ajour
 
+**Epic 4 follow-up, 2026-11-13:** AD-18 below clarifies the shared deadline rules and their import, agenda and capacity consumers. AD-4/5/8 retain their original wording with explicit supersession notes. The [dated follow-up](../../../implementation-artifacts/epic-4-followup-2026-11-13.md) separates the previous local findings, this repository's changes and their verification; it does not replace the owner acceptance evidence below.
+
 **Documentation reconciliation, 2026-11-12:** The current contracts below incorporate [validation findings N1–N5](validation-2026-11-12.md#nødvendige-rettelser) against the PRD updated on this date. V1, AD identifiers, data formats and dated acceptance evidence remain unchanged; this revision does not record new product tests.
 
 **Owner acceptance evidence, 2026-11-04:** The owner completed the seven R-07 scenarios and the named Start supplement on 3–4 November. Stable task/step/work-log links survived rename, reorder, replanning/undo, reload and restoration into an empty Chrome guest session. The final portable export retained the source's complete domain data. [The curated report](../../../implementation-artifacts/owner-trial-2026-11-04.md) separates owner-confirmed actions, visible browser evidence and Codex's file comparisons, including the corrected early outcome attempt. This closes the earlier manual coverage reservation within the recorded scope; it does not change any runtime contract or establish general student benefit.
@@ -35,6 +37,10 @@ sources:
 [deadline.js](../../../../studieplanlegger/src/deadline.js) inspects local deadlines in Europe/Oslo and distinguishes invalid date, invalid clock, nonexistent spring time, ambiguous autumn time and a resolved instant. Task forms require an explicit `earlier` or `later` choice for a repeated time and store it in optional `deadlineDisambiguation`; v1 data without that field remain readable. An unresolved legacy deadline stays visible for repair and must not acquire a guessed calendar/export instant or capacity allocation. This supersedes AD-8's historical first-occurrence capacity assumption. A chosen occurrence controls deadline ordering, overdue state, capacity, replanning, calendar and timed ICS export. Changing a deadline clears a stale choice; unchanged reimport preserves a valid saved choice.
 
 Date-only values keep their existing storage, display and all-day export contract. Calculation boundaries remain the start of the following Oslo day. Invalid clock errors focus the time field and preserve the draft; spring-gap errors explain why that time does not exist. [Dated evidence](../../../implementation-artifacts/deadline-occurrences-2026-11-12.md) separates the owner's observations in the older local copy from tests of the current repository. Current multiple-step identities and partial-session rules remain intact.
+
+**Consumer reconciliation, 2026-11-13:** Resolve import conflicts before validating the selected deadline and occurrence together. A discarded incoming ambiguity must not reject a valid retained local pair; invalid selected incoming data still rejects the complete candidate atomically. Subject-agenda teaching and resolved deadlines sort by numeric instants, with explicit repair priority for unresolved entries and stable ties. Personal local event values use Oslo interpretation independently of the browser's timezone. In the compact upcoming agenda, unresolved deadlines remain repairable but move after upcoming work only when strictly past their latest possible instant; equality does not count as overdue. If that move removes the focused entry from the collapsed list, focus returns to the expand control. No renderer infers or persists an occurrence.
+
+Both free allocation and linked reservations clip work at the selected deadline instant. The reservation regression uses 180 minutes of work and a linked 01:00–03:00 autumn session: a 02:30 deadline credits 90 minutes for `earlier` and 150 for `later`. Separate regressions cover daily calculation and rendered deadline ordering, where 02:45/earlier precedes 02:15/later. [The follow-up report](../../../implementation-artifacts/epic-4-followup-2026-11-13.md) records execution and evidence limits. AD-18 supersedes the historical device-local/wall-clock deadline clauses in AD-4, the no-UTC-conversion wording in AD-5 and the first-occurrence deadline assumption in AD-8; local form labels and the date-only contract above remain intact.
 
 ## AD-17 — Bounded import bookkeeping and lossless local recovery, 2026-11-01
 
@@ -224,11 +230,15 @@ flowchart TD
 
 ### AD-4 — Shared clock and selection rules [ADOPTED]
 
+**Historical deadline clauses, clarified 2026-11-13:** AD-18 supersedes the device-local/wall-clock-only interpretation and ordering below with Europe/Oslo instants and explicit repeated-time choices. The original wording remains as dated design history, not an instruction to discard a saved occurrence.
+
 - **Binds:** FR-4–5, FR-9–10; PRD D1, D6, D8.
 - **Prevents:** Different week membership, overdue flags or suggestions across views.
 - **Rule:** Use device-local calendar fields throughout. Deadlines are wall-clock values, not UTC strings; no `toISOString()` conversion. Validate actual calendar fields rather than accepting date rollover. A week is local Monday 00:00 inclusive through next Monday 00:00 exclusive. Unfinished tasks and completed-but-unsubmitted submission tasks are overdue only when now is strictly later than their deadline. Confirmed submissions and completed ordinary tasks are not overdue. Time suggestions cover unfinished work with positive remaining minutes (also required when a next step exists), including overdue, using an active step's estimate when present and otherwise remaining work (main estimate for older tasks); include positive action minutes ≤ available minutes and order by deadline then source-array position. Never fall back to a smaller whole-task estimate if an active step does not fit. The first candidate is the main suggestion; alternatives retain that order. Deadline views and overdue counts never apply the available-time filter. Pass `now` into rule functions; refresh derived views on actions, page focus and at least every second while visible. Reject nonexistent local times during a daylight-saving transition; repeated local minutes use the same wall-clock label. Timezone changes retain entered clock values. No automatic completion; quick suggestions are alternatives, while AD-8 separately allocates work across sessions.
 
 ### AD-5 — Accessible local-only interface [ADOPTED]
+
+**Historical deadline-interface clause, clarified 2026-11-13:** AD-18 supersedes the absolute prohibition on UTC conversion below. Inputs retain local Norwegian labels; resolved instants and occurrence/offset explanations support calculations and unambiguous presentation.
 
 - **Binds:** NFR-1–3; all UI.
 - **Prevents:** Unsafe task rendering and inconsistent interaction feedback.
@@ -238,6 +248,8 @@ flowchart TD
 - **Norwegian deadlines:** Display Norwegian date labels and 24-hour `HH:mm` throughout, independent of browser locale. Form input uses a labelled native date field and explicit `HH:mm` text field, not a locale-dependent time picker. Validate their combined local value with the existing rules and retain valid draft parts on error. No AM/PM or UTC conversion enters the deadline interface.
 
 ### AD-6 — Local environment and evidence
+
+**Trial-status clarification, 2026-11-13:** The month-long trial mentioned below was withdrawn and never completed; it is not pending Epic 4 acceptance work. A short example-data check in an older local copy is documented separately from technical verification and from the completed 3–4 November R-07 owner trial. [Current evidence and limits](../../../implementation-artifacts/epic-4-followup-2026-11-13.md) preserve that distinction; sustained study benefit remains unmeasured.
 
 - **Binds:** FR-6, implementation setup and acceptance.
 - **Prevents:** Apparent data loss from switching origins and planned tests being reported as passed.
@@ -250,6 +262,8 @@ flowchart TD
 - **Rule:** The calendar renders from all saved tasks and the shared local `now`; it never persists its selection or directly writes task/session data. Start at today's local month/date. A 42-day month grid starts Monday and includes adjacent-month dates, with today/selected date distinguishable and real task indicators. Previous/next month and “I dag” handle month/year changes. A selected-day list shows every task due that date in stable deadline order, with course, 24-hour time, status and an edit action through the existing controller. Agenda groups all deadlines in the selected month by local date, including completed, ready-to-submit and submitted work. At widths up to 700 px, agenda is the initial mode; both modes can be chosen at any width. Keep month/date/mode through clock refresh and view changes. Arrow keys move one day/week; Home/End move to Monday/Sunday, with one day in the Tab sequence. No drag-and-drop scheduling or separate calendar task-creation model. AD-8 adds distinctly labelled study sessions to month/day/agenda views.
 
 ### AD-8 — Capacity, remaining work and session persistence
+
+**Historical deadline and trial clauses, clarified 2026-11-13:** AD-18 supersedes the first-occurrence capacity assumption and wall-clock overdue comparison below. Both allocation paths use the explicit selected instant; unresolved legacy deadlines receive no guessed capacity. The reference to an open trial log is historical: the month-long trial was withdrawn, and later short-check/R-07 evidence remains separately dated as explained under AD-6.
 
 - **Binds:** The user's capacity-planning request of 2026-09-07; extends AD-1–5 and AD-7. Rule-based allocation is now in scope; no advanced optimization or work tracking is implied.
 - **Task extension:** Optional `remainingMinutes` is a nonnegative safe integer. An unfinished older task without it uses `estimatedMinutes`; completed work contributes zero regardless of retained estimate. Zero remaining does not change `completed` or `submitted`, but excludes the task from quick action suggestions even when it has a fitting next step. Completing a next step still only clears it; the user re-estimates remaining work manually. Quick action selection continues to use an active step first, otherwise remaining work; it does not sum alternatives.

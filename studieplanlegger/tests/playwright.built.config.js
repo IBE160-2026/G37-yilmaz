@@ -15,6 +15,7 @@ export default defineConfig({
     'own-trial-*.spec.js',
     'text-registration-exam.spec.js',
     'deadline-followup.spec.js',
+    'epic4-retro-agendas.spec.js', 'epic4-retro-consumers.spec.js',
   ],
   outputDir: process.env.AJOUR_BUILT_RESULTS,
   fullyParallel: true, workers: 2, timeout: 60_000,

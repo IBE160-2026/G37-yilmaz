@@ -2,7 +2,7 @@ import { osloLocal, matchesCourse } from './planner.js'
 import { extendedSessionInterval } from './work-capacity.js'
 import { applyCourseColor, courseColorSlot, resolvedCourseId } from './course-colors.js'
 import { isExamEvent } from './event-kind.js'
-import { deadlineInstant } from './tasks.js'
+import { deadlineInstant, isOverdue } from './tasks.js'
 import { inspectDeadline } from './deadline.js'
 
 // One data source for the compact agenda, independent of the selected month.
@@ -25,7 +25,12 @@ export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, course
   }
   for (const task of tasks) {
     let deadline, warning = ''
-    try { deadline = task.deadlineLocal ? deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) : NaN } catch { deadline = -Infinity; warning = 'Fristens klokkeslett må presiseres.' }
+    try { deadline = task.deadlineLocal ? deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) : NaN } catch {
+      warning = 'Fristens klokkeslett må presiseres.'
+      // Keep repair available without displacing upcoming work once every
+      // possible occurrence has passed. This never chooses an occurrence.
+      deadline = isOverdue(task, now) ? Infinity : -Infinity
+    }
     if (!task.deadlineLocal || task.submitted || (task.completed && !task.requiresSubmission) || !warning && deadline <= +now) continue
     if (!matchesCourse(task, courseFilter, course)) continue
     const subject = courses.find(item => item.id === task.courseId)
@@ -117,7 +122,10 @@ export function createAgenda(host, actions) {
       more.addEventListener('click', () => { expanded = !expanded; render(currentModel); host.querySelector('.agenda-more')?.focus({ preventScroll: true }) })
       host.append(more)
     }
-    if (focusKey) [...host.querySelectorAll('button')].find(button => button.dataset.agendaKey === focusKey)?.focus({ preventScroll: true })
+    if (focusKey) {
+      const replacement = [...host.querySelectorAll('button')].find(button => button.dataset.agendaKey === focusKey) || host.querySelector('.agenda-more')
+      replacement?.focus({ preventScroll: true })
+    }
   }
   return { render }
 }

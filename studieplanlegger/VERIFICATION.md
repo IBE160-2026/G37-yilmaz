@@ -1,6 +1,10 @@
 # Verifisering av Ajour
 
-**Kortoversikt, redigert 12. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
+**Kortoversikt, redigert 13. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
+
+## Epic 4: fristimport og agendaer — 2026-11-13
+
+[Oppfølgingen av A1–A7](../.docs/implementation-artifacts/epic-4-followup-2026-11-13.md) dokumenterer før-/ettertilstand, validering etter importens konfliktvalg, numerisk agendarekkefølge og kommende arbeid foran sikkert utløpte uavklarte frister. Regresjoner dekker også tastaturfokus ved klokkeoppdatering, reserverte minutter og dagsoversiktens forekomstvalg. Rapporten samordner historiske arkitektur-/prøvereferanser og skiller ny teknisk verifikasjon fra tidligere lokal gjennomgang og eierens R-07-resultater.
 
 ## Frister ved tidsskifte og kort lokal prøve — 2026-11-12
 

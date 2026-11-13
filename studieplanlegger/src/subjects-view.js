@@ -1,4 +1,4 @@
-import { emptyPlanner, validateCourse, validateEvent, validatePersonalActivity, mergeImport, mergeCourseOnly, resolveImportedCourse, osloLocal, osloLocalExact, osloYear, semesterLabel, teachingOverlap, matchesCourse, sourceHref } from './planner.js'
+import { emptyPlanner, validateCourse, validateEvent, validatePersonalActivity, mergeImport, mergeCourseOnly, resolveImportedCourse, osloLocal, osloLocalExact, osloYear, semesterLabel, teachingOverlap, matchesCourse, sourceHref, toInstant } from './planner.js'
 import { formatDeadline } from './calendar.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 import { parseCalendar } from './calendar-import.js'
@@ -579,14 +579,18 @@ export function createSubjectsView(actions) {
     if (nextAgenda !== agendaSignature) {
       agendaSignature = nextAgenda; agenda.replaceChildren(el('h3', 'Undervisning og frister'), el('p', 'U: undervisning · F: oppgavefrist. Undervisning vises i norsk tid.', 'muted'))
       const course = planner.courses.find(c => c.id === courseFilter.value)
-      const entries = subjectEventAgendaEntries(planner, now, course).map(entry => ({ ...entry, open: () => { actions.view('subjects'); openEditor('event', entry.event) } }))
+      const entries = subjectEventAgendaEntries(planner, now, course).map(entry => ({ ...entry, key: `event:${entry.event.id}`, sortAt: Date.parse(entry.event.start || toInstant(entry.time)), open: () => { actions.view('subjects'); openEditor('event', entry.event) } }))
       for (const task of model.tasks.filter(t => t.deadlineLocal && (!t.completed || (t.requiresSubmission && !t.submitted)) && matchesCourse(t, course?.id, course))) {
         const time = subjectDeadlineTime(task)
         const unresolved = !time && inspectDeadline(task.deadlineLocal).status === 'ambiguous'
         const taskCourse=planner.courses.find(item=>item.id===task.courseId),code=taskCourse?.code||task.course
-        if (unresolved || subjectDeadlineUpcoming(task, now)) entries.push({ time: time || '', title: `F · ${code ? `${code} · ` : ''}${task.title}`, detail: `${formatDeadline(task.deadlineLocal, { year: true, disambiguation: task.deadlineDisambiguation })} · ${code}`, open: () => actions.editTask(task.id), kind: 'deadline', courseId: resolvedCourseId(task, planner.courses), course: code })
+        if (unresolved || subjectDeadlineUpcoming(task, now)) entries.push({ key: `task:${task.id}`, sortAt: unresolved ? -Infinity : Date.parse(time), unresolved, title: `F · ${code ? `${code} · ` : ''}${task.title}`, detail: `${formatDeadline(task.deadlineLocal, { year: true, disambiguation: task.deadlineDisambiguation })} · ${code}`, open: () => actions.editTask(task.id), kind: 'deadline', courseId: resolvedCourseId(task, planner.courses), course: code })
       }
-      entries.sort((a, b) => a.time.localeCompare(b.time) || a.title.localeCompare(b.title, 'nb'))
+      // Unresolved records come first for repair; resolved records share numeric
+      // instant keys even when teaching arrived with an explicit UTC offset.
+      entries.sort((a, b) => Number(!!b.unresolved) - Number(!!a.unresolved) ||
+        (a.sortAt === b.sortAt ? 0 : a.sortAt - b.sortAt) ||
+        a.title.localeCompare(b.title, 'nb') || a.key.localeCompare(b.key))
       if (!entries.length) agenda.append(el('p', 'Ingen kommende undervisning eller frister for dette emnevalget.'))
       const list = el('ul'); for (const entry of entries.slice(0, 100)) { const li = el('li', null, `agenda-${entry.kind}${entry.isExam ? ' is-exam' : ''}`); applyCourseColor(li, entry.courseId); li.append(button(entry.title, entry.open), el('p', entry.detail)); list.append(li) } agenda.append(list)
       if (entries.length > 100) agenda.append(el('p', 'Viser de neste 100 oppføringene. All undervisning finnes under Mine emner.'))
