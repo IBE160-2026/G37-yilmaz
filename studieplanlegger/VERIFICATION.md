@@ -2,6 +2,10 @@
 
 Oversikten samler daterte rettinger, prøver og begrensninger med lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
 
+## Ukeplan med åpent arbeidsanslag — 2026-11-19
+
+Med åtte registrerte timer og én planlagt økt setter ukeplanen av tid for det kjente minimumet ved «Mer enn 4 timer». I Chromium ble den eksisterende økten kl. 08.00–08.30 beholdt. Utkastet viste ukjent øvre grense og ble først lagret etter «Bruk planen». Enhetstestene dekker også delvis og manglende kapasitet. [Nettlesertesten](tests/e2e/own-trial-time-capacity.spec.js) · [Enhetstestene](tests/unit/daily-guidance.test.js)
+
 ## Apptekster og eksamensimport fra HiMolde — 2026-11-19
 
 - [Leveringsmeldingen i Chromium](tests/e2e/deadline-followup.spec.js) ble kontrollert med nettleserklokken satt til kl. 11.59 og 12.01, rundt fristen kl. 12.00 i Oslo. Meldingen var den samme på begge sider av fristen. «Bekreft levering» registrerte statusen lokalt i Ajour.

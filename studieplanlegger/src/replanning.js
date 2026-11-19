@@ -103,7 +103,8 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
     let limit
     try { limit = deadline(task) } catch { problems.push(`«${task.title}»: fristen er tvetydig ved tidsskifte. Presiser den.`); continue }
     let after = Math.max(floor, ...(task.dependencyIds || []).map(id => doneAt.get(id) || floor))
-    const remaining = remainingRange?.maxMinutes ?? null, exploration = exploratory[task.id]
+    // An open upper bound still leaves a known minimum to schedule.
+    const remaining = remainingRange?.maxMinutes ?? (remainingRange?.minMinutes || null), exploration = exploratory[task.id]
     if (remaining === null && !(Number.isSafeInteger(exploration) && exploration >= rules.minimumMinutes && exploration <= rules.maximumMinutes)) { problems.push(`«${task.title}»: gjenstående arbeid er ukjent. Velg en utforskende økt eller oppgi et estimat; fullføring kan ikke beregnes.`); continue }
     if (remaining === 0) { problems.push(`«${task.title}»: 0 min er registrert. Bekreft arbeidsstatus selv.`); continue }
     const target = remaining ?? exploration, openEnded = remainingRange?.maxMinutes === null

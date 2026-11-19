@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { freeze, instrumentWrites, key, navigate, raw, reveal, saved, tabTo, writes } from './helpers.js'
+import { freeze, instrumentWrites, key, navigate, openRowMenu, raw, reveal, row, saved, tabTo, writes } from './helpers.js'
 
 // Invented data in isolated Playwright profiles. Technical regression checks,
 // not the owner's personal trial or the previously passed Outlook test.
@@ -18,6 +18,42 @@ async function boot(page, state, width) {
   await navigate(page, 'capacity')
   expect(await writes(page)).toEqual([])
 }
+
+test('ukeplanen planlegger kjent minimum ved Mer enn 4 timer med åtte timer ledig', async ({ page }) => {
+  const assignment = { id: 'synthetic-open-estimate', title: 'Syntetisk ukeplan', course: '', estimatedMinutes: 30, remainingMinutes: 30, completed: false }
+  const reservation = { id: 'synthetic-reservation', taskId: assignment.id, dateLocal: '2026-11-02', startTime: '08:00', endTime: '08:30' }
+  const state = { ...emptyState(), tasks: [assignment], sessions: [reservation],
+    workWindows: [{ id: 'synthetic-eight-hours', start: '2026-11-02T07:00:00Z', end: '2026-11-02T15:00:00Z' }] }
+  await boot(page, state, 1440)
+  await navigate(page, 'all')
+  const card = row(page, assignment.title)
+  await openRowMenu(card)
+  await card.getByRole('button', { name: `Registrer arbeid «${assignment.title}»`, exact: true }).click()
+  const outcome = page.getByRole('dialog', { name: 'Hva skjedde?', exact: true })
+  await outcome.getByRole('radio', { name: 'Trenger mer tid', exact: true }).check()
+  await outcome.getByLabel('Gjenstående arbeid').selectOption({ label: 'Mer enn 4 timer' })
+  await outcome.getByRole('button', { name: 'Lagre utfallet', exact: true }).click()
+  const before = await saved(page)
+  expect(before.tasks[0].remainingEstimate).toEqual({ minMinutes: 241, maxMinutes: null })
+  expect(before.sessions).toEqual([reservation])
+
+  await navigate(page, 'capacity')
+  await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()
+  const plan = page.getByRole('dialog', { name: 'Realistisk planforslag', exact: true })
+  await expect(plan).toContainText('0 flyttes og 0 fjernes')
+  await expect(plan).toContainText('mer arbeid kan gjenstå; øvre grense er ukjent')
+  await expect(plan.locator(`[data-session-id="${reservation.id}"]`)).toContainText('Tidspunktet beholdes.')
+  expect(await saved(page)).toEqual(before)
+  await plan.getByRole('button', { name: 'Bruk planen', exact: true }).click()
+  await expect(plan).toBeHidden()
+  const after = await saved(page)
+  expect(after.sessions).toContainEqual(expect.objectContaining(reservation))
+  const plannedMinutes = after.sessions.reduce((total, session) =>
+    total + (Date.parse(`${session.endDateLocal}T${session.endTime}:00+01:00`)
+      - Date.parse(`${session.dateLocal}T${session.startTime}:00+01:00`)) / 60_000, 0)
+  expect(plannedMinutes).toBeGreaterThanOrEqual(241)
+  expect(after.tasks).toEqual(before.tasks)
+})
 
 for (const width of [1440, 390]) {
   test(`Norwegian session errors retain the draft and saved data at ${width}px`, async ({ page }, info) => {
