@@ -21,6 +21,7 @@ for (const sample of samples) test(`live published programme PDF edition: ${samp
     const rows = await control.locator('option').evaluateAll(nodes => nodes.map(node => ({ value: node.value, label: node.textContent })))
     const choice = rows.find(row => row.value !== '' && predicate(row))
     expect(choice, JSON.stringify(rows)).toBeTruthy(); await control.selectOption(choice.value)
+    return choice
   }
   for (let attempt = 0; attempt < 2; attempt++) {
     const before = await state()
@@ -43,7 +44,7 @@ for (const sample of samples) test(`live published programme PDF edition: ${samp
     const calendarYear = sample.calendarYear || '2026'
     if (await host.locator('[name=calendarSemester]').isVisible()) await choose(host.locator('[name=calendarSemester]'), row => row.value === `${calendarYear}:autumn`)
     else { await host.locator('[name=clarifiedYear]').fill(calendarYear); await host.locator('[name=clarifiedSemester]').selectOption('autumn') }
-    await choose(host.locator('[name=programCampus]'), row => row.label === sample.campus)
+    const campus = await choose(host.locator('[name=programCampus]'), row => row.label === sample.campus || sample.institution === 'uit' && row.value === '__unknown')
     for (const box of await host.locator('.activity-choices input').all()) await box.uncheck()
     await host.getByRole('checkbox', { name: new RegExp(`\\b${sample.code}\\b`) }).check()
     if (sample.clarifyStudySemester) {
@@ -81,7 +82,7 @@ for (const sample of samples) test(`live published programme PDF edition: ${samp
       expect(course.programBinding.sourceEdition).toContain(`pdf-${sample.pdfId}:`)
     }
     if (sample.pdfPath) expect(course.sourceUrl).toContain(sample.pdfPath)
-    expect(course.programBinding).toMatchObject({ modelId: sample.model, cohort: sample.studentCohort, studySemester: 1, calendarYear: Number(calendarYear), calendarSemester: 'autumn' })
+    expect(course.programBinding).toMatchObject({ modelId: sample.model, cohort: sample.studentCohort, studySemester: 1, calendarYear: Number(calendarYear), calendarSemester: 'autumn', campus: campus.value === '__unknown' ? '' : campus.value })
     if (first) expect(current.planner.courses.map(row => row.id)).toEqual(first.planner.courses.map(row => row.id))
     else first = current
     await page.reload(); expect((await state()).planner).toEqual(current.planner)
@@ -98,7 +99,7 @@ for (const sample of [
   test.setTimeout(180000)
   await page.setViewportSize({ width: 390, height: 1000 })
   await page.goto('/')
-  await page.locator('#new-task').click()
+  await page.locator('#connected-onboarding').getByRole('button', { name: 'Legg til oppgave', exact: true }).click()
   await page.locator('#title').fill('Behold mitt eksisterende arbeid')
   await page.locator('#task-form').getByRole('button', { name: 'Lagre', exact: true }).click()
   const before = await page.evaluate(key => localStorage.getItem(key), key)

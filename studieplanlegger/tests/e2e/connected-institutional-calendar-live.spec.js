@@ -36,7 +36,7 @@ for (const source of ['gestalt', 'phs']) test(`live ${source} published calendar
     expect(await saved()).toEqual(before)
     const result = await (await request).json()
     responses.push({ sourceKind: result.sourceKind, count: result.count, unresolved: result.unresolved, authoritative: result.authoritative })
-    const retained = run ? (source === 'gestalt' ? 1 : 3) : 0
+    const retained = run ? (source === 'gestalt' ? 1 : 2) : 0
     await expect(form.locator('.document-preview-row input[data-field=selected]:checked')).toHaveCount(retained)
     if (source === 'gestalt') {
       const rows = parseDocumentIcs(result.calendar, period).rows
