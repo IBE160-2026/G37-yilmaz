@@ -8,7 +8,7 @@ Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere øn
 
 ### Kjente tekniske begrensninger
 
-- [ ] 2026-11-13 [Epic 4-oppfølging](982-2026-11-12-21-38-19-fristvalg-og-utproving.md) — Den eldre, CSS-skjulte emneagendaens cache bruker dato i stedet for nøyaktig tidspunkt. Et tidsfilter kan derfor forbli utdatert innen samme dag uten endring i data eller emnevalg. A4 retter rekkefølgen; denne separate oppdateringsbegrensningen er ikke lukket.
+- [x] 2026-11-13 [Epic 4-oppfølging](982-2026-11-12-21-38-19-fristvalg-og-utproving.md) — K03: Den eldre emneagendaen oppdateres når en frist eller undervisningsslutt passerer. Nettleserprøven flyttet klokken gjennom begge grensene uten omlasting eller endring av emne (løst 2026-11-19). [Leveringsregresjonene](976-2026-11-19-21-31-13-ajour-leveringsregresjoner.md)
 
 - [ ] 2026-11-19 A-04: GitHubs gren-API bekreftet at `main` er ubeskyttet og har null påkrevde kontroller. En administrator må aktivere grenbeskyttelse eller et regelsett dersom teamet vil kreve grønn **Ajour quality** før sammenslåing. [Auditoppfølging](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md)
 
