@@ -33,7 +33,7 @@ test('R7 locked reservations stay untouched and cannot make dependent work start
   await navigate(page, 'all')
   await page.getByRole('button', { name: 'Se planforslag «Avhengig arbeid»', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: 'Planforslag for oppgaven', exact: true })
-  await expect(dialog).toContainText('«Avhengig arbeid»: Venter på «Forutsetning». Ingen startklar tid foreslås.')
+  await expect(dialog).toContainText('«Avhengig arbeid»: Venter på «Forutsetning». Ingen startklar tid foreslås før hindringen er avklart.')
   await expect(dialog.locator('.replan-row').filter({ hasText: 'Avhengig arbeid' })).toHaveCount(0)
   await page.screenshot({ path: info.outputPath('locked-break-warning-mobile.png') })
   await dialog.getByRole('button', { name: 'Ikke nå', exact: true }).click()

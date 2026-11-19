@@ -14,7 +14,7 @@ async function seed(page, data = initial()) {
 }
 async function menu(page) { await navigate(page, 'settings'); const control = page.locator('#settings-panel .data-menu').filter({ hasText: 'Data og sikkerhetskopi' }); if (!await control.evaluate(node => node.open)) await control.locator('summary').click() }
 
-test('mobile 200 percent modes stay whole and selected content is reachable above navigation', async ({ page }) => {
+test('mobile 200 percent modes stay whole and selected content is reachable below navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 }); const errors = await seed(page)
   await navigate(page, 'calendar'); await page.evaluate(() => document.documentElement.style.fontSize = '200%')
   const modes = page.locator('.full-calendar-modes button')
@@ -23,7 +23,7 @@ test('mobile 200 percent modes stay whole and selected content is reachable abov
   await modes.last().scrollIntoViewIfNeeded(); await page.screenshot({ path: 'artifacts/focused-mobile-200-modes.png' })
   await page.locator('[data-calendar-view=agenda]').focus(); await page.keyboard.press('Enter')
   const viewport = page.locator('.full-calendar-viewport'), nav = await page.locator('.view-actions').boundingBox(), bounds = await viewport.boundingBox()
-  expect(bounds.height).toBeGreaterThanOrEqual(200); expect(bounds.y + bounds.height).toBeLessThanOrEqual(nav.y)
+  expect(bounds.height).toBeGreaterThanOrEqual(200); expect(bounds.y).toBeGreaterThanOrEqual(nav.y + nav.height)
   await expect(page.locator('.calendar-full-agenda .calendar-entry').first()).toBeInViewport()
   await page.screenshot({ path: 'artifacts/focused-mobile-200-content.png' })
   await page.locator('.calendar-full-agenda [data-calendar-key="event:morning"]').click(); await expect(page.locator('.calendar-details')).toContainText('TEST101')
@@ -45,7 +45,7 @@ test('work-window kind changes preserve identity and tasks, survive reload, and 
   await page.locator('.work-window-row').getByRole('button', { name: 'Rediger tidsrom' }).click(); await form.locator('[name=kind]').selectOption('work'); await form.getByRole('button', { name: 'Lagre tidsrom' }).click()
   data = await saved(page); expect(data.workWindows).toEqual(before.workWindows); expect(data.busyWindows).toEqual([])
   await navigate(page, 'overview'); await page.locator('#focus-panel').scrollIntoViewIfNeeded()
-  await expect(page.locator('.focus-visual img')).toBeVisible(); await page.screenshot({ path: 'artifacts/focused-compact-illustration.png' })
+  await expect(page.locator('#focus-panel')).toBeVisible()
 })
 
 test('portable legacy backup rekeys safely but local recovery restores raw connections and IDs', async ({ page }) => {

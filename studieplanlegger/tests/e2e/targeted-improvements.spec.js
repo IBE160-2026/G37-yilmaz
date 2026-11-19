@@ -34,7 +34,7 @@ async function previewCourse(page, institution, code) {
   const searched = page.waitForResponse(response => response.url().includes(`/api/import/providers/${institution}/search?`))
   await form.getByRole('button', { name: 'Søk emner' }).click()
   const result = await (await searched).json(); expect(result.status, result.error || 'Public course search').toBe('ok')
-  await page.locator('.wizard-results').getByRole('button', { name: new RegExp(`^${code} ·`) }).click()
+  await page.locator('.wizard-results').getByRole('button', { name: new RegExp(` · ${code}(?: · |$)`) }).click()
   await expect(page.locator('#import-preview')).toBeVisible()
 }
 
@@ -91,18 +91,21 @@ test('mobile day, agenda, settings and enlarged text remain reachable with keybo
   await page.screenshot({ path: 'artifacts/targeted-settings-390.png' })
 })
 
-test('one task row combines session and deadline, equal titles stay distinct and focus uses IDs', async ({ page }) => {
+test('session and deadline stay visible, equal titles stay distinct and focus uses IDs', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   const data = state(); data.planner.events = []; await boot(page, data)
   const rows = page.locator('#next-plan [data-daily-row^="task:"]')
   await expect(rows).toHaveCount(2)
   const first = page.locator('[data-daily-row="task:a"]'), second = page.locator('[data-daily-row="task:b"]')
-  await expect(first).toContainText('10:00'); await expect(first).toContainText('Frist i dag kl. 14:00')
+  const session = page.locator('#next-plan [data-daily-row="session:s"]')
+  await expect(session).toBeVisible(); await expect(session).toContainText('10:00–10:30')
+  await expect(first).toContainText('Frist i dag kl. 14:00')
   await expect(first.locator('.daily-task-actions > button')).toHaveCount(1)
   const summary = second.locator('summary'); await summary.focus(); await summary.press('Enter')
   const edit = second.getByRole('button', { name: 'Åpne oppgave og frist' }); await edit.focus()
   await page.clock.setFixedTime(new Date('2026-09-08T10:01:00+02:00')); await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-  await expect(edit).toBeFocused(); await expect(first).toContainText('Pågår nå')
+  await expect(edit).toBeFocused(); await expect(session).toContainText('Pågår nå')
+  await expect(first).toContainText('Frist i dag kl. 14:00')
   await page.screenshot({ path: 'artifacts/targeted-daily-1440.png' })
 })
 

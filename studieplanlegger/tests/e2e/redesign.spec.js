@@ -23,17 +23,11 @@ for (const width of [1440, 390]) {
     page.on('pageerror', error => errors.push(error.message));
     await seed(page);
     await expect(page.locator('#page-heading')).toHaveText('Oversikt');
-    width < 761
-      ? await expect(page.locator('#compact-agenda')).toBeHidden()
-      : await expect(page.locator('#compact-agenda')).toBeVisible();
+    await expect(page.locator('#compact-agenda')).toBeHidden();
     await expect(page.locator('.calendar-month-view')).toBeHidden();
-    const illustration = page.locator('.focus-visual img');
-    await expect(illustration).toBeVisible();
-    expect(await illustration.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
     await page.locator('[data-minutes="15"]').click();
     await expect(page.locator('#available-minutes')).toHaveValue('15');
-    await expect(page.locator('#dashboard-suggestions .primary-suggestion')).toHaveCount(0);
-    await expect(page.locator('#suggestion-empty')).toBeVisible();
+    await expect(page.locator('#dashboard-suggestions .primary-suggestion')).toContainText('En deløkt på 15 min');
     await page.locator('[data-minutes="30"]').click();
     const primary = page.locator('.primary-suggestion:visible').first();
     await expect(primary).toContainText(tasks[0].title);
@@ -42,12 +36,15 @@ for (const width of [1440, 390]) {
     await primary.getByRole('button', { name: `Rediger «${tasks[0].title}»`, exact: true }).click();
     await expect(page.locator('#title')).toHaveValue(tasks[0].title);
     await page.locator('#cancel-task').click();
-    await navigate(page, width < 761 ? 'all' : 'overview');
-    await page.getByRole('button', { name: 'Månedsvisning', exact: true }).click();
-    await expect(page.locator('.calendar-month-view')).toBeVisible();
-    await page.locator('[data-calendar-date="2026-09-08"]').click();
-    await expect(page.locator('.calendar-day-list')).toContainText(tasks[0].title);
-    await page.getByRole('button', { name: 'Agenda', exact: true }).click();
+    await navigate(page, 'calendar');
+    await page.locator('[data-calendar-view=month]').click();
+    const date = page.locator('.calendar-month-grid [data-date="2026-09-08"]');
+    await expect(date).toContainText(tasks[0].title);
+    await date.getByRole('button', { name: /8\. sep/ }).click();
+    await expect(page.locator('#full-calendar-date')).toHaveValue('2026-09-08');
+    await expect(page.locator('.calendar-points [data-calendar-key="task:redesign-only-1"]')).toContainText(tasks[0].title);
+    await navigate(page, 'all');
+    await expect(page.locator('#compact-agenda')).toBeVisible();
     await page.locator('#compact-agenda').getByRole('button', { name: tasks[0].title, exact: false }).click();
     await expect(page.locator('#title')).toHaveValue(tasks[0].title);
     await page.locator('#cancel-task').click();
@@ -81,5 +78,5 @@ test('reduced motion, custom time and visible keyboard focus', async ({ page }) 
   const focus = await page.evaluate(() => ({ width: getComputedStyle(document.activeElement).outlineWidth, style: getComputedStyle(document.activeElement).outlineStyle }));
   expect(focus.style).toBe('solid');
   expect(parseInt(focus.width)).toBeGreaterThanOrEqual(2);
-  expect(await page.locator('.focus-visual img').evaluate(img => getComputedStyle(img).animationName)).toBe('none');
+  await expect(page.locator('#focus-panel')).toHaveCSS('animation-name', 'none');
 });

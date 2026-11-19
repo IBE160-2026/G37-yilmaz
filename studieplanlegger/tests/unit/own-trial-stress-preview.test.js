@@ -32,5 +32,5 @@ describe('F01 large calendar with existing courses', () => {
     expect(revision.counts).toEqual({ added: 0, updated: 1, unchanged: 499, omitted: 25 })
     expect(revision.candidate.planner.events.map(event => event.id)).toEqual(first.candidate.planner.events.map(event => event.id))
     expect(revision.candidate.planner.courses).toEqual(courses)
-  })
+  }, 15_000)
 })

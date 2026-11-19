@@ -85,10 +85,12 @@ test('review midnight disappearance moves focused completed-task action to anoth
   const data = state(); data.tasks = [task('a', { completed: true, submitted: true }), task('b', { deadlineLocal: '2026-09-09T14:00' })]
   data.sessions = [{ id: 'night', taskId: 'a', dateLocal: '2026-09-08', endDateLocal: '2026-09-09', startTime: '23:50', endTime: '00:00' }]
   await boot(page, data, '2026-09-08T23:59:50+02:00')
-  await page.locator('[data-daily-key="task:a:primary"]').focus(); await clockTick(page, 11000)
+  const completedAction = page.locator('[data-daily-key="task:a:primary"]')
+  await completedAction.focus(); await expect(completedAction).toBeFocused(); await clockTick(page, 11000)
   await expect(page.locator('[data-daily-row="task:a"]')).toHaveCount(0)
-  await expect(page.locator('[data-daily-key="task:b:primary"]')).toBeFocused()
-  expect(await page.evaluate(() => document.activeElement.tagName)).not.toBe('BODY')
+  const fallback = page.getByRole('button', { name: 'Se forslag til ny tid', exact: true })
+  await expect(fallback).toBeFocused()
+  await expect(fallback).toBeEnabled()
 })
 
 test('review undo success survives ticks until dismissal and cannot undo an unrelated newer action', async ({ page }) => {
@@ -141,7 +143,8 @@ async function previewCourse(page, institution, code, semester = 'autumn', accep
   await openCourseImport(page)
   await form.locator('[name=university]').selectOption(institution); await page.getByRole('button', { name: 'Neste: søk og semester' }).click()
   await form.locator('[name=code]').fill(code); await form.locator('[name=year]').fill('2026'); await form.locator('[name=semester]').selectOption(semester)
-  await form.getByRole('button', { name: 'Søk emner' }).click(); await page.locator('.wizard-results').getByRole('button', { name: new RegExp(`^${code} ·`) }).click()
+  await form.getByRole('button', { name: 'Søk emner' }).click()
+  await page.locator('.wizard-results').getByRole('button', { name: code }).click()
   if (accepted) await expect(page.locator('#import-preview')).toBeVisible()
 }
 
@@ -206,7 +209,7 @@ for (const width of [1280, 390]) test(`review UiB source and timetable links are
 for (const [width, fontSize] of [[1440, 16], [390, 16], [390, 24]]) test(`review compact agenda details are readable with real contrast and wrapping at ${width}/${fontSize}`, async ({ page }) => {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 })
   const data = state(); data.planner.events = [event('lecture', '2026-09-08T08:00:00Z', 60, 'A long lecture title with meaningful wrapping and complete information')]
-  await boot(page, data); if (width === 390) await navigate(page, 'all'); await page.evaluate(size => document.documentElement.style.fontSize = `${size}px`, fontSize); await clockTick(page, 100)
+  await boot(page, data); await navigate(page, 'all'); await page.evaluate(size => document.documentElement.style.fontSize = `${size}px`, fontSize); await clockTick(page, 100)
   const agenda = page.locator('.compact-agenda-list'); await expect(agenda).toBeVisible(); await agenda.scrollIntoViewIfNeeded()
   const measurements = await agenda.locator('.agenda-item-meta, .agenda-item-meta > span, .agenda-item-title, .agenda-item-details').evaluateAll(nodes => {
     const rgb = value => { const parts = (value.match(/[\d.]+/g) || []).map(Number); return parts.length >= 3 && Math.max(...parts.slice(0, 3)) <= 1 ? parts.map((part, index) => index < 3 ? part * 255 : part) : parts }

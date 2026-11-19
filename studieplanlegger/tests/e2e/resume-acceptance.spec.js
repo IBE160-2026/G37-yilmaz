@@ -88,7 +88,7 @@ test('same-code explicit course links stay isolated in every full-calendar mode 
     await expect(page.locator('.full-calendar-viewport [data-calendar-key="task:NTNU"]')).toHaveCount(0)
     await expect(page.locator('.full-calendar-viewport [data-calendar-key="task:HVL"]').first()).toBeAttached()
   }
-  await navigate(page, 'overview'); await (await reveal(page.locator('#calendar-course-filter'))).selectOption(courses[1].id)
+  await navigate(page, 'all'); await (await reveal(page.locator('#calendar-course-filter'))).selectOption(courses[1].id)
   await expect(page.locator('#compact-agenda')).not.toContainText('Isolated task NTNU')
   await expect(page.locator('#compact-agenda')).toContainText('Isolated task HVL')
   await expect(page.locator('#compact-agenda')).toContainText('12:00')

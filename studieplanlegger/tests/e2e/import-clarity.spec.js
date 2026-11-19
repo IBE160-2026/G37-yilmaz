@@ -317,6 +317,34 @@ test('Import clarity user points: explicit decisions survive refresh, edits, und
   expect(repeated.importSources[0].excludedKeys).toEqual(initial.importSources[0].excludedKeys)
 })
 
+test('Import clarity choosing a point discards a partial end time and its error', async ({ page }) => {
+  test.skip(Boolean(runtimeUrl), 'Uses a native Chromium date-time editor.')
+  const start = '2041-11-01T11:00:07+01:00'
+  const text = tpCsvRows([{ ...fixtureRows()[0], eventid: 'synthetic-partial-import-end', dtstart: start, dtend: start }])
+  await openClarityFile(page, text, 'synthetic-partial-import-end.csv')
+  const row = eventRows(page).first()
+  await openPreviewRow(row)
+  const choice = row.getByLabel('Hvordan skal tidspunktet brukes?', { exact: true })
+  await choice.selectOption('interval')
+  const end = row.locator('[data-field=endLocal]')
+  await end.fill('2041-11-01T11:30')
+  await end.focus()
+  await end.press('Backspace')
+  expect(await end.evaluate(input => input.validity.badInput)).toBe(true)
+  await preview(page).getByRole('button', { name: 'Importer valgte', exact: true }).click()
+  await expect(end).toHaveAttribute('aria-invalid', 'true')
+  expect((await savedTpState(page))?.planner?.events || []).toEqual([])
+
+  await choice.selectOption('point')
+  await expect(end).toHaveValue('')
+  await expect(end).not.toHaveAttribute('aria-invalid', 'true')
+  expect(await end.evaluate(input => input.validity.badInput)).toBe(false)
+  await confirmTpImport(page)
+  const state = await savedTpState(page)
+  expect(state.planner.events).toHaveLength(1)
+  expect(state.planner.events[0]).toMatchObject({ point: true, pointProvenance: 'user' })
+})
+
 for (const scenario of ['mixed', 'points']) test(`Import clarity persisted ${scenario}: fresh browser and exact source relationships after recreation`, async ({ page }) => {
   test.skip(!runtimeUrl || runtimeScenario !== scenario || !process.env.TP_CSV_VERIFY_SNAPSHOT, 'Owned runtime harness only.')
   const expected = JSON.parse(readFileSync(process.env.TP_CSV_VERIFY_SNAPSHOT, 'utf8'))
@@ -345,11 +373,15 @@ for (const enlarged of [false, true]) test(`Import clarity mobile390${enlarged ?
   await openPreviewRow(row)
   await row.locator(':scope > summary').focus()
   await tabTo(page, choice)
-  const scroll = await page.evaluate(() => scrollY)
-  await choice.selectOption('point')
-  await expect(choice).toBeFocused()
-  await expect(row).toHaveAttribute('open', '')
-  expect(Math.abs(await page.evaluate(() => scrollY) - scroll)).toBeLessThanOrEqual(2)
+  const controlTop = await choice.evaluate(node => node.getBoundingClientRect().top)
+  for (const value of ['interval', 'point']) {
+    await page.keyboard.press('ArrowDown')
+    await expect(choice).toHaveValue(value)
+    await expect(choice).toBeFocused()
+    await expect(row).toHaveAttribute('open', '')
+    const top = await choice.evaluate(node => node.getBoundingClientRect().top)
+    expect(Math.abs(top - controlTop)).toBeLessThanOrEqual(2)
+  }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await captureTp(page, info, `import-clarity-points-mobile390${enlarged ? '-enlarged' : ''}.png`, { target: choice })
   for (const index of [1, 2, 3]) {

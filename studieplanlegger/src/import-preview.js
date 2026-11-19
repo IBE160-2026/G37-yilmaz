@@ -635,7 +635,12 @@ export function buildDocumentImportCommit(state, preview, { now = new Date() } =
       if (deadlineFromPreview && row.deadlineMode === 'value' && !validDeadline(result.deadlineLocal)) { fail('Oppgi en gyldig dato, eventuelt med klokkeslett.', 'deadlineLocal'); continue }
       if (result.deadlineLocal?.length > 10) try {
         deadlineInstant(result.deadlineLocal, result.deadlineDisambiguation)
-      } catch { fail('Fristens klokkeslett er ugyldig eller tvetydig ved tidsomstilling. Velg et entydig tidspunkt, dato uten klokkeslett eller lagre uten frist.', 'deadlineLocal'); continue }
+      } catch {
+        const keptLocal = !deadlineFromPreview && row.conflicts.some(conflict => conflict.field === 'deadlineLocal')
+        if (keptLocal) fail('Rett fristen på den lagrede oppgaven, eller velg «Bruk ny kilde / avklaring» og oppgi en gyldig frist.', 'conflict:deadlineLocal')
+        else fail('Fristens klokkeslett er ugyldig eller tvetydig ved tidsomstilling. Velg et entydig tidspunkt, dato uten klokkeslett eller lagre uten frist.', 'deadlineLocal')
+        continue
+      }
     }
     if (row.kind === 'event' && Date.parse(result.end) > Date.parse(result.start)) result.point = false
     if (row.kind === 'event' && (!result.point || result.pointProvenance === undefined)) delete result.pointProvenance

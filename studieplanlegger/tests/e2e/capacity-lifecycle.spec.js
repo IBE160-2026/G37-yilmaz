@@ -32,7 +32,7 @@ test('every task lifecycle action preserves study sessions, including a failed a
     await page.locator('#step-description').fill(description)
     await page.locator('#step-estimatedMinutes').fill('15')
     await page.locator('#step-form').getByRole('button', { name: 'Lagre neste steg', exact: true }).click()
-    return { ...parent, steps: [{ id: `${parent.id}:legacy-next-step`, title: description, estimatedMinutes: 15, completed: false, provenance: { kind: 'manual' } }] }
+    return { ...parent, steps: [{ id: `${parent.id}:legacy-next-step`, title: description, estimatedMinutes: 15, completed: false, unblocksWaiting: false, provenance: { kind: 'manual' } }] }
   }
 
   await freeze(page, '2026-09-07T09:00:00+02:00')

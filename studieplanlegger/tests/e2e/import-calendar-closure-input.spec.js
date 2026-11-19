@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { openTpImport, preview, eventRows, courseRows, openPreviewRow, savedTpState, confirmTpImport } from './tp-csv-helpers.js'
+import { openTpImport, preview, courseRows, openPreviewRow, savedTpState, confirmTpImport } from './tp-csv-helpers.js'
 import { reveal } from './helpers.js'
 
 test('Closure input: typing coalesces summary work while changes and confirmation validate the latest draft', async ({ page }) => {
@@ -7,7 +7,7 @@ test('Closure input: typing coalesces summary work while changes and confirmatio
   await page.goto('/')
   const csv = ['uid;title;dtstart;dtend', ...Array.from({ length: 120 }, (_, index) => `synthetic-summary-${index};Oppdiktet aktivitet ${index};2045-09-18T10:00:07+02:00;2045-09-18T11:00:17+02:00`)].join('\n')
   await openTpImport(page, { text: csv, name: 'synthetic-summary-input.csv' })
-  const row = eventRows(page).first()
+  const row = preview(page).locator('.document-preview-row').filter({ hasText: /Oppdiktet aktivitet 0\b/ })
   await openPreviewRow(row)
   const name = row.getByLabel('Navn', { exact: true })
   await name.focus()

@@ -92,7 +92,7 @@ test('programme choice, missing course and partial teaching are committed once w
   await expect(host.locator('.program-action-status')).toContainText('Hentingen er avbrutt. Valgene og lagrede data er beholdt.')
   await host.getByRole('button', { name: 'Tilbake til emnevalg', exact: true }).click()
   await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-  await expect(host.locator('.program-action-status')).toContainText('Undervisning er kontrollert', { timeout: 2_000 })
+  await expect(host.locator('.program-action-status')).toContainText('Resultatet fra undervisningskilden vises per emne.')
   await expect(host.locator('.import-preview article.course-card > h4')).toHaveText([
     'IBE110 Informasjonsteknologi', 'IBE430 Databaser', 'IBE160 Programmering',
   ])
@@ -142,7 +142,7 @@ test('programme choice, missing course and partial teaching are committed once w
   await expect(host.getByRole('checkbox', { name: /IBE999.*Lagt til fra emnesøk/ })).toBeChecked()
   await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
   await expect(host.locator('.program-action-status')).toContainText(/Forbereder|Kontrollerer/)
-  await expect(host.locator('.program-action-status')).toContainText('Undervisning er kontrollert', { timeout: 2_000 })
+  await expect(host.locator('.program-action-status')).toContainText('Resultatet fra undervisningskilden vises per emne.')
   await expect(host.getByText('Lagt til fra separat emnesøk. Ikke dokumentert av programkilden.')).toBeVisible()
   await expect(host.getByRole('link', { name: 'Kilde for emnet', exact: true })).toHaveAttribute('href', searchedCourseUrl)
   expect(await page.evaluate(() => window.writeAttempts)).toEqual([])

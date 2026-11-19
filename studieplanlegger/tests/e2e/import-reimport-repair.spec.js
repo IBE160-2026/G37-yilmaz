@@ -211,6 +211,93 @@ test('review: task reimport candidates display supported local deadlines and ret
   await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
   expect((await saved(page)).tasks[0]).toMatchObject({ id: state.tasks[0].id, title: 'Updated task', deadlineLocal: '2041-03-01T10:00' })
 })
+
+for (const [mode, expected] of [['date', '2041-03-03'], ['value', '2041-03-03T10:00']]) test(`review: keep my deadline completes import with a partially filled source date (${mode})`, async ({ page }) => {
+  const text = 'id;title;deadline\n1;Synthetic report;2041-03-01T10:00'
+  const state = syntheticState(text)
+  const task = state.tasks[0]
+  task.deadlineLocal = '2041-03-02T14:00'
+  await seedImport(page, state)
+  await readPlainCsv(page, text.replace('2041-03-01', '2041-03-03') + '\n2;Synthetic follow-up;2041-03-04T10:00', state.importSources[0].id)
+
+  const conflict = page.getByLabel('Behold verdi for frist', { exact: true })
+  const reviewRow = page.locator('.document-preview-row').filter({ has: conflict })
+  await (await reveal(reviewRow.locator('[data-field=deadlineMode]'))).selectOption(mode)
+  const deadline = reviewRow.locator('[data-field=deadlineLocal]')
+  await expect(deadline).toHaveValue(expected)
+  await (await reveal(deadline)).focus()
+  await deadline.press('Backspace')
+  expect(await deadline.evaluate(input => input.validity.badInput)).toBe(true)
+
+  const confirm = page.getByRole('button', { name: 'Importer valgte', exact: true })
+  await (await reveal(conflict)).selectOption('incoming')
+  await confirm.click()
+  await expect(deadline).toHaveAttribute('aria-invalid', 'true')
+  expect((await saved(page)).tasks).toEqual(state.tasks)
+  expect((await saved(page)).importSources[0].revision).toBe(1)
+
+  await conflict.selectOption('local')
+  expect(await deadline.evaluate(input => input.validity.badInput)).toBe(true)
+  await expect(deadline).not.toHaveAttribute('aria-invalid', 'true')
+  await expect(page.locator('.document-preview [role=alert]')).not.toContainText('Ingen del av planen er lagret')
+  await expect(page.locator('.document-confirmation-summary')).toContainText('2 av 2 oppføringer klare')
+
+  const remaining = reviewRow.locator('[data-field=remainingMinutes]')
+  await remaining.press('e')
+  expect(await remaining.evaluate(input => input.validity.badInput)).toBe(true)
+  await expect(page.locator('.document-confirmation-summary')).toContainText('1 av 2 oppføringer klare')
+  await confirm.click()
+  await expect(remaining).toHaveAttribute('aria-invalid', 'true')
+  await expect(deadline).not.toHaveAttribute('aria-invalid', 'true')
+  expect((await saved(page)).tasks).toEqual(state.tasks)
+  await remaining.fill('30')
+
+  await confirm.click()
+  await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
+  const imported = await saved(page)
+  expect(imported.tasks).toHaveLength(2)
+  expect(imported.tasks.find(item => item.id === task.id)?.deadlineLocal).toBe(task.deadlineLocal)
+  expect(imported.tasks.find(item => item.title === 'Synthetic follow-up')?.deadlineLocal).toBe('2041-03-04T10:00')
+  expect(imported.importSources[0].revision).toBe(2)
+  await page.reload()
+  expect((await saved(page)).tasks).toEqual(imported.tasks)
+})
+
+test('review: an unresolved saved deadline directs the user to the conflict choice', async ({ page }) => {
+  const text = 'id;title;deadline\n1;Synthetic report;2041-03-01T10:00'
+  const state = syntheticState(text)
+  state.tasks[0].deadlineLocal = '2027-10-31T02:30'
+  await seedImport(page, state)
+  await readPlainCsv(page, text.replace('2041-03-01', '2041-03-03'), state.importSources[0].id)
+
+  const conflict = page.getByLabel('Behold verdi for frist', { exact: true })
+  const reviewRow = page.locator('.document-preview-row').filter({ has: conflict })
+  await (await reveal(conflict)).selectOption('local')
+  await expect(reviewRow.locator(':scope > summary')).toContainText('Rett fristen på den lagrede oppgaven')
+  const confirm = page.getByRole('button', { name: 'Importer valgte', exact: true })
+  await confirm.click()
+  await expect(conflict).toHaveAttribute('aria-invalid', 'true')
+  await expect(conflict).toBeFocused()
+  expect((await saved(page)).tasks).toEqual(state.tasks)
+
+  const deadline = reviewRow.locator('[data-field=deadlineLocal]')
+  await (await reveal(deadline)).focus()
+  await deadline.press('Backspace')
+  expect(await deadline.evaluate(input => input.validity.badInput)).toBe(true)
+  await conflict.selectOption('incoming')
+  await expect(conflict).not.toHaveAttribute('aria-invalid', 'true')
+  await confirm.click()
+  await expect(deadline).toHaveAttribute('aria-invalid', 'true')
+  expect((await saved(page)).tasks).toEqual(state.tasks)
+
+  await conflict.selectOption('local')
+  await expect(deadline).not.toHaveAttribute('aria-invalid', 'true')
+  await deadline.fill('2041-03-03T10:00')
+  await conflict.selectOption('incoming')
+  await confirm.click()
+  await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
+  expect((await saved(page)).tasks[0]).toMatchObject({ id: state.tasks[0].id, deadlineLocal: '2041-03-03T10:00' })
+})
 for (const mobile of [false, true]) test(`review: uncertain legacy omissions require informed selection ${mobile ? 'mobile' : 'desktop'}`, async ({ page }, info) => {
   if (mobile) await page.setViewportSize({ width: 390, height: 844 })
   const state = structuredClone(ambiguousExclusions.state)

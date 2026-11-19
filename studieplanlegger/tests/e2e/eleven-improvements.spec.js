@@ -51,7 +51,7 @@ test('mobile Calendar is directly reachable, month adapts, keyboard/large text f
   await page.setViewportSize({width:390,height:844}); const errors=await seed(page); await expect(page.locator('#view-calendar')).toBeVisible(); await calendar(page)
   await expect(page.locator('[data-calendar-view="day"]')).toHaveAttribute('aria-pressed','true')
   const viewport = page.locator('.full-calendar-viewport'), bounds = await viewport.boundingBox(), nav = await page.locator('.view-actions').boundingBox()
-  expect(bounds.y + bounds.height).toBeLessThanOrEqual(nav.y)
+  expect(bounds.y).toBeGreaterThanOrEqual(nav.y + nav.height)
   expect(bounds.height).toBeGreaterThan(200)
   await viewport.evaluate(node => node.scrollTop = 500)
   await expect(page.locator('.calendar-timeline [data-calendar-key="event:lecture"]')).toBeInViewport()

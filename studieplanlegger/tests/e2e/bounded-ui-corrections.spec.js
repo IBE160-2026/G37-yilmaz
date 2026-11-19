@@ -95,7 +95,8 @@ test('ambiguous Oslo deadline stays visible and keeps its warning', async ({ pag
   const data = initial(); data.tasks = [task('ambiguous', '2026-10-25T02:30')]; data.sessions = []; data.planner.events = []
   const errors = await boot(page, data, 24, '2026-10-25T00:00:00+02:00')
   await expect(page.locator('#next-plan')).toContainText('Frist i dag kl. 02:30 (må presiseres)')
-  await expect(page.locator('#next-plan')).toContainText('tvetydig eller ugyldig klokkeslett')
+  await expect(page.locator('#next-plan')).toContainText('Klokkeslettet 02:30 forekommer to ganger 25.10.2026')
+  await expect(page.locator('#next-plan')).toContainText('Velg første eller andre forekomst')
   expect(errors).toEqual([])
 })
 test('only the Oslo date changes during a cross-midnight activity', async ({ page }) => {
@@ -125,7 +126,9 @@ test('cancelled short events, midnight markers and tablet scrolling remain disti
   expect(await page.locator('.calendar-time-day').first().evaluate(node => node.getBoundingClientRect().width)).toBeGreaterThanOrEqual(140)
   await expect(page.locator('[data-calendar-geometry="event:cancelled"]')).toHaveClass(/is-cancelled/)
   const group = page.locator('[data-calendar-short="event:cancelled event:active"]'); await group.focus(); await group.press('Enter')
-  await expect(page.getByRole('dialog', { name: 'Korte aktiviteter' }).getByRole('button', { name: /^Avlyst:/ })).toBeVisible()
+  const chooser = page.getByRole('dialog', { name: 'Korte aktiviteter' })
+  await expect(chooser.getByRole('button', { name: /Avlyst aktivitet.*Avlyst · Undervisning/ })).toBeVisible()
+  await expect(chooser.getByRole('button', { name: /Aktiv aktivitet/ })).toBeVisible()
   await page.keyboard.press('Escape'); await expect(group).toBeFocused()
   const first = page.locator('.calendar-time-day[data-date="2026-09-08"] [data-calendar-geometry="event:midnight"]'), last = page.locator('.calendar-time-day[data-date="2026-09-09"] [data-calendar-geometry="event:midnight"]')
   await expect(first).toHaveClass(/continues-after/); await expect(last).toHaveClass(/continues-before/)

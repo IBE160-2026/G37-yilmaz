@@ -73,7 +73,8 @@ const courseGroupLabel = row => [row.courseHint || 'Uten emne', row.university, 
 const courseSourceContext = row => [row.sourceObjectId ? `Kildevalg: ${row.sourceObjectId}` : '', row.campusCode ? `Campuskode: ${row.campusCode}` : ''].filter(Boolean).join(' · ')
 const rowIdentity = row => row.key || String(row.index)
 const editorKey = (row, field) => JSON.stringify([row, field])
-const unfinishedEditors = root => new Map([...root.querySelectorAll('.document-preview-row input[data-field]')].filter(input => input.validity.badInput).map(input => [editorKey(input.closest('[data-row-key]').dataset.rowKey, input.dataset.field), input]))
+const unfinishedInputs = root => [...root.querySelectorAll('.document-preview-row input[data-field]')].filter(input => input.validity.badInput)
+const unfinishedEditors = root => new Map(unfinishedInputs(root).map(input => [editorKey(input.closest('[data-row-key]').dataset.rowKey, input.dataset.field), input]))
 const identifyButtons = root => {
   for (const node of root.querySelectorAll('button')) {
     if (!node.classList.contains('primary')) node.classList.add('secondary')
@@ -95,13 +96,30 @@ const provisionalCourse = row => row.kind === 'course' && row.nameStatus === 'pr
 const rowDisplayName = row => row.kind === 'course' ? visibleName({ ...row, name: row.title }) : row.title
 const rowCourseLabel = row => nameFirstLabel({ ...row, name: row.title })
 const unresolvedTime = row => row.kind === 'event' && (!row.startLocal || !row.point && (!row.endLocal || row.endLocal <= row.startLocal) && !(row.originalStart && row.originalEnd && Date.parse(row.originalEnd) > Date.parse(row.originalStart) && row.startLocal === osloLocal(row.originalStart) && row.endLocal === osloLocal(row.originalEnd)))
+const keepsLocalDeadline = row => row.kind === 'task' && row.conflictChoices?.deadlineLocal === 'local' && row.conflicts?.some(conflict => conflict.field === 'deadlineLocal')
+function blockingNativeFields(inputs, rows) {
+  return inputs.flatMap(input => {
+    const index = Number(input.closest('.document-preview-row').dataset.rowIndex)
+    const row = rows[index], field = input.dataset.field
+    if (!row?.selected || field === 'deadlineLocal' && keepsLocalDeadline(row)) return []
+    return [{ index, field }]
+  })
+}
 export function documentDeadlineNeedsChoice(row, current) {
+  if (keepsLocalDeadline(row) && current && current.id === row.targetId) {
+    if (!current.deadlineLocal) return false
+    try { deadlineInstant(current.deadlineLocal, current.deadlineDisambiguation); return false } catch { return true }
+  }
   if (row.kind !== 'task' || row.deadlineMode === 'none') return false
   if (row.deadlineMode === '?' || !validDeadline(row.deadlineLocal)) return true
   const occurrence = current?.id === row.targetId && current.deadlineLocal === row.deadlineLocal ? current.deadlineDisambiguation : undefined
   try { deadlineInstant(row.deadlineLocal, occurrence); return false } catch { return true }
 }
-const deadlineSummary = (row, current) => documentDeadlineNeedsChoice(row, current) ? ` · Frist må avklares: ${row.deadlineMode === '?' && row.deadlineRaw ? 'uttrykket kunne ikke tolkes' : 'dato eller klokkeslett mangler eller er ugyldig'}. Oppgi dato, velg «Uten frist» eller utelat oppgaven.` : ''
+const deadlineSummary = (row, current) => {
+  if (!documentDeadlineNeedsChoice(row, current)) return ''
+  if (keepsLocalDeadline(row)) return ' · Rett fristen på den lagrede oppgaven, eller velg å bruke kilden.'
+  return ` · Frist må avklares: ${row.deadlineMode === '?' && row.deadlineRaw ? 'uttrykket kunne ikke tolkes' : 'dato eller klokkeslett mangler eller er ugyldig'}. Oppgi dato, velg «Uten frist» eller utelat oppgaven.`
+}
 const fieldNames = { title: 'navn', name: 'emnenavn', deadlineLocal: 'frist', remainingMinutes: 'gjenstående minutter', courseId: 'emne', course: 'emne', start: 'start', end: 'slutt', location: 'sted', description: 'beskrivelse', semester: 'semester', year: 'år' }
 const courseOptionLabel = course => {
   const identity = nameFirstLabel(course) || 'Emne uten navn'
@@ -153,14 +171,16 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
     const newRows = selected.filter(row => !existing.includes(row))
     // Compute outcomes through the same atomic proposal builder as confirmation.
     // The clone keeps transient conflict/consent bookkeeping out of the draft.
-    const proposed = buildDocumentImportCommit(currentState, structuredClone(preview))
+    const draft = structuredClone(preview)
+    const proposed = buildDocumentImportCommit(currentState, draft)
     const counts = proposed.counts || { added: 0, updated: 0, unchanged: 0 }
-    const unresolved = new Set([...preview.rows.filter(row => (row.selected || referenced(row)) && needsChoice(row) || row.selectionUncertain && !row.groupChoiceResolved).map(row => row.index), ...(proposed.errors || []).map(error => error.index)])
+    const invalidFields = [...(proposed.errors || []), ...blockingNativeFields(unfinishedInputs(form), draft.rows)]
+    const unresolved = new Set([...preview.rows.filter(row => (row.selected || referenced(row)) && needsChoice(row) || row.selectionUncertain && !row.groupChoiceResolved).map(row => row.index), ...invalidFields.map(error => error.index)])
     const pendingQuestions = new Set()
     for (const index of unresolved) {
       const row = preview.rows[index], sharedCourse = row.kind !== 'course' && row.courseChoice === '?'
       if (sharedCourse) pendingQuestions.add(`course:${courseGroupKey(row)}`)
-      if (!sharedCourse || needsChoice({ ...row, courseChoice: '' }) || proposed.errors?.some(error => error.index === index && error.field !== 'courseChoice')) pendingQuestions.add(`row:${index}`)
+      if (!sharedCourse || needsChoice({ ...row, courseChoice: '' }) || invalidFields.some(error => error.index === index && error.field !== 'courseChoice')) pendingQuestions.add(`row:${index}`)
     }
     const questions = pendingQuestions.size
     const clarification = questions === unresolved.size ? `${questions} må avklares.` : `${questions} spørsmål må avklares · ${unresolved.size} oppføringer berørt.`
@@ -415,11 +435,16 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
     const name = affiliationChoices.querySelector(`[data-affiliation-row="${row.index}"] .document-affiliation-name`)
     if (name) updateAffiliationName(name, row)
   }
-  const clearTitleError = row => {
-    if (row.selected && !row.title.trim() && (!row.courseTarget || row.courseTarget === '?')) return
-    validationErrors = validationErrors.filter(item => item.index !== row.index || item.field !== 'title')
+  const clearRowValidation = (row, fields) => {
+    const remaining = validationErrors.filter(item => item.index !== row.index || !fields.includes(item.field))
+    if (remaining.length === validationErrors.length) return
+    validationErrors = remaining
     error.replaceChildren(...validationErrors.filter(item => !sharedErrorGroups(item).length).map(item => el('p', item.message)))
     showValidationErrors()
+  }
+  const clearTitleError = row => {
+    if (row.selected && !row.title.trim() && (!row.courseTarget || row.courseTarget === '?')) return
+    clearRowValidation(row, ['title'])
   }
   const showValidationErrors = ({ focusError = false } = {}) => {
     for (const root of [rows, groups]) {
@@ -644,7 +669,21 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
               const reason = !row.startLocal ? 'Starttidspunktet mangler eller er ugyldig.' : row.startLocal === row.endLocal ? 'Kilden oppgir samme tidspunkt for start og slutt.' : !row.endLocal || row.endIssues?.length ? row.endRaw || row.originalEnd ? 'Sluttidspunktet er ugyldig.' : 'Sluttidspunktet mangler.' : 'Slutt er før start.'
               fields.append(el('p', `Tidspunkt må avklares: ${reason}`, 'form-hint'))
             }
-            rowChoice('timeChoice', fields, 'Hvordan skal tidspunktet brukes?', [['?', 'Avklar tidspunkt'], ['interval', 'Rett tiden'], ['point', 'Vis som tidspunkt uten varighet'], ['omit', 'Ikke importer denne']], row.timeChoice || (row.pointProvenance === 'user' ? 'point' : '?'), value => { chooseDocumentTime(row, value); renderRows(); renderGroups(); updateSummary() })
+            const timeChoice = rowChoice('timeChoice', fields, 'Hvordan skal tidspunktet brukes?', [['?', 'Avklar tidspunkt'], ['interval', 'Rett tiden'], ['point', 'Vis som tidspunkt uten varighet'], ['omit', 'Ikke importer denne']], row.timeChoice || (row.pointProvenance === 'user' ? 'point' : '?'), value => {
+              const top = document.activeElement === timeChoice ? timeChoice.getBoundingClientRect().top : null
+              chooseDocumentTime(row, value)
+              if (value === 'point') {
+                endInput.value = ''
+                clearRowValidation(row, ['endLocal'])
+              }
+              renderRows(); renderGroups(); updateSummary()
+              const focused = document.activeElement
+              if (top !== null && focused?.dataset.field === 'timeChoice' && focused.closest('[data-row-key]')?.dataset.rowKey === rowIdentity(row)) {
+                // Resolving the time can remove text above the control. Keep
+                // that control in place even if its document offset changes.
+                window.scrollBy({ top: focused.getBoundingClientRect().top - top, behavior: 'instant' })
+              }
+            })
           }
           const updatePointFromTimes = () => {
             if (!row.point || !row.endLocal) return
@@ -684,7 +723,13 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
       }
       for (const conflict of row.conflicts) {
         const group = el('div', undefined, 'document-conflict'); group.append(el('p', `Både du og kilden har endret ${fieldNames[conflict.field] || conflict.field}.`), el('p', `Tidligere kilde: ${conflict.base ?? 'ukjent'} · Din verdi: ${conflict.local ?? 'ukjent'} · Ny kilde: ${conflict.incoming ?? 'ukjent'}`))
-        rowChoice(`conflict:${conflict.field}`, group, `Behold verdi for ${fieldNames[conflict.field] || conflict.field}`, [['', 'Velg verdi'], ['local', 'Behold min verdi'], ['incoming', 'Bruk ny kilde / avklaring']], row.conflictChoices[conflict.field] || '', value => { row.conflictChoices[conflict.field] = value }); section.append(group)
+        rowChoice(`conflict:${conflict.field}`, group, `Behold verdi for ${fieldNames[conflict.field] || conflict.field}`, [['', 'Velg verdi'], ['local', 'Behold min verdi'], ['incoming', 'Bruk ny kilde / avklaring']], row.conflictChoices[conflict.field] || '', value => {
+          row.conflictChoices[conflict.field] = value
+          if (conflict.field === 'deadlineLocal') {
+            clearRowValidation(row, ['deadlineLocal', 'deadlineMode', 'conflict:deadlineLocal'])
+          }
+          updateRowSummary()
+        }); section.append(group)
       }
       for (const node of section.querySelectorAll('details[data-detail]')) if (openDetails.has(node.dataset.detail)) node.open = true
       identifyButtons(section)
@@ -742,10 +787,15 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
   form.addEventListener('submit', async event => {
     event.preventDefault(); cancelPreviewSummary(container); error.replaceChildren(); confirm.disabled = true
     try {
-      // A native number input can display an unfinished exponent/sign while
-      // exposing value="". It must not become an intentional unknown estimate.
-      const badInputs = [...rows.querySelectorAll('input[data-field]')].filter(input => input.validity.badInput && preview.rows[Number(input.closest('.document-preview-row').dataset.rowIndex)]?.selected).map(input => ({ index: Number(input.closest('.document-preview-row').dataset.rowIndex), field: input.dataset.field, message: `Rad ${Number(input.closest('.document-preview-row').dataset.rowIndex) + 1}: Feltet har en ufullstendig eller ugyldig verdi. Rett verdien, eller tøm feltet hvis det er valgfritt.` }))
-      const result = badInputs.length ? { ok: false, error: 'Avklar de markerte oppføringene. Ingen del av planen er lagret.', errors: badInputs } : buildDocumentImportCommit(getState(), preview)
+      // Browsers can expose unfinished edits as an empty value. Reject them
+      // unless the active conflict choice discards the source deadline editor.
+      const currentState = getState()
+      const unfinished = unfinishedInputs(rows)
+      if (unfinished.length) refreshDocumentConflicts(currentState, preview)
+      const badInputs = blockingNativeFields(unfinished, preview.rows).map(({ index, field }) => ({
+        index, field, message: `Rad ${index + 1}: Feltet har en ufullstendig eller ugyldig verdi. Rett verdien, eller tøm feltet hvis det er valgfritt.`,
+      }))
+      const result = badInputs.length ? { ok: false, error: 'Avklar de markerte oppføringene. Ingen del av planen er lagret.', errors: badInputs } : buildDocumentImportCommit(currentState, preview)
       if (!result.ok) { error.append(el('p', result.error)); validationErrors = result.errors || []; for (const item of validationErrors.filter(item => !sharedErrorGroups(item).length)) error.append(el('p', item.message)); showValidationErrors({ focusError: true }); if (!validationErrors.length) { error.tabIndex = -1; error.focus() } return }
       const saved = await onConfirm(result.candidate, result)
       if (!saved?.ok) error.append(el('p', saved?.error || 'Planen kunne ikke lagres. Forhåndsvisningen er beholdt; prøv igjen.'))

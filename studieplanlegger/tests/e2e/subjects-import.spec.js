@@ -1,6 +1,6 @@
 import { reveal } from './helpers.js'
 import { test, expect } from '@playwright/test'
-import { openCourseImport, openImportMethod, openTaskDetails } from './helpers.js'
+import { navigate, openCourseImport, openImportMethod, openTaskDetails } from './helpers.js'
 
 const course = { id: 'isolated-course', name: 'Isolert emne', code: 'TEST101', university: 'Testuniversitet', semester: 'autumn', year: 2026, credits: null, notes: '' }
 const ics = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Isolated E2E//EN\r\nBEGIN:VEVENT\r\nUID:isolated-event\r\nDTSTART;TZID=Europe/Oslo:20261019T100000\r\nDTEND;TZID=Europe/Oslo:20261019T110000\r\nRRULE:FREQ=WEEKLY;COUNT=2\r\nSUMMARY:Isolert forelesning\r\nLOCATION:Testrom\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`
@@ -82,13 +82,19 @@ test('ICS preview, confirmation, correct winter time, repeat import and source r
     expect(await page.evaluate(() => JSON.parse(localStorage.getItem('studieplanlegger:v1')).planner.events.length)).toBe(2)
     await (await reveal(page.getByRole('button', {name:'Tilbake til Mine emner',exact:true}))).click()
   }
-  await (await reveal(page.locator('#view-overview'))).click()
-  await (await reveal(page.getByRole('button', { name: 'Månedsvisning', exact: true }))).click()
-  await (await reveal(page.getByRole('button', { name: 'Neste måned', exact: true }))).click()
-  await expect(page.locator('[data-calendar-date="2026-10-26"]')).toContainText('U 1')
-  await (await reveal(page.locator('[data-calendar-date="2026-10-26"]'))).click()
-  await expect(page.locator('.calendar-teaching')).toContainText('10:00–11:00')
-  await (await reveal(page.locator('.calendar-teaching [data-calendar-event]'))).click()
+  await navigate(page, 'calendar')
+  const calendar = page.locator('#full-calendar')
+  await calendar.getByRole('button', { name: 'Måned', exact: true }).click()
+  await calendar.getByRole('button', { name: 'Neste periode', exact: true }).click()
+  const winterDay = calendar.locator('.calendar-month-grid [data-date="2026-10-26"]')
+  await expect(winterDay.getByRole('button', { name: /Undervisning: Isolert forelesning/ })).toBeVisible()
+  await winterDay.getByRole('button', { name: /^man.*26.*okt/i }).click()
+  const lesson = calendar.locator('.calendar-timeline').getByRole('button', { name: /Undervisning: Isolert forelesning/ })
+  await expect(lesson).toHaveAccessibleName(/10:00–11:00/)
+  await lesson.click()
+  const details = page.getByRole('dialog', { name: 'Isolert forelesning', exact: true })
+  await expect(details).toContainText('10:00–11:00')
+  await details.getByRole('button', { name: 'Rediger', exact: true }).click()
   await expect(page.locator('#subject-editor [name=startLocal]')).toHaveValue('2026-10-26T10:00')
   await (await reveal(page.locator('#subject-editor').getByRole('button', { name: 'Avbryt', exact: true }))).click()
   await (await reveal(page.locator('#view-subjects'))).click()

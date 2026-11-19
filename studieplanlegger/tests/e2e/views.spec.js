@@ -260,29 +260,43 @@ test('an empty week explains both routes and view selection is not persisted', a
   expect(await writes(page)).toEqual([])
 })
 
-test('repeated Oslo minutes compare current wall time before, exactly at and after both occurrences', async ({ page }, testInfo) => {
-  const repeated = task('repeated', '2026-10-25T02:30')
-  await seed(page, [repeated], { now: '2026-10-25T02:29:59+02:00' })
-  const control = checkbox(page, repeated.title)
-  await openMenu(page, repeated.title)
-  const overdue = row(page, repeated.title).getByText('Forfalt', { exact: true })
+test('repeated Oslo deadlines become overdue at the chosen occurrence or after both for legacy data', async ({ page }) => {
+  const date = '2026-10-25T02:30'
+  const earlier = { ...task('earlier', date), deadlineDisambiguation: 'earlier' }
+  const later = { ...task('later', date), deadlineDisambiguation: 'later' }
+  const legacy = task('legacy', date)
+  const source = [earlier, later, legacy]
+  await seed(page, source, { view: 'all', now: '2026-10-25T02:29:59+02:00' })
+  const control = checkbox(page, legacy.title)
+  await openMenu(page, legacy.title)
   await control.focus()
-  await expect(overdue).not.toBeVisible()
+
+  async function expectOverdue(...expected) {
+    for (const item of source) {
+      const badge = row(page, item.title).getByText('Forfalt', { exact: true })
+      if (expected.includes(item)) await expect(badge).toBeVisible()
+      else await expect(badge).toBeHidden()
+    }
+  }
+
+  await expectOverdue()
   await page.clock.runFor(1000)
-  await expect(overdue).not.toBeVisible()
+  await expectOverdue()
   await page.clock.runFor(1000)
-  await expect(overdue).toBeVisible()
+  await expectOverdue(earlier)
   await page.clock.setSystemTime(new Date('2026-10-25T02:15:00+01:00'))
   await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-  await expect(overdue).not.toBeVisible()
+  await expectOverdue(earlier)
   await page.clock.setSystemTime(new Date('2026-10-25T02:30:00+01:00'))
   await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-  await expect(overdue).not.toBeVisible()
+  await expectOverdue(earlier)
   await page.clock.runFor(1000)
-  await expect(overdue).toBeVisible()
+  await expectOverdue(earlier, later, legacy)
   await expect(control).toBeFocused()
-  await expect(row(page, repeated.title)).toContainText('25. oktober kl. 02:30')
-  expect((await saved(page)).tasks).toEqual([repeated])
+  await expect(row(page, earlier.title)).toContainText('25. oktober kl. 02:30 (første gang, UTC+02:00)')
+  await expect(row(page, later.title)).toContainText('25. oktober kl. 02:30 (andre gang, UTC+01:00)')
+  await expect(row(page, legacy.title)).toContainText('25. oktober kl. 02:30 (velg første eller andre gang)')
+  expect((await saved(page)).tasks).toEqual(source)
   expect(await writes(page)).toEqual([])
 })
 
