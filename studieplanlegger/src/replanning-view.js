@@ -101,12 +101,22 @@ export function createReplanningView(actions) {
     host.replaceChildren(el('h3', 'Sammenlign komplette planer'), el('p', 'Alle alternativene er beregnet fra samme lagrede grunnlag. Ingenting lagres før du velger og bruker ett alternativ.'))
     for (const scenario of comparison.scenarios) {
       const card = el('article', '', 'replan-row'), title = el('h4', scenario.label)
-      const missing = scenario.missingMaxMinutes === null ? `minst ${scenario.missingMinMinutes}` : scenario.missingMaxMinutes
-      card.append(title, el('p', scenario.preview.ok ? `${scenario.allocatedMinutes} min fordelt · ${scenario.remainingCapacityMinutes} min registrert kapasitet gjenstår · ${missing} min mangler · ${scenario.movedSessions} flyttes · ${scenario.omittedTasks} oppgaver med utelatt arbeid · ${scenario.reviewSessions} repetisjonsøkter beholdes.` : scenario.error))
-      if (scenario.deadlineRisk) card.append(el('p', 'Fristrisiko: registrert arbeid får ikke plass før fristene.', 'plan-problem'))
+      let missing = `${scenario.missingMaxMinutes} min mangler`
+      if (scenario.missingMaxMinutes === null) {
+        missing = scenario.missingMinMinutes > 0 ? `minst ${scenario.missingMinMinutes} min mangler` : 'arbeid med ukjent omfang gjenstår'
+      }
+      const omitted = `${scenario.omittedTasks} ${scenario.omittedTasks === 1 ? 'oppgave' : 'oppgaver'} med utelatt arbeid`
+      const blockers = (scenario.blockedTasks || []).map(task => `«${task.title}»: ${task.reason}`)
+      card.append(title, el('p', scenario.preview.ok ? `${scenario.allocatedMinutes} min fordelt · ${scenario.remainingCapacityMinutes} min registrert kapasitet gjenstår · ${missing} · ${scenario.movedSessions} flyttes · ${omitted} · ${scenario.reviewSessions} repetisjonsøkter beholdes.` : scenario.error))
+      if (scenario.deadlineRisk) card.append(el('p', 'Fristrisiko: registrert arbeid er ikke dekket før fristene.', 'plan-problem'))
       if (scenario.identicalTo) card.append(el('p', `Samme resultat som ${comparison.scenarios.find(item => item.id === scenario.identicalTo)?.label || scenario.identicalTo}.`, 'muted'))
-      if (scenario.preview.ok && !scenario.feasible) card.append(el('p', 'Alternativet har kapasitetsmangel; ikke alt arbeid får plass.', 'plan-problem'))
-      for (const note of scenario.uncertainty || []) card.append(el('p', note, 'plan-problem'))
+      if (scenario.preview.ok && !scenario.feasible) card.append(el('p', blockers.length
+        ? 'Avklar blokkerte oppgaver før hele planen kan gjennomføres.'
+        : 'Alternativet har kapasitetsmangel; ikke alt arbeid får plass.', 'plan-problem'))
+      for (const message of blockers) card.append(el('p', message, 'plan-problem'))
+      for (const note of scenario.uncertainty || []) {
+        if (!blockers.some(message => note.startsWith(message))) card.append(el('p', note, 'plan-problem'))
+      }
       const choose = el('button', scenario.keep ? 'Behold dagens plan' : 'Velg dette utkastet', scenario.feasible ? '' : 'secondary'); choose.type = 'button'; choose.disabled = !scenario.preview.ok
       choose.onclick = () => {
         if (scenario.keep) { close(); return }

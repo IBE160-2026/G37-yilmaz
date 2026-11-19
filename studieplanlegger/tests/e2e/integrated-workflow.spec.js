@@ -355,6 +355,34 @@ test('plan comparison exposes all three same-baseline alternatives, applies one,
   expect(undone.sessions).toEqual([])
 })
 
+test('plan comparison counts blocked work even when there is enough registered time', async ({ page }) => {
+  const task = { ...base, title: 'Rapport til veilederen', remainingMinutes: 60, waitingReason: 'Avventer veileder' }
+  await seedState(page, {
+    schemaVersion: 1,
+    tasks: [task],
+    sessions: [],
+    workWindows: [{ id: 'comparison-window', start: '2026-10-01T08:00:00Z', end: '2026-10-01T12:00:00Z' }],
+    onboarding: { dismissed: true, completed: true },
+  }, 'capacity')
+  const before = await saved(page)
+  await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Realistisk planforslag' })
+  await dialog.locator('summary').filter({ hasText: 'Sammenlign planalternativer' }).click()
+  await dialog.getByRole('checkbox', { name: task.title, exact: true }).check()
+  await dialog.getByRole('button', { name: 'Sammenlign planalternativer', exact: true }).click()
+
+  const cards = dialog.locator('article.replan-row')
+  await expect(cards).toHaveCount(3)
+  for (const card of await cards.all()) {
+    await expect(card).toContainText('0 min fordelt')
+    await expect(card).toContainText('60 min mangler')
+    await expect(card).toContainText('1 oppgave med utelatt arbeid')
+    await expect(card).toContainText('Avklar blokkerte oppgaver før hele planen kan gjennomføres.')
+    await expect(card).toContainText(`«${task.title}»: Venter på: Avventer veileder.`)
+  }
+  expect(await saved(page)).toEqual(before)
+})
+
 test('stale comparison stays open and writes nothing over a newer browser state', async ({ page }) => {
   await seedState(page, { schemaVersion: 1, tasks: [base], sessions: [], workWindows: [{ id: 'w', start: '2026-10-01T08:00:00Z', end: '2026-10-01T12:00:00Z' }], onboarding: { dismissed: true, completed: true } }, 'capacity')
   await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()

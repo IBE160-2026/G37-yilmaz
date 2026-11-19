@@ -223,6 +223,69 @@ describe('integrert arbeid, vurdering, eksport og sammenligning', () => {
     expect(proposed[0].taskId).toBe('second'); expect(new Set(proposed.map(item => item.taskId))).toEqual(new Set(['first', 'second']))
   })
 
+  it.each([
+    { id: task.id, remainingMinutes: 60, missingMinMinutes: 60, missingMaxMinutes: 60, omittedTasks: 1 },
+    { id: '__proto__', remainingMinutes: null, missingMinMinutes: 0, missingMaxMinutes: null, omittedTasks: 1 },
+    { id: 'constructor', remainingMinutes: 0, missingMinMinutes: 0, missingMaxMinutes: 0, omittedTasks: 0 },
+  ])('forklarer blokkert arbeid i alle alternativer med $remainingMinutes min igjen', ({ id, remainingMinutes, missingMinMinutes, missingMaxMinutes, omittedTasks }) => {
+    const waiting = { ...task, id, deadlineLocal: '', remainingMinutes, waitingReason: 'Avventer veileder' }
+    const state = { schemaVersion: 1, tasks: [waiting], sessions: [], workWindows: [{ id: 'w', start: '2026-09-29T08:00:00Z', end: '2026-09-29T12:00:00Z' }] }
+    const before = structuredClone(state)
+    const comparison = comparePlans(state, { now: new Date('2026-09-28T08:00:00Z') })
+    expect(comparison.scenarios).toHaveLength(3)
+    const [current, reduced] = comparison.scenarios
+    expect(current.remainingCapacityMinutes).toBe(240)
+    expect(reduced.remainingCapacityMinutes).toBe(180)
+    expect(reduced.identicalTo).toBeUndefined()
+    for (const scenario of comparison.scenarios) {
+      expect(scenario).toMatchObject({ feasible: false, deadlineRisk: false, allocatedMinutes: 0, missingMinMinutes, missingMaxMinutes, omittedTasks })
+      expect(scenario.blockedTasks).toEqual([{ taskId: id, title: waiting.title, waiting: true, reason: 'Venter på: Avventer veileder. Oppgaven er ikke startklar.' }])
+      expect(scenario.preview.proposed).toEqual([])
+    }
+    expect(state).toEqual(before)
+  })
+
+  it('beholder en blokkert reservasjon i dagens plan uten å kreditere arbeidet', () => {
+    const waiting = { ...task, remainingMinutes: 60, waitingReason: 'Avventer veileder' }
+    const session = { id: 'saved', taskId: task.id, dateLocal: '2026-09-29', startTime: '10:00', endTime: '11:00', locked: true }
+    const state = { schemaVersion: 1, tasks: [waiting], sessions: [session], workWindows: [{ id: 'w', start: '2026-09-29T08:00:00Z', end: '2026-09-29T12:00:00Z' }] }
+    const { scenarios: [current, ...alternatives] } = comparePlans(state, { now: new Date('2026-09-28T08:00:00Z') })
+    expect(current.preview.proposed).toEqual([session])
+    expect(current.remainingCapacityMinutes).toBe(180)
+    for (const scenario of [current, ...alternatives]) expect(scenario).toMatchObject({ feasible: false, deadlineRisk: true, allocatedMinutes: 0, missingMaxMinutes: 60, omittedTasks: 1 })
+  })
+
+  it('regner med en forutsetning bare når scenarioet har plass til den først', () => {
+    const prerequisite = { ...task, title: 'Avklaring', remainingMinutes: 30 }
+    const dependent = { ...task, id: 'etter', title: 'Skriv utkast', remainingMinutes: 30, dependencyIds: [task.id] }
+    const session = (id, taskId, startTime, endTime) => ({ id, taskId, dateLocal: '2026-09-29', startTime, endTime })
+    const before = session('before', prerequisite.id, '10:00', '10:30')
+    const after = session('after', dependent.id, '10:40', '11:10')
+    const state = { schemaVersion: 1, tasks: [dependent, prerequisite], sessions: [after], workWindows: [{ id: 'w', start: '2026-09-29T08:00:00Z', end: '2026-09-29T12:00:00Z' }] }
+    const options = { now: new Date('2026-09-28T08:00:00Z'), priorityTaskIds: [dependent.id] }
+    const { scenarios: [current, ...alternatives] } = comparePlans(state, options)
+    expect(current).toMatchObject({ feasible: false, allocatedMinutes: 0, missingMaxMinutes: 60, omittedTasks: 2 })
+    expect(current.blockedTasks).toEqual([{ taskId: dependent.id, title: dependent.title, waiting: false, reason: 'Venter på «Avklaring».' }])
+    for (const scenario of alternatives) expect(scenario).toMatchObject({ feasible: true, allocatedMinutes: 60, omittedTasks: 0, blockedTasks: [] })
+    expect(comparePlans({ ...state, sessions: [before, after] }, options).scenarios[0]).toMatchObject({ feasible: true, allocatedMinutes: 60, omittedTasks: 0, blockedTasks: [] })
+    const overlapsPrerequisite = session('early', dependent.id, '10:15', '11:00')
+    expect(comparePlans({ ...state, sessions: [before, overlapsPrerequisite] }, options).scenarios[0]).toMatchObject({ feasible: false, allocatedMinutes: 30, missingMaxMinutes: 30, omittedTasks: 1 })
+  })
+
+  it('låser ikke opp en avhengighet med to økter for en udelelig forutsetning', () => {
+    const prerequisite = { ...task, title: 'Presentasjon', remainingMinutes: 60, splittable: false }
+    const dependent = { ...task, id: 'after', remainingMinutes: 30, dependencyIds: [task.id] }
+    const sessions = [
+      { id: 'part-a', taskId: prerequisite.id, dateLocal: '2026-09-29', startTime: '10:00', endTime: '10:30' },
+      { id: 'part-b', taskId: prerequisite.id, dateLocal: '2026-09-29', startTime: '10:30', endTime: '11:00' },
+      { id: 'after', taskId: dependent.id, dateLocal: '2026-09-29', startTime: '11:10', endTime: '11:40' },
+    ]
+    const state = { schemaVersion: 1, tasks: [dependent, prerequisite], sessions, workWindows: [{ id: 'w', start: '2026-09-29T08:00:00Z', end: '2026-09-29T12:00:00Z' }] }
+    const [current, , prioritized] = comparePlans(state, { now: new Date('2026-09-28T08:00:00Z') }).scenarios
+    expect(current).toMatchObject({ feasible: false, blockedTasks: [{ taskId: dependent.id }], allocatedMinutes: 0, missingMaxMinutes: 90, omittedTasks: 2 })
+    expect(prioritized).toMatchObject({ feasible: true, blockedTasks: [] })
+  })
+
   it('viser dynamisk redusert prosent og teller bare unionert økttid innen kapasiteten', () => {
     const state = { schemaVersion: 1, tasks: [{ ...task, remainingMinutes: 120 }], sessions: [
       { id: 'a', taskId: task.id, dateLocal: '2026-09-29', startTime: '09:30', endTime: '10:30' },

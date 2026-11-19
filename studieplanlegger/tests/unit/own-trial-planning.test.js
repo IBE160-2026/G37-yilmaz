@@ -19,7 +19,7 @@ describe('owner-trial planning regressions', () => {
     const before = structuredClone(state), preview = createReplan(state, { now })
     expect(preview.ok).toBe(true)
     expect(preview.proposed).toEqual([])
-    expect(preview.blockedTasks).toEqual([{ taskId: task.id, title: task.title, waiting: true }])
+    expect(preview.blockedTasks).toEqual([{ taskId: task.id, title: task.title, waiting: true, reason: 'Venter på: Lesing. Oppgaven er ikke startklar.' }])
     expect(preview.problems.join(' ')).toContain('Venter på: Lesing')
     expect(preview.problems.join(' ')).toContain('ukjent tidspunkt eller varighet')
     expect(canStartTask(waiting, state.tasks)).toBe(false)
