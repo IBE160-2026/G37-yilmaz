@@ -94,15 +94,18 @@ export function createAgenda(host, actions) {
       })
       const stamp = node('span', 'agenda-date-stamp')
       const date = new Date(`${entry.date}T12:00:00`)
-      stamp.append(node('strong', '', entry.date.slice(-2)), node('span', '', new Intl.DateTimeFormat('nb-NO', { month: 'short' }).format(date).replace('.', '')))
+      const day = entry.date.slice(-2), month = new Intl.DateTimeFormat('nb-NO', { month: 'short' }).format(date).replace('.', '')
+      stamp.append(node('strong', '', day), node('span', '', month))
       const content = node('span', 'agenda-item-content')
       const meta = node('span', 'agenda-item-meta')
       const time = entry.kind === 'deadline' && entry.allDay ? 'Frist – klokkeslett ikke oppgitt' : entry.kind === 'personal' && !entry.time ? 'Tid ikke oppgitt' : entry.kind === 'personal' && !entry.endTime ? `kl. ${entry.time} · Varighet ikke oppgitt` : entry.allDay ? 'Hele dagen' : `kl. ${entry.time}${entry.endTime ? `–${entry.endDate && entry.endDate !== entry.date ? `${entry.endDate} kl. ` : ''}${entry.endTime}` : ''}`
-      meta.append(node('span', 'agenda-kind', entry.isExam ? '📝 Eksamen' : labels[entry.kind]), node('span', '', entry.ongoing ? `Pågår · ${time}` : time))
+      const kind = entry.isExam ? 'Eksamen' : labels[entry.kind]
+      const activityTime = entry.ongoing ? `Pågår · ${time}` : time
+      meta.append(node('span', 'agenda-kind', entry.isExam ? `📝 ${kind}` : kind), node('span', '', activityTime))
       const detail = [entry.course, entry.location, entry.occurrence, entry.warning, entry.ready ? 'Klar til levering' : ''].filter(Boolean).join(' · ')
       const title = entry.course && !entry.title.toLocaleUpperCase('nb').startsWith(entry.course.toLocaleUpperCase('nb')) ? `${entry.course} · ${entry.title}` : entry.title
       content.append(meta, node('span', 'agenda-item-title', title), node('span', 'agenda-item-details', detail))
-      button.setAttribute('aria-label', `${title}, ${entry.isExam ? 'Eksamen, ' : ''}${entry.date}, ${time}${detail ? `, ${detail}` : ''}`)
+      button.setAttribute('aria-label', [title, kind, `${day} ${month} ${entry.date.slice(0, 4)}`, activityTime, detail].filter(Boolean).join(', '))
       button.append(stamp, content)
       li.append(button)
       list.append(li)

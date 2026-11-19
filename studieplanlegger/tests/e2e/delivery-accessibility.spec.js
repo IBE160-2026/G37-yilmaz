@@ -51,6 +51,7 @@ for (const theme of ['light', 'dark']) {
       }
       await row(page, task.title).locator('.task-menu > summary').click()
       await assertFits('oppgavemeny')
+      await expect(page.locator('#compact-agenda').getByRole('button', { name: /^Syntetisk innlevering, Frist, 06 sep 2026, kl\. 12:00/ })).toBeVisible()
       for (const view of ['overview', 'capacity', 'subjects', 'calendar', 'settings']) {
         await navigate(page, view)
         await assertFits(view)
