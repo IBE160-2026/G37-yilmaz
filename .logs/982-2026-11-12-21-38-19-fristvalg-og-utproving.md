@@ -64,3 +64,67 @@ Arbeidet følger lærerens punkter om avgrensning, testbare kriterier og etterpr
 ### Åpne punkter
 
 To eldre begrensninger er registrert separat i [issues.md](issues.md): den skjulte emneagendaens tidsfilter oppdateres ikke innen samme dato når cachen gjenbrukes, og et delvis utfylt native importfelt kan stoppe lagring før et lokalt konfliktvalg behandles. Disse er avgrenset fra de fullførte A1–A7-punktene. Eksisterende leverings-, drifts- og historikkpunkter beholdes.
+
+## 2026-11-19 kl. 11:02 — Codex
+
+### Oppgave
+
+Undersøk og rett at et halvutfylt datofelt stopper import etter «Behold min verdi». Undersøk også feilene fra `npm run test:e2e` og forklar forskjellen fra den grønne GitHub-jobben.
+
+### Plan
+
+- Gjenskap feilen med ekte nettleserfelter og syntetiske CSV-revisjoner. Kontroller konfliktvalg, validering og omlasting av den lagrede fristen.
+- Sammenlign lokal testutvelgelse med GitHub på samme commit. Les hver feil og kjør egne prøver der feilmeldingen alene gir for lite informasjon.
+
+### Resultat
+
+- [Importskjemaet](../studieplanlegger/src/document-import.js) bruker konfliktvalget før det avviser et halvutfylt kildefelt. «Behold min verdi» fjerner feilen for kildefristen og lar importen fullføres med lokal frist. Andre ufullstendige felter blokkerer fortsatt lagring.
+- Begge tilfellene i [nettleserregresjonen](../studieplanlegger/tests/e2e/import-reimport-repair.spec.js) feilet før rettingen. Etterpå bestod hele filen med **22 av 22** tester mot produksjonsbygget. Det fokuserte enhetsutvalget bestod **106 av 106**. Hele enhetskjøringen bestod **2756 av 2757** med standard tidsfrist. Én prøve med 500 aktiviteter overskred fem sekunder og bestod ved omkjøring med 15 sekunders grense.
+- [GitHub-jobben](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/43337431457) bestod på samme commit som den lokale kjøringen startet fra. Jobben kjørte 199 Chromium-prøver mot ferdig bygg, 4 Firefox/WebKit-prøver og 14 SQLite-prøver. Den lokale Vite-suiten valgte 755 tester før de to nye regresjonene ble lagt til. Feilgjennomgangen ligger som lokalt testartefakt i `studieplanlegger/artifacts/friste2e-audit.md`.
+- Den brede kjøringen rapporterte **656 bestått, 67 hoppet over og 32 feilet**. 30 gjelder eldre selektorer, forventninger eller testdata. Én prøve bestod ved omkjøring etter omlasting i Vite under den brede kjøringen. Én prøve gjenga et rullehopp på 24 piksler i mobilforhåndsvisningen, også med importmodulen fra før rettingen. De 32 testtilfellene er utenfor GitHub-utvalget.
+- Dette følger lærerens tilbakemelding om avgrenset V1 og sporbare, sjekkbare kriterier. Sensorvedlegget var utilgjengelig for ny lesing i denne runden.
+
+### Åpne punkter
+
+- Oppdater de eldre forventningene i den brede E2E-suiten. Testgjennomgangen viser hvor de stopper og hva som faktisk vises.
+- Undersøk rullehoppet i den mobile importforhåndsvisningen ved valg av tidspunkt uten varighet. Et ekte `ArrowDown` i det fokuserte valgfeltet gjenga hoppet. Tastaturfokus, åpen importrad og lagring ble bevart i prøven.
+
+## 2026-11-19 kl. 11:35 — Codex
+
+### Oppgave
+
+Rett appfeilene fra E2E-gjennomgangen, oppdater de utdaterte testene og verifiser hele den lokale suiten.
+
+### Plan
+
+- Behold det fokuserte tidsvalget på samme sted i visningsområdet når forklaringsteksten endrer høyden på importraden.
+- Prøv de faktiske tastatur- og konfliktvalgene i Chromium. Oppdater gamle selektorer og forventninger med tester av dagens handlinger og lagrede data.
+
+### Resultat
+
+- [Importskjemaet](../studieplanlegger/src/document-import.js) beholder posisjonen til det fokuserte tidsvalget og forkaster et halvutfylt sluttfelt når brukeren velger tidspunkt uten varighet. [Mobiltestene](../studieplanlegger/tests/e2e/import-clarity.spec.js) dekker forstørret tekst, tastaturfokus, åpen rad og lagring.
+- En uavklart lokal frist ved tidsomstilling viser nå feilen på [konfliktvalget](../studieplanlegger/src/import-preview.js). [Regresjonen](../studieplanlegger/tests/e2e/import-reimport-repair.spec.js) bytter mellom ugyldige alternativer og bekrefter at en gyldig kildefrist kan lagres.
+- Oppdaterte de 30 gamle E2E-tilfellene og sjekket redusert bevegelse på det synlige panelet. Dette følger lærerens punkt om testbare kriterier for avgrenset V1. Sensorvedlegget var utilgjengelig for ny lesing.
+- Hele lokale E2E-suiten med fire arbeidere rapporterte **692 bestått, 67 hoppet over og 0 feil** på 18,5 minutter. Rapporten ligger i `studieplanlegger/artifacts/e2e-repair-full.json`. Hele enhetssuiten bestod med **2 757** tester, seks fokuserte nettleserprøver bestod, og produksjonsbygget bestod.
+
+### Åpne punkter
+
+Ingen fra E2E-gjennomgangen i denne økten.
+
+## 2026-11-19 kl. 11:43 — Codex
+
+### Oppgave
+
+Prosjekteieren ba om å committe og pushe de verifiserte Ajour-endringene til GitHub.
+
+### Plan
+
+- Kontroller at `main` har samme utgangspunkt som `origin/main`. Kjør kontrollene før ordinær push og før loggen separat fra kodeendringene.
+
+### Resultat
+
+Arbeidscommit `53e2e2bdf63e99e805b9072bb8e83d203b6fa13c` inneholder app- og testrettelsene. Produksjonsbygget, alle 2 757 enhetstestene og seks fokuserte importtester bestod på nytt. Hele E2E-resultatet fra samme kildeinnhold var 692 bestått, 67 hoppet over og 0 feil. Lenker, utfoldede ICS-filer, metadata, tilgangsmønstre og byggeartefakter ble kontrollert lokalt. Kontrollen av arbeidskopien og det indekserte kodeinnholdet fant ingen avvik.
+
+### Åpne punkter
+
+Ingen fra commit-forberedelsen.
