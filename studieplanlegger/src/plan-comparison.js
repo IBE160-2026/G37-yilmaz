@@ -7,21 +7,26 @@ const freeze = value => {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.freeze(value); Object.values(value).forEach(freeze) }
   return value
 }
-const metrics = (preview, tasks) => ({
-  allocatedMinutes: Object.values(preview.allocatedMinutes || {}).reduce((sum, value) => sum + value, 0),
-  missingMinMinutes: preview.totalMissingMinMinutes || 0,
-  missingMaxMinutes: preview.totalMissingMaxMinutes,
-  movedSessions: (preview.changes || []).filter(item => item.original && item.proposed && JSON.stringify(item.original) !== JSON.stringify(item.proposed)).length,
-  omittedTasks: Object.keys(preview.deficits || {}).length,
-  blockedTasks: preview.blockedTasks || [],
-  uncertainty: (preview.problems || []).filter(value => /ukjent|tvetydig|kan mangle|utforsk/i.test(value)),
-  reviewSessions: (preview.proposed || []).filter(item => item.reviewKey).length,
-  remainingCapacityMinutes: preview.remainingCapacityMinutes ?? Math.max(0, intervalMinutes((preview.availability?.windows || []).map(item => ({ start: Date.parse(item.start), end: Date.parse(item.end) }))) - (preview.occupiedMinutes ?? Object.values(preview.allocatedMinutes || {}).reduce((sum, value) => sum + value, 0))),
-  deadlineRisk: tasks.some(task => {
-    const range = preview.deficitRanges?.[task.id]
-    return range && range.maxMinutes !== 0 && (task.deadlineLocal || !preview.blockedTasks?.some(blocked => blocked.taskId === task.id))
-  }),
-})
+function metrics(preview, tasks) {
+  const blockedTasks = preview.blockedTasks || []
+  const blockedIds = new Set(blockedTasks.map(task => task.taskId))
+  const omittedIds = new Set(Object.entries(preview.deficitRanges || {})
+    .filter(([taskId, range]) => range.minMinutes > 0 || range.maxMinutes > 0 || blockedIds.has(taskId))
+    .map(([taskId]) => taskId))
+  const allocatedMinutes = Object.values(preview.allocatedMinutes || {}).reduce((sum, value) => sum + value, 0)
+  return {
+    allocatedMinutes,
+    missingMinMinutes: preview.totalMissingMinMinutes || 0,
+    missingMaxMinutes: preview.totalMissingMaxMinutes,
+    movedSessions: (preview.changes || []).filter(item => item.original && item.proposed && JSON.stringify(item.original) !== JSON.stringify(item.proposed)).length,
+    omittedTasks: omittedIds.size,
+    blockedTasks,
+    uncertainty: (preview.problems || []).filter(value => /ukjent|tvetydig|kan mangle|utforsk/i.test(value)),
+    reviewSessions: (preview.proposed || []).filter(item => item.reviewKey).length,
+    remainingCapacityMinutes: preview.remainingCapacityMinutes ?? Math.max(0, intervalMinutes((preview.availability?.windows || []).map(item => ({ start: Date.parse(item.start), end: Date.parse(item.end) }))) - (preview.occupiedMinutes ?? allocatedMinutes)),
+    deadlineRisk: tasks.some(task => omittedIds.has(task.id) && (task.deadlineLocal || !blockedIds.has(task.id))),
+  }
+}
 
 function completionTime(intervals, minutes, splittable) {
   let remaining = minutes * 60000

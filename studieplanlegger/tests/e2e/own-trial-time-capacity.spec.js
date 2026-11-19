@@ -38,6 +38,8 @@ test('ukeplanen planlegger kjent minimum ved Mer enn 4 timer med åtte timer led
   expect(before.sessions).toEqual([reservation])
 
   await navigate(page, 'capacity')
+  const summary = page.locator('#capacity-summary')
+  await expect(summary).toContainText('30 min satt av · minst 211 min ikke planlagt')
   await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()
   const plan = page.getByRole('dialog', { name: 'Realistisk planforslag', exact: true })
   await expect(plan).toContainText('0 flyttes og 0 fjernes')
@@ -53,6 +55,8 @@ test('ukeplanen planlegger kjent minimum ved Mer enn 4 timer med åtte timer led
       - Date.parse(`${session.dateLocal}T${session.startTime}:00+01:00`)) / 60_000, 0)
   expect(plannedMinutes).toBeGreaterThanOrEqual(241)
   expect(after.tasks).toEqual(before.tasks)
+  await expect(summary).toContainText('241 min satt av · øvre grense for uplanlagt arbeid er ukjent')
+  await expect(page.locator(`[data-capacity-task="${assignment.id}"]`)).toContainText('Reserverte økter dekker det kjente minimumet.')
 })
 
 for (const width of [1440, 390]) {

@@ -4,7 +4,7 @@ Oversikten samler daterte rettinger, prøver og begrensninger med lenker til tes
 
 ## Ukeplan med åpent arbeidsanslag — 2026-11-19
 
-Med åtte registrerte timer og én planlagt økt setter ukeplanen av tid for det kjente minimumet ved «Mer enn 4 timer». I Chromium ble den eksisterende økten kl. 08.00–08.30 beholdt. Utkastet viste ukjent øvre grense og ble først lagret etter «Bruk planen». Enhetstestene dekker også delvis og manglende kapasitet. [Nettlesertesten](tests/e2e/own-trial-time-capacity.spec.js) · [Enhetstestene](tests/unit/daily-guidance.test.js)
+Med åtte registrerte timer og én planlagt økt setter ukeplanen av tid for det kjente minimumet ved «Mer enn 4 timer». I Chromium ble den eksisterende økten kl. 08.00–08.30 beholdt. Utkastet viste ukjent øvre grense og ble først lagret etter «Bruk planen». Etter lagring viste kapasitetsoversikten at det kjente minimumet var dekket. Enhetstestene dekker også delvis og manglende kapasitet, og at plansammenligningen fortsatt viser usikkert restarbeid. [Nettlesertesten](tests/e2e/own-trial-time-capacity.spec.js) · [Planleggingsreglene](tests/unit/daily-guidance.test.js) · [Reservasjonene](tests/unit/local-time-capacity.test.js) · [Plansammenligningen](tests/unit/integrated-workflow.test.js)
 
 ## Apptekster og eksamensimport fra HiMolde — 2026-11-19
 

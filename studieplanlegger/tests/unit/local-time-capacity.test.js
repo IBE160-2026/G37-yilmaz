@@ -60,3 +60,24 @@ describe('repeated reservation explanations', () => {
     expect({ tasks, sessions, workWindows }).toEqual(before)
   })
 })
+
+describe('reservasjoner for arbeid med ukjent øvre grense', () => {
+  it.each([
+    { splittable: true, waitingReason: '', allocated: 210, state: 'unknown' },
+    { splittable: false, waitingReason: '', allocated: 0, state: 'unknown' },
+    { splittable: true, waitingReason: 'Avventer tilbakemelding', allocated: 0, state: 'blocked' },
+  ])('krediterer $allocated brukbare minutter for $state arbeid som kan deles: $splittable', ({ splittable, waitingReason, allocated, state }) => {
+    const task = { id: 'synthetic-open-estimate', title: 'Syntetisk ukeplan', completed: false, splittable, waitingReason,
+      remainingEstimate: { minMinutes: 241, maxMinutes: null } }
+    const sessions = [
+      { id: 'first', taskId: task.id, dateLocal: '2026-11-02', startTime: '08:00', endTime: '10:00' },
+      { id: 'second', taskId: task.id, dateLocal: '2026-11-02', startTime: '11:00', endTime: '14:00' },
+    ]
+    const workWindows = [{ id: 'synthetic-work', start: '2026-11-02T08:00:00+01:00', end: '2026-11-02T16:00:00+01:00' }]
+    const busyWindows = [{ id: 'synthetic-busy', start: '2026-11-02T08:00:00+01:00', end: '2026-11-02T09:30:00+01:00' }]
+    const result = deriveWorkCapacity([task], sessions, new Date('2026-11-01T12:00:00Z'), [], workWindows, busyWindows)
+    const missing = 241 - allocated
+    expect(result.tasks[0]).toMatchObject({ state, reservedMinutes: 210, allocatedMinutes: allocated, missingMinMinutes: missing, missingMaxMinutes: null })
+    expect(result).toMatchObject({ totalAllocatedMinutes: allocated, totalMissingMinMinutes: missing, totalMissingMaxMinutes: null })
+  })
+})

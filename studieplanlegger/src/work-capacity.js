@@ -89,15 +89,25 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
   }
   free = subtractIntervals(available, reservedCovered)
   for (const { task, index } of tasks.map((task, index) => ({ task, index })).sort((a, b) => compareDeadlines(a.task, b.task))) {
-    const entry = entries[index], range = getRemainingRange(task), required = range?.maxMinutes ?? null
+    const entry = entries[index], range = getRemainingRange(task), required = range?.maxMinutes ?? range?.minMinutes ?? null
     if (task.completed || task.submitted) { entry.state = 'done'; continue }
     const blockers = taskBlockers(task, tasks)
-    if (blockers.length) { entry.state = 'blocked'; entry.missingMinutes = required ?? 0; entry.missingMinMinutes = range?.minMinutes ?? 0; entry.missingMaxMinutes = required; entry.reasons.push(...blockers.map(item => item.reason)); continue }
-    if (required === null) { entry.state = 'unknown'; entry.missingMinMinutes = range?.minMinutes ?? 0; entry.missingMaxMinutes = null; entry.reasons.push(range ? `Minst ${range.minMinutes} min gjenstår, men øvre grense er ukjent.` : 'Gjenstående arbeid er ukjent. Legg til et estimat.'); continue }
+    if (blockers.length) { entry.state = 'blocked'; entry.missingMinutes = required ?? 0; entry.missingMinMinutes = range?.minMinutes ?? 0; entry.missingMaxMinutes = range?.maxMinutes ?? null; entry.reasons.push(...blockers.map(item => item.reason)); continue }
+    if (required === null) { entry.state = 'unknown'; entry.missingMaxMinutes = null; entry.reasons.push('Gjenstående arbeid er ukjent. Legg til et estimat.'); continue }
     const indivisible = task.splittable === false
     const ownReservations = reservations.filter(item => item.taskId === task.id && item.end > floor)
     const reservedFits = indivisible ? ownReservations.length === 1 && Boolean(contiguousWorkInterval(reservedIntervals.get(task.id), required)) : entry.reservedMinutes >= required
     entry.allocatedMinutes = indivisible ? reservedFits ? required : 0 : Math.min(required, entry.reservedMinutes)
+    if (range.maxMinutes === null) {
+      entry.state = 'unknown'
+      entry.missingMinutes = entry.missingMinMinutes = required - entry.allocatedMinutes
+      entry.missingMaxMinutes = null
+      if (entry.missingMinMinutes && indivisible) entry.reasons.push(`Minst ${required} min må få plass i én sammenhengende økt.`)
+      if (entry.missingMinMinutes) entry.reasons.push(`Minst ${entry.missingMinMinutes} min gjenstår å planlegge.`)
+      else if (required > 0) entry.reasons.push('Reserverte økter dekker det kjente minimumet.')
+      entry.reasons.push('Øvre grense for gjenstående arbeid er ukjent.')
+      continue
+    }
     let need = required - entry.allocatedMinutes, deadline = Infinity
     try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig eller ugyldig. Ingen tid foreslås.'); }
     const retainedReservation = ownReservations.length > 0

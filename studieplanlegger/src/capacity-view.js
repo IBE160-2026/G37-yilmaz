@@ -110,9 +110,11 @@ export function createCapacityView(actions) {
         }
       }
       const required = capacity.totalRequiredMaxMinutes === null ? `minst ${capacity.totalRequiredMinMinutes}` : capacity.totalRequiredMinMinutes !== undefined && capacity.totalRequiredMinMinutes !== capacity.totalRequiredMaxMinutes ? `${capacity.totalRequiredMinMinutes}–${capacity.totalRequiredMaxMinutes}` : capacity.totalRequiredMinutes
-      const missing = capacity.totalMissingMaxMinutes === null ? `minst ${capacity.totalMissingMinMinutes}` : `opptil ${capacity.totalMissingMaxMinutes ?? capacity.totalMissingMinutes}`
+      const missing = capacity.totalMissingMaxMinutes === null
+        ? capacity.totalMissingMinMinutes > 0 ? `minst ${capacity.totalMissingMinMinutes} min ikke planlagt` : 'øvre grense for uplanlagt arbeid er ukjent'
+        : `opptil ${capacity.totalMissingMaxMinutes ?? capacity.totalMissingMinutes} min ikke planlagt`
       const spare = capacity.uncertainPersonalCount ? `${capacity.spareMinutes} min beregnet ledig ut fra kjente tider` : `${capacity.spareMinutes} min ledig i øktene`
-      setText($('#capacity-summary'), `${required} min kjent arbeid${capacity.unknownTaskCount ? ` · ${capacity.unknownTaskCount} oppgaver med ukjent øvre grense` : ''} · ${capacity.totalAllocatedMinutes} min satt av · ${missing} min ikke planlagt · ${spare}.`)
+      setText($('#capacity-summary'), `${required} min kjent arbeid${capacity.unknownTaskCount ? ` · ${capacity.unknownTaskCount} oppgaver med ukjent øvre grense` : ''} · ${capacity.totalAllocatedMinutes} min satt av · ${missing} · ${spare}.`)
       setText($('#capacity-warnings'), capacity.warnings.join(' '))
       $('#capacity-warnings').hidden = !capacity.warnings.length
       $('#sessions-empty').hidden = savedSessions.length > 0
