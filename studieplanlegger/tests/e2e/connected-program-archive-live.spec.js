@@ -44,7 +44,14 @@ for (const sample of samples) test(`live published programme PDF edition: ${samp
     const calendarYear = sample.calendarYear || '2026'
     if (await host.locator('[name=calendarSemester]').isVisible()) await choose(host.locator('[name=calendarSemester]'), row => row.value === `${calendarYear}:autumn`)
     else { await host.locator('[name=clarifiedYear]').fill(calendarYear); await host.locator('[name=clarifiedSemester]').selectOption('autumn') }
-    const campus = await choose(host.locator('[name=programCampus]'), row => row.label === sample.campus || sample.institution === 'uit' && row.value === '__unknown')
+    const campusControl = host.locator('[name=programCampus]')
+    if (await campusControl.isVisible()) {
+      await choose(campusControl, row => row.label === sample.campus || sample.institution === 'uit' && row.value === '__unknown')
+    } else {
+      expect(sample.institution).toBe('uit')
+      await expect(campusControl).toHaveValue('__unknown')
+    }
+    const campus = await campusControl.inputValue()
     for (const box of await host.locator('.activity-choices input').all()) await box.uncheck()
     await host.getByRole('checkbox', { name: new RegExp(`\\b${sample.code}\\b`) }).check()
     if (sample.clarifyStudySemester) {
@@ -82,7 +89,7 @@ for (const sample of samples) test(`live published programme PDF edition: ${samp
       expect(course.programBinding.sourceEdition).toContain(`pdf-${sample.pdfId}:`)
     }
     if (sample.pdfPath) expect(course.sourceUrl).toContain(sample.pdfPath)
-    expect(course.programBinding).toMatchObject({ modelId: sample.model, cohort: sample.studentCohort, studySemester: 1, calendarYear: Number(calendarYear), calendarSemester: 'autumn', campus: campus.value === '__unknown' ? '' : campus.value })
+    expect(course.programBinding).toMatchObject({ modelId: sample.model, cohort: sample.studentCohort, studySemester: 1, calendarYear: Number(calendarYear), calendarSemester: 'autumn', campus: campus === '__unknown' ? '' : campus })
     if (first) expect(current.planner.courses.map(row => row.id)).toEqual(first.planner.courses.map(row => row.id))
     else first = current
     await page.reload(); expect((await state()).planner).toEqual(current.planner)

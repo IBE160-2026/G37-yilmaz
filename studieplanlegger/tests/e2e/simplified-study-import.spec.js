@@ -141,7 +141,7 @@ test('programme choice, missing course and partial teaching are committed once w
   await expect(host.getByRole('radio', { name: /IBE102 og IBE152/ })).toBeChecked()
   await expect(host.getByRole('checkbox', { name: /IBE999.*Lagt til fra emnesøk/ })).toBeChecked()
   await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
-  await expect(host.locator('.program-action-status')).toContainText(/Forbereder|Kontrollerer/)
+  await expect(host.locator('.program-action-status')).toHaveText('Henter undervisning …')
   await expect(host.locator('.program-action-status')).toContainText('Resultatet fra undervisningskilden vises per emne.')
   await expect(host.getByText('Lagt til fra separat emnesøk. Ikke dokumentert av programkilden.')).toBeVisible()
   await expect(host.getByRole('link', { name: 'Kilde for emnet', exact: true })).toHaveAttribute('href', searchedCourseUrl)

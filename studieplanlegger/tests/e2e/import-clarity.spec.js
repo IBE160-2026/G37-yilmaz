@@ -158,14 +158,16 @@ async function inspectImportedCalendar(page, event, { point = false, expectedEnd
 
 async function inspectReceiptAndSource(page, linked) {
   const receipt = page.locator('.document-import-receipt')
+  const courseCount = linked.courses.length
+  const activities = `${linked.events.length} ${linked.events.length === 1 ? 'kalenderaktivitet' : 'kalenderaktiviteter'}`
   await expect(receipt.getByRole('heading', { name: 'Importen er lagret', exact: true })).toBeFocused()
   await expect(receipt.locator('button.primary')).toHaveCount(1)
-  await expect(receipt).toContainText(`${linked.courses.length} emner, ${linked.events.length} kalenderaktiviteter og 0 oppgaver`)
+  await expect(receipt).toContainText(`${courseCount} ${courseCount === 1 ? 'emne' : 'emner'}, ${activities} og 0 oppgaver`)
   await expect(receipt).toContainText('1 aktiviteter eller oppgaver utelatt av utvalget.')
   await expect(receipt).toContainText('Importen er en kopi og oppdateres ikke automatisk.')
   const card = page.locator(`.document-source-card[data-source-id="${linked.source.id}"]`)
   await expect(card.getByText('Kopi av fil / dokument · oppdateres ikke automatisk.', { exact: true })).toBeVisible()
-  await expect(card.getByText(`${linked.courses.length} lagrede emner · ${linked.events.length} kalenderaktiviteter · 0 oppgaver.`, { exact: false })).toBeVisible()
+  await expect(card.getByText(`${courseCount} ${courseCount === 1 ? 'lagret emne' : 'lagrede emner'} · ${activities} · 0 oppgaver.`, { exact: false })).toBeVisible()
   await expect(card.getByText('Sist oppdatert:', { exact: false })).toBeVisible()
   const details = card.locator('details[data-document-source]')
   await expect(details).not.toHaveAttribute('open', '')

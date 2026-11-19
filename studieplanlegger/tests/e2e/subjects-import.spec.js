@@ -86,7 +86,7 @@ test('ICS preview, confirmation, correct winter time, repeat import and source r
   const calendar = page.locator('#full-calendar')
   await calendar.getByRole('button', { name: 'Måned', exact: true }).click()
   await calendar.getByRole('button', { name: 'Neste periode', exact: true }).click()
-  const lectureName = /Undervisning: TEST101 · Isolert forelesning/
+  const lectureName = /10:00.*11:00.*TEST101 · Isolert forelesning.*Undervisning/
   const winterDay = calendar.locator('.calendar-month-grid [data-date="2026-10-26"]')
   await expect(winterDay.getByRole('button', { name: lectureName })).toBeVisible()
   await winterDay.getByRole('button', { name: /^man.*26.*okt/i }).click()

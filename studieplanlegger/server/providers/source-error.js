@@ -3,7 +3,7 @@ const unavailable = /^(?:ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ECONNRESET|EHOSTUNREAC
 export function sourceTransportError(error) {
   if (unavailable.test(error?.code) || unavailable.test(error?.cause?.code) ||
       /\bgetaddrinfo\s+(?:ENOTFOUND|EAI_AGAIN)\b/.test(error?.message || '')) {
-    return Object.assign(new Error('Fikk ikke kontakt med lærestedet. Prøv igjen senere. Lagrede data er beholdt.'), { status: 'transport-error' })
+    return Object.assign(new Error('Fikk ikke kontakt med lærestedet. Prøv igjen senere. Lagrede data er beholdt.', { cause: error }), { status: 'transport-error' })
   }
   return error
 }

@@ -203,6 +203,31 @@ describe('recognized sources and all outgoing fetches', () => {
     ]) expect(() => hostedCalendarSource(url)).not.toThrow()
   })
 
+  it.each([false, true])('retries a guarded Fjellhaug source reset and sanitizes a persistent error (%s)', async persistent => {
+    const catalogueUrl = 'https://fih.fjellhaug.no/ikt-verkt%C3%B8y/webcalfiler'
+    const url = 'https://fih.edupage.org/webcal?pwd=C0DEC0DEC0DEC0DE&type=plan&studentid=-729'
+    const calendar = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-WR-CALNAME:Timetable: -729\r\nEND:VCALENDAR\r\n'
+    const privateDetail = 'SYNTHETIC_RESET_DETAILS_729'
+    let reads = 0
+    const fetchTextImpl = vi.fn(async (source, _depth, guard, options) => {
+      guard(new URL(source))
+      if (source.endsWith('/student')) return `<main><a href="${catalogueUrl}">Webcalfiler</a></main>`
+      if (source === catalogueUrl) return `<main><a href="${url.replaceAll('&', '&amp;')}">Syntetisk klasse</a></main>`
+      expect(source).toBe(url)
+      if (++reads > 1) expect(options.freshConnection).toBe(true)
+      if (reads === 1 || persistent) throw Object.assign(new Error(privateDetail), { code: 'ECONNRESET' })
+      return calendar
+    })
+    const result = await request({ body: { url, catalogueUrl, sourceObjectId: '-729' }, dependencies: { fetchTextImpl } })
+    expect(reads).toBe(2)
+    if (persistent) {
+      expect(result).toMatchObject({ status: 400, body: { status: 'transport-error', error: 'Fikk ikke kontakt med lærestedet. Prøv igjen senere. Lagrede data er beholdt.' } })
+      expect(JSON.stringify(result.body)).not.toContain(privateDetail)
+    } else {
+      expect(result).toMatchObject({ status: 200, body: { sourceKind: 'fih-public-class', className: 'Syntetisk klasse', count: 0 } })
+    }
+  })
+
   it.each(['/api/import/ntnu', '/api/import/providers/ntnu/details'])('injects guarded fetch for NTNU details at %s', async path => {
     const fetchTextImpl = vi.fn(async (_url, _depth, guard) => {
       expect(() => guard(new URL('https://www.ntnu.no/studier/emner/OTHER729/2026'))).toThrow()

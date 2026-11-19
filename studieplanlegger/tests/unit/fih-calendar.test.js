@@ -45,6 +45,46 @@ describe('FIH published Edupage class calendars', () => {
     await expect(fetchFihCalendar('https://fih.edupage.org/webcal?pwd=C0DEC0DEC0DEC0DE&type=plan&studentid=-999', { fetchText, fetchBytes })).rejects.toThrow(/publiserte oversikter/)
     expect(fetchText.mock.calls.some(([url]) => url.includes('edupage'))).toBe(false)
   })
+  it('verifies the chosen published overview without waiting for an unrelated PDF', async () => {
+    const html = await fixture('html.html'), selected = parseFihCalendarHtml(html, htmlUrl)[0]
+    const calendar = `BEGIN:VCALENDAR\nVERSION:2.0\nX-WR-CALNAME:Timetable: ${selected.sourceObjectId}\nEND:VCALENDAR`
+    const fetchText = vi.fn(async url => {
+      if (url.endsWith('/student')) return fixture('student.html')
+      if (url === htmlUrl) return html
+      return calendar
+    })
+    const fetchBytes = vi.fn(() => new Promise(() => {}))
+    const result = await fetchFihCalendar(selected.sourceUrl, { ...selected, fetchText, fetchBytes })
+    expect(result).toMatchObject({ className: selected.className, sourceKind: 'fih-public-class', count: 0 })
+    expect(fetchText.mock.calls.map(([url]) => new URL(url).pathname)).toEqual(['/student', new URL(htmlUrl).pathname, '/webcal'])
+    expect(fetchBytes).not.toHaveBeenCalled()
+  })
+  it('retries a transient calendar read once through a fresh connection and the same strict guard', async () => {
+    const html = await fixture('html.html'), selected = parseFihCalendarHtml(html, htmlUrl)[0]
+    let reads = 0
+    const fetchText = vi.fn(async (url, redirects, guard, options) => {
+      guard(new URL(url))
+      if (url.endsWith('/student')) return fixture('student.html')
+      if (url === htmlUrl) return html
+      if (++reads === 1) throw Object.assign(new Error('synthetic idle timeout'), { code: 'ERR_PUBLIC_SOURCE_IDLE_TIMEOUT' })
+      expect(options).toEqual({ freshConnection: true })
+      expect(redirects).toBe(0)
+      const otherClass = new URL(url)
+      otherClass.searchParams.set('studentid', '-999')
+      expect(() => guard(otherClass)).toThrow(/annen kilde/)
+      return `BEGIN:VCALENDAR\nVERSION:2.0\nX-WR-CALNAME:Timetable: ${selected.sourceObjectId}\nEND:VCALENDAR`
+    })
+    expect(await fetchFihCalendar(selected.sourceUrl, { ...selected, fetchText })).toMatchObject({ count: 0 })
+    expect(reads).toBe(2)
+  })
+  it('rejects an unpublished overview, a class from a different overview and a conflicting class ID before fetching the calendar', async () => {
+    const [selected] = await pdf(), fetchText = vi.fn(async url => fixture(url.endsWith('/student') ? 'student.html' : 'html.html'))
+    const unlisted = pdfUrl.replace('.pdf', '-synthetic.pdf')
+    await expect(fetchFihCalendar(selected.sourceUrl, { ...selected, catalogueUrl: unlisted, fetchText })).rejects.toThrow(/studentside/)
+    await expect(fetchFihCalendar(selected.sourceUrl, { ...selected, catalogueUrl: htmlUrl, fetchText })).rejects.toThrow(/publiserte oversikter/)
+    await expect(fetchFihCalendar(selected.sourceUrl, { ...selected, sourceObjectId: '-999', fetchText })).rejects.toThrow(/klasse-ID/)
+    expect(fetchText.mock.calls.some(([url]) => new URL(url).pathname === '/webcal')).toBe(false)
+  })
   it('does not silently accept duplicate or unlabeled PDF calendar identities', async () => {
     const pages = JSON.parse(await fixture('links.json'))
     const firstLink = pages[0].lines.findIndex(line => line.startsWith('https:'))

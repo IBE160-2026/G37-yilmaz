@@ -42,7 +42,7 @@ for (const source of ['gestalt', 'phs']) test(`live ${source} published calendar
       const rows = parseDocumentIcs(result.calendar, period).rows
       const index = rows.findIndex(row => row.kind === 'event' && row.originalStart === '2026-09-17T08:30:00.000Z')
       expect(index).toBeGreaterThanOrEqual(0)
-      if (run) await expect(form.getByRole('status')).toContainText('Det tidligere valget er beholdt')
+      if (run) await expect(form.getByRole('status').filter({ hasText: /kalenderaktiviteter/ })).toContainText('Det tidligere valget er beholdt')
       await (await reveal(checkbox(previewRow(form, index)))).check()
     }
     else {

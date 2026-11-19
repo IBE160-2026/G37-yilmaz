@@ -26,7 +26,7 @@ export function isPublicIPv4(address) {
   const [a, b, c] = address.split('.').map(Number)
   return /^\d+\.\d+\.\d+\.\d+$/.test(address) && a > 0 && a < 224 && ![10, 127].includes(a) && !(a === 100 && b >= 64 && b <= 127) && !(a === 169 && b === 254) && !(a === 172 && b >= 16 && b <= 31) && !(a === 192 && (b === 168 || b === 0 || (b === 88 && c === 99))) && !(a === 198 && [18, 19, 51].includes(b)) && !(a === 203 && b === 0 && c === 113)
 }
-export async function fetchPublicBytes(input, redirects = 0, validateUrl, { signal, usnCatalogue, anonymousShare, anonymousSession, maxBytes = 2_000_000 } = {}) {
+export async function fetchPublicBytes(input, redirects = 0, validateUrl, { signal, usnCatalogue, anonymousShare, anonymousSession, freshConnection, maxBytes = 2_000_000 } = {}) {
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 10_000_000) throw new Error('Ugyldig grense for offentlig kildehenting.')
   signal?.throwIfAborted()
   const url = new URL(input.replace(/^webcal:/i, 'https:'))
@@ -49,13 +49,13 @@ export async function fetchPublicBytes(input, redirects = 0, validateUrl, { sign
   signal?.throwIfAborted()
   if (!addresses.length || addresses.some(entry => !isPublicIPv4(entry.address))) throw new Error('Lenken må peke til en offentlig kalender, ikke en lokal nettverksadresse.')
   const response = await new Promise((resolve, reject) => {
-    const options = { signal, headers: { Accept: 'text/calendar,text/html,application/json;q=0.9', 'User-Agent': 'Studieplanlegger/1.0' }, lookup: (_host, options, callback) => options.all ? callback(null, [addresses[0]]) : callback(null, addresses[0].address, 4) }
+    const options = { signal, ...(freshConnection ? { agent: false } : {}), headers: { Accept: 'text/calendar,text/html,application/json;q=0.9', 'User-Agent': 'Studieplanlegger/1.0' }, lookup: (_host, options, callback) => options.all ? callback(null, [addresses[0]]) : callback(null, addresses[0].address, 4) }
     const cookieJar=anonymousShare?.cookies||anonymousSession?.cookies
     if(cookieJar?.size)options.headers.Cookie=[...cookieJar].map(([key,value])=>`${key}=${value}`).join('; ')
     if(anonymousSession?.referer){options.headers.Referer=anonymousSession.referer;options.headers['X-Requested-With']='XMLHttpRequest'}
     if (body) { options.method = 'POST'; options.headers['Content-Type'] = 'application/json;charset=UTF-8'; options.headers['Content-Length'] = Buffer.byteLength(body) }
     const request = body ? https.request(url, options, resolve) : https.get(url, options, resolve)
-    request.setTimeout(12000, () => request.destroy(new Error('Hentingen tok for lang tid. Prøv igjen eller last opp en .ics-fil.')))
+    request.setTimeout(12000, () => request.destroy(Object.assign(new Error('Hentingen tok for lang tid. Prøv igjen eller last opp en .ics-fil.'), { code: 'ERR_PUBLIC_SOURCE_IDLE_TIMEOUT' })))
     request.on('error', reject)
     if (body) request.end(body)
   })
@@ -68,7 +68,7 @@ export async function fetchPublicBytes(input, redirects = 0, validateUrl, { sign
     response.resume()
     if (body) throw new Error('USNs katalogsøk ble videresendt. Oppslaget ble stoppet; eksisterende data er beholdt.')
     if (redirects >= 3 || !response.headers.location) throw new Error('Kilden videresender for mange ganger. Bruk en direkte kalenderlenke.')
-    return fetchPublicBytes(new URL(response.headers.location, url).href, redirects + 1, validateUrl, { signal, maxBytes, anonymousShare, anonymousSession })
+    return fetchPublicBytes(new URL(response.headers.location, url).href, redirects + 1, validateUrl, { signal, maxBytes, anonymousShare, anonymousSession, freshConnection })
   }
   if (response.statusCode !== 200) { response.resume(); throw new Error(`Kilden svarte med HTTP ${response.statusCode}. Årsaken er ikke bekreftet. Tidligere data er beholdt; bruk offentlig kildeside, fil eller manuell registrering.`) }
   let size = 0
@@ -229,7 +229,7 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
     if (url.pathname === '/api/import/calendar-sources/fih' && req.method === 'GET') return send(200, await fihCalendarSources({ fetchText, fetchBytes }))
     if (url.pathname === '/api/import/calendar' && req.method === 'POST') {
       if (!/^application\/json(?:\s*;|\s*$)/i.test(req.headers['content-type'] || '')) return send(415, { error: 'Ugyldig forespørsel. Bruk JSON.' })
-      const { url: calendarUrl, sourceObjectId } = await readImportBody(req, { signal: controller.signal })
+      const { url: calendarUrl, sourceObjectId, catalogueUrl } = await readImportBody(req, { signal: controller.signal })
       if (typeof calendarUrl !== 'string') throw new Error('Oppgi en kalenderlenke.')
       hostedPolicy?.calendarSource(calendarUrl)
       if (publicTpViewSelection(calendarUrl)) return send(200, await fetchPublicTpView(calendarUrl, { fetchText }))
@@ -237,7 +237,7 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
       if (isPublicTpCalendarUrl(calendarUrl) && new URL(calendarUrl).searchParams.get('type') === 'course') return send(200, await fetchPublicTpCalendar(calendarUrl, { fetchText }))
       if (isPublicPlandiscUrl(calendarUrl)) return send(200, await fetchPlandiscCalendar(calendarUrl, { fetchText }))
       if (new URL(calendarUrl).origin === 'https://ansgarskolenno-my.sharepoint.com') return send(200, await fetchAnsgarCalendar(calendarUrl, { fetchText, fetchBytes }))
-      if (new URL(calendarUrl).origin === 'https://fih.edupage.org') return send(200, await fetchFihCalendar(calendarUrl, { sourceObjectId, fetchText, fetchBytes }))
+      if (new URL(calendarUrl).origin === 'https://fih.edupage.org') return send(200, await fetchFihCalendar(calendarUrl, { sourceObjectId, catalogueUrl, fetchText, fetchBytes }))
       if (/^https:\/\/s3-gustav\.imgix\.net\/hfy\/[^?#]+\.pdf$/.test(calendarUrl)) return send(200, await fetchHfyCalendar(calendarUrl, { fetchText, fetchBytes }))
       if (/^https:\/\/img1\.wsimg\.com\/blobby\/go\/[^?#]+\.pdf$/.test(calendarUrl)) return send(200, await fetchGestaltCalendar(calendarUrl, { sourceObjectId, fetchText, fetchBytes }))
       if (/^https:\/\/www\.politihogskolen\.no\/for-studenter\/eksamen\/eksamensoversikt-(ba|ma)\/?$/.test(calendarUrl)) return send(200, await fetchPhsExamCalendar(calendarUrl, { fetchText }))

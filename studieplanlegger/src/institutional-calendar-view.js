@@ -51,10 +51,13 @@ export function mountInstitutionalCalendar(host,{getState,onCommit,api}) {
     event.preventDefault();if(pending)return;invalidate();const operation=begin(),snapshot=selection();message.textContent='Henter offentlig kalender …'
     try {
       if(kind.value!=='plandisc'&&!sourceChoices.has(classes.value))throw new Error('Velg en publisert kalenderplan først.')
-      const source=new URL(url.value.trim()),period={year:Number(year.value),semester:semester.value},selectedKind=kind.value,config=calendarKinds[selectedKind],sourceObjectId=sourceChoices.get(classes.value)?.sourceObjectId
+      const source=new URL(url.value.trim()),period={year:Number(year.value),semester:semester.value},selectedKind=kind.value,config=calendarKinds[selectedKind]
+      const selectedSource = sourceChoices.get(classes.value)
+      const sourceObjectId = selectedSource?.sourceObjectId
+      const catalogueUrl = selectedKind === 'fih' ? selectedSource?.catalogueUrl : undefined
       if(source.search&&!config.allowQuery||source.hash||source.username||source.password||!config.valid(source))throw new Error('Velg en publisert kalenderlenke fra den valgte kilden.')
       source.pathname=source.pathname.replace(/\/$/,'')
-      const data=await api('/api/import/calendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:source.href,...(sourceObjectId?{sourceObjectId}:{})}),signal:operation.controller.signal, ...(selectedKind==='fih'?{timeoutMs:55_000}:{})})
+      const data=await api('/api/import/calendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:source.href,sourceObjectId,catalogueUrl}),signal:operation.controller.signal, ...(selectedKind==='fih'?{timeoutMs:55_000}:{})})
       if(!current(operation))return
       if(snapshot!==selection())throw new Error('Kalendervalget er endret under henting. Hent en ny forhåndsvisning.')
       if(selectedKind==='plandisc'?!data.institutional:data.sourceKind!==config.sourceKind)throw new Error('Kilden bekrefter ikke den valgte offentlige kalenderen.')

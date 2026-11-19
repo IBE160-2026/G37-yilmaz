@@ -173,7 +173,7 @@ async function openTerm(page, count = 2) {
   await expect(preview(page).locator('[data-field=courseTarget]')).toHaveCount(1)
   const group = preview(page).getByRole('checkbox', { name: /^Ta med gruppen Oppdiktet fellesgruppe/, includeHidden: true })
   await (await reveal(group)).check()
-  await expect(preview(page).locator('.document-selection-summary')).toContainText(`${count} aktiviteter valgt`)
+  await expect(preview(page).locator('.document-selection-summary')).toContainText(`${count} ${count === 1 ? 'aktivitet' : 'aktiviteter'} valgt`)
 }
 
 function assertTerm(state) {

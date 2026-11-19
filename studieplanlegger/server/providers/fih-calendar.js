@@ -5,6 +5,16 @@ import { readLdhPdf } from './ldh-pdf.js'
 const studentUrl = 'https://fih.fjellhaug.no/student'
 const sourceGuard = input => restrictedUrl(input, { origin: 'https://fih.fjellhaug.no', paths: [/^\/student\/?$/, /^\/ikt-verkt(?:%C3%B8|ø)y\/webcalfiler\/?$/, /^\/files\/uploads\/Instruksjoner\/[^/]+\.pdf$/] })
 const hash = text => createHash('sha256').update(text).digest('hex')
+const retryableRead = new Set(['ERR_PUBLIC_SOURCE_IDLE_TIMEOUT', 'ECONNRESET', 'ETIMEDOUT'])
+
+async function readFihText(fetchText, href, validate) {
+  try { return await cachedText(fetchText, href, validate) }
+  catch (error) {
+    const code = error?.code ?? error?.cause?.code ?? error?.cause?.cause?.code
+    if (!retryableRead.has(code)) throw error
+    return fetchText(href, 0, validate, { freshConnection: true })
+  }
+}
 export function fihCalendarUrl(input) {
   const url = restrictedUrl(input, { origin: 'https://fih.edupage.org', paths: [/^\/webcal$/], keys: ['pwd', 'type', 'studentid'] })
   if (!/^[A-F\d]{16}$/i.test(url.searchParams.get('pwd') || '') || url.searchParams.get('type') !== 'plan' || !/^-\d{1,6}$/.test(url.searchParams.get('studentid') || '') || [...url.searchParams].length !== 3) fail('invalid-selection', 'Velg en offentlig publisert klassekalender fra FIH-listen.')
@@ -16,7 +26,16 @@ function row(name, url, catalogueUrl, sourceLabel) {
 }
 export function parseFihCalendarHtml(html, catalogueUrl) {
   const $ = load(html), result = new Map()
-  $('main a[href]').each((_, anchor) => { const raw = new URL($(anchor).attr('href'), catalogueUrl); if (raw.origin !== 'https://fih.edupage.org' || raw.pathname !== '/webcal') return; const name = clean($(anchor).text()); if (!name) fail('source-changed', 'En offentlig kalenderlenke mangler klassebetegnelse.'); const value = row(name, raw, catalogueUrl, 'Nettsideoversikt'); result.set(value.sourceObjectId, value) })
+  $('main a[href]').each((_, anchor) => {
+    const raw = new URL($(anchor).attr('href'), catalogueUrl)
+    if (raw.origin !== 'https://fih.edupage.org' || raw.pathname !== '/webcal') return
+    const name = clean($(anchor).text())
+    if (!name) fail('source-changed', 'En offentlig kalenderlenke mangler klassebetegnelse.')
+    const value = row(name, raw, catalogueUrl, 'Nettsideoversikt')
+    const previous = result.get(value.sourceObjectId)
+    if (previous && (previous.className !== value.className || previous.sourceUrl !== value.sourceUrl)) fail('source-changed', 'Nettsiden oppgir ulike opplysninger om samme kalender-ID.')
+    result.set(value.sourceObjectId, value)
+  })
   if (!result.size) fail('source-changed', 'Nettsiden mangler publiserte klassekalendere.')
   return [...result.values()]
 }
@@ -33,13 +52,22 @@ export function parseFihCalendarPdf(pages, catalogueUrl) {
   if (!result.length) fail('source-changed', 'PDF-en har ingen lesbare, publiserte klassekalenderlenker.')
   return result
 }
-export async function fihCalendarSources({ fetchText, fetchBytes }) {
-  const $ = load(await cachedText(fetchText, studentUrl, sourceGuard)), sources = new Set(), results = [], warnings = []
+async function publishedOverviews(fetchText) {
+  const $ = load(await readFihText(fetchText, studentUrl, sourceGuard)), sources = new Set()
   $('a[href]').each((_, anchor) => { if (!/webcalfiler/i.test(clean($(anchor).text()))) return; const url = sourceGuard(new URL($(anchor).attr('href'), studentUrl)); sources.add(url.href) })
   if (!sources.size) fail('source-changed', 'FIHs studentside publiserer ingen klassekalenderoversikt.')
-  const overviews = await Promise.allSettled([...sources].map(async url => url.endsWith('.pdf')
+  return sources
+}
+
+async function readOverview(url, { fetchText, fetchBytes }) {
+  return url.endsWith('.pdf')
     ? parseFihCalendarPdf(await readLdhPdf(fetchBytes, url, sourceGuard), url)
-    : parseFihCalendarHtml(await cachedText(fetchText, url, sourceGuard), url)))
+    : parseFihCalendarHtml(await cachedText(fetchText, url, sourceGuard), url)
+}
+
+export async function fihCalendarSources(deps) {
+  const sources = await publishedOverviews(deps.fetchText), results = [], warnings = []
+  const overviews = await Promise.allSettled([...sources].map(url => readOverview(url, deps)))
   for (const overview of overviews) try {
     if (overview.status === 'rejected') throw overview.reason
     const found = overview.value
@@ -61,8 +89,19 @@ export function parseFihCalendar(input, selected) {
   return { calendar: calendar.toString(), name: selected.name, sourceKind: 'fih-public-class', className: selected.className, count: events.length, authoritative: false, warnings: ['Den valgte offentlige klassekalenderen bestemmer utvalget. Ingen individuell gruppetilhørighet eller automatisk emnekobling er hentet.', 'Kalenderens publiserte tidsrom og fullstendighet er ukjent. Manglende oppføringer fjerner derfor ikke eksisterende undervisning. Kontroller datoer, undervisning og eventuelle fellesaktiviteter før lagring.'] }
 }
 export async function fetchFihCalendar(input, deps) {
-  const url = fihCalendarUrl(input), list = await fihCalendarSources(deps), selected = list.results.find(row => row.sourceUrl === url.href)
-  if (!selected || deps.sourceObjectId && selected.sourceObjectId !== deps.sourceObjectId) fail('invalid-selection', 'Velg en klassekalender fra FIHs publiserte oversikter.')
+  const url = fihCalendarUrl(input)
+  if (deps.sourceObjectId && deps.sourceObjectId !== url.searchParams.get('studentid')) fail('invalid-selection', 'Kalenderens klasse-ID stemmer ikke med valget.')
+  let rows
+  if (deps.catalogueUrl !== undefined) {
+    const catalogueUrl = sourceGuard(deps.catalogueUrl).href
+    const sources = await publishedOverviews(deps.fetchText)
+    if (!sources.has(catalogueUrl)) fail('invalid-selection', 'Velg en kalenderoversikt fra FIHs studentside.')
+    rows = await readOverview(catalogueUrl, deps)
+  } else {
+    rows = (await fihCalendarSources(deps)).results
+  }
+  const selected = rows.find(row => row.sourceUrl === url.href)
+  if (!selected) fail('invalid-selection', 'Velg en klassekalender fra FIHs publiserte oversikter.')
   const guard = input => { const next = fihCalendarUrl(input); if (next.href !== url.href) fail('source-changed', 'Klassekalenderen videresendte til en annen kilde.'); return next }
-  return parseFihCalendar(await cachedText(deps.fetchText, url.href, guard), selected)
+  return parseFihCalendar(await readFihText(deps.fetchText, url.href, guard), selected)
 }

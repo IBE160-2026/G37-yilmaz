@@ -46,6 +46,11 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
     const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/import/calendar') && response.request().method() === 'POST')
     await (await reveal(form.getByRole('button', { name: 'Forhåndsvis institusjonskalender', exact: true }))).click()
     const response = await responsePromise, result = await response.json()
+    if (sample.kind === 'fih') {
+      const catalogue = new URL(response.request().postDataJSON().catalogueUrl)
+      expect(catalogue.origin).toBe('https://fih.fjellhaug.no')
+      expect(catalogue.pathname).toMatch(/^\/files\/uploads\/Instruksjoner\/[^/]+\.pdf$/)
+    }
     expect(response.status()).toBe(200)
     expect(result.sourceKind).toBe(`${sample.kind}-public-class`)
     expect(result.authoritative).toBe(false)
