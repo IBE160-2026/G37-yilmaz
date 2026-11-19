@@ -17,7 +17,7 @@ export default defineConfig({
     'deadline-followup.spec.js',
     'epic4-retro-agendas.spec.js', 'epic4-retro-consumers.spec.js',
     'delivery-accessibility.spec.js', 'delivery-calendar.spec.js',
-    'connected-document.spec.js', 'calendar-viewport-corrections.spec.js',
+    'delivery-document-import.spec.js', 'calendar-viewport-corrections.spec.js',
     'bounded-assessment-fixes.spec.js',
   ],
   outputDir: process.env.AJOUR_BUILT_RESULTS,

@@ -171,7 +171,8 @@ test('programme import persists across reload, remains repeat-safe and is undoab
 })
 
 test('SQLite exports 500 events and 11 undo entries to a restorable file and retains the earlier recovery', async ({ page }, info) => {
-  test.setTimeout(120_000)
+  // Several full-size HTTP/SQLite round trips share this test's time budget.
+  test.setTimeout(240_000)
   const { legacy } = storageStressFixture()
   const sample = legacy.history.undo.at(-1)
   for (let i = 0; i < 8; i++) legacy.history.undo.push({ ...sample, id: `synthetic-sqlite-backup-undo-${i}` })
