@@ -23,8 +23,8 @@ Dette er resultater fra oppryddingen, ikke nye testkjøringer under dokumentasjo
 
 Dette er tekniske kontroller med isolerte testdata, ikke ny egenutprøving eller dokumentasjon på generell studentnytte. [Tidligere verifikasjonsresultater](../../studieplanlegger/VERIFICATION.md) beholder sine datoer og avgrensninger.
 
-## Fortsatt oppfølging
+## Avsluttet oppfølging
 
-**Renset branch-historikk er ikke det samme som fjernede kopier eller sperret tilgang.** Etter publisering kunne gamle PR-referanser fortsatt nå de 23 originalblobbene, og gamle GitHub-visninger viste fortsatt berørt innhold. Originalbackup og andre eldre kopier kan også inneholde det. Eventuell håndtering hos GitHub krever administrator-/Support-oppfølging; Support-utkastet er ikke sendt.
+Ved kontrollen etter publisering 9. november kunne gamle PR-referanser fortsatt nå de 23 originalblobbene, og gamle GitHub-visninger viste fortsatt berørt innhold. Eldre kopier kan fortsatt inneholde materialet. Fullstendig sletting av gamle kopier og sperring av tilgang er ikke bekreftet.
 
-Ingen tilgangsverdi er brukt, sperret eller byttet. Tjenesteeierne må vurdere funn 1–4. GitHub About-lenken var heller ikke rettet ved kontrollen: påloggingen manglet nødvendige rettigheter. Administrator må sette repoets Website til `https://ajour-sooty.vercel.app/` og kontrollere at den er lagret. [Åpne punkter](../../.logs/issues.md#personlig-sluttkontroll-og-historisk-eksponering) bevarer denne oppfølgingen; ingen fullstendig sletting fra GitHub eller andre kopier påstås.
+Funn 1–2 var kunstige testverdier. Zoom-lenken i funn 3 fungerte ikke ved kontroll. Funn 4 gjaldt en offentlig rekrutteringsfilm, og ingen privat tilgang ble funnet. Oppfølgingen av funn 1–4 er avsluttet. Ved kontrollen 9. november manglet kontoen rettigheter til å rette GitHub About. About viser nå hovedadressen `https://ajour-sooty.vercel.app/`. [Punktlisten](../../.logs/issues.md#personlig-sluttkontroll-og-historisk-eksponering) viser gjeldende status.

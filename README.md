@@ -39,7 +39,7 @@ Den faste hovedadressen er **[ajour-sooty.vercel.app](https://ajour-sooty.vercel
 | Se mål, krav og sporbarhet | [Brief](brief.md), [planindeks med PRD og stories](.docs/planning-artifacts/README.md) og [arkitektur](.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). |
 | Kontrollere tester og kjente begrensninger | [Daterte verifikasjonsresultater](studieplanlegger/VERIFICATION.md), [samlet begrensningsoversikt](studieplanlegger/README.md#kjente-begrensninger-ved-levering) og [åpne punkter](.logs/issues.md). |
 | Vurdere prosess og KI-bruk | [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md), [KI-bruk](.docs/implementation-artifacts/development-process.md#use-of-ai-and-bmad) og [konkrete funn og feilrettinger](.docs/implementation-artifacts/development-process.md#concrete-findings-and-corrections). |
-| Forstå historikkoppryddingen | [Delbar oppsummering fra 9. november](.docs/implementation-artifacts/history-cleanup-2026-11-09.md): hva som ble bevart, dokumenterte kontroller og gjenstående eieroppfølging. |
+| Forstå historikkoppryddingen | [Delbar oppsummering fra 9. november](.docs/implementation-artifacts/history-cleanup-2026-11-09.md) med utført opprydding, daterte kontroller og avsluttet oppfølging. |
 | Lese refleksjonsrapporten | [Refleksjonsrapport — Markdown](.docs/submission/reflection-report.md), med prosjekteierens erfaringer og oppgitt KI-hjelp til struktur og formulering. |
 | Kjøre eller utvikle lokalt | [Lokale alternativer og oppskrifter](studieplanlegger/README.md#lokal-drift-og-utvikling) og [tester og bygg](studieplanlegger/README.md#tester-og-bygg). |
 
@@ -61,7 +61,7 @@ Avgrensningen og [rekonstruerte planer fra 16. oktober](.docs/planning-artifacts
 
 **Refleksjonsrapporten foreligger bare som Markdown; personlig sluttgjennomlesing og innlevering er ikke bekreftet.** [Planindeksens leveringskontroll](.docs/planning-artifacts/README.md#leveringskontroll--2026-11-04) samler vurderingsgrunnlag og formelle restpunkter. [Begrensningsoversikten](studieplanlegger/README.md#kjente-begrensninger-ved-levering) skiller V1-grenser og historiske funn fra dagens prøver; historisk F03 og personvernoppfølging er ikke lukket av egenutprøvingen.
 
-Eieroppfølging av historisk tilgangsmateriale og administrativ kontroll av GitHub About, grenbeskyttelse og plattformgrenser føres separat i [auditoppfølgingen](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md). De ferdigmeldes først når den aktuelle handlingen er bekreftet, ikke som følge av en kode- eller dokumentendring.
+Oppfølgingen av historisk tilgangsmateriale er avsluttet, og GitHub About viser hovedadressen. Grenbeskyttelse og plattformgrenser følges i [auditoppfølgingen](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md).
 
 <a id="kjør-den-komplette-lokale-leveransen"></a>
 <a id="tester-og-produksjonsbygg"></a>
