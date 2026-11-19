@@ -250,7 +250,7 @@ test('Import clarity preview correction: a positive end immediately replaces a u
   await expect(row.getByLabel('Hvordan skal tidspunktet brukes?', { exact: true })).toHaveValue('interval')
   await expect(row.getByText('Punkt uten varighet, bekreftet av deg.', { exact: false })).toHaveCount(0)
   await expect(row.locator(':scope > summary')).toContainText('Fast undervisning / aktivitet')
-  await expect(preview(page)).toContainText('1 valgte kalenderhendelser (0 punktmarkører)')
+  await expect(preview(page)).toContainText('1 valgt kalenderhendelse (0 punktmarkører)')
   await expect(preview(page).locator(':scope > [role=status]').first()).toContainText('0 må avklares')
   await confirmTpImport(page)
   const saved = await savedTpState(page), event = saved.planner.events[0]

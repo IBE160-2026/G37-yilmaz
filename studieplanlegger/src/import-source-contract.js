@@ -3,6 +3,14 @@ import { Temporal } from '@js-temporal/polyfill'
 // Deliberately independent of parser libraries and storage: history/backup can
 // validate provenance without loading a worker or creating circular imports.
 export const DOCUMENT_FORMATS = ['text', 'pdf', 'docx', 'csv', 'ics']
+const normalizedCampus = value => value.trim().replace(/\s+/g, ' ').toLocaleLowerCase('nb-NO')
+
+export function matchesUitCampus(selected, published) {
+  // UiT joins the search card's campus labels with spaces. The detail page
+  // can spell out the same full list with punctuation and «og».
+  return normalizedCampus(selected) === normalizedCampus(published)
+    || published.includes(',') && normalizedCampus(selected) === normalizedCampus(published.replace(/,/g, ' ').replace(/\s+og\s+/gi, ' '))
+}
 // An ICS description may occupy the entire bounded text input. Keep its value
 // intact in both the event and the three-way source baseline.
 export const DOCUMENT_DESCRIPTION_LIMIT = 2_000_000

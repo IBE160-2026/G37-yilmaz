@@ -345,7 +345,7 @@ test('TP-shaped CSV maps exact calendar fields and grouped course', async ({ pag
   await page.goto('/'); await navigate(page, 'subjects'); await (await reveal(page.getByRole('button', { name: 'Importer', exact: true }))).click()
   await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: 'invented-tp.csv', mimeType: 'text/csv', buffer: Buffer.from('uid;summary;courseid;dtstart;dtend\nsynth-csv-901;"Øvelse; blå";SYN901;2026-11-04 10:00;2026-11-04 11:00') })
   await (await reveal(page.getByRole('button', { name: 'Vis forhåndsvisning', exact: true }))).click()
-  await expect(page.locator('.document-preview')).toContainText('1 valgte kalenderhendelser')
+  await expect(page.locator('.document-preview')).toContainText('1 valgt kalenderhendelse')
   await (await reveal(page.getByRole('button', { name: 'Bruk emnekoder som foreløpige navn' }))).click()
   await (await reveal(page.getByRole('button', { name: 'Importer valgte' }))).click()
   await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()

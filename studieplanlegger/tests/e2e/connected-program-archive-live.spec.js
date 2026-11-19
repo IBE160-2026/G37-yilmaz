@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { navigate, openImportMethod, key } from './helpers.js'
+import { navigate, openImportMethod, key, reveal } from './helpers.js'
 
 const samples = [
   { institution: 'onh', query: 'freds', program: '362-416316081a867ec4', edition: /Studieplan for bachelor i freds- og konfliktstudier 2026\/2027/, model: 'pdf-2026-2027', period: 'semester-1', code: 'SIR1010', credits: 15, campus: 'Oslo', studentCohort: '2026', pdfPath: 'https://oslonyehoyskole.no/sites/default/files/s3/' },
@@ -128,7 +128,7 @@ for (const sample of [
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
   await page.screenshot({ path: info.outputPath('uit-image-table-explanation-mobile.png'), fullPage: true })
   await openImportMethod(page, 'document')
-  await expect(page.getByLabel('Eller lim inn tekst')).toBeVisible()
+  await expect(await reveal(page.getByLabel('Eller lim inn tekst'))).toBeVisible()
   await page.reload()
   expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(before)
 })

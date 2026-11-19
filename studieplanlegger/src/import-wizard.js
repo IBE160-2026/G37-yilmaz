@@ -1,5 +1,6 @@
 import { institutions, institutionById, INVENTORY_SOURCE } from './institutions.js'
 import { nameFirstLabel, sortByVisibleName } from './name-sort.js'
+import { matchesUitCampus } from './import-source-contract.js'
 const el = (tag, text) => { const node = document.createElement(tag); if (text) node.textContent = text; return node }
 const button = (text, action) => { const node = el('button', text); node.type = 'button'; node.className = 'secondary'; node.onclick = action; return node }
 export function createImportWizard({ form, previewHost, api, onCourse, feedback, manual }) {
@@ -51,8 +52,10 @@ export function createImportWizard({ form, previewHost, api, onCourse, feedback,
       if (data.status && data.status !== 'ok') throw new Error(`${data.status}: ${data.error}`)
       if (['uib', 'uit'].includes(university.value) && (data.course.code !== item.code || data.course.year !== Number(item.year) || data.course.semester !== item.semester || data.course.sourceRecordId !== item.sourceRecordId || data.course.sourceProvider !== university.value)) throw new Error('Emneposten eller semesteret avviker fra det valgte treffet. Søk på nytt.')
       if (item.campus && (item.campusVerified || item.university === 'NTNU')) {
-        if (data.course.campus && data.course.campus.trim().toLocaleLowerCase('nb-NO') !== item.campus.trim().toLocaleLowerCase('nb-NO')) throw new Error('Emnedetaljene oppgir en annen campus enn det valgte treffet. Kontroller campus før import.')
-        data.course = { ...data.course, campus: item.campus, campusVerified: true }
+        const campus = data.course.campus, isUit = university.value === 'uit'
+        const matches = !campus || (isUit ? matchesUitCampus(item.campus, campus) : campus.trim().toLocaleLowerCase('nb-NO') === item.campus.trim().toLocaleLowerCase('nb-NO'))
+        if (!matches) throw new Error('Emnedetaljene oppgir en annen campus enn det valgte treffet. Kontroller campus før import.')
+        data.course = { ...data.course, campus: isUit && campus ? campus : item.campus, campusVerified: true }
       }
       onCourse(data); selected = item; step = 4; resultsHost.hidden = true; render()
       const target = previewHost.querySelector('h3,h4,button'); if (target) { target.tabIndex = -1; target.focus() }

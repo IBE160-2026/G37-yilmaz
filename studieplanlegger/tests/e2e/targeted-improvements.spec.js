@@ -24,8 +24,9 @@ async function mockProvider(page, institution, code, record, credits) {
       validate?.(new URL(url))
       const html = fixtures[`${institution}-${action === 'search' ? 'search' : 'course'}`]
       if (institution !== 'uit') return html
-      return html.replace(/<link rel="canonical"[^>]+>/, '<meta property="og:url" content="https://uit.no/utdanning/emner/emne">')
+      const updated = html.replace(/<link rel="canonical"[^>]+>/, '<meta property="og:url" content="https://uit.no/utdanning/emner/emne">')
         .replaceAll('FYS-3000', code).replaceAll('923370', record).replace('Credits 10', `Credits ${credits}`)
+      return code === 'INF-0101' ? updated.replace('<p>Tromsø</p>', '<p>Tromsø Mo i Rana Bodø</p>').replace('Campus Tromsø', 'Campus Tromsø, Mo i Rana og Bodø') : updated
     } })
     await route.fulfill({ json: result })
   })
@@ -169,6 +170,7 @@ for (const [institution, code, record, credits] of [['uib', 'INF100', 'inf100', 
     await page.reload(); await previewCourse(page, institution, code); await page.getByRole('button', { name: 'Importer bare emnet' }).click(); await page.reload()
     const repeated = await saved(page)
     expect(repeated.planner.courses).toHaveLength(1); expect(repeated.planner.courses[0]).toMatchObject({ id, notes: 'Isolert lokalt notat', sourceRecordId: record, sourceVersion: '2026H', credits })
+    if (code === 'INF-0101') expect(repeated.planner.courses[0].campus).toBe('Tromsø, Mo i Rana og Bodø')
     expect(repeated.tasks).toEqual([linked]); expect(repeated.planner.events).toEqual([]); expect(repeated.planner.sources).toEqual([])
     if (live) {
       const response = await page.request.get(`/api/import/providers/${institution}/search?${new URLSearchParams({ q: institution === 'uib' ? 'Programmering' : code === 'INF-0101' ? 'informatikk' : 'satellite', semester: 'autumn', year: '2026' })}`)

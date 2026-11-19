@@ -76,7 +76,7 @@ for (const selection of ['SYN731%C2%A41', 'SYN731']) test(`public TP course view
     if (await group.evaluate(node => node.matches('details:not([open])'))) await group.locator(':scope > summary').click()
     if (await event.getAttribute('open') === null) await event.locator(':scope > summary').click()
     await (await reveal(event.getByLabel('Ta med i planen', { exact: true }))).check()
-    await expect(preview).toContainText('1 valgte kalenderhendelser')
+    await expect(preview).toContainText('1 valgt kalenderhendelse')
     expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key))?.planner?.courses?.length || 0, key)).toBe(0)
     await (await reveal(preview.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
     await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()

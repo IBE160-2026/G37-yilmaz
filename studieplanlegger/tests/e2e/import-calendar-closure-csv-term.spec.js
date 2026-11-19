@@ -23,7 +23,7 @@ async function open(page, text, count) {
   await expect(courseRows(page).locator('[data-field=semester]')).toHaveValue('autumn')
   await expect(courseRows(page).locator('[data-field=year]')).toHaveValue('2045')
   await expect(preview(page).locator('.document-confirmation-summary')).toContainText('0 må avklares')
-  await expect(preview(page)).toContainText(`${count} valgte kalenderhendelser`)
+  await expect(preview(page)).toContainText(`${count} ${count === 1 ? 'valgt kalenderhendelse' : 'valgte kalenderhendelser'}`)
   await expect(preview(page).getByRole('button', { name: 'Importer valgte', exact: true })).toBeEnabled()
 }
 function assertLegacy(state) {
