@@ -144,7 +144,8 @@ function registerAlternative(group, context, record) {
     option = { id: context.optionId, label: context.optionLabel, courseIds: [], credits: 0, creditsKnown: true }
     alternative.options.set(context.optionId, option)
   }
-  if (!option.courseIds.includes(record.id)) option.courseIds.push(record.id)
+  if (option.courseIds.includes(record.id)) return
+  option.courseIds.push(record.id)
   if (record.credits === null) option.creditsKnown = false
   else option.credits += record.credits
 }

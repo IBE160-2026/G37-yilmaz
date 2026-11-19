@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { inspectDeadline, deadlineInstant } from '../../src/deadline.js'
 import { validateDraft, validTasks, editTask, isOverdue, sortedTasks, selectTasksForMinutes, deadlineInstant as deadlineEpoch } from '../../src/tasks.js'
 import { calendarEntries, entriesForDay, timeLabel } from '../../src/calendar-model.js'
+import { dailyOverview } from '../../src/daily-overview.js'
 import { createStorage } from '../../src/storage.js'
 import { deriveCapacity } from '../../src/capacity.js'
 import { deriveWorkCapacity } from '../../src/work-capacity.js'
@@ -111,6 +112,13 @@ describe('date-only deadlines retain their unknown clock time', () => {
     expect(entriesForDay([entry], date)).toHaveLength(1)
     expect(upcomingAgenda({ tasks: [saved], now: new Date(Date.parse(boundary) - 1) })[0]).toMatchObject({ allDay: true, time: '' })
     expect(upcomingAgenda({ tasks: [saved], now: new Date(boundary) })).toEqual([])
+    const tasks = [saved, task('future', undefined, { deadlineLocal: '2027-11-02T12:00' })]
+    expect(dailyOverview({ tasks, now: new Date(Date.parse(boundary) - 1) })).toMatchObject({
+      deadline: { id: saved.id }, overdue: [],
+    })
+    expect(dailyOverview({ tasks, now: new Date(boundary) })).toMatchObject({
+      deadline: { id: 'future' }, overdue: [{ id: saved.id }],
+    })
     const state = { schemaVersion: 1, tasks: [saved] }
     expect(previewBackup(JSON.stringify(exportBackup(state)), { schemaVersion: 1, tasks: [] })).toMatchObject({ ok: true, data: state })
   })

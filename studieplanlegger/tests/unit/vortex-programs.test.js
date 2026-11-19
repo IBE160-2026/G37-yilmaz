@@ -52,6 +52,20 @@ describe('shared conservative Vortex programme source', () => {
     expect(period.requiredCourseIds).not.toContain(byCode.IBE152.id)
   })
 
+  it('counts a duplicated IBE160 source row once in the HiMolde programme alternative', async () => {
+    const code = 'it', programUrl = `${sources.himolde.root}${code}/`, planUrl = `${programUrl}studieplaner/2026.html`
+    const html = await fixture('himolde-it-2026-plan.html')
+    // Duplicate the public source row in memory to model a synthetic source error.
+    const row = html.split(/\r?\n/).find(line => line.includes('class="course-code">IBE160<'))
+    expect(row).toBeDefined()
+    const plan = parseVortexPlan('himolde', html.replace(row, `${row}\n${row}`), { program: code, cohort: '2026', sourceUrl: planUrl }, { code, name: 'Årsstudium IT', sourceUrl: programUrl, campuses: [] })
+    const period = plan.models[0].periods[0]
+    const courses = period.courses.filter(course => course.code === 'IBE160')
+    expect(courses).toHaveLength(1)
+    expect(courses[0].credits).toBe(15)
+    expect(period.alternativeGroups[0].options[0]).toMatchObject({ courseIds: [courses[0].id], credits: 15 })
+  })
+
   it('requires a student cohort for an unversioned NIH page', async () => {
     const url = `${sources.nih.root}${sources.nih.code}/`, html = await fixture('nih-current-unversioned.html'), cohorts = parseVortexCohorts('nih', html, url)
     expect(cohorts.results).toEqual([expect.objectContaining({ cohort: 'student', requiresStudentCohort: true, sourceUrl: url })])

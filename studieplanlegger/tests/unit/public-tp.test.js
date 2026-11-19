@@ -11,6 +11,102 @@ describe('synthetic TP raw time and identity boundary', () => {
   const selected = { id: 'SYN974¤1', code: 'SYN974', name: 'Oppdiktet kalenderemne', term: 1 }
   const options = { institution: 'himolde', semester, selected }
   const row = { id: 'synthetic-time-valid', eventid: 'synthetic-time-valid', courseid: selected.code, semesterid: semester.id, terminnr: 1, summary: 'Oppdiktet tidskontroll', status: 'active', dtstart: '2044-11-18T09:00:07+01', dtend: '2044-11-18T10:00:17+01' }
+  const exam = {
+    ...row, id: 'synthetic-exam', eventid: null, status: null, active: true, publish: true, assessmentCode: 'S',
+    summary: 'Oppdiktet eksamen', room: { roomname: 'Oppdiktet eksamensrom' },
+    alerts: [{ message: 'Oppdiktet romhenvisning' }], curr: '<p>Oppdiktet romtekst</p>',
+  }
+
+  it.each([
+    ['date', { pubexdate: false }],
+    ['time', { pubextime: false }],
+    ['all three flags', { pubexdate: false, pubextime: false, pubexroom: false }],
+    ['missing date flag', { pubexdate: undefined }],
+  ])('omits a JSON exam when publication is disabled for %s', (_label, flags) => {
+    const invalidExam = { ...exam, id: 'synthetic-invalid-exam', dtstart: '2044-11-31T09:00:07+01' }
+    const result = normalizeTpJsonEvents({ events: [row, exam, invalidExam] }, { ...options, semester: { ...semester, ...flags } })
+    expect(result).toMatchObject({ eventCount: 1, rejectedCount: 0, authoritative: false })
+    expect(components(result.calendar).map(event => event.getFirstPropertyValue('summary'))).toEqual([row.summary])
+    expect(parseCalendar(result.calendar, { fileImport: true }).events).toHaveLength(1)
+    expect(result.warnings.join(' ')).toContain('ikke har publisert både dato og klokkeslett')
+  })
+
+  it.each([
+    ['duplicate identity', exam],
+    ['missing title', { ...exam, id: 'synthetic-no-title', summary: '' }],
+  ])('preserves JSON teaching alongside an unpublished assessment with %s', (_label, unpublished) => {
+    const result = normalizeTpJsonEvents({ events: [exam, unpublished, row] }, { ...options, semester: { ...semester, pubextime: false } })
+    expect(result).toMatchObject({ eventCount: 1, rejectedCount: 0 })
+    expect(components(result.calendar).map(event => event.getFirstPropertyValue('summary'))).toEqual([row.summary])
+  })
+
+  it('applies JSON publication flags to exams with an ordinary occurrence ID', () => {
+    const occurrence = { ...row, eventid: 'synthetic-exam-occurrence', summary: 'Syntetisk eksamen', room: exam.room, alerts: exam.alerts }
+    const practice = { ...row, eventid: 'synthetic-practice-occurrence', summary: 'Syntetisk prøve-eksamen', room: { roomname: 'Oppdiktet øvingsrom' } }
+    const input = { events: [occurrence, practice] }
+    const dateHidden = normalizeTpJsonEvents(input, { ...options, semester: { ...semester, pubexdate: false } })
+    expect(components(dateHidden.calendar).map(event => event.getFirstPropertyValue('summary'))).toEqual([practice.summary])
+
+    const roomHidden = normalizeTpJsonEvents(input, { ...options, semester: { ...semester, pubexroom: false } })
+    const [examEvent, practiceEvent] = components(roomHidden.calendar)
+    expect(roomHidden.eventCount).toBe(2)
+    expect(examEvent.hasProperty('location')).toBe(false)
+    expect(examEvent.hasProperty('description')).toBe(false)
+    expect(practiceEvent.getFirstPropertyValue('location')).toBe('Oppdiktet øvingsrom')
+  })
+
+  it('preserves JSON exam date and time while hiding unpublished room details', () => {
+    const teaching = { ...row, room: { roomname: 'Oppdiktet undervisningsrom' }, alerts: [{ message: 'Oppdiktet undervisningsmerknad' }] }
+    const input = { events: [teaching, exam] }
+    const published = normalizeTpJsonEvents(input, options)
+    const hidden = normalizeTpJsonEvents(input, { ...options, semester: { ...semester, pubexroom: false } })
+    const events = parseCalendar(hidden.calendar, { fileImport: true }).events
+    const teachingEvent = events.find(event => event.title === teaching.summary)
+    const examEvent = events.find(event => event.title === exam.summary)
+    expect(hidden.eventCount).toBe(2)
+    expect(teachingEvent).toMatchObject({ location: 'Oppdiktet undervisningsrom', description: 'Oppdiktet undervisningsmerknad' })
+    expect(examEvent).toMatchObject({
+      title: exam.summary, activityKind: 'exam', start: '2044-11-18T08:00:07.000Z', end: '2044-11-18T09:00:17.000Z',
+      location: '', description: '',
+    })
+    const [publishedExam, hiddenExam] = [published, hidden].map(result => components(result.calendar)[1])
+    expect(publishedExam.getFirstPropertyValue('location')).toBe('Oppdiktet eksamensrom')
+    expect(publishedExam.getFirstPropertyValue('description')).toContain('Oppdiktet romhenvisning')
+    expect(hiddenExam.hasProperty('location')).toBe(false)
+    expect(hiddenExam.hasProperty('description')).toBe(false)
+    expect(hiddenExam.getFirstPropertyValue('uid')).toBe(publishedExam.getFirstPropertyValue('uid'))
+  })
+
+  it('reads updated HiMolde publication flags on repeated calendar imports', async () => {
+    const url = new URL('https://tp.educloud.no/himolde/ws/timeplan/')
+    url.search = new URLSearchParams({ type: 'course', sem: semester.id, 'id[]': selected.id }).toString()
+    let published = true
+    const fetchText = vi.fn(async (input, _depth, guard) => {
+      const request = new URL(input)
+      guard(request)
+      switch (request.pathname) {
+        case '/himolde/ws/services/semesters.php':
+          return JSON.stringify([{ ...semester, publish_timetable: true, pubexdate: published, pubextime: published, pubexroom: published, fromdate: '2044-08-01', todate: '2044-12-31', random_int: 1 }])
+        case '/himolde/ws/timeplan/info.php':
+          return JSON.stringify([{ id: selected.code, semesterid: semester.id, name: selected.name, term: [{ term: selected.term }] }])
+        case '/himolde/ws/timeplan/':
+          return JSON.stringify({ events: [row, exam] })
+        default:
+          return ''
+      }
+    })
+
+    const first = await fetchPublicTpCalendar(url.href, { fetchText })
+    expect(first.eventCount).toBe(2)
+    expect(components(first.calendar)[1].getFirstPropertyValue('location')).toBe('Oppdiktet eksamensrom')
+
+    published = false
+    const refreshed = await fetchPublicTpCalendar(url.href, { fetchText })
+    expect(refreshed).toMatchObject({ eventCount: 1, authoritative: false })
+    expect(components(refreshed.calendar).map(event => event.getFirstPropertyValue('summary'))).toEqual([row.summary])
+    expect(fetchText.mock.calls.filter(([input]) => new URL(input).pathname.endsWith('/semesters.php'))).toHaveLength(2)
+  })
+
   it.each(['2045-02-29T09:00:07+01', '2044-04-31T09:00:07+01', '2044-13-18T09:00:07+01', '2044-11-18T24:00:00+01', '2044-11-18T09:60:07+01', '2044-11-18T09:00:60+01', '2044-11-18T09:00:07+24', '2044-11-18T09:00:07+0160', '2044-11-18T09:00:07+01:99'])('rejects raw JSON fields before Date.parse can normalize %s', invalid => {
     for (const field of ['dtstart', 'dtend']) {
       const result = normalizeTpJsonEvents({ events: [row, { ...row, id: 'synthetic-invalid', eventid: 'synthetic-invalid', status: 'cancelled', [field]: invalid }] }, options)
@@ -230,7 +326,7 @@ describe('public TP semester, course and source-offered calendar export',()=>{
     expect(uids(result.calendar).every(uid=>uid.startsWith('tp-json-'))).toBe(true)
   })
   describe.each(['teaching', 'assessment'])('published group contract for %s JSON rows', kind => {
-    const semester = { id: '39h' }, selected = { id: 'SYN843¤1', code: 'SYN843', name: 'Oppdiktet gruppefag', term: 1 }
+    const semester = { id: '39h', pubexdate: true, pubextime: true, pubexroom: true }, selected = { id: 'SYN843¤1', code: 'SYN843', name: 'Oppdiktet gruppefag', term: 1 }
     const base = { semesterid: '39h', courseid: 'SYN843', terminnr: 1, id: 'synthetic-row', summaryNb: 'Oppdiktet aktivitet', dtstart: '2039-10-20T10:00:00+02', dtend: '2039-10-20T11:00:00+02', ...(kind === 'assessment' ? { status: null, eventid: null, active: true, publish: true, assessmentCode: 'SYN843' } : { status: 'active', eventid: 'synthetic-occurrence' }) }
     const normalize = studentgroups => normalizeTpJsonEvents({ events: [{ ...base, studentgroups }] }, { institution: 'himolde', semester, selected })
     it.each([

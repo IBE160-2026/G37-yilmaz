@@ -59,7 +59,7 @@ it('usability: timestamp formats, DST and duration failures remain distinct with
 })
 
 const usabilityTp = () => {
-  const semester = { id: '39v', year: 2039, season: 'SPRING' }
+  const semester = { id: '39v', year: 2039, season: 'SPRING', pubexdate: true, pubextime: true, pubexroom: true }
   const selected = parseTpCourses([{ id: 'SYN972', semesterid: '39v', nameNb: 'Oppdiktet gruppefag', campusid: 'SYN-CODE', term: [{ term: 1 }] }], semester, 'himolde')[0]
   const events = Array.from({ length: 8 }, (_, i) => ({ id: `activity-${i}`, eventid: `occurrence-${i}`, summary: 'Oppdiktet seminar', courseid: 'SYN972', semesterid: '39v', terminnr: 1, dtstart: `2039-04-${10 + i}T10:00:07+02`, dtend: `2039-04-${10 + i}T11:00:09+02`, status: 'active', teachingMethodName: 'Seminar', studentgroups: ['Oppdiktet publisert gruppe', ...(i === 0 ? ['Annen publisert gruppe'] : [])] }))
   return { semester, selected, events }

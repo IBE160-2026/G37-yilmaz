@@ -156,3 +156,33 @@ test('date-only deadlines remain date-only through creation, calendar, editing a
   await expect(page.locator('#deadlineTime')).toHaveValue('')
   await expect(page.locator('#deadlineOccurrence')).toBeHidden()
 })
+
+test.describe('Overview in a browser outside Oslo', () => {
+  test.use({ timezoneId: 'America/Los_Angeles' })
+
+  test('Overview keeps a date-only deadline due today until Oslo midnight', async ({ page }) => {
+    const pending = task('date-only', '2027-10-31')
+    await seed(page, [pending], { view: 'overview', now: '2027-10-31T09:00:00Z' })
+    const plan = page.locator('#next-plan')
+    const deadline = plan.locator('[data-daily-row="task:date-only"]')
+    const noUpcoming = plan.getByText('Ingen kommende frister er registrert.')
+    const refreshAt = async time => {
+      await page.clock.setSystemTime(new Date(time))
+      await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    }
+
+    await expect(deadline).toContainText('Frist i dag · klokkeslett ikke oppgitt')
+    await expect(deadline).not.toContainText('Forfalt')
+    await expect(noUpcoming).toHaveCount(0)
+
+    await refreshAt('2027-10-31T22:59:59.999Z')
+    await expect(deadline).toContainText('Frist i dag · klokkeslett ikke oppgitt')
+    await expect(deadline).not.toContainText('Forfalt')
+    await expect(noUpcoming).toHaveCount(0)
+
+    await refreshAt('2027-10-31T23:00:00.001Z')
+    await expect(deadline).toContainText('Forfalt frist 31. oktober 2027 · klokkeslett ikke oppgitt')
+    await expect(noUpcoming).toBeVisible()
+    expect(await writes(page)).toEqual([])
+  })
+})

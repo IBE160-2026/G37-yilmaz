@@ -6,13 +6,18 @@ import { dailyStatus } from './daily-guidance.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 const pending = task => !task.completed || (task.requiresSubmission && !task.submitted)
 const eventClock = new Intl.DateTimeFormat('nb-NO', { hour: '2-digit', minute: '2-digit', timeZone: OSLO })
+function deadlineHasPassed(entry, now, date) {
+  // Date-only deadlines sit at the start of the day in the calendar.
+  return entry.allDay && Number.isFinite(entry.start) ? entry.local < date : entry.start < now
+}
+const upcomingDeadline = (entry, now, date) => Number.isFinite(entry.start) && !deadlineHasPassed(entry, now, date)
 const compactTime = (entry, date) => {
   const localDate = entry.local?.slice(0, 10) || osloLocal(new Date(entry.start).toISOString()).slice(0, 10)
   const day = localDate === date ? 'i dag' : formatDay(localDate, { year: true })
   if (entry.warning) return day + ' kl. ' + entry.local.slice(11) + ' (må presiseres)'
   if (entry.kind === 'personal' && entry.timingPrecision === 'date') return day + ' · Tid ikke oppgitt'
   if (entry.kind === 'personal' && entry.timingPrecision === 'start') return day + ' kl. ' + eventClock.format(new Date(entry.start)) + ' · Varighet ikke oppgitt'
-  if (entry.kind === 'deadline' && entry.allDay) return day + ' · Frist – klokkeslett ikke oppgitt'
+  if (entry.kind === 'deadline' && entry.allDay) return day + ' · klokkeslett ikke oppgitt'
   if (entry.allDay) {
     if (entry.point) return day
     const lastDate = osloLocal(new Date(entry.end - 1).toISOString()).slice(0, 10)
@@ -27,8 +32,9 @@ export function dailyOverview(model) {
   const activity = entries.filter(e => !e.cancelled && ['teaching', 'personal', 'session'].includes(e.kind) && (e.end > now || e.point && (e.start >= now || e.kind === 'personal' && e.dateLocal >= date))).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key))[0]
   const deadlines = entries.filter(e => e.kind === 'deadline' && !e.done).sort((a, b) => compareDeadlines(a, b) || a.key.localeCompare(b.key))
   const today = model.tasks.filter(task => pending(task) && (task.deadlineLocal?.slice(0, 10) === date || entries.some(e => e.kind === 'session' && e.taskId === task.id && e.start < bounds.end && e.end > bounds.start)))
-  const deadline = deadlines.find(e => e.start >= now) || deadlines.at(-1)
-  const relevant = new Set([...today.map(t => t.id), ...deadlines.filter(e => e.start < now).map(e => e.id), deadline?.id, activity?.kind === 'session' ? activity.taskId : null].filter(Boolean))
+  const deadline = deadlines.find(e => upcomingDeadline(e, now, date)) || deadlines.at(-1)
+  const overdue = deadlines.filter(e => deadlineHasPassed(e, now, date))
+  const relevant = new Set([...today.map(t => t.id), ...overdue.map(e => e.id), deadline?.id, activity?.kind === 'session' ? activity.taskId : null].filter(Boolean))
   const rows = model.tasks.filter(task => relevant.has(task.id)).map(task => ({
     task, key: `task:${task.id}`, deadline: entries.find(e => e.kind === 'deadline' && e.id === task.id),
     sessions: entries.filter(e => e.kind === 'session' && e.taskId === task.id && (e.start < bounds.end && e.end > bounds.start || e.key === activity?.key)).sort((a, b) => a.start - b.start || a.end - b.end || a.id.localeCompare(b.id)),
@@ -38,7 +44,7 @@ export function dailyOverview(model) {
     ...row.sessions.filter(session => session.end > now).map(session => Math.max(now, session.start)),
   )
   rows.sort((a, b) => { const first = nextTime(a), second = nextTime(b); return (first === second ? 0 : first - second) || a.task.id.localeCompare(b.task.id) })
-  return { activity, deadline, overdue: deadlines.filter(e => e.start < now), today, rows }
+  return { activity, deadline, overdue, today, rows }
 }
 export function createDailyOverview(actions) {
   const grid = document.createElement('div'); grid.className = 'ajour-plan-grid'; document.querySelector('#focus-panel').after(grid)
@@ -51,7 +57,7 @@ export function createDailyOverview(actions) {
   const replanControl = button('Se forslag til ny tid', 'status:replan', () => !statusTask ? actions.open() : statusTask.completed ? actions.summary('ready') : actions.replan(statusTask.id))
   return { render(model) {
     grid.hidden = host.hidden = planHost.hidden = model.view !== 'overview' || !model.readable || !(model.tasks.length || model.sessions?.length || model.planner?.courses?.length || model.planner?.events?.length); if (host.hidden) return
-    const date = calendarToday(model.now), data = dailyOverview(model), entries = calendarEntries(model), status = dailyStatus(model), next = JSON.stringify([date, data, entries, status, model.planner?.courses, model.capacity, model.editing, data.activity && data.activity.start <= +model.now, data.rows.map(row => row.sessions.map(s => [s.start <= +model.now, s.end <= +model.now]))]); if (signature === next) return; signature = next
+    const now = +model.now, date = calendarToday(model.now), data = dailyOverview(model), entries = calendarEntries(model), status = dailyStatus(model), next = JSON.stringify([date, data, entries, status, model.planner?.courses, model.capacity, model.editing, data.activity && data.activity.start <= +model.now, data.rows.map(row => row.sessions.map(s => [s.start <= +model.now, s.end <= +model.now]))]); if (signature === next) return; signature = next
     const focused = host.contains(document.activeElement) || planHost.contains(document.activeElement) ? document.activeElement.dataset.dailyKey : null
     const opened = new Set([...planHost.querySelectorAll('details[open]')].map(node => node.dataset.dailyMenu))
     const companion = document.createElement('img'); companion.src = '/brand/notebook.svg'; companion.alt = ''; companion.width = companion.height = 44
@@ -86,7 +92,7 @@ export function createDailyOverview(actions) {
       copy.append(el('p', `${course ? `${course.code} ${course.name}` : task.course || 'Emne ikke oppgitt'} · ${taskStatus(task)}`))
       if (deadline) {
         const deadlineLabel = compactTime(deadline, date)
-        const deadlineStatus = deadline.start < +model.now && pending(task) ? 'Forfalt frist' : 'Frist'
+        const deadlineStatus = deadlineHasPassed(deadline, now, date) && pending(task) ? 'Forfalt frist' : 'Frist'
         copy.append(el('p', `${deadlineStatus} ${deadlineLabel}${deadline.warning ? ` · ${deadline.warning}` : ''}`))
       }
       for (const session of sessions) {
@@ -106,9 +112,9 @@ export function createDailyOverview(actions) {
       row.append(copy, actionsRow); planHost.append(row)
     }
     const shownTaskIds = new Set(visibleRows.map(row => row.task.id))
-    const deadlines = entries.filter(entry => entry.kind === 'deadline' && !entry.done && entry.start >= +model.now && !shownTaskIds.has(entry.id)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 2)
+    const deadlines = entries.filter(entry => entry.kind === 'deadline' && !entry.done && upcomingDeadline(entry, now, date) && !shownTaskIds.has(entry.id)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 2)
     if (deadlines.length) planHost.append(el('h3', 'Kommende frister'))
-    else if (!visibleRows.some(row => row.deadline?.start >= +model.now)) planHost.append(el('p', 'Ingen kommende frister er registrert.'))
+    else if (!visibleRows.some(row => row.deadline && upcomingDeadline(row.deadline, now, date))) planHost.append(el('p', 'Ingen kommende frister er registrert.'))
     for (const entry of deadlines) { const row = el('div', ''); row.className = 'daily-row deadline-row'; applyCourseColor(row, resolvedCourseId(entry)); const open = button('Åpne', `deadline:${entry.id}:open`, () => actions.edit(entry.id)); open.setAttribute('aria-label', `Åpne fristen for ${entry.title}`); row.append(el('p', `${entry.title} · ${compactTime(entry, date)}`), open); planHost.append(row) }
     const controls = el('div', ''); controls.className = 'actions'; controls.append(button('Åpne kalender', 'navigation:calendar', () => actions.view('calendar')), button('Se alle oppgaver', 'navigation:tasks', () => actions.view('all'))); planHost.append(controls)
     for (const control of [...host.querySelectorAll('button'), ...planHost.querySelectorAll('button')]) control.disabled = Boolean(model.editing)
