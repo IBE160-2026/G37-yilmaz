@@ -33,7 +33,7 @@ Lokal kontroll og GitHub-/publiseringsresultater føres nedenfor når de forelig
 | A-04: `main` uten påkrevd kvalitetskontroll | GitHub `branches/main` viste `protected: false` ved denne kontrollen. Tilkoblingen gir kode-/push-tilgang, men ikke administrasjon; nettleserinnlogging ble ikke fullført. Administrator må beskytte `main`, kreve **Ajour quality**, avvise force-push og sletting, uten et kunstig krav om en annen student som reviewer. Ingen innstilling er endret eller påstått aktivert. |
 | A-05: About-lenke | Avsluttet. GitHub About viser hovedadressen **https://ajour-sooty.vercel.app/**. Ved kontroll 4. november viste About den andre adressen, og forsøket på å oppdatere `homepage` ga HTTP 404 med en konto uten administratorrettigheter. Begge adressene ga HTTP 200 uten omdirigering ved den daterte kontrollen og har separat nettleserlagring. |
 | Vercel misbruks-/forbruksgrenser | Eksisterende same-origin-kontroll og budsjetter per forespørsel er ikke en samlet grense for uavhengige forespørsler. Plattformens rate-/samtidighetsgrenser og forbruksvarsler må kontrolleres i det eksisterende gratisprosjektet. Ingen plattforminnstilling eller betalt tjeneste er aktivert. |
-| Formelle leveringsopplysninger | Prosjekteieren bekreftet 19. november 2026 at frist, kanal og filformat var kontrollert og at innleveringen med kvittering var gjennomført. [Leveringskontroll](../planning-artifacts/README.md#leveringskontroll--2026-11-04) |
+| Formelle leveringsopplysninger | [Senere leveringsstatus](../planning-artifacts/README.md#leveringsstatus). |
 
 Grenbeskyttelse og plattformgrenser gjenstår som administratoroppfølging.
 

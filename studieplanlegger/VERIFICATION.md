@@ -1,6 +1,22 @@
 # Verifisering av Ajour
 
-**Kortoversikt, redigert 13. november 2026.** Dette er inngangen til dokumenterte rettinger, prøver og begrensninger. Oversikten viser daterte resultater og lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
+Oversikten samler daterte rettinger, prøver og begrensninger med lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
+
+## Apptekster og eksamensimport fra HiMolde — 2026-11-19
+
+- [Leveringsmeldingen i Chromium](tests/e2e/deadline-followup.spec.js) ble kontrollert med nettleserklokken satt til kl. 11.59 og 12.01, rundt fristen kl. 12.00 i Oslo. Meldingen var den samme på begge sider av fristen. «Bekreft levering» registrerte statusen lokalt i Ajour.
+- Arbeidsregistrering i Chromium viste den nye meldingen etter lagring. «Se planforslag» åpnet forslaget for riktig oppgave både fra oppgavekortet og direkte fra tilbakemeldingen i Oversikt. [Nettlesertestene](tests/e2e/simple-planning-flow.spec.js)
+- HiMolde-regresjonene bruker syntetiske rader med nøytral tittel. I TPs klient ble markørene `examformCode` og `party: "exam"` observert 19. november 2026. Klienten sjekker om minst én markør er til stede på en rad uten undervisningsmetode. Ajour utelater eksamensraden fra importforslaget når dato eller tid er skjult. Når bare rommet er skjult, beholdes tidspunktet, mens rom og fritekst utelates. Den opprinnelige testen bestod også. [Enhetstestene](tests/unit/public-tp.test.js) · [TPs offentlige nettleserklient](https://tp.educloud.no/app/assets/index-BuQMiyWi.js)
+
+TP-kalenderen kan være ufullstendig. Ved gjenimport beholdes tidligere lagrede aktiviteter som mangler i kilden, også når dato eller tid senere er skjult. [Reglene for kalenderimport](IMPORT.md)
+
+Alle 2 784 enhetstestene og 25 målrettede Chromium-tester mot det lokale produksjonsbygget bestod. Produksjonsbygget bestod med det eksisterende størrelsesvarselet. Kontrollene brukte syntetiske data og kan gjentas fra `studieplanlegger/`.
+
+```sh
+npm run test:unit
+npm run build
+npm run test:e2e:ci -- deadline-followup.spec.js simple-planning-flow.spec.js own-trial-deadline-help.spec.js
+```
 
 ## Epic 4: fristimport og agendaer — 2026-11-13
 
@@ -124,7 +140,8 @@ Outlook-resultatet gjelder eierens viste import av **37 hendelser**, ikke alle s
 - **Kilder:** NTNU-programkilden var tom før filtrering; en fungerende TDT4109-prøve erstatter ikke de navngitte V1-prøvene. De konkrete UiT-tabellene kan ikke tolkes sikkert. BI mangler automatisk undervisningshenting. F03 (fri tekst) og F05 (NHH/FHS/Samisk kildevalg) er åpne. Manuell registrering og støttede filkilder er reserveflyter; kildevern beholdes.
 - **Lagring og ytelse:** Nettleserkvoten er ikke økt. Store backuper kan fortsatt feile; komprimering er ikke kryptering. Bruk én redigerende fane og oppbevar egne backuper. Hovedbundle var **957,30 kB / 292,79 kB gzip** i det daterte bygget 1. november; [fristrettingen 2. november](#fristavklaring-oppgavebekreftelse-og-lagringshjelp--2026-11-02) målte **959,61 kB / 293,45 kB gzip**. [Stegidentitetsrettingen](#oppgavearbeid-og-navngitt-arbeidssteg--2026-11-02) målte **961,13 kB / 293,89 kB gzip**. Størrelsesvarselet består uten avtalt numerisk V1-grense.
 - **Bevisgrenser:** Funksjonsprøver er ingen full sikkerhetsrevisjon eller dokumentasjon på generell studentnytte. Verktøyblokkerte sikkerhetsprøver er ikke gjennomført. Kontroll av dagens filer beviser ikke ren Git-historikk; tidligere eksponering og eieroppfølging er dokumentert i [leveringskontrollen](../.docs/implementation-artifacts/submission-audit-2026-11-01.md#git-historikk-og-gjenstående-oppfølging).
-- Prosjekteieren bekreftet personlig sluttlesing av [refleksjonsrapporten](../.docs/submission/reflection-report.md) og gjennomført innlevering 19. november 2026. [Leveringskontroll](../.docs/planning-artifacts/README.md#leveringskontroll--2026-11-04)
+
+[Leveringsstatus](../.docs/planning-artifacts/README.md#leveringsstatus)
 
 ## Finne og gjenta kontrollene
 

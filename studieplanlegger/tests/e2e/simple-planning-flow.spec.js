@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { freeze } from './helpers.js'
+import { freeze, navigate, openRowMenu, row } from './helpers.js'
 
 const key = 'studieplanlegger:v1'
 const stored = page => page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)), key)
@@ -12,6 +12,45 @@ async function shot(page, info, name) {
   await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: true })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 }
+
+test('registrert arbeid viser veien til Se planforslag', async ({ page }) => {
+  const assignment = task('syntetisk-arbeid', { estimatedMinutes: 30, remainingMinutes: 30 })
+  await seed(page, { schemaVersion: 1, tasks: [assignment], onboarding: { dismissed: true, completed: true } })
+  await navigate(page, 'all')
+  const card = row(page, assignment.title)
+  await openRowMenu(card)
+  await card.getByRole('button', { name: `Registrer arbeid «${assignment.title}»`, exact: true }).click()
+  const outcome = page.getByRole('dialog', { name: 'Hva skjedde?', exact: true })
+  await outcome.getByRole('radio', { name: 'Trenger mer tid', exact: true }).check()
+  await outcome.getByLabel('Gjenstående arbeid').selectOption('from120to240')
+  await outcome.getByRole('button', { name: 'Lagre utfallet', exact: true }).click()
+
+  const feedback = page.locator('#feedback')
+  await expect(feedback).toHaveText('Arbeidet er registrert. Åpne oppgaven og velg ‘Se planforslag’ for å finne ny tid.')
+  await expect(feedback).toBeVisible()
+  const planButton = card.getByRole('button', { name: `Se planforslag «${assignment.title}»`, exact: true })
+  await expect(planButton).toHaveText('Se planforslag')
+  await planButton.click()
+  await expect(page.getByRole('dialog', { name: 'Planforslag for oppgaven', exact: true })).toContainText(assignment.title)
+})
+
+test('ikke utført arbeid gir et planforslag direkte fra tilbakemeldingen i Oversikt', async ({ page }) => {
+  const assignment = task('syntetisk-ikke-utfort', {
+    deadlineLocal: '2026-09-25T12:00', estimatedMinutes: 30, remainingMinutes: 30,
+  })
+  await seed(page, { schemaVersion: 1, tasks: [assignment], onboarding: { dismissed: true, completed: true } })
+  const overview = page.locator('#daily-overview, #next-plan')
+  await overview.getByLabel(`Flere handlinger for ${assignment.title}`).click()
+  await overview.getByRole('button', { name: 'Registrer arbeid', exact: true }).click()
+  const outcome = page.getByRole('dialog', { name: 'Hva skjedde?', exact: true })
+  await outcome.getByRole('radio', { name: 'Ikke utført', exact: true }).check()
+  await outcome.getByRole('button', { name: 'Lagre utfallet', exact: true }).click()
+
+  await expect(page.locator('#feedback')).toHaveText('Utfallet er registrert. Åpne oppgaven og velg ‘Se planforslag’ for å finne ny tid.')
+  expect((await stored(page)).workLogs[0]).toMatchObject({ outcome: 'not-started', actualMinutes: null })
+  await page.locator('#feedback-bar').getByRole('button', { name: 'Se planforslag', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Planforslag for oppgaven', exact: true })).toContainText(assignment.title)
+})
 
 test('first use goes from title-only task through one checked move to apply and exact undo in 8 actions', async ({ page }, info) => {
   await freeze(page, '2026-09-25T09:00:00+02:00'); await page.goto('/')

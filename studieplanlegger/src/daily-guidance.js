@@ -43,7 +43,7 @@ export function dailyStatus(model) {
   const pending = sortedTasks(model.tasks.filter(task => !task.completed || task.requiresSubmission && !task.submitted))
   const task = pending.find(item => item.deadlineLocal) || pending[0]
   if (!task) return { tone: 'neutral', title: 'Ingen åpne oppgaver', text: 'Du har ingen registrerte oppgaver som må vurderes nå.' }
-  if (task.completed && task.requiresSubmission && !task.submitted) return { tone: 'neutral', title: task.title, text: `${task.title} er registrert som ferdig, men levering er ikke bekreftet. Bekreft levering separat${task.deadlineLocal ? ' før den registrerte fristen' : ''}.`, taskId: task.id, assessable: true }
+  if (task.completed && task.requiresSubmission && !task.submitted) return { tone: 'neutral', title: task.title, text: `${task.title} er registrert som ferdig, men levering er ikke bekreftet. Har du levert oppgaven i innleveringssystemet, kan du markere den som levert her.`, taskId: task.id, assessable: true }
   const range = getRemainingRange(task)
   if (isOverdue(task, now)) return { tone: 'danger', title: task.title, text: `${task.title} har en frist som er passert. ${range ? `${formatEstimateRange(range)} arbeid er fortsatt registrert, og ingen tilgjengelig tid før fristen gjenstår.` : 'Gjenstående arbeid er ukjent.'}`, taskId: task.id, assessable: Boolean(range), availableMinutes: 0, missingMinMinutes: range?.minMinutes ?? null, missingMaxMinutes: range?.maxMinutes ?? null }
   const entry = model.capacity?.tasks?.find(item => item.taskId === task.id)

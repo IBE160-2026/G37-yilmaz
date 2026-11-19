@@ -12,7 +12,7 @@ Planen lagres i nettleserprofilen på den nøyaktige nettadressen. Bruk samme ad
 | Ta vare på eller flytte planen | [Sikkerhetskopi og lagring](#sikkerhetskopi-og-lagring) |
 | Hente emner, dokumenter eller kalender | [Importer en bekreftbar plan](#importer-en-bekreftbar-plan) og [filer og kalenderlenker](#importer-filer-og-kalenderlenker) |
 | Kjøre appen lokalt eller kontrollere kode | [Lokale driftsformer](#lokale-driftsformer) og [tester og bygg](#tester-og-bygg) |
-| Finne prosjektet og leveringsgrunnlaget | [Leveringsoversikt for G37 i IBE160](../README.md#leveringsoversikt--4-november-2026), [planindeks](../.docs/planning-artifacts/README.md) og [daterte kontroller](VERIFICATION.md) |
+| Finne prosjektet og leveringsgrunnlaget | [Leveringsoversikt for G37 i IBE160](../README.md#leveringsoversikt), [planindeks](../.docs/planning-artifacts/README.md) og [daterte kontroller](VERIFICATION.md) |
 
 ## Kom i gang og finn frem
 
@@ -172,7 +172,7 @@ Tema (`ajour:appearance:v1`) og emnefarger (`ajour.course-colors.v1`) er separat
 
 ## Kjente begrensninger ved levering
 
-**Oversikt oppdatert 4. november 2026; prøvene beholder sine egne datoer.** V1 er fortsatt avgrenset til de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md); full støtte for alle læresteder er ikke et leveringskrav. Tidligere feil og rettinger er oppsummert i [verifikasjonsoversikten](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert). Tabellen beskriver restpunkter og bevisgrenser, ikke nye funksjonsbestillinger.
+V1 er avgrenset til de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md). Tabellen beskriver restpunkter og bevisgrenser. Tidligere feil og rettinger er oppsummert i [verifikasjonsoversikten](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert).
 
 [Auditoppfølgingen 4. november](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) behandler bekreftede feil der et eldre filvalg kunne erstatte et nyere forslag ved arbeidsstegimport eller gjenoppretting. Den samler retting og regresjonstester, eksplisitt avhengighetskontroll og oppdateringsrutine, gradvis utvidelse av Content Security Policy og avgrensede prøver i flere nettlesere. Faktiske kjøreresultater og publiseringsstatus står i rapporten; dette er ikke en generell sikkerhetsattest eller garanti om lik oppførsel i alle nettlesere.
 
@@ -411,7 +411,7 @@ Manuell registrering og filimport er alternativer ved kildefeil. En allerede las
 
 [Verifikasjonen](VERIFICATION.md) samler tekniske rettinger, kjøreresultater og bevisgrenser. **Prosjekteierens sju scenarier og tilleggsprøven for navngitt Start bestod 3.–4. november.** [Prøverapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, rettet prøveutførelse, gjenoppretting i et separat, tomt Chrome Gjest-miljø og de øvrige metodegrensene. Det tidligere dekningsforbeholdet for SC-07/R-07 er lukket innen dette omfanget. [Prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) bevarer tidligere daterte resultater, inkludert omprøvingene 1. november, SC-07/1200–30 og Outlook-prøven. Automatiske tester står separat fra prosjekteierens egne observasjoner; ingen av delene dokumenterer generell studentnytte.
 
-[Refleksjonsrapporten](../.docs/submission/reflection-report.md) foreligger bare som Markdown i [GitHub-repoet](https://github.com/IBE160-2026/G37-yilmaz), med oppgitt KI-hjelp til struktur og formulering. Den er et leveringsdokument og følger ikke appens kjøretidsfiler. Den 19. november 2026 bekreftet prosjekteieren personlig sluttlesing og gjennomført innlevering. [Planindeksens leveringskontroll](../.docs/planning-artifacts/README.md#leveringskontroll--2026-11-04)
+[Refleksjonsrapporten](../.docs/submission/reflection-report.md) foreligger bare som Markdown i [GitHub-repoet](https://github.com/IBE160-2026/G37-yilmaz), med oppgitt KI-hjelp til struktur og formulering. Den er et leveringsdokument og følger ikke appens kjøretidsfiler. [Leveringsstatus](../.docs/planning-artifacts/README.md#leveringsstatus)
 
 ### Avgrensede arbeidsflytrettinger — 2026-10-02
 

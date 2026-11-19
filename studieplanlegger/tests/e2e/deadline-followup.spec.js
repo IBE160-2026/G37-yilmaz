@@ -9,6 +9,29 @@ const calendarDay = async (page, date) => {
   await page.locator('#full-calendar').getByRole('button', { name: 'Dag', exact: true }).click()
 }
 
+test('leveringsmeldingen gjelder både før og etter fristen', async ({ page }) => {
+  const delivery = {
+    ...task('syntetisk-levering', '2026-09-07T12:00', 30, true),
+    remainingMinutes: 0, requiresSubmission: true, submitted: false,
+  }
+  await seed(page, [delivery], { view: 'overview', now: '2026-09-07T11:59:00+02:00' })
+  const status = page.locator('#daily-overview').getByRole('status')
+  const assignment = page.locator(`[data-daily-row="task:${delivery.id}"]`)
+  const expectedStatus = `${delivery.title} er registrert som ferdig, men levering er ikke bekreftet. Har du levert oppgaven i innleveringssystemet, kan du markere den som levert her.`
+  await expect(assignment.getByText('Frist i dag kl. 12:00', { exact: true })).toBeVisible()
+  await expect(status).toHaveText(expectedStatus)
+  await expect(status).toBeVisible()
+
+  await page.clock.setFixedTime(new Date('2026-09-07T12:01:00+02:00'))
+  await page.reload()
+  await expect(assignment.getByText('Forfalt frist i dag kl. 12:00', { exact: true })).toBeVisible()
+  await expect(status).toHaveText(expectedStatus)
+  await expect(status).toBeVisible()
+  await assignment.getByRole('button', { name: 'Bekreft levering', exact: true }).click()
+  expect((await saved(page)).tasks[0]).toMatchObject({ completed: true, submitted: true })
+  await expect(status).toContainText('Ingen åpne oppgaver')
+})
+
 for (const [choice, offset, label, width] of [['earlier', '+02:00', 'første', 1280], ['later', '+01:00', 'andre', 360]]) {
   test(`autumn deadline requires ${choice} choice and preserves it in edit and calendar at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 })

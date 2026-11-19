@@ -30,7 +30,7 @@ The [submission audit](submission-audit-2026-11-01.md) records report equivalenc
 
 ## Disposisjon for personlig refleksjon
 
-Dette er den tidligere støttedisposisjonen, bevart som prosesshistorikk. Den ferdige, brukerleverte [refleksjonsrapporten](../submission/reflection-report.md) foreligger nå separat. Spørsmålene nedenfor er ikke nye krav eller påstander om opplevelser. [Prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) og [verifikasjonen](../../studieplanlegger/VERIFICATION.md) gir daterte bevis. Prosjekteierens bekreftelse på sluttlesing, kontrollerte leveringsopplysninger og gjennomført innlevering er datert 19. november 2026. [Leveringskontroll](../planning-artifacts/README.md#leveringskontroll--2026-11-04)
+Dette er den tidligere støttedisposisjonen, bevart som prosesshistorikk. Den ferdige, brukerleverte [refleksjonsrapporten](../submission/reflection-report.md) foreligger nå separat. Spørsmålene nedenfor er ikke nye krav eller påstander om opplevelser. [Prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) og [verifikasjonen](../../studieplanlegger/VERIFICATION.md) gir daterte bevis. [Leveringsstatus](../planning-artifacts/README.md#leveringsstatus)
 
 | Dokumentert hendelse | Spørsmål du kan besvare selv |
 | --- | --- |

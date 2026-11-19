@@ -55,6 +55,55 @@ describe('synthetic TP raw time and identity boundary', () => {
     expect(practiceEvent.getFirstPropertyValue('location')).toBe('Oppdiktet øvingsrom')
   })
 
+  describe.each([
+    ['examformCode', { examformCode: 'S' }],
+    ['party', { party: 'exam' }],
+  ])('TP exam marker %s with a neutral title', (_label, marker) => {
+    // The markers and teachingMethod guard were checked in TP's public client on 2026-11-19.
+    // The active status and occurrence ID follow the repository's HiMolde JSON fixture.
+    const occurrence = {
+      ...row, eventid: 'synthetic-neutral-exam', summary: 'Oppdiktet aktivitet', ...marker,
+      room: exam.room, alerts: exam.alerts, curr: exam.curr,
+    }
+    const teaching = {
+      ...row, teachingMethod: 'F', teachingMethodName: 'Forelesning', ...marker,
+      room: { roomname: 'Oppdiktet undervisningsrom' }, alerts: [{ message: 'Oppdiktet undervisningsmerknad' }],
+    }
+    const input = { events: [teaching, occurrence] }
+
+    it.each(['pubexdate', 'pubextime'])('omits the exam when %s is false', flag => {
+      const result = normalizeTpJsonEvents(input, { ...options, semester: { ...semester, [flag]: false } })
+
+      expect(result).toMatchObject({ eventCount: 1, rejectedCount: 0 })
+      expect(components(result.calendar).map(event => event.getFirstPropertyValue('summary'))).toEqual([teaching.summary])
+      expect(result.warnings.join(' ')).toContain('ikke har publisert både dato og klokkeslett')
+    })
+
+    it('retains the published exam time and removes hidden room details', () => {
+      const result = normalizeTpJsonEvents(input, { ...options, semester: { ...semester, pubexroom: false } })
+      const [teachingEvent, examEvent] = parseCalendar(result.calendar, { fileImport: true }).events
+
+      expect(result.eventCount).toBe(2)
+      expect(teachingEvent).toMatchObject({ location: 'Oppdiktet undervisningsrom', description: 'Oppdiktet undervisningsmerknad' })
+      expect(examEvent).toMatchObject({
+        title: occurrence.summary, activityKind: 'exam',
+        start: '2044-11-18T08:00:07.000Z', end: '2044-11-18T09:00:17.000Z', location: '', description: '',
+      })
+      expect(result.warnings.join(' ')).toContain('uten rom og beskrivelse')
+    })
+  })
+
+  it('recognizes the presence of examformCode even without a value', () => {
+    const examMarker = { ...row, examformCode: null, dtend: row.dtstart }
+    const visible = normalizeTpJsonEvents({ events: [examMarker] }, options)
+    const hidden = normalizeTpJsonEvents({ events: [examMarker] }, { ...options, semester: { ...semester, pubexdate: false } })
+
+    expect(parseCalendar(visible.calendar, { fileImport: true }).events[0]).toMatchObject({
+      title: row.summary, activityKind: 'exam', point: true, transparent: true,
+    })
+    expect(components(hidden.calendar)).toEqual([])
+  })
+
   it('preserves JSON exam date and time while hiding unpublished room details', () => {
     const teaching = { ...row, room: { roomname: 'Oppdiktet undervisningsrom' }, alerts: [{ message: 'Oppdiktet undervisningsmerknad' }] }
     const input = { events: [teaching, exam] }
