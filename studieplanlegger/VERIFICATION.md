@@ -1,5 +1,9 @@
 # Verifisering av Ajour
 
+## Leveringsregresjoner etter kontrollen 19. november 2026
+
+[Oppfølgingsloggen](../.logs/976-2026-11-19-21-31-13-ajour-leveringsregresjoner.md) knytter funnene I01–I02, B01–B02, P01–P12, K01–K03, U01–U06 og D01–D06 til regresjonene og skiller førkontrollen fra de nye prøvene. Endelig testkjøring, main-versjon og offentlig versjonsmarkør spores samlet i [PR #33](https://github.com/IBE160-2026/G37-yilmaz/pull/33).
+
 Oversikten samler daterte rettinger, prøver og begrensninger med lenker til testkjøringer, testkode og prosjekteierens egenutprøving.
 
 ## Ukeplan med åpent arbeidsanslag — 2026-11-19

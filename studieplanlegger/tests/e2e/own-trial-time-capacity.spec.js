@@ -112,7 +112,7 @@ for (const width of [1440, 390]) {
     const reason = 'Deler av reservasjonen er passert, opptatt eller utenfor arbeidstiden.'
     await expect(row).toContainText(reason)
     expect((await row.textContent()).split(reason)).toHaveLength(2)
-    await expect(row).toContainText('720 min mangler før fristen i registrert arbeidstid.')
+    await expect(row).toContainText('720 min mangler i registrert arbeidstid.')
     await expect(row).toContainText('Forslag inkludert: 480 min')
     await expect(page.locator('#session-list > li')).toHaveCount(6)
     expect(await saved(page)).toEqual(state)

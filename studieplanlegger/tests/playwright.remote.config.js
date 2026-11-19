@@ -40,6 +40,7 @@ export default defineConfig({
         'delivery-accessibility.spec.js', 'delivery-calendar.spec.js', 'connected-document.spec.js',
         'calendar-viewport-corrections.spec.js', 'own-trial-backup-import-race.spec.js',
         'simple-planning-flow.spec.js', 'integrated-workflow.spec.js', 'himolde-program-repeat.spec.js',
+        'bounded-assessment-fixes.spec.js',
       ],
     },
   ],

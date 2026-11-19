@@ -82,6 +82,7 @@ const calendarFetch = url => calendarRequest(url).then(data => data.calendar)
 
 export function createSubjectsView(actions) {
   let model, signature = '', agendaSignature = '', busy = false, editing = null, preview = null, returnEventView = null
+  let agendaFrom = Infinity, agendaUntil = -Infinity
   const existingNav = document.querySelector('#view-subjects')
   const nav = existingNav || button('Mine emner', () => actions.view('subjects'))
   if (!existingNav) {
@@ -575,19 +576,25 @@ export function createSubjectsView(actions) {
       }
       if (!eventList.childElementCount) eventList.append(el('p', 'Ingen undervisning registrert. Legg til manuelt eller importer en kalender.'))
     }
-    const now = model.now || new Date(), course = planner.courses.find(c => c.id === courseFilter.value)
-    const upcomingEvents = subjectEventAgendaEntries(planner, now, course)
-    const upcomingTasks = model.tasks.filter(t => t.deadlineLocal && (!t.completed || (t.requiresSubmission && !t.submitted)) && matchesCourse(t, course?.id, course) &&
-      (subjectDeadlineUpcoming(t, now) || inspectDeadline(t.deadlineLocal).status === 'ambiguous' && !t.deadlineDisambiguation))
-    const nextAgenda = JSON.stringify([upcomingEvents, upcomingTasks, planner.courses, courseFilter.value])
-    if (nextAgenda !== agendaSignature) {
+    const now = model.now || new Date()
+    const nextAgenda = JSON.stringify([planner, model.tasks, courseFilter.value, osloLocal(now.toISOString()).slice(0, 10)])
+    if (nextAgenda !== agendaSignature || +now < agendaFrom || +now >= agendaUntil) {
       agendaSignature = nextAgenda; agenda.replaceChildren(el('h3', 'Undervisning og frister'), el('p', 'U: undervisning · F: oppgavefrist. Undervisning vises i norsk tid.', 'muted'))
+      agendaFrom = +now
+      agendaUntil = Infinity
+      const course = planner.courses.find(c => c.id === courseFilter.value)
+      const upcomingEvents = subjectEventAgendaEntries(planner, now, course)
+      for (const { event } of upcomingEvents) if (event.end) agendaUntil = Math.min(agendaUntil, Date.parse(event.end))
       const entries = upcomingEvents.map(entry => ({ ...entry, key: `event:${entry.event.id}`, sortAt: Date.parse(entry.event.start || toInstant(entry.time)), open: () => { actions.view('subjects'); openEditor('event', entry.event) } }))
-      for (const task of upcomingTasks) {
+      for (const task of model.tasks.filter(t => t.deadlineLocal && (!t.completed || (t.requiresSubmission && !t.submitted)) && matchesCourse(t, course?.id, course))) {
         const time = subjectDeadlineTime(task)
         const unresolved = !time && inspectDeadline(task.deadlineLocal).status === 'ambiguous'
         const taskCourse=planner.courses.find(item=>item.id===task.courseId),code=taskCourse?.code||task.course
-        if (unresolved || subjectDeadlineUpcoming(task, now)) entries.push({ key: `task:${task.id}`, sortAt: unresolved ? -Infinity : Date.parse(time), unresolved, title: `F · ${code ? `${code} · ` : ''}${task.title}`, detail: `${formatDeadline(task.deadlineLocal, { year: true, disambiguation: task.deadlineDisambiguation })} · ${code}`, open: () => actions.editTask(task.id), kind: 'deadline', courseId: resolvedCourseId(task, planner.courses), course: code })
+        if (unresolved || subjectDeadlineUpcoming(task, now)) {
+          const sortAt = unresolved ? -Infinity : Date.parse(time)
+          if (!unresolved) agendaUntil = Math.min(agendaUntil, sortAt)
+          entries.push({ key: `task:${task.id}`, sortAt, unresolved, title: `F · ${code ? `${code} · ` : ''}${task.title}`, detail: `${formatDeadline(task.deadlineLocal, { year: true, disambiguation: task.deadlineDisambiguation })} · ${code}`, open: () => actions.editTask(task.id), kind: 'deadline', courseId: resolvedCourseId(task, planner.courses), course: code })
+        }
       }
       // Unresolved records come first for repair; resolved records share numeric
       // instant keys even when teaching arrived with an explicit UTC offset.

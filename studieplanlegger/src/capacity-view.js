@@ -148,7 +148,6 @@ export function createCapacityView(actions) {
         setText(row.label, label)
         row.edit.setAttribute('aria-label', `Rediger økt: ${label}`)
         row.delete.setAttribute('aria-label', `Slett økt: ${label}`)
-        row.close.setAttribute('aria-label', `Avslutt økt: ${label}`)
         row.edit.disabled = disabled
         row.delete.disabled = disabled
         if (row.item !== position) $('#session-list').insertBefore(row.item, position)

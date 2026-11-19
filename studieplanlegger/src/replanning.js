@@ -87,7 +87,7 @@ export function createReplan(state, { now = new Date(), rules = state.planningPr
   const problems = [], proposed = [], changes = [], deficits = Object.create(null), deficitRanges = Object.create(null), blockedTasks = []
   const uncertainPersonal = (state.planner?.events || []).filter(event => uncertainPersonalTiming(event, now)).length
   if (uncertainPersonal) problems.push(`${uncertainPersonal} ${uncertainPersonal === 1 ? 'egen aktivitet har' : 'egne aktiviteter har'} ukjent tidspunkt eller varighet. Forslaget kan ikke garantere at denne tiden er ledig.`)
-  if (!validPlanningRules(rules)) return { ok: false, error: 'Kontroller lengde og pauser for øktene.' }
+  if (!validPlanningRules(rules)) return { ok: false, error: 'Kontroller lengde og pauser for øktene. Vanlig økt må være mellom minste og lengste økt.' }
   const graph = validateDependencyGraph(state.tasks, { relations: true })
   if (!graph.ok) return graph
   if (!Number.isFinite(+now)) return { ok: false, error: 'Klokken er ugyldig.' }

@@ -71,14 +71,7 @@ export function createReplanningView(actions) {
     const ruleGrid = el('div', '', 'form-grid')
     for (const [key, label] of [['sessionMinutes', 'Vanlig økt (min)'], ['minimumMinutes', 'Minste økt (min)'], ['maximumMinutes', 'Lengste økt (min)'], ['breakMinutes', 'Pause (min)']]) {
       const wrapper = el('label', label), input = el('input'); input.name = key; input.type = 'number'; input.min = key === 'breakMinutes' ? '0' : '1'; input.max = '1440'; input.value = rules[key]
-      input.onchange = () => {
-        rules[key] = Number(input.value)
-        if (['minimumMinutes', 'maximumMinutes'].includes(key) && rules.minimumMinutes <= rules.maximumMinutes) {
-          rules.sessionMinutes = Math.max(rules.minimumMinutes, Math.min(rules.maximumMinutes, rules.sessionMinutes))
-          ruleGrid.querySelector('[name=sessionMinutes]').value = rules.sessionMinutes
-        }
-        compute()
-      }; wrapper.append(input); ruleGrid.append(wrapper)
+      input.onchange = () => { rules[key] = Number(input.value); compute() }; wrapper.append(input); ruleGrid.append(wrapper)
     }
     const update = el('button', 'Oppdater forslag', 'secondary'); update.type = 'button'; update.onclick = compute
     ruleDetails.append(ruleSummary, ruleGrid, update); dialog.append(ruleDetails)
