@@ -1,5 +1,5 @@
 import { validateCourse, semesterLabel, osloYear } from './planner.js'
-import { getRemainingMinutes } from './tasks.js'
+import { formatEstimateRange } from './tasks.js'
 import { personalEstimate } from './personal-estimates.js'
 import { nameFirstLabel, sortByVisibleName } from './name-sort.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
@@ -25,9 +25,14 @@ export function createTaskForm(form) {
   grid.after(extra)
   form.elements.estimatedMinutes.closest('.field').hidden = true
   const unknown = document.createElement('button'); unknown.type = 'button'; unknown.className = 'secondary'; unknown.textContent = 'Vet ikke'; form.elements.remainingMinutes.after(unknown)
-  unknown.onclick = () => { remainingTouched = true; form.elements.remainingMinutes.value = ''; form.elements.remainingMinutes.focus() }
-  form.elements.remainingMinutes.addEventListener('input', () => { remainingTouched = true })
-  form.elements.remainingMinutes.placeholder = 'Vet ikke'
+  const remainingInput = form.elements.remainingMinutes
+  function changeRemaining() {
+    remainingTouched = true
+    remainingInput.placeholder = 'Vet ikke'
+  }
+  unknown.onclick = () => { changeRemaining(); remainingInput.value = ''; remainingInput.focus() }
+  remainingInput.addEventListener('input', changeRemaining)
+  remainingInput.placeholder = 'Vet ikke'
   form.querySelector('label[for="remainingMinutes"]').textContent = 'Totalt gjenstående arbeid (minutter)'
   form.querySelector('#remainingMinutes-help').textContent = 'Anslå alt arbeidet som gjenstår. Tiden du vil jobbe nå velger du på oversikten. Vet ikke bevarer usikkerheten. 0 markerer ikke oppgaven som ferdig.'
   const splitChoice = document.createElement('label'); splitChoice.className = 'check-label'; splitChoice.innerHTML = '<input name="splittable" type="checkbox" checked aria-describedby="splittable-help">Kan deles i flere økter'
@@ -53,7 +58,7 @@ export function createTaskForm(form) {
   let courses = [], pending, selectedLabel, signature = '', model, editingTask, remainingTouched = false
   const updateCourseColor = () => applyCourseColor(form.closest('dialog') || form, resolvedCourseId({ courseId: selector.value, course: input.value }, courses))
   const estimateContext = () => ({ ...editingTask, course: input.value, courseId: selector.value, taskType: form.elements.taskType.value })
-  estimate.querySelector('button').onclick = () => { const result = personalEstimate(model, estimateContext()); if (result.available) { remainingTouched = true; form.elements.remainingMinutes.value = result.minutes } }
+  estimate.querySelector('button').onclick = () => { const result = personalEstimate(model, estimateContext()); if (result.available) { changeRemaining(); remainingInput.value = result.minutes } }
   const estimateText = () => { const result = personalEstimate(model || {}, estimateContext()); estimate.querySelector('p').textContent = result.explanation || result.reason; estimate.querySelector('button').hidden = !result.available }
   estimate.ontoggle = estimateText
   form.elements.taskType.addEventListener('input', estimateText)
@@ -84,7 +89,10 @@ export function createTaskForm(form) {
     open(task) {
       editingTask = task; remainingTouched = false; pending = null; options(); selectedLabel = task?.course || ''; input.value = selectedLabel; selector.value = task?.courseId || ''; inline.open = false; extra.open = Boolean(task?.id); inline.querySelector('[role=alert]').textContent = ''
       updateCourseColor()
-      form.elements.remainingMinutes.value = task?.remainingMinutes !== undefined ? task.remainingMinutes ?? '' : task?.estimatedMinutes ?? ''
+      const range = task?.remainingEstimate
+      const exact = task?.remainingMinutes !== undefined ? task.remainingMinutes : task?.estimatedMinutes
+      remainingInput.value = range ? '' : exact ?? ''
+      remainingInput.placeholder = range ? formatEstimateRange(range) : 'Vet ikke'
       const deps = form.elements.dependencyIds; deps.replaceChildren(); dependencyStatus.textContent = ''; dependencyStatus.hidden = true
       for (const candidate of model?.tasks || []) if (candidate.id !== task?.id) { const option = new Option(candidate.title, candidate.id); option.selected = Boolean(task?.dependencyIds?.includes(candidate.id)); deps.append(option) }
       for (const id of task?.missingDependencyIds || []) { const option = new Option(`Mangler: ${id}`, id); option.selected = true; deps.append(option) }
@@ -94,6 +102,7 @@ export function createTaskForm(form) {
       const dependencies = [...form.elements.dependencyIds.selectedOptions].map(item => item.value)
       return { ...(pending && selector.value === pending.id ? { newCourse: pending } : {}),
         ...(editingTask?.id && editingTask.remainingMinutes === undefined && !remainingTouched ? { remainingMinutes: undefined } : {}),
+        clearRemainingEstimate: remainingTouched && remainingInput.value === '',
         dependencyIds: dependencies.length || editingTask?.dependencyIds !== undefined ? dependencies : undefined,
         waitingReason: form.elements.waitingReason.value || editingTask?.waitingReason !== undefined ? form.elements.waitingReason.value : undefined,
         taskType: form.elements.taskType.value || editingTask?.taskType !== undefined ? form.elements.taskType.value : undefined,

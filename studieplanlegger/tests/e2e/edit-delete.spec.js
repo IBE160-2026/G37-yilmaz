@@ -49,6 +49,38 @@ async function confirmDelete(page, title, accept = true, keyboard = false) {
   await actionPromise
 }
 
+test('Vet ikke clears a saved estimate range across reload', async ({ page }) => {
+  const estimate = { minMinutes: 30, maxMinutes: 60 }
+  await seed(page, [{ ...first, remainingMinutes: null, remainingEstimate: estimate }])
+  const title = 'Oppgave med tidsanslag'
+  const editTask = async title => {
+    await openMenu(page, title)
+    await edit(page, title).click()
+  }
+
+  await editTask(first.title)
+  await page.locator('#title').fill(title)
+  await save(page).click()
+  await expect(row(page, title)).toContainText('Gjenstående arbeid: 30 min–1 time')
+
+  await editTask(title)
+  const remainingInput = page.locator('#remainingMinutes')
+  await expect(remainingInput).toHaveAttribute('placeholder', '30 min–1 time')
+  await page.locator('#task-form').getByRole('button', { name: 'Vet ikke', exact: true }).click()
+  await expect(remainingInput).toHaveAttribute('placeholder', 'Vet ikke')
+  await save(page).click()
+  await expect(row(page, title)).toContainText('Gjenstående arbeid: ukjent')
+  const saved = JSON.parse(await rawValue(page)).tasks[0]
+  expect(saved.remainingMinutes).toBeNull()
+  expect(saved).not.toHaveProperty('remainingEstimate')
+
+  await page.reload()
+  await navigate(page, 'all')
+  await expect(row(page, title)).toContainText('Gjenstående arbeid: ukjent')
+  await editTask(title)
+  await expect(remainingInput).toHaveAttribute('placeholder', 'Vet ikke')
+})
+
 test('all-field edit retains identity, completed status, storage order and tied display order across reload and reopen', async ({ page, context }, testInfo) => {
   await seed(page)
   await openMenu(page, selected.title)

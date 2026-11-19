@@ -71,6 +71,7 @@ for (const width of [1440, 1280, 390]) {
 test('positiv dagsstatus viser at planen går opp uten omplanleggingsknapp', async ({ page }) => {
   const positive = structuredClone(state)
   positive.tasks[0].remainingEstimate = { minMinutes: 60, maxMinutes: 60 }
+  positive.tasks[0].splittable = false
   await page.setViewportSize({ width: 1280, height: 1000 })
   await page.clock.install({ time: new Date(now) })
   await page.goto('/')
@@ -78,6 +79,27 @@ test('positiv dagsstatus viser at planen går opp uten omplanleggingsknapp', asy
   await page.reload()
   await expect(page.locator('#daily-overview').getByRole('status')).toContainText('Planen går opp')
   await expect(page.getByRole('button', { name: 'Se realistisk forslag' })).toHaveCount(0)
+})
+
+test('Oversikt og Planlegg uken viser samme underskudd for arbeid som må gjøres sammenhengende', async ({ page }) => {
+  const fragmented = structuredClone(state)
+  fragmented.tasks = [{ ...fragmented.tasks[0], remainingEstimate: { minMinutes: 60, maxMinutes: 60 }, splittable: false }]
+  fragmented.workWindows = [
+    { id: 'first', start: '2026-09-07T08:00:00Z', end: '2026-09-07T08:30:00Z' },
+    { id: 'second', start: '2026-09-07T09:00:00Z', end: '2026-09-07T09:30:00Z' },
+  ]
+  await page.clock.install({ time: new Date(now) })
+  await page.goto('/')
+  await page.evaluate(({ key, fragmented }) => localStorage.setItem(key, JSON.stringify(fragmented)), { key, fragmented })
+  await page.reload()
+
+  const status = page.locator('#daily-overview').getByRole('status')
+  await expect(status).toContainText('1 time tilgjengelig før fristen')
+  await expect(status).toContainText('sammenhengende økt')
+  await expect(status).toContainText('1 time mangler')
+  await expect(status).not.toContainText('Planen går opp')
+  await page.getByRole('button', { name: 'Planlegg uken', exact: true }).click()
+  await expect(page.locator('[data-capacity-task="presentation"]')).toContainText('60 min mangler før fristen')
 })
 
 test('start, øktutfall, arbeidskrav og realistisk forslag er eksplisitte', async ({ page }, info) => {

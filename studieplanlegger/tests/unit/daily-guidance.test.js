@@ -3,7 +3,7 @@ import { deriveCapacity } from '../../src/capacity.js'
 import { dailyStatus, rankedSuggestions } from '../../src/daily-guidance.js'
 import { closeWork, validWorkLogs } from '../../src/work-log.js'
 import { createReplan, applyReplan } from '../../src/replanning.js'
-import { editTask, validTasks } from '../../src/tasks.js'
+import { editTask, getRemainingRange, validTasks } from '../../src/tasks.js'
 
 const now = new Date('2026-09-07T09:00:00+02:00')
 const task = (id, patch = {}) => ({ id, title: `Oppgave ${id}`, course: 'IBE160', deadlineLocal: '2026-09-07T15:00', estimatedMinutes: 60, completed: false, ...patch })
@@ -28,6 +28,30 @@ describe('dagsstatus med intervaller og faktisk kapasitet', () => {
     const later = capacity.tasks.find(item => item.taskId === 'etter')
     expect(capacity.totalCapacityMinutes).toBe(90)
     expect(later).toMatchObject({ allocatedMinutes: 45, missingMinutes: 15 })
+  })
+
+  it.each([
+    { label: 'studieøkter', sessions: [session('a', '10:00', '10:30'), session('b', '11:00', '11:30')], options: {} },
+    { label: 'arbeidstidsvinduer', sessions: [], options: { workWindows: [
+      { id: 'a', start: '2026-09-07T08:00:00Z', end: '2026-09-07T08:30:00Z' },
+      { id: 'b', start: '2026-09-07T09:00:00Z', end: '2026-09-07T09:30:00Z' },
+    ] } },
+  ])('viser samme underskudd som kapasitetsberegningen for to adskilte $label', ({ sessions, options }) => {
+    const tasks = [task('samlet', { splittable: false })]
+    const capacity = deriveCapacity(tasks, sessions, now, [], options)
+    expect(capacity.tasks[0]).toMatchObject({ allocatedMinutes: 0, availableBeforeMinutes: 60, missingMinMinutes: 60, missingMaxMinutes: 60 })
+    const status = dailyStatus({ tasks, capacity, now })
+    expect(status).toMatchObject({ tone: 'danger', availableMinutes: 60, missingMinMinutes: 60, missingMaxMinutes: 60 })
+    expect(status.text).toContain('sammenhengende økt')
+    expect(status.text).toContain('1 time mangler')
+  })
+
+  it('viser et ikke-planlagt intervall når øvre anslag ikke får plass i én økt', () => {
+    const tasks = [task('samlet', { splittable: false, remainingEstimate: { minMinutes: 30, maxMinutes: 60 } })]
+    const capacity = deriveCapacity(tasks, [session('ledig', '10:00', '10:45')], now)
+    const status = dailyStatus({ tasks, capacity, now })
+    expect(status).toMatchObject({ tone: 'danger', missingMinMinutes: 30, missingMaxMinutes: 60 })
+    expect(status.text).toContain('30 minutter–1 time er ikke planlagt')
   })
 
   it('sier at grunnlaget ikke kan vurderes når tid eller frist er ukjent', () => {
@@ -182,5 +206,14 @@ describe('lagringskontrakt for usikre anslag', () => {
     expect(result.ok).toBe(true)
     expect(result.tasks[0].remainingEstimate).toEqual({ minMinutes: 60, maxMinutes: 120 })
     expect(result.tasks[0].remainingMinutes).toBeUndefined()
+  })
+
+  it('lagrer eksplisitt ukjent uten å falle tilbake til et tidligere anslag', () => {
+    const saved = task('a', { estimatedMinutes: 45, remainingEstimate: { minMinutes: 30, maxMinutes: 60 } })
+    const result = editTask([saved], 'a', { ...saved, estimatedMinutes: '45', remainingMinutes: '', clearRemainingEstimate: true })
+    expect(result.ok).toBe(true)
+    expect(result.tasks[0].remainingEstimate).toBeUndefined()
+    expect(result.tasks[0].remainingMinutes).toBeNull()
+    expect(getRemainingRange(result.tasks[0])).toBeNull()
   })
 })

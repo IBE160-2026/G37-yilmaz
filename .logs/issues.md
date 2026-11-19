@@ -6,9 +6,11 @@
 
 Gjeldende åpne punkter etter [retting og dokumentert egenutprøving](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md), oppdatert 2026-11-04 med [fullført personlig sjuscenarioprøve og Start-tillegg](../.docs/implementation-artifacts/owner-trial-2026-11-04.md). Etter prosjekteierens sluttbekreftelse 2026-11-01 er de konkrete omprøvingene bestått som **egenutprøving utført av prosjekteier**; tekniske prøver føres separat. [Leveringsoversikten](../README.md#leveringsoversikt--4-november-2026) og [samlede begrensninger med V1-betydning](../studieplanlegger/README.md#kjente-begrensninger-ved-levering) er gjeldende innganger. Eldre loggseksjoner bevarer statusen på sine tidspunkter.
 
-Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere ønske; Manrope-fontnavnene er rettet til TrueType. Se [Sluttrapport og leveringskontroll med datert oppfølging](993-2026-11-01-22-34-20-ajour-sluttleveranse.md). Ingen nye produktpunkter følger av oppryddingen. Historisk eksponering er kontrollert separat og står åpen for videre vurdering; dagens filer er ikke bevis på ren historikk.
+Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere ønske; Manrope-fontnavnene er rettet til TrueType. Se [Sluttrapport og leveringskontroll med datert oppfølging](993-2026-11-01-22-34-20-ajour-sluttleveranse.md). Ingen nye produktpunkter følger av oppryddingen. Oppfølgingen av funn 1–4 er avsluttet. Dagens filer er ikke bevis på ren historikk. Se [oppryddingsrapporten](../.docs/implementation-artifacts/history-cleanup-2026-11-09.md).
 
-## Gjeldende status — 2026-11-04
+## Status ved kontrollen — 2026-11-04
+
+Gjeldende status for historikkoppfølgingen og GitHub About står under [Personlig sluttkontroll og historisk eksponering](#personlig-sluttkontroll-og-historisk-eksponering).
 
 Prosjekteierens sju scenarioer og navngitte Start-prøve er gjennomført og bestått innen dokumentert prøveomfang. Det tidligere R-07-forbeholdet om gjenoppretting i separat tomt miljø er lukket: Chrome Gjest og tomme førverdier er synlige, omlasting er brukerbekreftet, og hele sluttdataene er identiske med kildekopien. [Rapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) bevarer metodeavvik og skiller eierens handlinger fra teknisk filsammenligning.
 

@@ -76,10 +76,11 @@ export function editTask(tasks, id, draft) {
   const edited = { ...saved, ...result.task, completed: saved.completed,
     ...(saved.submitted === undefined ? {} : { submitted: saved.submitted }) }
   if (!Object.hasOwn(result.task, 'deadlineDisambiguation')) delete edited.deadlineDisambiguation
-  // The legacy editor exposes an exact-minute field. A blank field on an
-  // interval task means the saved range is still untouched, not "unknown".
-  if (draft.remainingMinutes !== undefined && !(validEstimateRange(saved.remainingEstimate) && (draft.remainingMinutes === '' || draft.remainingMinutes === null))) delete edited.remainingEstimate
-  if (validEstimateRange(saved.remainingEstimate) && (draft.remainingMinutes === '' || draft.remainingMinutes === null)) delete edited.remainingMinutes
+  // A blank exact-minute field can mean an untouched range or an explicit reset.
+  const preserveRange = validEstimateRange(saved.remainingEstimate) && !draft.clearRemainingEstimate &&
+    (draft.remainingMinutes === '' || draft.remainingMinutes === null)
+  if (preserveRange) delete edited.remainingMinutes
+  else if (draft.remainingMinutes !== undefined) delete edited.remainingEstimate
   if (draft.courseId === '') delete edited.courseId
   if (draft.priority === '') delete edited.priority
   // An unchecked type field does not turn an ordinary legacy edit into a data

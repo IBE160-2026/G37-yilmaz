@@ -52,11 +52,10 @@ export function dailyStatus(model) {
     const reason = !range ? 'Gjenstående arbeid er ukjent.' : range.maxMinutes === null ? 'Arbeidsmengden har ingen øvre grense ennå.' : !task.deadlineLocal ? 'Fristen er ikke registrert.' : blockers.length ? blockers.map(item => item.reason).join(' ') : 'Registrer arbeidstid før fristen.'
     return { tone: 'neutral', title: task.title, text: `Kan ikke vurderes ennå. ${reason}`, taskId: task.id, assessable: false }
   }
-  const available = entry.availableBeforeMinutes
-  const missingMin = Math.max(0, range.minMinutes - available)
-  const missingMax = Math.max(0, range.maxMinutes - available)
+  const { availableBeforeMinutes: available, missingMinMinutes: missingMin, missingMaxMinutes: missingMax } = entry
   const start = `${task.title} har anslagsvis ${formatEstimateRange(range)} arbeid igjen. Du har ${formatDuration(available)} tilgjengelig før fristen.`
   if (!missingMax) return { tone: 'good', title: task.title, text: `${start} Planen går opp ut fra det du har registrert.`, taskId: task.id, assessable: true, availableMinutes: available, missingMinMinutes: 0, missingMaxMinutes: 0 }
-  const shortage = missingMin === missingMax ? `${formatDuration(missingMax)} mangler.` : missingMin ? `${formatDuration(missingMin)}–${formatDuration(missingMax)} mangler.` : `Det kan mangle opptil ${formatDuration(missingMax)}.`
-  return { tone: 'danger', title: task.title, text: `${start} ${shortage}`, taskId: task.id, assessable: true, availableMinutes: available, missingMinMinutes: missingMin, missingMaxMinutes: missingMax }
+  const continuity = task.splittable === false ? ' Arbeidet må få plass i én sammenhengende økt.' : ''
+  const shortage = missingMin === missingMax ? `${formatDuration(missingMax)} mangler.` : missingMin ? `${formatDuration(missingMin)}–${formatDuration(missingMax)} er ikke planlagt.` : `Det kan mangle opptil ${formatDuration(missingMax)}.`
+  return { tone: 'danger', title: task.title, text: `${start}${continuity} ${shortage}`, taskId: task.id, assessable: true, availableMinutes: available, missingMinMinutes: missingMin, missingMaxMinutes: missingMax }
 }
