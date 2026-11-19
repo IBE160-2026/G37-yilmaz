@@ -411,7 +411,7 @@ Manuell registrering og filimport er alternativer ved kildefeil. En allerede las
 
 [Verifikasjonen](VERIFICATION.md) samler tekniske rettinger, kjøreresultater og bevisgrenser. **Prosjekteierens sju scenarier og tilleggsprøven for navngitt Start bestod 3.–4. november.** [Prøverapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, rettet prøveutførelse, gjenoppretting i et separat, tomt Chrome Gjest-miljø og de øvrige metodegrensene. Det tidligere dekningsforbeholdet for SC-07/R-07 er lukket innen dette omfanget. [Prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) bevarer tidligere daterte resultater, inkludert omprøvingene 1. november, SC-07/1200–30 og Outlook-prøven. Automatiske tester står separat fra prosjekteierens egne observasjoner; ingen av delene dokumenterer generell studentnytte.
 
-[Refleksjonsrapporten](../.docs/submission/reflection-report.md) foreligger bare som Markdown i [GitHub-repoet](https://github.com/IBE160-2026/G37-yilmaz), med oppgitt KI-hjelp til struktur og formulering. Den er et leveringsdokument og følger ikke appens kjøretidsfiler. Personlig sluttgjennomlesing og formell innlevering er ikke bekreftet; [planindeksen](../.docs/planning-artifacts/README.md#leveringskontroll--2026-11-04) angir restpunktene.
+[Refleksjonsrapporten](../.docs/submission/reflection-report.md) foreligger bare som Markdown i [GitHub-repoet](https://github.com/IBE160-2026/G37-yilmaz), med oppgitt KI-hjelp til struktur og formulering. Den er et leveringsdokument og følger ikke appens kjøretidsfiler. Prosjekteieren bekreftet personlig sluttlesing og gjennomført innlevering 19. november 2026.
 
 ### Avgrensede arbeidsflytrettinger — 2026-10-02
 
