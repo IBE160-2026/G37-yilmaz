@@ -30,7 +30,7 @@ The [submission audit](submission-audit-2026-11-01.md) records report equivalenc
 
 ## Disposisjon for personlig refleksjon
 
-Dette er den tidligere støttedisposisjonen, bevart som prosesshistorikk. Den ferdige, brukerleverte [refleksjonsrapporten](../submission/reflection-report.md) foreligger nå separat. Spørsmålene nedenfor er ikke nye krav eller påstander om opplevelser. [Prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) og [verifikasjonen](../../studieplanlegger/VERIFICATION.md) gir daterte bevis. Prosjekteierens bekreftelse på sluttlesing, kontrollerte leveringsopplysninger og gjennomført innlevering er datert 19. november 2026. [Leveringskontroll](../planning-artifacts/README.md#leveringskontroll--2026-11-04)
+Dette er den tidligere støttedisposisjonen, bevart som prosesshistorikk. Den ferdige, brukerleverte [refleksjonsrapporten](../submission/reflection-report.md) foreligger nå separat. Spørsmålene nedenfor er ikke nye krav eller påstander om opplevelser. [Prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) og [verifikasjonen](../../studieplanlegger/VERIFICATION.md) gir daterte bevis. [Leveringsstatus](../planning-artifacts/README.md#leveringsstatus)
 
 | Dokumentert hendelse | Spørsmål du kan besvare selv |
 | --- | --- |
@@ -67,7 +67,7 @@ The follow-up correction starts from published commit `f1a58631b10a5e35cfd43ed50
 
 During review, one agent reported that an overly broad diff read may have exposed old fixture values in tool output. Review reads were then masked. A later preservation-check assertion printed minimized HTML instead of a category; its diagnostics were corrected before the check passed. The values are not repeated here; raw agent logs and review working files are excluded from the delivery. This is a recorded process limitation, not a claim that historical material has been erased.
 
-The public documentation now follows task → step → approved session → outcome → adjustment, using local rules and supporting imports. This addresses the teacher's bounded-scope, checkable-success, traceability and AI-control feedback. The 16 October reconstruction and subsequent correction dates remain explicit. The teacher feedback and current brief were read for this work; the sensor guide and approved proposal were unavailable in the agreed document folders. Earlier reading statements below remain historical.
+The public documentation now follows task → step → approved session → outcome → adjustment, using local rules and supporting imports. This addresses the teacher's bounded-scope, checkable-success, traceability and AI-control feedback. The [16 October entry](#feedback-alignment--2026-10-16) records the brief revision and the addition of the PRD and user stories. The teacher feedback and current brief were read for this work; the sensor guide and approved proposal were unavailable in the agreed document folders. Earlier reading statements below remain historical.
 
 The public chain is [brief](../../brief.md), [PRD/stories](../planning-artifacts/README.md), [architecture](../planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md), [code/test traceability](../planning-artifacts/TRACEABILITY.md) and [verification scope](../../studieplanlegger/VERIFICATION.md#omfang-og-hvordan-resultatene-skal-leses). Internal working specifications remain local; public links use curated contracts, tests and evidence. Private originals, raw logs and personal reflection are not substitutes for missing evidence.
 
@@ -75,7 +75,9 @@ The 24 October results are reused only as dated technical history. Their source/
 
 ## Feedback alignment — 2026-10-16
 
-The [teacher feedback](../../tilbakemelding-product-brief.md) concerns `brief.md` at `5e23204`, dated 2026-10-06. The current [brief](../../brief.md), [PRD, stories and traceability](../planning-artifacts/README.md) were reconstructed on 2026-10-16 against baseline `1a58ffce782fd4e42a7153e21e82fc982ae00268`. They do not claim to have directed earlier implementation. Historical PRD/epics remain at their original paths in pre-cleanup commit `1a39aaf450c3ff4a59908fd8caba9de10230b9a6`; ignored local copies and private reflections were not republished.
+The teacher's feedback of 6 October 2026 assessed `brief.md` at commit `5e23204`. The existing [brief](../../brief.md) was revised on 16 October 2026. The current [PRD](../planning-artifacts/PRD.md) and [user stories](../planning-artifacts/EPICS-CURRENT.md) were added the same day, based on the existing implementation at commit `1a58ffce782fd4e42a7153e21e82fc982ae00268`. [Teacher feedback](../../tilbakemelding-product-brief.md)
+
+Historical PRD/epics remain at their original paths in pre-cleanup commit `1a39aaf450c3ff4a59908fd8caba9de10230b9a6`; ignored local copies and private reflections were not republished.
 
 National coverage is future vision. V1 is the named HiMolde IT 2026–27 programme branch and autumn-2026 teaching samples, plus NTNU ARK1001/EXPH0100 course metadata and linked teaching, as specified in the brief. Existing adapters remain. Documentation, quality and traceability take priority over adding sources or features. Technical evidence is dated. The external student trial planned on 16 October was not performed; the owner's 26 October decision replaces it with the manual self-trial described above.
 

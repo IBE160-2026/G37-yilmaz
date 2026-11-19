@@ -167,9 +167,12 @@ export function normalizeTpJsonEvents(input,{institution,semester,selected}){
   calendar.updatePropertyWithValue('version','2.0');calendar.updatePropertyWithValue('prodid','-//Studieplan//HiMolde TP JSON//NO');calendar.updatePropertyWithValue('x-wr-timezone','Europe/Oslo');calendar.updatePropertyWithValue('x-studieplan-tp-normalized','1');calendar.updatePropertyWithValue('x-studieplan-authoritative','false')
   for(const row of data.events){
     const assessment=row?.status==null&&row?.eventid==null&&row?.active===true&&row?.publish===true&&codePattern.test(row?.assessmentCode||'')
-    const title=bounded(row?.summaryNb||row?.summary||row?.teachingMethodName||(assessment&&(row?.teachingTitle||row?.examformNb)),2000)
+    // TP's public client checks for the presence of examformCode, even when it has no value.
+    const tpExam = row != null && !row.teachingMethod && (Object.hasOwn(row, 'examformCode') || row.party === 'exam')
+    const markedAssessment = assessment || tpExam
+    const title=bounded(row?.summaryNb||row?.summary||row?.teachingMethodName||(markedAssessment&&(row?.teachingTitle||row?.examformNb)),2000)
     const examTitle = actualExamTitle(title)
-    const assessmentDetails = assessment || examTitle
+    const assessmentDetails = markedAssessment || examTitle
     // Filter unpublished rows before validation and identity accounting.
     if (assessmentDetails && (semester.pubexdate !== true || semester.pubextime !== true)) {
       omittedExams++
@@ -184,14 +187,15 @@ export function normalizeTpJsonEvents(input,{institution,semester,selected}){
     const start=tpJsonInstant(row.dtstart),end=tpJsonInstant(row.dtend)
     const event=new ICAL.Component('vevent'),uid=`tp-json-${hash(`${institution}\0${semester.id}\0${identity}`)}@studieplan.local`
     attachPublishedTerm(event, semester)
-    if (!Number.isFinite(start) || !Number.isFinite(end) || end < start || end === start && !assessment) {
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end < start || end === start && !markedAssessment) {
       event.addPropertyWithValue('uid', uid); event.addPropertyWithValue('summary', title)
       event.addPropertyWithValue('x-studieplan-invalid-fields', 'dtstart,dtend')
       calendar.addSubcomponent(event); rejectedCount++; continue
     }
-    event.addPropertyWithValue('uid',uid);event.addPropertyWithValue('dtstamp',ICAL.Time.fromJSDate(new Date(0),true));event.addPropertyWithValue('dtstart',ICAL.Time.fromJSDate(new Date(start),true));event.addPropertyWithValue('dtend',ICAL.Time.fromJSDate(new Date(end),true));event.addPropertyWithValue('summary',title);if(assessment)event.addPropertyWithValue('x-studieplan-activity-kind',examTitle?'exam':'assessment')
-    if (assessment && end === start) { event.removeAllProperties('dtend'); skippedMarkers++ }
-    if (assessment && end - start <= 1000) event.addPropertyWithValue('transp', 'TRANSPARENT')
+    event.addPropertyWithValue('uid',uid);event.addPropertyWithValue('dtstamp',ICAL.Time.fromJSDate(new Date(0),true));event.addPropertyWithValue('dtstart',ICAL.Time.fromJSDate(new Date(start),true));event.addPropertyWithValue('dtend',ICAL.Time.fromJSDate(new Date(end),true));event.addPropertyWithValue('summary',title)
+    if (markedAssessment) event.addPropertyWithValue('x-studieplan-activity-kind', tpExam || examTitle ? 'exam' : 'assessment')
+    if (markedAssessment && end === start) { event.removeAllProperties('dtend'); skippedMarkers++ }
+    if (markedAssessment && end - start <= 1000) event.addPropertyWithValue('transp', 'TRANSPARENT')
     for (const group of new Set(groups.map(group => group.trim()))) event.addPropertyWithValue('x-group', group)
     if (row.teachingMethodName) event.addPropertyWithValue('x-studieplan-activity-type', bounded(row.teachingMethodName, 300))
     let notes = ''

@@ -223,6 +223,24 @@ describe('integrert arbeid, vurdering, eksport og sammenligning', () => {
     expect(proposed[0].taskId).toBe('second'); expect(new Set(proposed.map(item => item.taskId))).toEqual(new Set(['first', 'second']))
   })
 
+  it.each(['', '2026-09-29T18:00'])('bevarer usikkerhet uten å telle dekket minimum som utelatt arbeid ved frist %s', deadlineLocal => {
+    const open = { ...task, remainingMinutes: null, remainingEstimate: { minMinutes: 241, maxMinutes: null }, deadlineLocal }
+    const state = { schemaVersion: 1, tasks: [open], sessions: [], workWindows: [{ id: 'w', start: '2026-09-29T08:00:00Z', end: '2026-09-29T16:00:00Z' }] }
+    const now = new Date('2026-09-28T08:00:00Z')
+    const comparison = comparePlans(state, { now })
+    const [current, ...alternatives] = comparison.scenarios
+    expect(current).toMatchObject({ feasible: false, deadlineRisk: true, missingMinMinutes: 241, missingMaxMinutes: null, omittedTasks: 1 })
+    for (const scenario of alternatives) {
+      expect(scenario).toMatchObject({ feasible: false, deadlineRisk: false, missingMinMinutes: 0, missingMaxMinutes: null, omittedTasks: 0 })
+      expect(scenario.allocatedMinutes).toBeGreaterThanOrEqual(241)
+      expect(scenario.remainingCapacityMinutes).toBeGreaterThan(0)
+      expect(scenario.uncertainty.join(' ')).toContain('mer arbeid kan gjenstå')
+    }
+    const applied = applyComparedPlan(state, comparison, 'priority', { now })
+    expect(applied.ok).toBe(true)
+    expect(comparePlans(applied.state, { now }).scenarios[0]).toMatchObject({ feasible: false, deadlineRisk: false, missingMinMinutes: 0, missingMaxMinutes: null, omittedTasks: 0 })
+  })
+
   it.each([
     { id: task.id, remainingMinutes: 60, missingMinMinutes: 60, missingMaxMinutes: 60, omittedTasks: 1 },
     { id: '__proto__', remainingMinutes: null, missingMinMinutes: 0, missingMaxMinutes: null, omittedTasks: 1 },

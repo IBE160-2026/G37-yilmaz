@@ -52,14 +52,15 @@ V1-import gjelder **HiMolde IT 2026–27** med IBE110/IBE430 og enten IBE160 ell
 Avgrensningen og [rekonstruerte planer fra 16. oktober](.docs/planning-artifacts/README.md) følger opp [faglærerens tilbakemelding](tilbakemelding-product-brief.md). Eksisterende adaptere og funksjoner er beholdt, men utvider ikke leveranseløftet. [Verifikasjonen](studieplanlegger/VERIFICATION.md) bevarer datoene for tidligere rettinger, Ajour-utformingen og nettutgaven som ble godkjent 29. oktober. Teknisk testing dokumenterer ikke generell studentnytte.
 
 <a id="leveringsoversikt--1-november-2026"></a>
+<a id="leveringsoversikt--4-november-2026"></a>
 
-## Leveringsoversikt — 4. november 2026
+## Leveringsoversikt
 
-**Teknisk oppfølging av ny audit:** [Importrekkefølge og kvalitetskontroller](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) samler de to bekreftede feilene ved overlappende filvalg, retting med regresjonstester, avhengighetskontroll og avgrenset sikkerhets-/nettleseroppfølging. Rapporten angir faktisk test- og publiseringsstatus; tidligere grønne tester alene lukker ikke de nye funnene.
+**Teknisk oppfølging 4. november:** [Importrekkefølge og kvalitetskontroller](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) samler de to bekreftede feilene ved overlappende filvalg, retting med regresjonstester, avhengighetskontroll og avgrenset sikkerhets-/nettleseroppfølging. Rapporten angir faktisk test- og publiseringsstatus; tidligere grønne tester alene lukker ikke de nye funnene.
 
 **Prosjekteierens sju scenarier og tilleggsprøven for navngitt Start er bestått 3.–4. november.** [Prøverapporten](.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktisk gjennomføring, rettet prøveutførelse og metodegrenser. Den inkluderer gjenoppretting i et separat, tomt Chrome Gjest-miljø og lukker det tidligere dekningsforbeholdet for SC-07/R-07. Tidligere daterte omprøvinger, SC-07/1200–30 og Outlook-prøven beholder sine resultater. [Automatiske kontroller](studieplanlegger/VERIFICATION.md) er et separat bevisgrunnlag.
 
-**Den 19. november 2026 bekreftet prosjekteieren personlig sluttlesing av refleksjonsrapporten og gjennomført innlevering.** Markdown er rapportens eneste format i repoet. [Planindeksens leveringskontroll](.docs/planning-artifacts/README.md#leveringskontroll--2026-11-04) samler vurderingsgrunnlag og leveringsstatus. [Begrensningsoversikten](studieplanlegger/README.md#kjente-begrensninger-ved-levering) skiller V1-grenser og historiske funn fra dagens prøver; historisk F03 og personvernoppfølging er ikke lukket av egenutprøvingen.
+Markdown er refleksjonsrapportens eneste format i repoet. [Leveringsstatus](.docs/planning-artifacts/README.md#leveringsstatus) og [vurderingsgrunnlag](.docs/planning-artifacts/README.md#leveringskontroll) står i planindeksen. [Begrensningsoversikten](studieplanlegger/README.md#kjente-begrensninger-ved-levering) skiller V1-grenser og historiske funn fra dagens prøver; historisk F03 og personvernoppfølging er ikke lukket av egenutprøvingen.
 
 Oppfølgingen av historisk tilgangsmateriale er avsluttet, og GitHub About viser hovedadressen. Grenbeskyttelse og plattformgrenser følges i [auditoppfølgingen](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md).
 

@@ -190,9 +190,8 @@ export function createWorkLogView(actions) {
         }
         const saved = actions.commit(candidate, 'Arbeid registrert')
         if (!saved.ok) { error.textContent = saved.error; return }
-        const needsTime = form.elements.outcome.value !== 'done'
         close()
-        if (needsTime) actions.offerTime?.(taskId)
+        if (result.log.outcome !== 'done') actions.offerTime?.(taskId, result.log.outcome)
       }
       dialog.append(form); dialog.showModal(); form.elements.outcome[0].focus()
     },

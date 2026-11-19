@@ -554,7 +554,12 @@ dataTools = createDataTools({
   },
 })
 workView = createWorkLogView({ state: snapshot, commit: commitState, onClose: refresh,
-  offerTime: () => { ui.message('Arbeidet er registrert. Bruk «Jeg ligger etter» for å finne ny tid.'); refresh() } })
+  offerTime(taskId, outcome) {
+    const status = outcome === 'not-started' ? 'Utfallet er registrert.' : 'Arbeidet er registrert.'
+    ui.message(`${status} Åpne oppgaven og velg ‘Se planforslag’ for å finne ny tid.`, null, taskId)
+    refresh()
+  },
+})
 replanView = createReplanningView({ state: snapshot, commit: commitState, onClose: refresh,
   editActivity(id) { if (canEdit()) subjects?.openEvent(id) },
   editTask(id, field) {

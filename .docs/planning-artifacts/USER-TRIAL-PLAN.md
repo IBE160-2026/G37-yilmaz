@@ -30,7 +30,7 @@ Prøven brukte syntetiske data i [nettutgaven](https://ajour-sooty.vercel.app/),
 
 Det gjenstår ingen udokumenterte deler av denne R-07-prøven innen oppgitt omfang. Full nettleseromstart, kvotegrenser og «Gjenopprett forrige kopi» var ikke påkrevde trinn i de sju scenariene og er ikke ferdigmeldt av denne prøven. Tema og emnefargepreferanser loves fortsatt ikke overført i sikkerhetskopien. Resultatet er prosjekteierens egenutprøving, ikke dokumentasjon på generell studentnytte, full tilgjengelighet eller sikkerhet.
 
-Prosjekteieren bekreftet personlig sluttlesing av [refleksjonsrapporten](../submission/reflection-report.md) og gjennomført innlevering 19. november 2026. [Leveringskontroll](README.md#leveringskontroll--2026-11-04)
+[Leveringsstatus](README.md#leveringsstatus)
 
 ## Teknisk avklaring av oppgave- og stegflyt — 2026-11-02
 
@@ -211,9 +211,9 @@ Prosjekteierens sluttbekreftelse 1. november erstattet den tidligere statusen «
 | SC-07/1200–30 og Outlook 30. oktober | Tidligere dokumentert **bestått** beholdes. |
 | Opprinnelig scenario 1–7-mal | Beholdt som historisk oppskrift; faktiske resultater og metodevalg står i den daterte resultatmatrisen øverst. |
 | Full nettleseromstart og «Gjenopprett forrige kopi» | Ikke prøvd i denne egenutprøvingen og ikke påkrevde trinn i de sju scenariene. Omlasting og gjenoppretting i annen tom, isolert instans er bestått. |
-| Personlig refleksjon | [Rapporten foreligger som Markdown](../submission/reflection-report.md). Prosjekteieren bekreftet sluttlesing og gjennomført innlevering 19. november 2026. [Leveringskontroll](README.md#leveringskontroll--2026-11-04) |
+| Personlig refleksjon | [Rapporten foreligger som Markdown](../submission/reflection-report.md). |
 
-Den leverte rapporten inneholder prosjekteierens personlige vurderinger; denne prøveplanen dokumenterer forventet mot faktisk resultat. Rapporten gjør ikke tomme scenariofelt til beståtte tester eller egne erfaringer til bevis for generell studentnytte. Personlige rånotater og eldre private refleksjonsutkast forblir lokale; bare den uttrykkelig autoriserte sluttrapporten er lagt i leveringsdokumentasjonen. Planindeksen oppgir malens 3000–5000 ord og dokumenterer leveringsstatus. [Leveringskontroll](README.md#leveringskontroll--2026-11-04)
+Den leverte rapporten inneholder prosjekteierens personlige vurderinger; denne prøveplanen dokumenterer forventet mot faktisk resultat. Rapporten gjør ikke tomme scenariofelt til beståtte tester eller egne erfaringer til bevis for generell studentnytte. Personlige rånotater og eldre private refleksjonsutkast forblir lokale; bare den uttrykkelig autoriserte sluttrapporten er lagt i leveringsdokumentasjonen. Planindeksen oppgir malens 3000–5000 ord og dokumenterer leveringsstatus. [Leveringskontroll](README.md#leveringskontroll)
 
 ## Valgfri isolert oppstart før egenutprøvingen
 

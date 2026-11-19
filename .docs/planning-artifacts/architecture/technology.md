@@ -1,3 +1,7 @@
+**Arkitektureksempel fra faglærer – Pytagoras Forlag**
+
+Ajours arkitektur er beskrevet i [ARCHITECTURE-SPINE.md](architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md).
+
 # Website V2 – arkitektur, teknologi og nøkler
 
 Oversikt over `pytagoras-website-v2` (Pytagoras Forlag), skrevet for å kunne gjenskape oppsettet for en annen nettside.

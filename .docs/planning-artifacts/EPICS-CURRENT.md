@@ -1,6 +1,6 @@
 # Epics og stories for Ajour
 
-**Status for egenutprøvingen 4. november 2026.** S-07/R-07/SC-07 er gjennomført og bestått av prosjekteieren gjennom de sju scenariene og navngitt Start 3.–4. november. [Resultatmatrisen](USER-TRIAL-PLAN.md#egenutproving-2026-11-04) og [evidensrapporten](../implementation-artifacts/owner-trial-2026-11-04.md) viser observasjoner, metodevalg, korrigert utfallsregistrering og isolert gjenoppretting i Chrome-gjesteøkt. Tidligere daterte resultater beholder sitt omfang. Den 19. november bekreftet prosjekteieren sluttlesing og gjennomført innlevering. [Leveringskontroll](README.md#leveringskontroll--2026-11-04)
+**Status for egenutprøvingen 4. november 2026.** S-07/R-07/SC-07 er gjennomført og bestått av prosjekteieren gjennom de sju scenariene og navngitt Start 3.–4. november. [Resultatmatrisen](USER-TRIAL-PLAN.md#egenutproving-2026-11-04) og [evidensrapporten](../implementation-artifacts/owner-trial-2026-11-04.md) viser observasjoner, metodevalg, korrigert utfallsregistrering og isolert gjenoppretting i Chrome-gjesteøkt. Tidligere daterte resultater beholder sitt omfang.
 
 ## Oppgavearbeid og navngitt arbeidssteg — 2026-11-02
 
@@ -184,7 +184,7 @@ Som prosjekteier vil jeg gjennomføre en manuell prøve med syntetiske data og d
 
 **Status 2026-11-04: S-07 gjennomført og bestått av prosjekteieren.** [Prøveplanens resultatmatrise](USER-TRIAL-PLAN.md#egenutproving-2026-11-04) dokumenterer alle sju scenarier 3.–4. november. Den separate Start-flyten med flere steg bevarer det presenterte steget gjennom navneendring, omrekkefølge, omplanlegging/Angre og gjenoppretting. Dato-/UI-tilpasninger, den korrigerte utfallsregistreringen og Chrome-gjesteøkten som isolert mål er beskrevet i [evidensrapporten](../implementation-artifacts/owner-trial-2026-11-04.md). Eierens bekreftelser og bilder er skilt fra assistentens kontroll av eksporterte data. Ingen krav eller tidligere resultater endres.
 
-De dokumenterte omprøvingene [1. november](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), SC-07/1200–30 og Outlook 30. oktober beholder sine beståttstatuser. Egenutprøving ble valgt av prosjekteieren **2026-10-26**; den tidligere eksterne studentprøven ble ikke gjennomført. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger med oppgitt KI-hjelp. Den 19. november bekreftet prosjekteieren sluttlesing og gjennomført innlevering. [Leveringskontroll](README.md#leveringskontroll--2026-11-04)
+De dokumenterte omprøvingene [1. november](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), SC-07/1200–30 og Outlook 30. oktober beholder sine beståttstatuser. Egenutprøving ble valgt av prosjekteieren **2026-10-26**; den tidligere eksterne studentprøven ble ikke gjennomført. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger med oppgitt KI-hjelp. [Leveringsstatus](README.md#leveringsstatus)
 
 **Historisk statuspresisering 2026-11-02:** [Datidens scenariodekning](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) viste at full gjennomføring ennå ikke var dokumentert. Dette er førgrunnlag for den senere fullførte prøven 3.–4. november, og beholdes uten å gjenåpne tidligere beståtte prøver.
 

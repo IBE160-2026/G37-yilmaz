@@ -175,17 +175,21 @@ describe('øktslutt og realistisk omplanlegging', () => {
     expect(preview.problems.join(' ')).toContain('opptil 45 min kan mangle')
   })
 
-  it('bevarer kjent minimum når en åpen rest bare får en utforskende økt', () => {
+  it.each([0, 30])('bevarer kjent minimum ved åpen øvre grense og %i min tilgjengelig', available => {
     const state = {
       tasks: [task('a', { estimatedMinutes: null, remainingEstimate: { minMinutes: 241, maxMinutes: null }, deadlineLocal: '2026-09-07T13:00' })],
       sessions: [], busyWindows: [], planner: { events: [] },
-      workWindows: [{ id: 'w', start: '2026-09-07T08:00:00Z', end: '2026-09-07T08:30:00Z' }],
+      workWindows: available ? [{ id: 'w', start: '2026-09-07T08:00:00Z', end: '2026-09-07T08:30:00Z' }] : [],
       planningPreferences: { minimumMinutes: 15, sessionMinutes: 45, maximumMinutes: 60, breakMinutes: 0 },
     }
-    const preview = createReplan(state, { now, exploratory: { a: 30 } })
-    expect(preview.deficitRanges.a).toEqual({ minMinutes: 211, maxMinutes: null })
-    expect(preview).toMatchObject({ totalMissingMinMinutes: 211, totalMissingMaxMinutes: null })
-    expect(preview.problems.join(' ')).toContain('minst 211 min mangler')
+    const preview = createReplan(state, { now })
+    const missing = 241 - available
+    expect(preview.allocatedMinutes.a).toBe(available)
+    expect(preview.changes).toHaveLength(available ? 1 : 0)
+    if (available) expect(preview.changes[0].exploratory).toBe(false)
+    expect(preview.deficitRanges.a).toEqual({ minMinutes: missing, maxMinutes: null })
+    expect(preview).toMatchObject({ totalMissingMinMinutes: missing, totalMissingMaxMinutes: null })
+    expect(preview.problems.join(' ')).toContain(`minst ${missing} min mangler`)
   })
 })
 
