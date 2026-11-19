@@ -115,12 +115,13 @@ export function createReplanningView(actions) {
       }
       const omitted = `${scenario.omittedTasks} ${scenario.omittedTasks === 1 ? 'oppgave' : 'oppgaver'} med utelatt arbeid`
       const blockers = (scenario.blockedTasks || []).map(task => `«${task.title}»: ${task.reason}`)
-      card.append(title, el('p', scenario.preview.ok ? `${scenario.allocatedMinutes} min fordelt (${scenario.retainedMinutes} min beholdes, ${scenario.newOrMovableMinutes} min ny eller flyttbar tid) · ${scenario.remainingCapacityMinutes} min registrert kapasitet gjenstår · ${missing} · ${scenario.movedSessions} flyttes · ${omitted} · ${scenario.reviewSessions} repetisjonsøkter beholdes.` : scenario.error))
+      card.append(title, el('p', scenario.preview.ok ? `${scenario.calendarRetainedMinutes} min kalenderreservasjon beholdes · ${scenario.allocatedMinutes} min arbeid dekkes (${scenario.retainedMinutes} min i beholdte økter, ${scenario.newOrMovableMinutes} min i nye eller flyttbare økter) · ${scenario.remainingCapacityMinutes} min registrert kapasitet gjenstår · ${missing} · ${scenario.movedSessions} flyttes · ${omitted} · ${scenario.reviewSessions} repetisjonsøkter beholdes.` : scenario.error))
       if (scenario.deadlineRisk) card.append(el('p', 'Fristrisiko: registrert arbeid er ikke dekket før fristene.', 'plan-problem'))
       if (scenario.identicalTo) card.append(el('p', `Samme resultat som ${comparison.scenarios.find(item => item.id === scenario.identicalTo)?.label || scenario.identicalTo}.`, 'muted'))
       if (blockers.length) card.append(el('p', 'Avklar blokkerte oppgaver før hele planen kan gjennomføres.', 'plan-problem'))
       else if (scenario.missingMinMinutes > 0 || scenario.missingMaxMinutes > 0) card.append(el('p', 'Alternativet har kapasitetsmangel; ikke alt arbeid får plass.', 'plan-problem'))
       for (const warning of scenario.pauseWarnings || []) card.append(el('p', warning, 'plan-problem'))
+      for (const warning of scenario.overlapWarnings || []) card.append(el('p', warning, 'plan-problem'))
       for (const message of blockers) card.append(el('p', message, 'plan-problem'))
       for (const note of scenario.uncertainty || []) {
         if (!blockers.some(message => note.startsWith(message))) card.append(el('p', note, 'plan-problem'))
@@ -159,11 +160,11 @@ export function createReplanningView(actions) {
       host.append(el('h3', `Valgt plan: ${selected.label}`))
     }
     const conditional = preview.availability?.conditional
-    host.append(el('p', conditional ? `Forslag hvis disse tidene passer. ${preview.availability.label}: ${preview.availability.detail}.` : `Forslag innen ${preview.availability?.label || 'registrert tid'}.`, conditional ? 'assumption-note' : ''))
+    host.append(el('p', conditional ? `Forslag hvis disse tidene passer. ${preview.availability.label}: ${preview.availability.detail}.` : 'Forslag innenfor registrert tilgjengelig tid.', conditional ? 'assumption-note' : ''))
     const created = preview.changes.filter(change => !change.original && change.proposed).length
     const moved = preview.changes.filter(change => change.original && change.proposed && !sameTime(change)).length
     const removed = preview.changes.filter(change => change.original && !change.proposed).length
-    host.append(el('p', `${created} økter legges til, ${moved} flyttes og ${removed} fjernes. Øvrige økter beholdes.`))
+    host.append(el('p', `${created} ${created === 1 ? 'økt' : 'økter'} legges til, ${moved} flyttes og ${removed} fjernes. Øvrige økter beholdes.`))
     if (preview.changes.some(change => change.proposed && change.exploratory)) host.append(el('p', 'En kort startøkt er foreslått for ukjent arbeidsmengde. Den er ikke et estimat for hele oppgaven og viser ikke at arbeidet rekker fristen.', 'assumption-note'))
     for (const problem of preview.problems) host.append(el('p', problem, 'plan-problem'))
     const uncertainActivities = (actions.state().planner?.events || []).filter(event => uncertainPersonalTiming(event, new Date(preview.createdAt)))

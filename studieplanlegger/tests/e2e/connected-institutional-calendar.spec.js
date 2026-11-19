@@ -48,6 +48,10 @@ test('a public institutional calendar is explicitly selected, saved without a co
     // First import requires consent; a previously saved selection is retained
     // on reimport, as required by the existing preview contract.
     await expect(checkbox).toBeChecked({checked:run>0});await (await reveal(checkbox)).check()
+    const notice = form.locator(':scope > p[role=status]')
+    await expect(notice).toContainText(run > 0 ? 'Det tidligere valget er beholdt.' : 'Ingen er valgt automatisk.')
+    if (run > 0) await expect(notice).not.toContainText('Ingen er valgt automatisk.')
+    await expect(form.locator('.document-selection-summary')).toContainText('1 aktivitet valgt')
     await expect(form.getByText('Informasjonsoppføring: reserverer ikke arbeidstid.')).toBeVisible()
     await (await reveal(form.getByRole('button',{name:'Importer valgte',exact:true}))).click()
     await expect(form.getByRole('status')).toContainText('Institusjonskalender lagret')
@@ -58,6 +62,35 @@ test('a public institutional calendar is explicitly selected, saved without a co
     expect(state.importSources).toHaveLength(1)
     await page.reload();revision=1
   }
+})
+
+test('Ansgar shows calendar activities separately from suggested courses', async ({ page }) => {
+  const sourceUrl = 'https://ansgarskolenno-my.sharepoint.com/:b:/g/personal/kvalitet_ansgarskolen_no/example-synthetic'
+  const calendar = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0',
+    ...Array.from({ length: 87 }, (_, index) => [
+      'BEGIN:VEVENT', 'UID:ansgar-synthetic-' + index,
+      'DTSTART:20261120T100000Z', 'DTEND:20261120T110000Z',
+      'SUMMARY:TST' + (100 + index % 3) + ' Syntetisk aktivitet ' + (index + 1),
+      'END:VEVENT',
+    ]).flat(),
+    'END:VCALENDAR', '',
+  ].join('\r\n')
+  await page.route('**/api/import/calendar-sources/ansgar', route => route.fulfill({ json: { results: [{ name: 'Syntetisk klasseplan', sourceUrl }] } }))
+  await page.route('**/api/import/calendar', route => route.fulfill({ json: { sourceKind: 'ansgar-public-class', name: 'Syntetisk Ansgar-plan', calendar } }))
+  await page.goto('/')
+  await navigate(page, 'subjects')
+  await (await reveal(page.getByRole('button', { name: 'Finn studieprogram', exact: true }))).click()
+  await (await reveal(page.getByRole('button', { name: 'Fra kalenderlenke', exact: true }))).click()
+  const form = page.locator('.institutional-calendar-import')
+  if (!await form.evaluate(node => node.open)) await form.locator(':scope > summary').click()
+  await (await reveal(form.getByRole('combobox', { name: 'Offentlig kalenderkilde', exact: true }))).selectOption('ansgar')
+  await form.getByRole('button', { name: 'Hent offentlige Ansgar-timeplaner', exact: true }).click()
+  await form.getByRole('combobox', { name: 'Publisert klasseplan', exact: true }).selectOption(sourceUrl)
+  await form.getByLabel('Kalenderår', { exact: true }).fill('2026')
+  await form.getByRole('combobox', { name: 'Kalendersemester', exact: true }).selectOption('autumn')
+  await form.getByRole('button', { name: 'Forhåndsvis institusjonskalender', exact: true }).click()
+  await expect(form.locator(':scope > p[role=status]')).toHaveText('87 kalenderaktiviteter og 3 emneforslag i valgt semester. Ingen er valgt automatisk.')
 })
 
 test('an institutional calendar update retains the course explicitly linked at first import',async({page})=>{

@@ -3,7 +3,6 @@ import { load } from 'cheerio'
 
 // Read-only public-source comparisons. No user data, private calendars or
 // interception. These probes verify source/runtime behavior, not student trials.
-const pdf = 'https://uit.no/Content/931776/cache=20261310132856/Studieplan%20Bachelor%20i%20geovitenskap%20H-2025.pdf'
 const headers = () => ({ Origin: new URL(process.env.AJOUR_REMOTE_URL).origin })
 
 test('live HVL DAT100 autumn 2026 separates published title and campus from the raw TimeEdit choice', async ({ request }, info) => {
@@ -25,10 +24,20 @@ test('live HVL DAT100 autumn 2026 separates published title and campus from the 
 })
 
 test('live UiT H-2025 PDF is read by hosted runtime and reports the image-only table', async ({ request }, info) => {
+  const program = 'UIT-279541', cohort = '2025'
+  const list = await request.get(`/api/import/providers/uit/programs?q=${program}`, { headers: headers(), timeout: 60_000 })
+  expect(list.status()).toBe(200)
+  const selected = (await list.json()).results.find(row => row.code === program)
+  expect(selected?.name).toMatch(/Geovitenskap/i)
+  const cohorts = await request.get(`/api/import/providers/uit/program-cohorts?${new URLSearchParams({ program, sourceUrl: selected.sourceUrl })}`, { headers: headers(), timeout: 60_000 })
+  expect(cohorts.status()).toBe(200)
+  const edition = (await cohorts.json()).results.find(row => /Studieplan Bachelor i geovitenskap H-2025/i.test(row.label))
+  expect(edition?.requiresStudentCohort).toBe(true)
+  const pdf = edition.sourceUrl
   const source = await request.get(pdf)
   expect(source.status()).toBe(200)
   expect((await source.body()).subarray(0, 5).toString()).toBe('%PDF-')
-  const query = new URLSearchParams({ program: 'UIT-279541', cohort: '2025', cohortFromStudent: 'true', sourceUrl: pdf })
+  const query = new URLSearchParams({ program, cohort, cohortFromStudent: 'true', sourceUrl: pdf })
   const response = await request.get(`/api/import/providers/uit/program-plan?${query}`, { headers: headers(), timeout: 60000 })
   expect(response.status()).toBe(200)
   const result = await response.json()

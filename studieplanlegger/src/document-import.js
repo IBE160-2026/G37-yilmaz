@@ -121,6 +121,7 @@ const deadlineSummary = (row, current) => {
   return ` · Frist må avklares: ${row.deadlineMode === '?' && row.deadlineRaw ? 'uttrykket kunne ikke tolkes' : 'dato eller klokkeslett mangler eller er ugyldig'}. Oppgi dato, velg «Uten frist» eller utelat oppgaven.`
 }
 const fieldNames = { title: 'navn', name: 'emnenavn', deadlineLocal: 'frist', remainingMinutes: 'gjenstående minutter', courseId: 'emne', course: 'emne', start: 'start', end: 'slutt', location: 'sted', description: 'beskrivelse', semester: 'semester', year: 'år' }
+const counted = (count, singular, plural) => `${count} ${count === 1 ? singular : plural}`
 const courseOptionLabel = course => {
   const identity = nameFirstLabel(course) || 'Emne uten navn'
   const period = course.semester && course.year ? `${course.semester === 'spring' ? 'Vår' : 'Høst'} ${course.year}` : ''
@@ -165,7 +166,11 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
   const updateSummary = () => {
     cancelPreviewSummary(container)
     const currentState = getState()
-    foundSummary.textContent = `${preview.rows.filter(row => row.kind === 'course').length} emner · ${preview.rows.filter(row => row.kind === 'event' && !row.point).length} aktiviteter · ${preview.rows.filter(row => row.kind === 'event' && row.point).length} punkter · ${preview.rows.filter(row => row.kind === 'task').length} oppgaver fra ${preview.displayName || preview.name}. Velg det du vil lagre, og avklar manglende opplysninger. Ingenting lagres før du bekrefter.`
+    const foundCourses = counted(preview.rows.filter(row => row.kind === 'course').length, 'emne', 'emner')
+    const foundEvents = counted(preview.rows.filter(row => row.kind === 'event' && !row.point).length, 'aktivitet', 'aktiviteter')
+    const foundPoints = counted(preview.rows.filter(row => row.kind === 'event' && row.point).length, 'punkt', 'punkter')
+    const foundTasks = counted(preview.rows.filter(row => row.kind === 'task').length, 'oppgave', 'oppgaver')
+    foundSummary.textContent = `${foundCourses} · ${foundEvents} · ${foundPoints} · ${foundTasks} fra ${preview.displayName || preview.name}. Velg det du vil lagre, og avklar manglende opplysninger. Ingenting lagres før du bekrefter.`
     const selected = preview.rows.filter(row => row.selected), existing = selected.filter(row => row.matchEntryKey || row.courseTarget && row.courseTarget !== '?')
     const changed = existing.filter(row => documentSourceChanged(row, preview, currentState))
     const newRows = selected.filter(row => !existing.includes(row))
@@ -193,9 +198,11 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
     const ready = readyRows.filter(row => !unresolved.has(row.index) && !pendingCourses.has(row.courseChoice)).length
     confirmationSummary.textContent = proposed.stale ? 'Forhåndsvisningen må oppdateres før import.' : `${ready} av ${readyRows.length} ${selectedEvents.length ? 'aktiviteter' : 'oppføringer'} klare · ${clarification}${pendingGroups ? ` ${pendingGroups} venter på utvalg.` : ''}`
     const dates = selected.filter(row => row.kind === 'event' && row.startLocal).flatMap(row => [row.startLocal, ...(!row.point && row.endLocal ? [row.endLocal] : [])]).map(value => value.slice(0, 10)).sort()
-    selectionSummary.textContent = `${selected.filter(row => row.kind === 'course').length} emner · ${selected.filter(row => row.kind === 'event').length} aktiviteter valgt · ${preview.rows.filter(row => row.kind === 'event' && !row.selected).length} aktiviteter utelatt.${dates.length ? ` Datoer: ${dates[0]}–${dates.at(-1)}.` : ''}`
+    const courseCount = selected.filter(row => row.kind === 'course').length
+    const omittedEvents = preview.rows.filter(row => row.kind === 'event' && !row.selected).length
+    selectionSummary.textContent = `${counted(courseCount, 'emne', 'emner')} · ${counted(selectedEvents.length, 'aktivitet', 'aktiviteter')} valgt · ${counted(omittedEvents, 'aktivitet', 'aktiviteter')} utelatt.${dates.length ? ` Datoer: ${dates[0]}–${dates.at(-1)}.` : ''}`
     changes.replaceChildren(el('summary', 'Antall, utvalg og endringer'))
-    changes.append(el('p', `${selected.filter(row => row.kind === 'course').length} valgte emner · ${selected.filter(row => row.kind === 'event').length} valgte kalenderhendelser (${selected.filter(row => row.kind === 'event' && row.point).length} punktmarkører) · ${selected.filter(row => row.kind === 'task').length} valgte oppgaver · ${preview.rows.length - selected.length} utelatte oppføringer.`))
+    changes.append(el('p', `${counted(courseCount, 'valgt emne', 'valgte emner')} · ${counted(selectedEvents.length, 'valgt kalenderhendelse', 'valgte kalenderhendelser')} (${counted(selectedEvents.filter(row => row.point).length, 'punktmarkør', 'punktmarkører')}) · ${counted(selected.filter(row => row.kind === 'task').length, 'valgt oppgave', 'valgte oppgaver')} · ${counted(preview.rows.length - selected.length, 'utelatt oppføring', 'utelatte oppføringer')}.`))
     for (const [kind, label] of [['course', 'Emner'], ['event', 'Kalenderhendelser'], ['task', 'Oppgaver']]) changes.append(el('p', `${label}: ${newRows.filter(row => row.kind === kind).length} nye · ${existing.filter(row => row.kind === kind && !changed.includes(row)).length} uten kildeendringer · ${changed.filter(row => row.kind === kind).length} med kildeendringer.`))
   }
   const scheduleSummary = () => {
@@ -910,7 +917,10 @@ export function mountDocumentImport(container, { getState, onCommit, onCancel = 
           const selected = preview.rows.filter(row => row.selected), omitted = preview.rows.filter(row => row.kind !== 'course' && !row.selected).length, accounting = preview.accounting
           parsed = null; preview = null; completed = true; lastSavedSourceId = result.source.id; resetPeriod(); snapshotWarnings = []; snapshotOrigin = undefined; paste.value = ''; file.value = ''; refreshSourceOptions(lastSavedSourceId); showSource()
           const receipt = el('section', undefined, 'document-import-receipt'); receipt.setAttribute('role', 'status')
-          receipt.append(el('h3', 'Importen er lagret'), el('p', `Planen er lagret: ${selected.filter(row => row.kind === 'course').length} emner, ${selected.filter(row => row.kind === 'event').length} kalenderaktiviteter og ${selected.filter(row => row.kind === 'task').length} oppgaver. ${result.counts.added} nye, ${result.counts.updated} oppdaterte og ${result.counts.unchanged} uendrede oppføringer.`), el('p', `${omitted} aktiviteter eller oppgaver utelatt av utvalget.${accounting ? ` Kilden hadde ${accounting.filtered} oppføringer utenfor perioden, ${accounting.rejected} avviste og ${accounting.partial || 0} delvis beholdte.` : ''}`), el('p', `Kilde: ${result.source.origin?.kind === 'link' ? 'øyeblikksbilde fra kalenderlenke' : result.source.name}. Importen er en kopi og oppdateres ikke automatisk.`))
+          const courses = counted(selected.filter(row => row.kind === 'course').length, 'emne', 'emner')
+          const events = counted(selected.filter(row => row.kind === 'event').length, 'kalenderaktivitet', 'kalenderaktiviteter')
+          const tasks = counted(selected.filter(row => row.kind === 'task').length, 'oppgave', 'oppgaver')
+          receipt.append(el('h3', 'Importen er lagret'), el('p', `Planen er lagret: ${courses}, ${events} og ${tasks}. ${result.counts.added} nye, ${result.counts.updated} oppdaterte og ${result.counts.unchanged} uendrede oppføringer.`), el('p', `${omitted} aktiviteter eller oppgaver utelatt av utvalget.${accounting ? ` Kilden hadde ${accounting.filtered} oppføringer utenfor perioden, ${accounting.rejected} avviste og ${accounting.partial || 0} delvis beholdte.` : ''}`), el('p', `Kilde: ${result.source.origin?.kind === 'link' ? 'øyeblikksbilde fra kalenderlenke' : result.source.name}. Importen er en kopi og oppdateres ikke automatisk.`))
           const receiptActions = el('div', undefined, 'form-actions'), receiptError = el('p'); receiptError.setAttribute('role', 'alert')
           if (onCalendar) { const calendar = el('button', 'Åpne kalenderen'); calendar.type = 'button'; calendar.className = 'primary'; calendar.onclick = onCalendar; receiptActions.append(calendar) }
           if (onUndo && saved.historyEntryId) {

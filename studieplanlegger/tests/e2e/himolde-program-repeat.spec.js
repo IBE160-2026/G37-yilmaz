@@ -76,8 +76,8 @@ async function preview(page, attempt) {
   for (const code of ['IBE110', 'IBE430']) await expect(host.getByRole('checkbox', { name: new RegExp(`${code}.*Påkrevd`) })).toBeChecked()
   await expect(host.getByRole('radio', { name: /IBE160/ })).not.toBeChecked()
   await host.getByRole('radio', { name: /IBE160/ }).check()
-  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
-  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeEnabled()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
+  await expect(host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ })).toBeEnabled()
   for (const code of codes) {
     const card = host.locator('.import-preview article.course-card').filter({ hasText: new RegExp(`^${code}\\b`) }).first()
     await card.locator('summary').filter({ hasText: new RegExp(`^Undervisningsgrupper for ${code}`) }).click()
@@ -106,7 +106,7 @@ test('synthetic full HiMolde programme repeat preserves identities, choices and 
     const host = await preview(page, attempt)
     expect(await saved(page)).toEqual(before)
     expect(await page.evaluate(() => window.writeAttempts.length)).toBe(0)
-    await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
+    await host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ }).click()
     await expect(host.getByRole('status')).toContainText('3 emner er lagret samlet')
     // The frozen source has identical content and metadata on repeat. Preserve
     // the stored bytes instead of requiring an unnecessary second write.

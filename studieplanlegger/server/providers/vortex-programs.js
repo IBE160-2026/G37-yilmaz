@@ -159,8 +159,6 @@ function sourceRequirements(group) {
   }))
   for (const alternative of alternativeGroups) {
     if (alternative.options.length < 2 || alternative.options.some(option => !option.courseIds.length || new Set(option.courseIds).size !== option.courseIds.length)) fail('source-changed', `${alternative.label} mangler entydige, komplette alternativer.`)
-    const courseIds = alternative.options.flatMap(option => option.courseIds)
-    if (new Set(courseIds).size !== courseIds.length) fail('source-changed', `${alternative.label} bruker samme emne i flere alternativer.`)
   }
   return { ...(requiredCourseIds.length ? { requiredCourseIds } : {}), ...(alternativeGroups.length ? { alternativeGroups } : {}) }
 }

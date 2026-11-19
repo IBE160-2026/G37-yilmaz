@@ -133,7 +133,7 @@ test('work windows and task reservations are saved, shown, and do not reduce rem
   const form=page.locator('.work-window-form'); await (await reveal(form.locator('[name=kind]'))).selectOption('busy'); await (await reveal(form.locator('[name=label]'))).fill('Reise'); await (await reveal(form.locator('[name=startLocal]'))).fill('2026-09-08T14:00'); await (await reveal(form.locator('[name=endLocal]'))).fill('2026-09-08T15:00'); await (await reveal(form.getByRole('button',{name:'Lagre tidsrom'}))).click()
   expect((await saved(page)).busyWindows).toHaveLength(1)
   await (await reveal(page.locator('#new-session'))).click(); await (await reveal(page.locator('#session-dateLocal'))).fill('2026-09-08'); await (await reveal(page.locator('#session-startTime'))).fill('16:00'); await (await reveal(page.locator('#session-endTime'))).fill('17:00'); await (await reveal(page.locator('#session-taskId'))).selectOption('i-dag'); await (await reveal(page.getByRole('button',{name:'Lagre studieøkt'}))).click()
-  expect((await saved(page)).tasks).toEqual(before); await expect(page.locator('#capacity-task-list')).toContainText('Reservert:')
+  expect((await saved(page)).tasks).toEqual(before); await expect(page.locator('#capacity-task-list')).toContainText('Kalenderreservasjon:')
 })
 
 for(const [institution,code] of [['nmbu','math100'],['hvl','dat100']])test(`actual public ${institution} file preview and commit preserve missing metadata warnings`,async({page})=>{

@@ -3,6 +3,30 @@ import { freeze, key, navigate, reveal } from './helpers.js'
 
 test.use({ timezoneId: 'America/Los_Angeles', viewport: { width: 1440, height: 900 } })
 
+for (const colorScheme of ['light', 'dark']) {
+  test(`kalenderkort leses i synlig rekkefølge i ${colorScheme}`, async ({ page }) => {
+    const date = '2026-11-19'
+    const course = { id: 'synthetic', name: 'Oppdiktet programmering', code: 'SYN100', university: 'Syntetisk', semester: 'autumn', year: 2026, notes: '', credits: null }
+    const task = { id: 'accessible', title: 'Øv på presentasjonen', course: '', deadlineLocal: `${date}T23:00`, estimatedMinutes: 30, completed: false }
+    const event = { id: 'class', courseId: course.id, title: 'Syntetisk forelesning', start: `${date}T11:00:00Z`, end: `${date}T13:00:00Z`, notes: '', location: '' }
+    const initial = { schemaVersion: 1, tasks: [task], sessions: [], planner: { courses: [course], sources: [], events: [event] } }
+    await page.emulateMedia({ colorScheme })
+    await freeze(page, `${date}T09:00:00Z`)
+    await page.addInitScript(({ key, initial }) => localStorage.setItem(key, JSON.stringify(initial)), { key, initial })
+    await page.goto('/')
+    await navigate(page, 'all')
+    await expect(page.locator('#compact-agenda [data-agenda-key="task:accessible"]'))
+      .toHaveAccessibleName(/19 nov\.?\s+2026.*Frist.*kl\. 23:00.*Øv på presentasjonen/iu)
+    await navigate(page, 'calendar')
+    const calendar = page.locator('#full-calendar')
+    for (const view of ['agenda', 'day', 'week', 'month']) {
+      await (await reveal(calendar.locator(`[data-calendar-view="${view}"]`))).click()
+      const card = calendar.locator(`.full-calendar-viewport[data-mode="${view}"] [data-calendar-key="event:class"]`)
+      await expect(card).toHaveAccessibleName(/12:00.*14:00.*Syntetisk forelesning.*Undervisning/iu)
+    }
+  })
+}
+
 test('Oslo-perioden, emnefilteret og fristmerket virker også med eldre oppgaver', async ({ page }) => {
   const date = '2027-01-01'
   const course = { id: 'synthetic', name: 'Oppdiktet programmering', code: 'SYN100', university: 'Syntetisk', semester: 'spring', year: 2027, notes: '', credits: null }

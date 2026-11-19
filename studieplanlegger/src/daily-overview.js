@@ -1,16 +1,13 @@
 ﻿import { calendarEntries, calendarToday, dayBounds, timeLabel } from './calendar-model.js'
 import { formatDay, formatDeadlineTime, taskStatus } from './calendar.js'
 import { compareDeadlines } from './deadline.js'
+import { isOverdue } from './tasks.js'
 import { OSLO, osloLocal } from './planner.js'
 import { dailyStatus } from './daily-guidance.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 const pending = task => !task.completed || (task.requiresSubmission && !task.submitted)
 const eventClock = new Intl.DateTimeFormat('nb-NO', { hour: '2-digit', minute: '2-digit', timeZone: OSLO })
-function deadlineHasPassed(entry, now, date) {
-  // Date-only deadlines sit at the start of the day in the calendar.
-  return entry.allDay && Number.isFinite(entry.start) ? entry.local < date : entry.start < now
-}
-const upcomingDeadline = (entry, now, date) => Number.isFinite(entry.start) && !deadlineHasPassed(entry, now, date)
+const upcomingDeadline = (entry, now) => Number.isFinite(entry.start) && !isOverdue(entry, now)
 const compactTime = (entry, date) => {
   const localDate = entry.local?.slice(0, 10) || osloLocal(new Date(entry.start).toISOString()).slice(0, 10)
   const day = localDate === date ? 'i dag' : formatDay(localDate, { year: true })
@@ -32,8 +29,8 @@ export function dailyOverview(model) {
   const activity = entries.filter(e => !e.cancelled && ['teaching', 'personal', 'session'].includes(e.kind) && (e.end > now || e.point && (e.start >= now || e.kind === 'personal' && e.dateLocal >= date))).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key))[0]
   const deadlines = entries.filter(e => e.kind === 'deadline' && !e.done).sort((a, b) => compareDeadlines(a, b) || a.key.localeCompare(b.key))
   const today = model.tasks.filter(task => pending(task) && (task.deadlineLocal?.slice(0, 10) === date || entries.some(e => e.kind === 'session' && e.taskId === task.id && e.start < bounds.end && e.end > bounds.start)))
-  const deadline = deadlines.find(e => upcomingDeadline(e, now, date)) || deadlines.at(-1)
-  const overdue = deadlines.filter(e => deadlineHasPassed(e, now, date))
+  const deadline = deadlines.find(e => upcomingDeadline(e, model.now)) || deadlines.at(-1)
+  const overdue = deadlines.filter(e => isOverdue(e, model.now))
   const relevant = new Set([...today.map(t => t.id), ...overdue.map(e => e.id), deadline?.id, activity?.kind === 'session' ? activity.taskId : null].filter(Boolean))
   const rows = model.tasks.filter(task => relevant.has(task.id)).map(task => ({
     task, key: `task:${task.id}`, deadline: entries.find(e => e.kind === 'deadline' && e.id === task.id),
@@ -92,7 +89,7 @@ export function createDailyOverview(actions) {
       copy.append(el('p', `${course ? `${course.code} ${course.name}` : task.course || 'Emne ikke oppgitt'} · ${taskStatus(task)}`))
       if (deadline) {
         const deadlineLabel = compactTime(deadline, date)
-        const deadlineStatus = deadlineHasPassed(deadline, now, date) && pending(task) ? 'Forfalt frist' : 'Frist'
+        const deadlineStatus = isOverdue(deadline, model.now) ? 'Forfalt frist' : 'Frist'
         copy.append(el('p', `${deadlineStatus} ${deadlineLabel}${deadline.warning ? ` · ${deadline.warning}` : ''}`))
       }
       for (const session of sessions) {
@@ -112,9 +109,9 @@ export function createDailyOverview(actions) {
       row.append(copy, actionsRow); planHost.append(row)
     }
     const shownTaskIds = new Set(visibleRows.map(row => row.task.id))
-    const deadlines = entries.filter(entry => entry.kind === 'deadline' && !entry.done && upcomingDeadline(entry, now, date) && !shownTaskIds.has(entry.id)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 2)
+    const deadlines = entries.filter(entry => entry.kind === 'deadline' && !entry.done && upcomingDeadline(entry, model.now) && !shownTaskIds.has(entry.id)).sort((a, b) => a.start - b.start || a.key.localeCompare(b.key)).slice(0, 2)
     if (deadlines.length) planHost.append(el('h3', 'Kommende frister'))
-    else if (!visibleRows.some(row => row.deadline && upcomingDeadline(row.deadline, now, date))) planHost.append(el('p', 'Ingen kommende frister er registrert.'))
+    else if (!visibleRows.some(row => row.deadline && upcomingDeadline(row.deadline, model.now))) planHost.append(el('p', 'Ingen kommende frister er registrert.'))
     for (const entry of deadlines) { const row = el('div', ''); row.className = 'daily-row deadline-row'; applyCourseColor(row, resolvedCourseId(entry)); const open = button('Åpne', `deadline:${entry.id}:open`, () => actions.edit(entry.id)); open.setAttribute('aria-label', `Åpne fristen for ${entry.title}`); row.append(el('p', `${entry.title} · ${compactTime(entry, date)}`), open); planHost.append(row) }
     const controls = el('div', ''); controls.className = 'actions'; controls.append(button('Åpne kalender', 'navigation:calendar', () => actions.view('calendar')), button('Se alle oppgaver', 'navigation:tasks', () => actions.view('all'))); planHost.append(controls)
     for (const control of [...host.querySelectorAll('button'), ...planHost.querySelectorAll('button')]) control.disabled = Boolean(model.editing)

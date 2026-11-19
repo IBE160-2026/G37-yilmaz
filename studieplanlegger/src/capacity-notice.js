@@ -1,26 +1,31 @@
-import { getRemainingRange, formatEstimateRange, deadlineInstant } from './tasks.js';
+import { getRemainingRange, formatEstimateRange, deadlineInstant, isOverdue } from './tasks.js';
 import { eventBlocksTime } from './planner.js';
 import { extendedSessionInterval } from './work-capacity.js';
+import { knownMinimumShortage } from './daily-guidance.js';
 
 // A missing allocation is not evidence that the student's whole day is full.
 // Only the hard deadline window can establish a definite time shortage.
 export function capacityNotice(task, sessions = [], events = [], now = new Date(), planned) {
   const range = getRemainingRange(task);
   const remaining = range?.maxMinutes;
-  if (Number.isFinite(remaining) && remaining <= 0 || task.completed || task.submittedAt) return null;
+  if (Number.isFinite(remaining) && remaining <= 0 || task.completed || task.submitted) return null;
   if (planned?.state === 'blocked') return { tone: 'planning', text: 'Oppgaven er blokkert.', detail: planned.reasons.join(' ') };
+  if (isOverdue(task, now)) {
+    return { tone: 'warning', text: 'Fristen er passert. Vurder hva som må følges opp.' };
+  }
   if (!range) {
     return { tone: 'quiet', text: 'Legg til et tidsestimat for å sammenligne arbeid og tid.' };
   }
   if (!Number.isFinite(remaining)) {
+    const minimum = knownMinimumShortage(range, planned?.availableBeforeMinutes);
+    if (minimum > 0) {
+      return { tone: 'danger', text: `Minst ${minimum} minutter mangler.`, detail: 'Øvre grense for gjenstående arbeid er ukjent.' };
+    }
     return { tone: 'quiet', text: `${formatEstimateRange(range)} arbeid er registrert, men øvre grense er ukjent. Kapasiteten kan ikke vurderes ennå.` };
   }
   const start = now.getTime();
   let deadline = NaN;
   try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation); } catch { /* Ambiguous deadlines do not prove a shortage. */ }
-  if (Number.isFinite(deadline) && deadline <= start) {
-    return { tone: 'warning', text: 'Fristen er passert. Vurder hva som må følges opp.' };
-  }
   if (Number.isFinite(deadline)) {
     const intervals = events.filter(eventBlocksTime)
       .map(event => [Math.max(start, Date.parse(event.start)), Math.min(deadline, Date.parse(event.end))])

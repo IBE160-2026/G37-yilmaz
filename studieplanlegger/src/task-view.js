@@ -145,10 +145,11 @@ export function createTaskList(list, actions) {
         setText(row.sessionDuration, suggestion ? `Arbeid nå: ${getSessionMinutes(task, minutes)} min${getActionMinutes(task) > getSessionMinutes(task, minutes) ? ' · deløkt' : ''}. Totalanslaget endres ikke av forslaget.` : '')
         const planned = capacity.find(entry => entry.taskId === task.id)
         row.capacityWarning.hidden = !planned || task.completed || (!planned.reasons.length && !planned.missingMinutes && !planned.missingMinMinutes)
+        const deadlineContext = task.deadlineLocal ? ' før fristen' : ''
         const missing = planned.missingMaxMinutes === null
-          ? planned.missingMinMinutes ? `Minst ${planned.missingMinMinutes} min mangler før fristen. ` : ''
+          ? planned.missingMinMinutes ? `Minst ${planned.missingMinMinutes} min mangler${deadlineContext}. ` : ''
           : planned.missingMinMinutes !== planned.missingMaxMinutes
-            ? planned.missingMinMinutes ? `${planned.missingMinMinutes}–${planned.missingMaxMinutes} min kan mangle før fristen. ` : `Det kan mangle opptil ${planned.missingMaxMinutes} min før fristen. `
+            ? planned.missingMinMinutes ? `${planned.missingMinMinutes}–${planned.missingMaxMinutes} min kan mangle${deadlineContext}. ` : `Det kan mangle opptil ${planned.missingMaxMinutes} min${deadlineContext}. `
             : planned.missingMinutes && task.deadlineLocal ? `Mangler ${planned.missingMinutes} min før fristen. ` : ''
         setText(row.capacityWarning, planned ? `${missing}${planned.reasons.join(' ')}` : '')
         row.overdue.hidden = !isOverdue(task, now)

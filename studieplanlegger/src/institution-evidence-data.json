@@ -170,7 +170,7 @@
     ]
   },
   "usn": {
-    "url": "https://www.usn.no/studier/",
+    "url": "https://www.usn.no/studier/studie-og-emneplaner/",
     "statuses": [
       "F",
       "F",
@@ -816,7 +816,7 @@
     ]
   },
   "skrivekunst": {
-    "url": "https://www.skrivekunst.no/studieplan/",
+    "url": "https://www.skrivekunst.no/arsstudium/",
     "statuses": [
       "F",
       "U",

@@ -207,10 +207,10 @@ test('actual programme selector uses Norwegian name and tie ordering while prese
   await expect(host.locator('input[name=alternative-z-group][value=z-option]')).toBeChecked()
   await expect(host.locator('input[name=alternative-a-group][value=same-b]')).toBeChecked()
   expect(await raw(page)).toBe(unchanged)
-  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
-  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeEnabled()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
+  await expect(host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ })).toBeEnabled()
   await expect(host.locator('.import-preview article.course-card > h4')).toHaveText(['COURSE-Z Årlig emne', 'COURSE-B Lik B'])
-  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
+  await host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ }).click()
   await expect(host.locator('.program-action-status')).toContainText('2 emner er lagret samlet')
   const imported = (await saved(page)).planner.courses
   expect(imported.map(course => course.id)).toEqual(['course-z', 'course-b'])

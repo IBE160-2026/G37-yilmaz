@@ -47,9 +47,9 @@ async function preview(host) {
   await host.locator('[name=studySemester]').selectOption('semester-1')
   await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
   await host.locator('[name=programCampus]').selectOption('Syntetisk campus')
-  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
   await expect(host).toHaveAttribute('aria-busy', 'false')
-  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeEnabled()
+  await expect(host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ })).toBeEnabled()
 }
 function deferred() { let resolve; const promise = new Promise(done => { resolve = done }); return { promise, resolve } }
 
@@ -113,7 +113,7 @@ for (const [stage, outcome] of [['programs', 'success'], ['program-cohorts', 'su
           await host.locator('[name=studySemester]').selectOption('semester-1')
           await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
           await host.locator('[name=programCampus]').selectOption('Syntetisk campus')
-          await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+          await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
         }
       }
     }

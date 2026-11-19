@@ -10,6 +10,11 @@ export function formatDuration(minutes) {
   return `${hours} ${hours === 1 ? 'time' : 'timer'} og ${rest} minutter`
 }
 
+export function knownMinimumShortage(range, availableBeforeMinutes) {
+  if (range?.maxMinutes !== null || !Number.isFinite(availableBeforeMinutes)) return null
+  return Math.max(0, range.minMinutes - availableBeforeMinutes)
+}
+
 export function rankedSuggestions(tasks, minutes) {
   const candidates = selectTasksForMinutes(tasks, minutes, { includePartial: true })
   if (candidates.length <= 2) return candidates
@@ -58,7 +63,7 @@ export function dailyStatus(model) {
   }
   const { availableBeforeMinutes: available, missingMinMinutes: missingMin, missingMaxMinutes: missingMax } = entry
   if (openEstimate) {
-    const missing = Math.max(0, range.minMinutes - available)
+    const missing = knownMinimumShortage(range, available)
     const text = `Du har ${formatDuration(available)} tilgjengelig${task.splittable === false ? ' i den lengste sammenhengende perioden' : ''} før fristen. ${missing ? `Minst ${missing} minutter mangler. ` : ''}${estimateNote}`
     return { tone: missing ? 'danger' : 'neutral', title: task.title, text, taskId: task.id, assessable: missing > 0, availableMinutes: available, missingMinMinutes: missing, missingMaxMinutes: null }
   }

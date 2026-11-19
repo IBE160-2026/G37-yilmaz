@@ -28,8 +28,8 @@ async function importPeriod(page, periodIndex, studySemester) {
   await host.locator('[name=clarifiedStudySemester]').fill(String(studySemester))
   await host.locator('[name=calendarSemester]').selectOption(`${period.year}:${period.semester}`)
   await expect(host.locator('[name=programCampus]')).toBeHidden()
-  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
-  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
+  await host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ }).click()
   await expect(host.getByRole('status')).toContainText(/lagret/i)
 }
 

@@ -90,6 +90,29 @@ describe('national evidence and durable program provenance',()=>{
   expect(institutions.find(i=>i.id==='himolde').datatypes.groups.status).toBe('Ikke implementert')
   expect(institutions.find(i=>i.id==='nmbu').capabilities.personalTimetable).toBe('no-suitable-anonymous-source')
  })
+ it('viser oppdaterte informasjonslenker uten å endre kildeprøvenes status',()=>{
+   const coverage = (id, key) => institutions.find(item => item.id === id).datatypes[key]
+   const expected = [
+     ['uib', 'personalTimetable', 'https://www4.uib.no/for-studenter/verktoy-og-tjenester/timeplan-og-kalender'],
+     ['himolde', 'groups', 'https://www.himolde.no/tjenester/timeplaner-romreservasjon/index.html'],
+     ['nmh', 'programs', 'https://student.nmh.no/studiene/studiehandboker'],
+     ['dmmh', 'personalTimetable', 'https://www.dmmh.no/for-studenter/dine-studier/timeplan'],
+     ['fhs', 'personalTimetable', 'https://www.forsvaret.no/om-forsvaret/organisasjon/FHS'],
+     ['hivolda', 'publicTeaching', 'https://cloud.timeedit.net/hivolda/web/timeplan/ri1Q79.html'],
+     ['hiof', 'personalTimetable', 'https://www.hiof.no/studier/timeplaner/'],
+     ['limpi', 'programs', 'https://limpimusic.com/program'],
+     ['limpi', 'publicTeaching', 'https://limpimusic.com/about'],
+     ['skrivekunst', 'groups', 'https://www.skrivekunst.no/arsstudium/'],
+     ['usn', 'campus', 'https://www.usn.no/om-usn/campusene/'],
+   ]
+   for (const [id, key, url] of expected) expect(coverage(id, key).url).toBe(url)
+   expect(coverage('fhs', 'personalTimetable').scope).toContain('Tilgang til en personlig timeplan er uavklart')
+   expect(coverage('fhs', 'publicTeaching').status).toBe('Midlertidig kildefeil')
+   expect(coverage('dmmh', 'personalTimetable').scope).toContain('krever Feide')
+   for (const institution of institutions) for (const entry of Object.values(institution.datatypes)) {
+     expect(entry.scope).not.toMatch(/\b(?:the|programme|timetable|no login was started)\b/i)
+   }
+ })
  it('preserves source binding, local notes and stable IDs through repeat import and validates bad provenance',()=>{
   const binding={institution:'ntnu',programCode:'MTDT',programName:'Datateknologi',cohort:'2026',modelId:'common',modelName:'Felles',studySemester:1,calendarYear:2026,calendarSemester:'autumn',campus:'Trondheim',choice:'O',sourceUrl:'https://www.ntnu.no/studier/studieplan',checkedAt:'2026-09-09T08:00:00Z'}
   const course={...parseNtnuProgramPlan(ntnuData,ntnuQuery,binding.sourceUrl).models[0].periods[0].courses[0],programBinding:binding}

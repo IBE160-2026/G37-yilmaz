@@ -6,6 +6,10 @@ const term = text => {
   return match && { semester: /spring|vår/i.test(match[1]) ? 'spring' : 'autumn', year: Number(match[2]) }
 }
 const requested = (period, query) => period?.semester === query.semester && period?.year === Number(query.year)
+const matchesPublishedCampus = (selected, published) => sameCampus(selected, published)
+  // The catalogue concatenates a list of campus labels into one line. The
+  // detail page can spell out the same full list with punctuation and «og».
+  || (published.includes(',') && sameCampus(selected, clean(published.replace(/,/g, ' ').replace(/\s+og\s+/gi, ' '))))
 function cardCampus(card) {
   const copy = card.clone()
   copy.find('a,button,script,style').remove()
@@ -59,12 +63,15 @@ export async function uitDetails(query, fetchText) {
   const returnedCode = clean($('.studiekatalogSubH2').text()).match(/(?:Course code|Emnekode)\s*:\s*([A-ZÆØÅ0-9-]+)/i)?.[1]?.toUpperCase()
   const name = clean($('h1.hero-title').text()), body = clean($('body').text())
   if (returnedCode !== code || !name) sourceError('invalid-selection', 'UiT returnerte en annen eller ufullstendig emneidentitet.')
-  const canonical = $('link[rel=canonical]').attr('href') || $('meta[property="og:url"]').attr('content')
-  if (canonical) publicCourseUrl(canonical, 'uit', record)
+  const metadataUrls = [$('link[rel=canonical]').attr('href'), $('meta[property="og:url"]').attr('content')]
+  // UiT can publish the same sharing URL for all courses. The selected
+  // request/response URL still requires the exact record, and any supplied
+  // metadata ID must agree with it.
+  for (const url of metadataUrls.filter(Boolean)) publicCourseUrl(url, 'uit', record, { allowMissingRecord: true })
   const periodText = body.match(/(?:Semester\s*\/\s*(?:Year|År)|Semester og år)\s+((?:Autumn|Spring|Høst|Haust|Vår)\s+\d{4})/i)?.[1]
   if (!requested(term(periodText || ''), query)) sourceError('semester-unavailable', 'UiT-emneposten gjelder ikke valgt semester og år. Velg den publiserte versjonen fra et nytt søk.')
   const campus = clean(body.match(/\b(?:Campus|Studiested)\s+(.+?)\s+(?:Semester\s*\/|Semester og år)/i)?.[1])
-  if (query.campus && (!campus || !sameCampus(query.campus, campus))) sourceError('campus-unavailable', 'UiT returnerte en annen eller ukjent campus. Søk og velg riktig variant på nytt.')
+  if (query.campus && (!campus || !matchesPublishedCampus(query.campus, campus))) sourceError('campus-unavailable', 'UiT returnerte en annen eller ukjent campus. Søk og velg riktig variant på nytt.')
   const creditsText = body.match(/\b(?:Credits|Studiepoeng)\s+(\d+(?:[.,]\d+)?)(?:\s|$)/i)?.[1]
   const course = { id: `uit:${record}:${query.year}:${query.semester}`, code, name, university: 'UiT', semester: query.semester, year: Number(query.year), credits: creditsText ? Number(creditsText.replace(',', '.')) : null, description: sectionText($, ['about the course', 'om emnet', 'innhold']), notes: '', campus, campusVerified: Boolean(campus), sourceProvider: 'uit', sourceRecordId: record, sourceVersion: periodCode(query), sourceUrl }
   return { status: 'ok', course, calendarUrl: null, entryUrl: officialTimetable($, 'uit'), warnings: metadataWarnings(course) }

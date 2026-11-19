@@ -5,7 +5,13 @@ import {sourceEdition,studentCohort} from './current-program-source.js'
 export const onhArchiveUrl='https://oslonyehoyskole.no/Studentinfo/Studieplaner'
 const archiveGuard=input=>restrictedUrl(input,{origin:'https://oslonyehoyskole.no',paths:[/^\/Studentinfo\/Studieplaner\/?$/]})
 const digest=value=>createHash('sha256').update(value).digest('hex').slice(0,16)
-export function onhPdfUrl(input){return restrictedUrl(input,{origin:'https://s3.eu-west-1.amazonaws.com',paths:[/^\/bhi\.no\/.+\.pdf$/i],keys:['VersionId']})}
+export function onhPdfUrl(input) {
+  const url = new URL(input, onhArchiveUrl)
+  if (url.origin === 'https://oslonyehoyskole.no') {
+    return restrictedUrl(url, { origin: url.origin, paths: [/^\/sites\/default\/files\/s3\/[^/]+\.pdf$/i] })
+  }
+  return restrictedUrl(url, { origin: 'https://s3.eu-west-1.amazonaws.com', paths: [/^\/bhi\.no\/.+\.pdf$/i], keys: ['VersionId'] })
+}
 const normalize=name=>clean(name).normalize('NFC').toLocaleLowerCase('nb').replace(/^studieplan(?:en)?\s+(?:for\s+)?/,'').replace(/(?:20\d{2}\s*[/–-]\s*(?:20)?\d{2}).*$/,'').replace(/(?:\s+med fordypning|:\s*fordypning|\s+på nett|\s+-\s+nettstudium).*$/,'').replace(/[_–-]/g,' ').replace(/[^\p{L}\d ]/gu,'').replace(/\s+/g,' ').trim()
 export function parseOnhArchive(html,selected){const $=load(html),rows=new Map(),wanted=normalize(selected.name);$('a[href]').each((_,node)=>{const label=clean($(node).text()),year=label.match(/(20\d{2})\s*[/–-]\s*(20\d{2})/);if(!/^Studieplan/i.test(label)||!year||+year[2]!==+year[1]+1||normalize(label)!==wanted)return;let url;try{url=onhPdfUrl($(node).attr('href'))}catch{return}if(!rows.has(url.href))rows.set(url.href,{cohort:`edition-${year[1]}-${digest(url.href)}`,label:`${label} · kildeutgave, oppgi eget kull`,requiresStudentCohort:true,sourceUrl:url.href,academicYear:`${year[1]}/${year[2]}`,archiveLabel:label})});return [...rows.values()]}
 export async function onhPdfEditions(fetchText,selected){return parseOnhArchive(await cachedText(fetchText,onhArchiveUrl,archiveGuard),selected)}

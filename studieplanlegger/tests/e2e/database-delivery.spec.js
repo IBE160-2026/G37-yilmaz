@@ -148,8 +148,8 @@ test('programme import persists across reload, remains repeat-safe and is undoab
     await host.locator('[name=model]').selectOption('common')
     await host.locator('[name=studySemester]').selectOption('1')
     await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
-    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
-    await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
+    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
+    await host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ }).click()
   }
   const importedCount = () => page.evaluate(async () => {
     const saved = await (await fetch('/api/state')).json()

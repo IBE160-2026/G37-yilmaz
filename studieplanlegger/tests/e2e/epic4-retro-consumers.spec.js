@@ -20,7 +20,7 @@ for (const [choice, credited, offset] of [['earlier', 90, '+02:00'], ['later', 1
     await navigate(page, 'capacity')
     const entry = page.locator('[data-capacity-task="reserved"]')
     await expect(entry).toContainText(`UTC${offset}`)
-    await expect(entry.locator('.capacity-minutes')).toContainText(`Reservert: ${credited} min · Forslag inkludert: ${credited} min`)
+    await expect(entry.locator('.capacity-minutes')).toContainText(`Kalenderreservasjon: 180 min · Dekket av reservasjoner: ${credited} min · Med forslag: ${credited} min`)
     await expect(entry).toContainText(`${180 - credited} min mangler før fristen`)
     await expect(entry).toContainText(`01:00–02:30: ${credited} min`)
     await page.screenshot({ path: testInfo.outputPath(`linked-${choice}.png`), fullPage: true, animations: 'disabled' })

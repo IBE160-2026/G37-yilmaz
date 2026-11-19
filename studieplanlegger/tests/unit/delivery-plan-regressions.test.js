@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { dailyStatus, rankedSuggestions, suggestionExclusions } from '../../src/daily-guidance.js'
+import { capacityNotice } from '../../src/capacity-notice.js'
 import { toInstant } from '../../src/planner.js'
 import { applyComparedPlan, comparePlans } from '../../src/plan-comparison.js'
-import { createReplan } from '../../src/replanning.js'
+import { applyReplan, createReplan } from '../../src/replanning.js'
 import { availabilityFor } from '../../src/study-time.js'
 import { getSessionMinutes } from '../../src/tasks.js'
 import { deriveWorkCapacity, extendedSessionInterval } from '../../src/work-capacity.js'
@@ -57,6 +58,54 @@ describe('delivery plan regressions', () => {
     }
   })
 
+  it('P04 shows a preserved half hour for an open task with zero remaining work on every card', () => {
+    const reservations = [session('zero-lock', 'zero', 540, 570)]
+    const before = state([task('zero', { remainingMinutes: 0 })], reservations, [window(540, 600)])
+    const comparison = comparePlans(before, { now })
+    for (const card of comparison.scenarios) {
+      expect(card).toMatchObject({ calendarRetainedMinutes: 30, retainedMinutes: 0, allocatedMinutes: 0, missingMaxMinutes: 0 })
+      expect(applyComparedPlan(before, comparison, card.id, { now }).state.sessions).toEqual(reservations)
+    }
+  })
+
+  it('credits 09:00–09:30 of a 09:00–10:00 lock towards the 09:30 deadline before and after approval', () => {
+    const reservations = [session('deadline-lock', 'deadline', 540, 600)]
+    const before = state([task('deadline', { deadlineLocal: `${date}T09:30` }), task('other')], reservations, [window(540, 720)], lengthRules)
+    const draft = createReplan(before, { now })
+    expect(draft.retainedMinutes.deadline).toBe(30)
+    expect(draft.deficitRanges.deadline).toBeUndefined()
+    expect(draft.problems.join(' ')).toContain('slutter etter oppgavens frist')
+    expect(draft.proposed.map(item => item.taskId)).toEqual(['other'])
+    const next = applyReplan(before, draft, { now }).state
+    expect(next.sessions).toContainEqual(reservations[0])
+    expect(deriveWorkCapacity(next.tasks, next.sessions, now, [], next.workWindows, [], lengthRules).tasks[0])
+      .toMatchObject({ calendarReservedMinutes: 60, coveredByReservationsMinutes: 30, missingMaxMinutes: 0 })
+    expect(comparePlans(next, { now }).scenarios[0]).toMatchObject({ calendarRetainedMinutes: 90, allocatedMinutes: 60, missingMaxMinutes: 0 })
+  })
+
+  it.each([
+    [555, 'overlapper en annen reservasjon', 45],
+    [570, 'mangler valgt pause', 60],
+  ])('keeps both locks with a second start at %i, without credit before or after approval', (start, warning, reserved) => {
+    const reservations = [session('first-lock', 'first', 540, 570), session('second-lock', 'second', start, start + 30)]
+    const before = state([
+      task('first', { deadlineLocal: `${date}T10:00` }),
+      task('second', { deadlineLocal: `${date}T10:00` }),
+      task('other'),
+    ], reservations, [window(540, 720)], lengthRules)
+    const comparison = comparePlans(before, { now })
+    expect(comparison.scenarios[0]).toMatchObject({ calendarRetainedMinutes: reserved, retainedMinutes: 0, missingMaxMinutes: 90 })
+    const prioritized = comparison.scenarios.find(card => card.id === 'priority')
+    expect(prioritized).toMatchObject({ calendarRetainedMinutes: reserved, retainedMinutes: 0, missingMaxMinutes: 60 })
+    expect(prioritized.preview.problems.join(' ')).toContain(warning)
+    const result = applyComparedPlan(before, comparison, 'priority', { now })
+    expect(result.state.sessions.filter(item => item.locked)).toEqual(reservations)
+    expect(result.undo).toEqual(before)
+    const capacity = deriveWorkCapacity(result.state.tasks, result.state.sessions, now, [], before.workWindows, [], lengthRules)
+    expect(capacity.totalMissingMaxMinutes).toBe(60)
+    expect(capacity.tasks.slice(0, 2).map(entry => entry.coveredByReservationsMinutes)).toEqual([0, 0])
+  })
+
   it('P05 reports insufficient pause on every card while keeping both locks', () => {
     const sessions = [session('first-lock', 'first', 540, 570), session('second-lock', 'second', 570, 600)]
     const before = state([task('first'), task('second')], sessions, [window(540, 660)], lengthRules)
@@ -65,6 +114,17 @@ describe('delivery plan regressions', () => {
     expect(applyComparedPlan(before, comparison, 'current', { now }).state.sessions).toEqual(sessions)
     const waiting = { ...before, tasks: before.tasks.map(task => ({ ...task, waitingReason: 'Venter på veileder' })) }
     for (const scenario of comparePlans(waiting, { now }).scenarios) expect(scenario.pauseWarnings).not.toHaveLength(0)
+  })
+
+  it('preserves the pause requirement when the first locked reservation has just ended', () => {
+    const currentTime = new Date(instant(540))
+    const sessions = [session('ended-lock', 'first', 510, 540), session('next-lock', 'second', 545, 575)]
+    const before = state([task('first', { remainingMinutes: 0 }), task('second')], sessions, [window(545, 575)], lengthRules)
+    for (const card of comparePlans(before, { now: currentTime }).scenarios) {
+      expect(card).toMatchObject({ calendarRetainedMinutes: 30, retainedMinutes: 0, missingMaxMinutes: 30 })
+      expect(card.pauseWarnings).not.toHaveLength(0)
+    }
+    expect(deriveWorkCapacity(before.tasks, sessions, currentTime, [], before.workWindows, [], lengthRules).totalMissingMaxMinutes).toBe(30)
   })
 
   it('P06 only warns about the deadline when the uncovered task has one', () => {
@@ -121,6 +181,33 @@ describe('delivery plan regressions', () => {
     const status = dailyStatus({ now, capacity, tasks: [work] })
     expect(status).toMatchObject({ availableMinutes: 30, missingMinMinutes: 211, missingMaxMinutes: null, assessable: true })
     expect(status.text).toContain('Minst 211 minutter mangler. Du har oppgitt mer enn fire timer. Øvre anslag er ukjent.')
+    expect(capacityNotice(work, [], [], now, capacity.tasks[0])).toMatchObject({ tone: 'danger', text: 'Minst 211 minutter mangler.' })
+  })
+
+  it('rejects a damaged draft and a reassigned session ID without changing the saved plan', () => {
+    const reservation = session('owned-session', 'owner', 540, 570, false)
+    const before = state([task('owner'), task('other')], [reservation], [window(540, 720)])
+    const original = structuredClone(before)
+    const draft = createReplan(before, { now })
+    expect(draft.proposed.find(item => item.taskId === 'owner').id).toBe(reservation.id)
+    expect(applyReplan(before, { ...draft, removedIds: null }, { now })).toMatchObject({ ok: false })
+    expect(applyReplan(before, { ...draft, proposed: null }, { now })).toMatchObject({ ok: false })
+    const hijacked = { ...draft, proposed: [{ ...draft.proposed[0], taskId: 'other' }] }
+    expect(applyReplan(before, hijacked, { now })).toMatchObject({ ok: false, error: expect.stringContaining('eksisterende økt-ID') })
+    expect(before).toEqual(original)
+  })
+
+  it('reports damaged saved sessions and availability without crashing or offering a plan', () => {
+    const reservation = session('single-id', 'owner', 540, 570)
+    const before = state([task('owner')], [reservation], [window(540, 720)])
+    for (const sessions of [[{ ...reservation, startTime: '29:00' }], [reservation, reservation]]) {
+      const damaged = { ...before, sessions }
+      expect(createReplan(damaged, { now })).toMatchObject({ ok: false, error: expect.stringContaining('ugyldig studieøkt') })
+      const comparison = comparePlans(damaged, { now })
+      expect(comparison.scenarios.every(scenario => !scenario.feasible && !scenario.preview.ok)).toBe(true)
+    }
+    expect(comparePlans({ ...before, workWindows: [{ ...before.workWindows[0], end: 'ugyldig' }] }, { now })).toMatchObject({ ok: false })
+    expect(before.sessions).toEqual([reservation])
   })
 
   it('P12 keeps a valid exploration outside the conditional fallback window when no work time is registered', () => {

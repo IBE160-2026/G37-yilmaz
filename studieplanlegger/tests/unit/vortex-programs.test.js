@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { describe, it, expect, vi } from 'vitest'
 import { canonicalVortexProgramUrl, parseVortexCatalogue, parseVortexCohorts, parseVortexPlan, vortexPrograms } from '../../server/providers/vortex-programs.js'
+import { validateProgrammeSelection } from '../../src/program-import-model.js'
 
 const fixture = name => readFile(new URL(`../fixtures/vortex-programs/${name}`, import.meta.url), 'utf8')
 const sources = {
@@ -26,6 +27,25 @@ describe('shared conservative Vortex programme source', () => {
     expect(plan.models[0].periods.map(period => [period.studySemester, period.year, period.semester, period.requiresStudentStudySemester])).toEqual([[null, 2026, 'autumn', true], [null, 2027, 'spring', true]])
     expect(plan.models[0].periods[0].courses.map(course => [course.code, course.choice, course.credits])).toEqual([['LOG220', 'O', 7.5], ['SCM120', '', 7.5]])
     expect(plan.completeness.complete).toBe(false)
+  })
+
+  it('shares HiMolde Logistics and SCM course IDs across spring 2029 alternatives', () => {
+    const programme = { code: sources.himolde.code, name: 'Logistikk', sourceUrl: `${sources.himolde.root}${sources.himolde.code}/`, campuses: [] }
+    const course = code => `<li class="mandatory"><a class="course-link" href="/studier/emner/${code.toLowerCase()}.html"><span class="course-code">${code}</span><span class="course-name">${code} emnenavn</span><span class="course-study-points">7,5</span></a></li>`
+    const alternative = (id, codes) => `<div class="combination direction-${id} direction-parent-sixth"><h4>${id}</h4><ul class="course-list">${codes.map(course).join('')}</ul></div>`
+    const html = `<main><h1>Studieplan 2026</h1><div class="vrtx-fs-study-model"><div class="term"><h3>Vår 2029</h3><div class="direction direction-sixth"><h4>Veivalg 6-sem</h4></div>
+      ${alternative('without-thesis', ['LOG530', 'TRA610', 'LOG565'])}
+      ${alternative('with-thesis', ['LOG530', 'SCM600', 'TRA610', 'TRA610'])}
+    </div></div></main>`
+    const plan = parseVortexPlan('himolde', html, { program: programme.code, cohort: '2026', sourceUrl: sources.himolde.plan }, programme)
+    const period = plan.models[0].periods[0]
+    expect(period).toMatchObject({ year: 2029, semester: 'spring' })
+    expect(period.courses.map(row => row.code)).toEqual(['LOG530', 'TRA610', 'LOG565', 'SCM600'])
+    const [withoutThesis, withThesis] = period.alternativeGroups[0].options
+    expect(withoutThesis.courseIds.filter(id => withThesis.courseIds.includes(id))).toEqual(period.courses.slice(0, 2).map(row => row.id))
+    const selected = period.courses.filter(row => withThesis.courseIds.includes(row.id))
+    expect(validateProgrammeSelection(period, selected)).toBe(true)
+    expect(selected.map(row => row.code)).toEqual(['LOG530', 'TRA610', 'SCM600'])
   })
 
   it('preserves the exact HiMolde IT 2026-27 programming alternative and source requirements', async () => {

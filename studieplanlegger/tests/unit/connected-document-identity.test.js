@@ -208,6 +208,35 @@ describe('calendar work status requires student choice', () => {
 })
 
 describe('complete timestamp extraction and honest precision', () => {
+  it.each([
+    ['Oppgave: Frist 20.11.2026 kl. 09:00 er flyttet til 27.11.2026 kl. 23:59', '2026-11-20T09:00'],
+    ['Oppgave publisert 20.11.2026 kl. 09:00, innleveringsfrist 27.11.2026 kl. 23:59', ''],
+  ])('updates the unedited old deadline on confirmed reimport of %s', (text, oldDeadline) => {
+    const corrected = parseDocumentText(text)
+    const old = structuredClone(corrected)
+    Object.assign(old.rows[0], { deadlineLocal: oldDeadline, deadlineRaw: '' })
+    const state = saved(commit(empty(), preview(empty(), old)))
+    const draft = preview(state, corrected)
+    expect(draft.rows[0]).toMatchObject({ deadlineLocal: '2026-11-27T23:59', targetId: state.tasks[0].id })
+    expect(saved(commit(state, draft)).tasks[0]).toMatchObject({ deadlineLocal: '2026-11-27T23:59', id: state.tasks[0].id })
+  })
+
+  it('updates a previously truncated teaching interval on confirmed reimport with its ID intact', () => {
+    const text = 'Seminar 2026-11-20T12:00:07Z - 13:00:45-08:00'
+    const corrected = parseDocumentText(text)
+    const old = structuredClone(corrected)
+    Object.assign(old.rows[0], {
+      startLocal: '2026-11-20T13:00', endLocal: '2026-11-20T14:00',
+      originalStart: '2026-11-20T12:00:00Z', originalEnd: '2026-11-20T13:00:00Z',
+    })
+    const state = saved(commit(empty(), preview(empty(), old)))
+    const draft = preview(state, corrected)
+    expect(draft.rows[0]).toMatchObject({ startLocal: '2026-11-20T13:00:07', endLocal: '2026-11-20T22:00:45', targetId: state.planner.events[0].id })
+    expect(saved(commit(state, draft)).planner.events[0]).toMatchObject({
+      id: state.planner.events[0].id, start: '2026-11-20T12:00:07Z', end: '2026-11-20T21:00:45Z',
+    })
+  })
+
   it.each(['2026-09-20 kl. 12:00-13:00', '2026-09-20 12:00-13:00', '2026-09-20 12:00 – 13:00', '20.09.2026 12:00-13:00', '20. september 2026 kl. 12:00-13:00'])('preserves the supported local teaching range %s', range => {
     const parsed = parseDocumentText(`Seminar ${range}`)
     expect(parsed.rows[0]).toMatchObject({ startLocal: '2026-09-20T12:00', endLocal: '2026-09-20T13:00' })

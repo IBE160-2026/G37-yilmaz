@@ -378,7 +378,7 @@ export function createUI(actions) {
       const bounds = weekBounds(now)
       const monday = bounds.start.slice(0, 10)
       setText($('#week-range'), `${formatDay(monday)} – ${formatDay(addDays(monday, 6))}`)
-      setText($('#overdue-count'), `${overdueCount(tasks, now)} forfalte oppgaver på tvers av alle uker.`)
+      setText($('#overdue-count'), `${overdue} ${overdue === 1 ? 'forfalt oppgave' : 'forfalte oppgaver'} på tvers av alle uker.`)
       $('#draft-info').hidden = form.hidden || !tasks.length
       minuteInput.setAttribute('aria-invalid', String(Boolean(minuteError)))
       setText($('#available-minutes-error'), minuteError)

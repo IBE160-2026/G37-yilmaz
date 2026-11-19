@@ -1,10 +1,34 @@
 import{readFileSync}from'node:fs'
 import{describe,it,expect}from'vitest'
 import{parseOnhArchive,parseOnhPdf,onhPdfPlan,onhPdfUrl}from'../../server/providers/onh-pdf.js'
+import{onhPrograms}from'../../server/providers/onh-programs.js'
 const fixture=key=>JSON.parse(readFileSync(new URL(`../fixtures/onh-pdf-${key}.json`,import.meta.url)))
 const links=JSON.parse(readFileSync(new URL('../fixtures/onh-pdf-links.json',import.meta.url))),html=links.map(row=>`<a href="${row.sourceUrl}">${row.name}</a>`).join('')
 function sample(key){const data=fixture(key),selected={code:`example-${key}`,name:data.selected.name.replace(/^Studieplan for /,'').replace(/ 2026\/2027$/,''),campuses:['Oslo']},edition=parseOnhArchive(html,selected).find(row=>row.sourceUrl===data.selected.sourceUrl);return{data,selected,edition,plan:parseOnhPdf(data.pages,selected,edition,'2026')}}
 describe('actual source-linked ONH study-year PDF editions',()=>{
+  it('lists the actual 2026/27 peace and conflict PDF under its school-hosted path', async () => {
+    const name = 'Bachelor i freds- og konfliktstudier'
+    const programmeUrl = 'https://oslonyehoyskole.no/studier/freds-og-konfliktstudier'
+    const pdf = '/sites/default/files/s3/Bachelor%20i%20freds-%20og%20konfliktstudier%20-%20Studieplan%202026-2027.pdf'
+    const label = 'Studieplan for bachelor i freds- og konfliktstudier 2026/2027'
+    const fetchText = async url => url.endsWith('/api/studium/json')
+      ? JSON.stringify([{ title: name, view_node: new URL(programmeUrl).pathname, field_onf_page: 'Av', field_level: 'Bachelor', field_qybele_id: '362', field_studiested: 'Oslo' }])
+      : `<a href="${pdf}">${label}</a><a href="/sites/default/files/other.pdf">${label}</a>`
+    const { results: [programme] } = await onhPrograms('onh', 'programs', { q: name }, { fetchText })
+    const { results } = await onhPrograms('onh', 'program-cohorts', { program: programme.code, sourceUrl: programmeUrl }, { fetchText })
+    const sourceUrl = new URL(pdf, programmeUrl).href
+    const edition = results.find(row => row.sourceUrl === sourceUrl)
+    expect(results).toHaveLength(2)
+    expect(edition).toMatchObject({ academicYear: '2026/2027', requiresStudentCohort: true })
+    const fetchBytes = async (url, _, guard) => {
+      expect(url).toBe(sourceUrl)
+      expect(() => guard(new URL(url.replace('.pdf', '-other.pdf')))).toThrow(/annen utgave/)
+      return Buffer.from('synthetic invalid PDF response')
+    }
+    await expect(onhPrograms('onh', 'program-plan', { program: programme.code, sourceUrl, cohort: '2026', cohortFromStudent: 'true' }, { fetchText, fetchBytes })).rejects.toThrow(/ikke en PDF/)
+    const plan = parseOnhPdf(fixture('sir').pages, programme, edition, '2026')
+    expect(plan.models[0].periods[0].courses[0]).toMatchObject({ code: 'SIR1010', credits: 15, sourceUrl })
+  })
   it('offers actual published editions without presenting their year as a cohort',()=>{
     const {selected}=sample('sir'),rows=parseOnhArchive(html,selected)
     expect(rows.map(r=>r.academicYear)).toEqual(['2026/2027','2025/2026']);expect(rows.every(r=>r.requiresStudentCohort)).toBe(true)

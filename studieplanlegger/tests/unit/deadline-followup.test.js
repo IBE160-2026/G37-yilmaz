@@ -215,6 +215,23 @@ describe('one chosen deadline across all time-sensitive views', () => {
     expect(upcomingAgenda({ tasks, now: new Date('2027-10-31T01:00:00Z') }).map(e => e.id)).toEqual(['later'])
   })
 
+  it('keeps a timed deadline in the agenda at the exact instant it is due', () => {
+    const ordinary = task('ordinary', undefined, { deadlineLocal: '2026-11-20T09:30' })
+    const dateOnly = task('date-only', undefined, { deadlineLocal: '2026-11-19' })
+    const deadline = new Date('2026-11-20T08:30:00Z')
+    expect(upcomingAgenda({ tasks: [ordinary, dateOnly], now: deadline }).map(entry => entry.id)).toEqual(['ordinary'])
+    expect(upcomingAgenda({ tasks: [ordinary], now: new Date(+deadline + 1) })).toEqual([])
+  })
+
+  it('waits for both possible instants before marking a legacy winter deadline overdue in the overview', () => {
+    const legacy = task('legacy')
+    const betweenOccurrences = dailyOverview({ tasks: [legacy], now: new Date('2027-10-31T01:00:00Z') })
+    expect(betweenOccurrences.deadline).toMatchObject({ id: legacy.id, warning: expect.stringContaining('presisere') })
+    expect(betweenOccurrences.overdue).toEqual([])
+    const afterBoth = dailyOverview({ tasks: [legacy], now: new Date('2027-10-31T01:30:00.001Z') })
+    expect(afterBoth.overdue.map(entry => entry.id)).toEqual([legacy.id])
+  })
+
   it('carries the exact downstream occurrence into prerequisite urgency', () => {
     const prerequisite = task('prerequisite', undefined, { deadlineLocal: '' })
     const downstream = task('later', 'later', { dependencyIds: ['prerequisite'] })

@@ -53,10 +53,10 @@ export const subjectDeadlineTime = task => { try { return new Date(deadlineInsta
 export const subjectDeadlineUpcoming = (task, now) => { try { return deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) > +now } catch { return false } }
 const previewSnapshot = root => ({focus:root.contains(document.activeElement)?document.activeElement.dataset.previewKey:null,open:[...root.querySelectorAll('details[data-preview-key][open]')].map(node=>node.dataset.previewKey),scroll:Object.fromEntries([...root.querySelectorAll('[data-preview-scroll-key]')].map(node=>[node.dataset.previewScrollKey,node.scrollTop]))})
 const restorePreviewSnapshot = (root,snapshot) => {if(!snapshot)return;for(const key of snapshot.open)root.querySelector(`details[data-preview-key="${CSS.escape(key)}"]`)?.setAttribute('open','');for(const [key,top] of Object.entries(snapshot.scroll)){const node=root.querySelector(`[data-preview-scroll-key="${CSS.escape(key)}"]`);if(node)node.scrollTop=top}root.querySelector(`[data-preview-key="${CSS.escape(snapshot.focus||'')}"]`)?.focus({preventScroll:true})}
-export async function api(path, options) {
+export async function api(path, { timeoutMs, ...options } = {}) {
   const programmeRequest = /^\/api\/import\/providers\/[^/]+\/(?:programs|program-cohorts|program-plan)(?:\?|$)/.test(path)
   const timeoutController = new AbortController()
-  const timeoutId = setTimeout(() => timeoutController.abort(new DOMException('Forespørselen tok for lang tid.', 'TimeoutError')), programmeRequest ? 180000 : 30000)
+  const timeoutId = setTimeout(() => timeoutController.abort(new DOMException('Forespørselen tok for lang tid.', 'TimeoutError')), timeoutMs ?? (programmeRequest ? 180_000 : 30_000))
   const signal = options?.signal ? AbortSignal.any([options.signal, timeoutController.signal]) : timeoutController.signal
   try {
     let response
@@ -504,7 +504,8 @@ export function createSubjectsView(actions) {
         const card = el('article', null, 'source-card document-source-card'); card.dataset.sourceId = source.id
         const currentItems = { course: planner.courses, event: planner.events.filter(event => !event.deleted), task: actions.getState().tasks || [] }
         const count = kind => source.entries.filter(entry => entry.kind === kind && currentItems[kind].some(item => item.id === entry.targetId)).length
-        card.append(el('h4', source.name), el('p', `${source.origin?.kind === 'link' ? 'Øyeblikksbilde fra kalenderlenke' : 'Kopi av fil / dokument'} · oppdateres ikke automatisk.`), el('p', `${count('course')} lagrede emner · ${count('event')} kalenderaktiviteter · ${count('task')} oppgaver. Sist oppdatert: ${stamp(source.lastUpdated)}`))
+        const courses = count('course'), events = count('event'), tasks = count('task')
+        card.append(el('h4', source.name), el('p', `${source.origin?.kind === 'link' ? 'Øyeblikksbilde fra kalenderlenke' : 'Kopi av fil / dokument'} · oppdateres ikke automatisk.`), el('p', `${courses} ${courses === 1 ? 'lagret emne' : 'lagrede emner'} · ${events} ${events === 1 ? 'kalenderaktivitet' : 'kalenderaktiviteter'} · ${tasks} ${tasks === 1 ? 'oppgave' : 'oppgaver'}. Sist oppdatert: ${stamp(source.lastUpdated)}`))
         if (source.origin?.publicUrl) card.append(sourceLink(source.origin.publicUrl, 'Offentlig kalenderkilde'))
         if (source.complete === false) card.append(el('p', 'Kilden er ikke bekreftet fullstendig. Bare oppføringene du bekreftet, er lagret.', 'import-warning'))
         const warnings = [...new Set(source.warnings || [])]

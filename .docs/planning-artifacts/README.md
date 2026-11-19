@@ -56,7 +56,7 @@ Sensorvedleggets sju sider er lest på nytt 2026-11-01, med samme SHA-256 som id
 9. [Daterte kontrollresultater](../../studieplanlegger/VERIFICATION.md): konkrete feil, rettelser, tester og begrensninger. Testkode er lenket fra sporbarheten; interne arbeidsspesifikasjoner beholdes lokalt og er ikke del av den offentlige dokumentkjeden.
 10. [Refleksjonsrapport – Markdown](../submission/reflection-report.md) er prosjekteierens sluttleste rapporttekst med oppgitt KI-hjelp til struktur og formulering.
 
-[Oppstart](../../README.md), [løsningsguide](../implementation-artifacts/solution-guide.md), [utviklingsprosess](../implementation-artifacts/development-process.md), [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) supplerer planen. [Faglærertilbakemeldingen](../../tilbakemelding-product-brief.md) og hele sensorveiledningen er kontrollert ved publiseringsoppfølgingen 2026-10-16.
+[Oppstart](../../README.md), [løsningsguide](../implementation-artifacts/solution-guide.md), [utviklingsprosess](../implementation-artifacts/development-process.md), [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) supplerer planen. [Faglærertilbakemeldingen](../../tilbakemelding-product-brief.md) og alle sju sidene i sensorvedlegget for del 1 er kontrollert ved publiseringsoppfølgingen 2026-10-16. Den overordnede sensorveiledningen er fortsatt uidentifisert.
 
 ## Godkjent driftsutvidelse — 2026-10-29
 

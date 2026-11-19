@@ -68,7 +68,7 @@ test('strict deadline transition patches the same checkbox, preserves focus and 
   await expect(row(page, done.title).getByText('Forfalt', { exact: true })).not.toBeVisible()
   await page.clock.runFor(1000)
   await expect(row(page, open.title).getByText('Forfalt', { exact: true })).toBeVisible()
-  await expect(page.locator('#overdue-count')).toHaveText('1 forfalte oppgaver på tvers av alle uker.')
+  await expect(page.locator('#overdue-count')).toHaveText('1 forfalt oppgave på tvers av alle uker.')
   await expect(row(page, done.title).getByText('Forfalt', { exact: true })).not.toBeVisible()
   await expect(control).toBeFocused()
   await expectFocusFits(page, control)

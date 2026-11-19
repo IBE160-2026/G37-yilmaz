@@ -2,6 +2,8 @@ import { reveal } from './helpers.js'
 import { test, expect } from '@playwright/test'
 import { Temporal } from '@js-temporal/polyfill'
 import { navigate, key } from './helpers.js'
+import { parseDocumentIcs } from '../../src/document-parsers.js'
+import { filterInstitutionalSemester } from '../../src/institutional-calendar-period.js'
 
 // Opt-in checks use the real public API in a fresh browser context. They never
 // read an existing browser profile or replace a source response with a fixture.
@@ -9,10 +11,11 @@ import { navigate, key } from './helpers.js'
 test.use({ trace: 'off', video: 'off' })
 
 const samples = [
-  { kind: 'fih', button: 'Hent offentlige Fjellhaug-klasser', className: 'BTFL 1. år · PDF-oversikt', classes: 29, events: 164, unresolved: 0, selectedTitle: 'BTM1001/RLE1001 (R)' },
-  { kind: 'ansgar', button: 'Hent offentlige Ansgar-timeplaner', className: 'Årsstudium i psykologi / Bachelor i psykologi · Første år', classes: 16, events: 87, unresolved: 3, selectedTitle: 'PSY131 Innføring i psykologiens perspektiver' },
+  { kind: 'fih', button: 'Hent offentlige Fjellhaug-klasser', className: 'BTFL 1. år · PDF-oversikt' },
+  { kind: 'ansgar', button: 'Hent offentlige Ansgar-timeplaner', className: 'Årsstudium i psykologi / Bachelor i psykologi · Første år', selectedTitle: 'PSY131 Innføring i psykologiens perspektiver' },
 ]
 const utc = local => Temporal.PlainDateTime.from(local).toZonedDateTime('Europe/Oslo').toInstant().toString({ fractionalSecondDigits: 3 })
+const period = { year: 2026, semester: 'autumn' }
 
 for (const sample of samples) test(`live ${sample.kind} public class preview, explicit selection, save, reload and repeat`, async ({ page }, info) => {
   test.skip(process.env.RUN_LIVE_PUBLIC_CLASSES !== '1', 'Requires an explicitly authorized check of actual public class sources')
@@ -34,7 +37,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
     await (await reveal(form.getByRole('combobox', { name: 'Offentlig kalenderkilde', exact: true }))).selectOption(sample.kind)
     await (await reveal(form.getByRole('button', { name: sample.button, exact: true }))).click()
     const classes = form.getByRole('combobox', { name: 'Publisert klasseplan', exact: true })
-    await expect(classes.locator('option')).toHaveCount(sample.classes + 1, { timeout: 60_000 })
+    await expect(classes.locator('option', { hasText: sample.className })).toHaveCount(1, { timeout: 60_000 })
     await expect(classes).toHaveValue('')
     await (await reveal(classes)).selectOption({ label: sample.className })
     await (await reveal(form.getByLabel('Kalenderår', { exact: true }))).fill('2026')
@@ -46,33 +49,31 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
     expect(response.status()).toBe(200)
     expect(result.sourceKind).toBe(`${sample.kind}-public-class`)
     expect(result.authoritative).toBe(false)
-    expect(result.count).toBe(sample.events)
-    expect(result.unresolved || []).toHaveLength(sample.unresolved)
+    expect(result.count).toBe((result.calendar.match(/^BEGIN:VEVENT\r?$/gm) || []).length)
+    const scoped = filterInstitutionalSemester(parseDocumentIcs(result.calendar, period), period)
+    const expectedEvents = scoped.rows.filter(row => row.kind === 'event')
+    const expectedCourses = scoped.rows.filter(row => row.kind === 'course')
+    expect(expectedEvents.length).toBeGreaterThan(0)
     const preview = form.locator('.document-preview')
     await expect(preview.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible({ timeout: 60_000 })
     expect(await saved()).toEqual(before)
     const rows = preview.locator('.document-preview-row')
-    await expect(rows).toHaveCount(sample.events)
-    const validPreviewEvents = await rows.count()
-    await expect(rows.getByLabel('Emne (valgfritt)', { exact: true })).toHaveCount(sample.events)
-    expect(await rows.locator('input[type=checkbox]').evaluateAll(nodes => nodes.every(node => !node.checked))).toBe(true)
-    expect(await rows.getByLabel('Emne (valgfritt)', { exact: true }).evaluateAll(nodes => nodes.every(node => node.value === ''))).toBe(true)
-    if (sample.unresolved) await expect(preview).toContainText('Uavklart')
-    const selectedIndex = await rows.evaluateAll(nodes => nodes.findIndex(node => {
-      const value = node.querySelector('input[type=datetime-local]')?.value
-      return value >= '2026-09-12' && value < '2026-10-01'
-    }))
-    expect(selectedIndex).toBeGreaterThanOrEqual(0)
-    const selected = rows.nth(selectedIndex)
-    if (!await selected.evaluate(node => node.open)) await selected.locator(':scope > summary').click()
+    await expect(rows).toHaveCount(scoped.rows.length)
+    if (result.unresolved?.length) await expect(preview).toContainText('Uavklart')
+    const target = expectedEvents.find(row => sample.selectedTitle ? row.title === sample.selectedTitle : !!row.endLocal)
+    expect(target).toBeTruthy()
+    const selected = preview.locator(`.document-preview-row[data-row-index="${scoped.rows.indexOf(target)}"]`)
+    const choice = selected.getByRole('checkbox', { name: 'Ta med i planen', exact: true, includeHidden: true })
+    await reveal(choice)
     const selectedFields = {
       title: await selected.getByLabel('Navn', { exact: true }).inputValue(),
       start: utc(await selected.getByLabel('Start i norsk tid', { exact: true }).inputValue()),
       end: utc(await selected.getByLabel('Slutt i norsk tid', { exact: true }).inputValue()),
     }
-    expect(selectedFields.title).toBe(sample.selectedTitle)
-    await (await reveal(selected.getByRole('checkbox', { name: 'Ta med i planen', exact: true }))).check()
-    expect(await rows.locator('input[type=checkbox]:checked').count()).toBe(1)
+    expect(selectedFields).toEqual({ title: target.title, start: target.originalStart, end: target.originalEnd })
+    expect(await rows.locator('input[data-field=selected]:checked').count()).toBe(attempt)
+    await choice.check()
+    expect(await rows.locator('input[data-field=selected]:checked').count()).toBe(1)
     if (!attempt) {
       await selected.scrollIntoViewIfNeeded()
       await page.screenshot({ path: info.outputPath(`${sample.kind}-class-preview-mobile.png`) })
@@ -97,7 +98,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
       expect(state.planner).toEqual(first.planner)
       expect(state.importSources[0].id).toBe(first.importSources[0].id)
     } else first = state
-    evidence.runs.push({ responseStatus: response.status(), rawSourceEvents: result.count, validPreviewEvents, unresolvedSourceRows: (result.unresolved || []).length, selectedEvents: 1, savedEvents: state.planner.events.length, savedCourses: state.planner.courses.length, savedTasks: state.tasks.length, savedSources: state.importSources.length, selectedEvent: selectedFields, sourceId: state.importSources[0].id, eventId: state.planner.events[0].id })
+    evidence.runs.push({ responseStatus: response.status(), rawSourceEvents: result.count, validPreviewEvents: expectedEvents.length, proposedCourses: expectedCourses.length, unresolvedSourceRows: (result.unresolved || []).length, selectedEvents: 1, savedEvents: state.planner.events.length, savedCourses: state.planner.courses.length, savedTasks: state.tasks.length, savedSources: state.importSources.length, selectedEvent: selectedFields, sourceId: state.importSources[0].id, eventId: state.planner.events[0].id })
     await page.reload()
     expect((await saved()).planner).toEqual(state.planner)
     expect((await saved()).importSources).toEqual(state.importSources)

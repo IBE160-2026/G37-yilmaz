@@ -2,7 +2,7 @@ import https from 'node:https'
 import { lookup } from 'node:dns/promises'
 import { load } from 'cheerio'
 import { providerRequest } from './providers/index.js'
-import { safeSourceError } from './providers/source-error.js'
+import { safeSourceError, sourceTransportError } from './providers/source-error.js'
 import { gunzip, inflate, brotliDecompress } from 'node:zlib'
 import { isPublicPlandiscUrl, fetchPlandiscCalendar } from './providers/plandisc-calendar.js'
 import { hfyCalendarSources, fetchHfyCalendar } from './providers/hfy-calendar.js'
@@ -196,7 +196,9 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
     const guard = hostedPolicy ? hostedPolicy.sourceGuard(input, validate) : validate
     guard?.(new URL(String(input).replace(/^webcal:/i, 'https:')))
     if (hostedPolicy && ++fetches > 250) exhaustImport('Importen krever for mange kildeoppslag. Bruk et mindre kildeutvalg eller filimport.')
-    const data = await impl(input, redirects, guard, { ...options, signal: controller.signal })
+    let data
+    try { data = await impl(input, redirects, guard, { ...options, signal: controller.signal }) }
+    catch (error) { throw sourceTransportError(error) }
     controller.signal.throwIfAborted()
     if (hostedPolicy && (totalBytes += Buffer.byteLength(data)) > 30_000_000) exhaustImport('Importen er for stor. Bruk et mindre kildeutvalg eller filimport.')
     return data

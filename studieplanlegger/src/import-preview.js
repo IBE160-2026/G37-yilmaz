@@ -237,6 +237,18 @@ export function createDocumentImportPreview(state, parsed, { sourceId, name, con
     if (identical && match) {
       row.kind = match.kind
       Object.assign(row, retainedFields(row.kind, current || deletedCourseDetails(state, id, match, row) || match.sourceBase))
+      // An updated text parser can correct the same source bytes. Preview the
+      // correction if the saved value still comes straight from the old parser.
+      if (['text', 'pdf', 'docx'].includes(parsed.format) && current && row.kind === sourceRow.kind) {
+        if (row.kind === 'task' && sourceRow.deadlineRaw && match.deadlineDecision !== 'none' && !current.deadlinePromptDismissed && current.deadlineLocal === match.sourceBase.deadlineLocal) {
+          row.deadlineLocal = sourceRow.deadlineLocal
+        }
+        if (row.kind === 'event' && !current.point && !match.sourceBase.point &&
+            Date.parse(current.start) === Date.parse(match.sourceBase.start) && Date.parse(current.end) === Date.parse(match.sourceBase.end) &&
+            sourceRow.originalStart && Date.parse(sourceRow.originalEnd) > Date.parse(sourceRow.originalStart)) {
+          for (const field of ['startLocal', 'endLocal', 'originalStart', 'originalEnd']) row[field] = sourceRow[field]
+        }
+      }
       // Historical CSV imports inferred points from absent/invalid end values.
       // Keep the saved record intact, but do not reaffirm that unsupported
       // interpretation. A later deliberate positive interval remains an edit.

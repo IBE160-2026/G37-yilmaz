@@ -44,7 +44,7 @@ export function createServerStorage(getLegacyStorage = () => window.localStorage
           return { ok: true, ...state }
         }
         const counts = preview.data.counts
-        const confirmed = window.confirm(`Flytt en kopi av eksisterende nettleserdata til databasen?\n\n${counts.tasks} oppgaver, ${counts.courses} emner, ${counts.sessions} studieøkter og ${counts.workLogs} arbeidslogger.\n\nOriginalen i nettleseren beholdes uendret.`)
+        const confirmed = window.confirm(`Flytt en kopi av eksisterende nettleserdata til databasen?\n\n${counts.tasks} ${counts.tasks === 1 ? 'oppgave' : 'oppgaver'}, ${counts.courses} ${counts.courses === 1 ? 'emne' : 'emner'}, ${counts.sessions} ${counts.sessions === 1 ? 'studieøkt' : 'studieøkter'} og ${counts.workLogs} ${counts.workLogs === 1 ? 'arbeidslogg' : 'arbeidslogger'}.\n\nOriginalen i nettleseren beholdes uendret.`)
         if (confirmed) {
           const imported = request('POST', '/api/state/legacy/import', { raw, fingerprint: preview.data.fingerprint, expectedRevision: revision })
           if (!imported.ok) return { ok: false, reason: imported.status === 409 ? 'conflict' : 'invalid', error: 'Flyttingen ble avvist. Ingen data er endret.' }

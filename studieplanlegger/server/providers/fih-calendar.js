@@ -37,8 +37,12 @@ export async function fihCalendarSources({ fetchText, fetchBytes }) {
   const $ = load(await cachedText(fetchText, studentUrl, sourceGuard)), sources = new Set(), results = [], warnings = []
   $('a[href]').each((_, anchor) => { if (!/webcalfiler/i.test(clean($(anchor).text()))) return; const url = sourceGuard(new URL($(anchor).attr('href'), studentUrl)); sources.add(url.href) })
   if (!sources.size) fail('source-changed', 'FIHs studentside publiserer ingen klassekalenderoversikt.')
-  for (const url of sources) try {
-    const found = url.endsWith('.pdf') ? parseFihCalendarPdf(await readLdhPdf(fetchBytes, url, sourceGuard), url) : parseFihCalendarHtml(await cachedText(fetchText, url, sourceGuard), url)
+  const overviews = await Promise.allSettled([...sources].map(async url => url.endsWith('.pdf')
+    ? parseFihCalendarPdf(await readLdhPdf(fetchBytes, url, sourceGuard), url)
+    : parseFihCalendarHtml(await cachedText(fetchText, url, sourceGuard), url)))
+  for (const overview of overviews) try {
+    if (overview.status === 'rejected') throw overview.reason
+    const found = overview.value
     for (const value of found) { const existing = results.find(row => row.sourceObjectId === value.sourceObjectId); if (existing && (existing.className !== value.className || existing.sourceUrl !== value.sourceUrl)) fail('source-changed', 'De publiserte oversiktene oppgir ulike opplysninger om samme kalender-ID.'); if (!existing) results.push(value) }
   } catch (error) { if (error.name === 'AbortError') throw error; warnings.push(`En kalenderoversikt kunne ikke leses: ${error.message}`) }
   if (!results.length) fail('source-changed', `Ingen publiserte klassevalg kunne leses. ${warnings.join(' ')}`)

@@ -32,7 +32,7 @@ export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, course
       // possible occurrence has passed. This never chooses an occurrence.
       deadline = isOverdue(task, now) ? Infinity : -Infinity
     }
-    if (!task.deadlineLocal || task.submitted || (task.completed && !task.requiresSubmission) || !warning && deadline <= +now) continue
+    if (!task.deadlineLocal || task.submitted || (task.completed && !task.requiresSubmission) || !warning && isOverdue(task, now)) continue
     if (!matchesCourse(task, courseFilter, course)) continue
     const subject = courses.find(item => item.id === task.courseId)
     entries.push({ key: `task:${task.id}`, id: task.id, kind: 'deadline', title: task.title, sortTime: deadline,
@@ -105,7 +105,7 @@ export function createAgenda(host, actions) {
       const detail = [entry.course, entry.location, entry.occurrence, entry.warning, entry.ready ? 'Klar til levering' : ''].filter(Boolean).join(' · ')
       const title = entry.course && !entry.title.toLocaleUpperCase('nb').startsWith(entry.course.toLocaleUpperCase('nb')) ? `${entry.course} · ${entry.title}` : entry.title
       content.append(meta, node('span', 'agenda-item-title', title), node('span', 'agenda-item-details', detail))
-      button.setAttribute('aria-label', [title, kind, `${day} ${month} ${entry.date.slice(0, 4)}`, activityTime, detail].filter(Boolean).join(', '))
+      button.setAttribute('aria-label', [`${day} ${month} ${entry.date.slice(0, 4)}`, kind, activityTime, title, detail].filter(Boolean).join(', '))
       button.append(stamp, content)
       li.append(button)
       list.append(li)

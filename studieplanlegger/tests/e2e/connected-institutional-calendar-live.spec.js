@@ -1,13 +1,18 @@
 import { reveal } from './helpers.js'
 import { test, expect } from '@playwright/test'
 import { navigate, key } from './helpers.js'
+import { parseDocumentIcs } from '../../src/document-parsers.js'
+
+const period = { year: 2026, semester: 'autumn' }
+const previewRow = (form, index) => form.locator(`.document-preview-row[data-row-index="${index}"]`)
+const checkbox = row => row.getByRole('checkbox', { name: 'Ta med i planen', exact: true, includeHidden: true })
+const sourceDetails = form => form.locator('.document-source-details > summary')
 
 for (const source of ['gestalt', 'phs']) test(`live ${source} published calendar preserves explicit class, deadline and information semantics`, async ({ page }, info) => {
   test.skip(process.env.RUN_LIVE_INSTITUTION_CALENDAR !== '1', 'Requires an explicitly authorized public source check')
   test.setTimeout(180000)
   await page.setViewportSize({ width: 390, height: 844 })
   const saved = () => page.evaluate(key => JSON.parse(localStorage.getItem(key)), key), responses = []
-  page.on('response', async response => { if (response.url().endsWith('/api/import/calendar')) { const data = await response.json(); responses.push({ sourceKind: data.sourceKind, count: data.count, unresolved: data.unresolved, authoritative: data.authoritative }) } })
   await page.goto('/')
   let first
   for (let run = 0; run < 2; run++) {
@@ -25,22 +30,31 @@ for (const source of ['gestalt', 'phs']) test(`live ${source} published calendar
     await (await reveal(form.getByLabel('Kalenderår', { exact: true }))).fill('2026')
     await (await reveal(form.getByRole('combobox', { name: 'Kalendersemester', exact: true }))).selectOption('autumn')
     const before = await saved()
+    const request = page.waitForResponse(response => response.url().endsWith('/api/import/calendar'))
     await (await reveal(form.getByRole('button', { name: 'Forhåndsvis institusjonskalender', exact: true }))).click()
     await expect(form.getByRole('heading', { name: 'Dette fant jeg' })).toBeVisible({ timeout: 60000 })
     expect(await saved()).toEqual(before)
-    const choices = form.getByRole('checkbox', { name: 'Ta med i planen', exact: true })
-    expect(await choices.evaluateAll(nodes => nodes.every(node => !node.checked))).toBe(true)
-    if (source === 'gestalt') await (await reveal(choices.first())).check()
+    const result = await (await request).json()
+    responses.push({ sourceKind: result.sourceKind, count: result.count, unresolved: result.unresolved, authoritative: result.authoritative })
+    const retained = run ? (source === 'gestalt' ? 1 : 3) : 0
+    await expect(form.locator('.document-preview-row input[data-field=selected]:checked')).toHaveCount(retained)
+    if (source === 'gestalt') {
+      const rows = parseDocumentIcs(result.calendar, period).rows
+      const index = rows.findIndex(row => row.kind === 'event' && row.originalStart === '2026-09-17T08:30:00.000Z')
+      expect(index).toBeGreaterThanOrEqual(0)
+      if (run) await expect(form.getByRole('status')).toContainText('Det tidligere valget er beholdt')
+      await (await reveal(checkbox(previewRow(form, index)))).check()
+    }
     else {
       for (const name of [/FOREBYGG01-2.*Ordinær/, /STRAFF01.*Ny/, /POLISAMF01.*Ordinær/]) {
-        const row = form.locator('.document-preview details').filter({ has: page.locator('summary').filter({ hasText: name }) })
+        const row = form.locator('.document-preview-row').filter({ has: page.locator('summary').filter({ hasText: name }) })
         await expect(row).toHaveCount(1)
-        if (!await row.evaluate(node => node.open)) await row.locator(':scope > summary').click()
-        await (await reveal(row.getByRole('checkbox', { name: 'Ta med i planen', exact: true }))).check()
+        await (await reveal(checkbox(row))).check()
       }
       const deadlineValues = await form.locator('input[type=datetime-local]').evaluateAll(nodes => nodes.map(node => node.value).filter(Boolean))
       expect(deadlineValues.every(value => value >= '2026-07-01' && value < '2027-01-01')).toBe(true)
-      await expect(form.locator('.document-preview')).toContainText('Ukedag og datofelt stemmer ikke overens')
+      await (await reveal(sourceDetails(form))).click()
+      await expect(form.locator('.document-source-details')).toContainText('Ukedag og datofelt stemmer ikke overens')
     }
     if (!run) { await form.locator('.document-preview').scrollIntoViewIfNeeded(); await page.screenshot({ path: info.outputPath(`${source}-calendar-preview-mobile.png`) }); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true) }
     await (await reveal(form.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
@@ -68,10 +82,6 @@ test('live public Plandisc preview, explicit selection, save, reload and repeat 
   test.setTimeout(120000)
   await page.setViewportSize({ width: 390, height: 844 })
   const saved = () => page.evaluate(key => JSON.parse(localStorage.getItem(key)), key), calls = []
-  page.on('response', async response => {
-    if (!response.url().endsWith('/api/import/calendar')) return
-    const json = await response.json(); calls.push({ status: response.status(), institutional: json.institutional, warnings: json.warnings })
-  })
   await page.goto('/')
   let first
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -84,15 +94,20 @@ test('live public Plandisc preview, explicit selection, save, reload and repeat 
     await (await reveal(form.getByLabel('Kalenderår', { exact: true }))).fill('2026')
     await (await reveal(form.getByRole('combobox', { name: 'Kalendersemester', exact: true }))).selectOption('autumn')
     const before = await saved()
+    const request = page.waitForResponse(response => response.url().endsWith('/api/import/calendar'))
     await (await reveal(form.getByRole('button', { name: 'Forhåndsvis institusjonskalender', exact: true }))).click()
     await expect(form.getByRole('heading', { name: 'Dette fant jeg' })).toBeVisible({ timeout: 60000 })
-    const choices = form.getByRole('checkbox', { name: 'Ta med i planen', exact: true })
-    expect(await choices.count()).toBeGreaterThan(0)
-    expect(await choices.evaluateAll(nodes => nodes.every(node => !node.checked))).toBe(true)
+    const response = await request, result = await response.json()
+    calls.push({ status: response.status(), institutional: result.institutional, warnings: result.warnings })
+    const rows = parseDocumentIcs(result.calendar, period).rows
+    const index = rows.findIndex(row => row.kind === 'event' && !row.point)
+    expect(index).toBeGreaterThanOrEqual(0)
+    const selected = checkbox(previewRow(form, index))
+    await expect(form.locator('.document-preview-row input[data-field=selected]:checked')).toHaveCount(attempt)
     expect(await saved()).toEqual(before)
-    await (await reveal(choices.first())).check()
+    await (await reveal(selected)).check()
     if (attempt === 0) {
-      await choices.first().scrollIntoViewIfNeeded()
+      await selected.scrollIntoViewIfNeeded()
       await page.screenshot({ path: info.outputPath('public-calendar-preview-mobile.png') })
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
     }
@@ -101,7 +116,7 @@ test('live public Plandisc preview, explicit selection, save, reload and repeat 
     const state = await saved()
     expect(state.planner.courses).toEqual([])
     expect(state.planner.events).toHaveLength(1)
-    expect(state.planner.events[0]).toMatchObject({ courseId: '', transparent: true, information: true })
+    expect(state.planner.events[0]).toMatchObject({ title: rows[index].title, start: rows[index].originalStart, end: rows[index].originalEnd, courseId: '', transparent: true, information: true })
     expect(state.sessions || []).toEqual([])
     expect(state.importSources).toHaveLength(1)
     if (first) expect(state.planner.events).toEqual(first.planner.events)
@@ -139,11 +154,12 @@ test('live HØFY class PDF preserves uncertain source rows and reserves only exp
     const before = await saved()
     await (await reveal(form.getByRole('button', { name: 'Forhåndsvis institusjonskalender', exact: true }))).click()
     await expect(form.getByRole('heading', { name: 'Dette fant jeg' })).toBeVisible({ timeout: 60000 })
-    await expect(form.locator('.document-preview')).toContainText('Uavklart kildeoppføring')
+    await (await reveal(sourceDetails(form))).click()
+    await expect(form.locator('.document-source-details')).toContainText('Datofeltet avviker fra den publiserte perioden 2026–2027. Årstallet er ikke rettet automatisk.')
     expect(await saved()).toEqual(before)
-    const row = form.locator('.document-preview details').filter({ has: page.locator('summary').filter({ hasText: /Samling 1, dag 1/ }) }).first()
-    if (!await row.evaluate(node => node.open)) await row.locator(':scope > summary').click()
-    await (await reveal(row.getByRole('checkbox', { name: 'Ta med i planen', exact: true }))).check()
+    const row = form.locator('.document-preview-row').filter({ has: page.locator('summary').filter({ hasText: /Samling 1, dag 1/ }) })
+    await expect(row).toHaveCount(1)
+    await (await reveal(checkbox(row))).check()
     if (run === 0) { await row.scrollIntoViewIfNeeded(); await page.screenshot({ path: info.outputPath('hfy-class-source-mobile.png') }) }
     await (await reveal(form.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
     await expect(form.getByRole('status')).toContainText('Institusjonskalender lagret')

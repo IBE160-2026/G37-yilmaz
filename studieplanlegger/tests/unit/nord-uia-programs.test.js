@@ -7,6 +7,35 @@ import { uiaPrograms, parseUiaProgramPlan } from '../../server/providers/uia-pro
 const fixture = name => readFile(fileURLToPath(new URL(`../fixtures/${name}`, import.meta.url)), 'utf8')
 
 describe('Nord public program source', () => {
+  it('uses the source search and opens the real Spring Package URL form and cohort selector', async () => {
+    const name = 'Advanced English Language and Literature: Spring Package'
+    const program = 'advanced-english-language-and-literature-spring-package-engadv2-kortere-studier'
+    const sourceUrl = `https://www.nord.no/studier/studieplaner/${program}-v-2026`
+    const old = sourceUrl.replace('2026', '2025')
+    const search = `<main>Viser treff 1 - 1 av 1 <a href="${sourceUrl}"><h2>${name}</h2>Bodø Vår 2026</a></main>`
+    const plan = `<main><h1>${name}</h1>
+      <select name="semester_chooser"><option value="${sourceUrl}">Vår 2026</option><option value="${old}">Vår 2025</option></select>
+      <input name="code" value="ENGADV2-V26">
+      <div class="semester-wrapper"><h2>Vår 2026 (1. semester)</h2>
+        <div class="subject-outer-wrapper" data-combination-name="Elective courses">
+          <button data-subject-code="ENG2005">Add subject</button>
+          <span class="subject-code" data-subject-code="ENG2005">ENG2005</span>
+          <span class="subject-name"><a href="/studier/emner/eng2005?year=2026&amp;semester=V%C3%85R">Litteratur og naturkatastrofe</a></span>
+          <span class="subject-points">10 sp</span>
+        </div>
+      </div></main>`
+    const fetchText = vi.fn(async url => url === sourceUrl ? plan : search)
+    const result = await nordPrograms('programs', { q: name }, { fetchText })
+    expect(new URL(fetchText.mock.calls[0][0]).searchParams.get('s')).toBe(name)
+    expect(result.results).toEqual([expect.objectContaining({ name, code: program, intake: 'spring', cohort: '2026', sourceUrl })])
+    const cohorts = await nordPrograms('program-cohorts', { program, sourceUrl }, { fetchText })
+    expect(cohorts.results.map(row => row.label)).toEqual(['Vår 2026', 'Vår 2025'])
+    const loaded = await nordPrograms('program-plan', { program, ...cohorts.results[0] }, { fetchText })
+    expect(loaded.models[0].periods[0]).toMatchObject({
+      year: 2026, semester: 'spring', studySemester: 1,
+      courses: [expect.objectContaining({ code: 'ENG2005', choice: 'V', credits: 10 })],
+    })
+  })
   it('follows the published pager, checks the declared total and groups plan editions', async () => {
     const pages = await Promise.all([fixture('nord-program-catalogue-1.html'), fixture('nord-program-catalogue-2.html')])
     const fetchText = vi.fn(async url => new URL(url).searchParams.get('page') === '1' ? pages[1] : pages[0])

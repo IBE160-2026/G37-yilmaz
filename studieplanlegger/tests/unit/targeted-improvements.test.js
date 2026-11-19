@@ -89,6 +89,26 @@ describe('bounded public metadata adapters', () => {
     const fetchText = async (_url, _redirects, validate) => { validate(new URL('https://uit.no/utdanning/emner/emne?p_document_id=923371')); return fixtures['uit-course'] }
     await expect(uitDetails(uitQuery, fetchText)).rejects.toMatchObject({ status: 'invalid-selection' })
   })
+  it.each([['FYS-3000', '923370'], ['INF-0101', '922504']])('uses the verified %s record when UiT publishes a generic sharing address', async (code, record) => {
+    const requested = { ...uitQuery, code, sourceRecordId: record, sourceUrl: `https://uit.no/utdanning/emner/emne?p_document_id=${record}` }
+    const generic = '<meta property="og:url" content="https://uit.no/utdanning/emner/emne">'
+    const html = fixtures['uit-course'].replace(/<link rel="canonical"[^>]+>/, generic).replace('Course code: FYS-3000', `Course code: ${code}`)
+    const result = await uitDetails(requested, async () => html)
+    expect(result.course).toMatchObject({ code, sourceRecordId: record, sourceUrl: requested.sourceUrl, sourceVersion: '2026H' })
+    const first = mergeCourseOnly({ courses: [], events: [], sources: [] }, result.course)
+    expect(mergeCourseOnly(first, result.course).courses).toEqual(first.courses)
+    const conflicting = html.replace(generic, `${generic}<link rel="canonical" href="https://uit.no/utdanning/emner/emne/923371">`)
+    await expect(uitDetails(requested, async () => conflicting)).rejects.toMatchObject({ status: 'invalid-selection' })
+    await expect(uitDetails({ ...requested, sourceUrl: 'https://uit.no/utdanning/emner/emne' }, async () => html)).rejects.toMatchObject({ status: 'invalid-selection' })
+  })
+  it('accepts the same published INF-0101 campus list only when the full content matches', async () => {
+    const sourceUrl = 'https://uit.no/utdanning/emner/emne?p_document_id=922504'
+    const requested = { ...uitQuery, code: 'INF-0101', sourceRecordId: '922504', sourceUrl, campus: 'Tromsø Mo i Rana Bodø' }
+    const details = fixtures['uit-course'].replace(/<link rel="canonical"[^>]+>/, '<meta property="og:url" content="https://uit.no/utdanning/emner/emne">')
+      .replace('Course code: FYS-3000', 'Course code: INF-0101').replace('Campus Tromsø', 'Campus Tromsø, Mo i Rana og Bodø')
+    expect((await uitDetails(requested, async () => details)).course.campus).toBe('Tromsø, Mo i Rana og Bodø')
+    await expect(uitDetails({ ...requested, campus: 'Tromsø Mo i Rana Alta' }, async () => details)).rejects.toMatchObject({ status: 'campus-unavailable' })
+  })
   it.each([['HTTP 403', 'transport-error'], ['HTTP 404', 'not-found'], ['timeout', 'transport-error']])('distinguishes %s without inferring login from HTTP denial', async (message, status) => {
     expect((await providerRequest('uib', 'search', query, { fetchText: async () => { throw Error(message) } })).status).toBe(status)
   })

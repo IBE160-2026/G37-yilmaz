@@ -37,7 +37,7 @@ test('public teaching requires an explicit source object and groups, then saves 
     await host.locator('[name=studySemester]').selectOption('first')
     await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
     await expect(host.locator('[name=programCampus]')).toBeHidden()
-    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
     await expect(host.locator('.program-action-status')).toBeFocused()
     return host
   }
@@ -59,7 +59,7 @@ test('public teaching requires an explicit source object and groups, then saves 
     if (attempt === 0) await expect(groups.getByRole('checkbox').first()).not.toBeChecked()
     await groups.getByRole('checkbox').first().check()
     expect(await stored(page)).toEqual(before)
-    await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
+    await host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ }).click()
     await expect(host.getByRole('status')).toBeFocused()
     await expect.poll(async () => (await stored(page))?.planner?.events?.length).toBe(1)
     const after = await stored(page)
@@ -74,13 +74,15 @@ test('public teaching requires an explicit source object and groups, then saves 
   if (!await timetable.evaluate(node => node.open)) await timetable.locator(':scope > summary').click()
   await host.getByRole('button', { name: 'Søk offentlig undervisning for TEST101', exact: true }).click()
   await expect(host.getByRole('status')).toContainText('Syntetisk kildefeil')
-  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeEnabled()
+  await expect(host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ })).toBeEnabled()
   expect(await stored(page)).toEqual(beforeFailure)
 })
 
 test('one programme preparation fetches an exact teaching object and commits once', async ({ page }) => {
   const exactCalendar = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:ibe160-lecture\r\nDTSTART:20260914T080000Z\r\nDTEND:20260914T100000Z\r\nSUMMARY:IBE160 Forelesning\r\nX-GROUP:Forelesning\r\nLOCATION:A-1\r\nEND:VEVENT\r\nEND:VCALENDAR'
   let calendarCalls = 0
+  let releaseCalendar
+  const calendarResponse = new Promise(resolve => { releaseCalendar = resolve })
   await page.route('**/api/import/providers/himolde/**', async route => {
     const url = new URL(route.request().url()), action = url.pathname.split('/').at(-1)
     let data
@@ -88,7 +90,11 @@ test('one programme preparation fetches an exact teaching object and commits onc
     else if (action === 'program-cohorts') data = { results: [{ cohort: '2026', sourceUrl: 'https://example.test/program' }] }
     else if (action === 'program-plan') data = { program: { code: 'IT', name: 'Informasjonsteknologi', cohort: '2026', sourceUrl: 'https://example.test/program', campuses: [] }, models: [{ id: 'common', name: 'Felles', periods: [{ id: 'first', label: '1. studiesemester · Høst 2026', studySemester: 1, year: 2026, semester: 'autumn', courses: [{ id: 'ibe160', code: 'IBE160', name: 'Programmering', university: 'Høgskolen i Molde', year: 2026, semester: 'autumn', credits: 15, choice: 'O', sourceProvider: 'himolde', sourceRecordId: 'IBE160', sourceVersion: '2026H', sourceUrl: 'https://example.test/course', description: '', notes: 'Kildeutdrag: Høst 2026; IBE160 Programmering; 15 studiepoeng.' }] }] }], warnings: [] }
     else if (action === 'teaching-search') data = { results: [{ code: 'IBE160', sourceObjectId: 'IBE160¤1', label: 'IBE160 · Programmering', sourceUrl: 'https://example.test/timetable' }] }
-    else if (action === 'teaching-calendar') { calendarCalls++; data = { calendar: exactCalendar, calendarUrl: 'https://example.test/ibe160.ics', commonGroups:['Forelesning'], warnings: [] } }
+    else if (action === 'teaching-calendar') {
+      calendarCalls++
+      await calendarResponse
+      data = { calendar: exactCalendar, calendarUrl: 'https://example.test/ibe160.ics', commonGroups:['Forelesning'], warnings: [] }
+    }
     else data = { status: 'not-supported', error: 'Uventet testkall' }
     await route.fulfill({ json: { status: 'ok', ...data } })
   })
@@ -108,8 +114,19 @@ test('one programme preparation fetches an exact teaching object and commits onc
   await host.locator('[name=model]').selectOption('common')
   await host.locator('[name=studySemester]').selectOption('first')
   await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
-  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
 
+  const addCourse = host.getByRole('button', { name: 'Legg til 1 emne', exact: true })
+  try {
+    await expect(host.getByRole('status')).toHaveText('Henter undervisning …')
+    await expect(addCourse).toBeVisible()
+    await expect(addCourse).toBeDisabled()
+    await addCourse.evaluate(button => button.click())
+    expect(await page.evaluate(() => window.writeAttempts)).toEqual([])
+  } finally {
+    releaseCalendar()
+  }
+  await expect(addCourse).toBeEnabled()
   await expect(host.getByText('Undervisning klar for import', { exact: true })).toBeVisible()
   await expect(host.getByLabel('Timeplanobjekt for IBE160', { exact: true })).toHaveValue('0')
   expect(calendarCalls).toBe(1)
@@ -130,7 +147,7 @@ test('one programme preparation fetches an exact teaching object and commits onc
   await largeText.evaluate(node => node.remove())
   await page.setViewportSize({ width: 1440, height: 1000 })
 
-  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
+  await addCourse.click()
   await expect(host.locator('.program-action-status')).toContainText('1 emne er lagret samlet. 1 undervisningshendelse ble importert')
   expect(calendarCalls).toBe(1)
   expect(await page.evaluate(() => window.writeAttempts.length)).toBe(1)

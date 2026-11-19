@@ -1,9 +1,9 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { toInstant, osloLocal, eventBlocksTime, OSLO, uncertainPersonalTiming } from './planner.js'
-import { getRemainingMinutes, getRemainingRange, deadlineInstant } from './tasks.js'
+import { getRemainingRange, deadlineInstant } from './tasks.js'
 import { compareDeadlines } from './deadline.js'
 import { taskBlockers } from './task-dependencies.js'
-import { capacityPlanningNote, validPlanningRules } from './planning-rules.js'
+import { capacityPlanningNote, DEFAULT_PLANNING_RULES, validPlanningRules } from './planning-rules.js'
 
 const minute = 60000
 export function windowInterval(value) {
@@ -51,25 +51,39 @@ export const wholeMinuteIntervals = intervals => intervals.map(item => ({ ...ite
 
 export const contiguousWorkInterval = (intervals, minutes) => unionIntervals(wholeMinuteIntervals(intervals)).find(item => (item.end - item.start) / minute >= minutes)
 
+export function reservationConflict(value, reservations, floor, breakMs, { lockedOnly = false } = {}) {
+  const others = reservations.filter(other => other.sessionId !== value.sessionId && (!lockedOnly || other.locked || value.locked))
+  if (others.some(other => Math.max(value.start, other.start, floor) < Math.min(value.end, other.end))) return 'overlap'
+  return breakMs > 0 && others.some(other => Math.max(value.start, floor) < other.end + breakMs && value.end + breakMs > other.start) ? 'pause' : null
+}
+
+export function reservationWorkIntervals(reservation, floor, deadline, windows, busy = []) {
+  const beforeDeadline = { start: Math.max(reservation.start, floor), end: Math.min(reservation.end, deadline) }
+  return wholeMinuteIntervals(subtractIntervals(intersectIntervals([beforeDeadline], windows), busy))
+}
+
 // Reservations allocate time, never evidence that any work has been performed.
 export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), events = [], workWindows, busyWindows = [], planningRules) {
   const warnings = [], known = Boolean(workWindows?.length)
   const uncertainPersonal = events.filter(event => uncertainPersonalTiming(event, now)).length
   if (uncertainPersonal) warnings.push(`${uncertainPersonal} ${uncertainPersonal === 1 ? 'egen aktivitet har' : 'egne aktiviteter har'} ukjent tidspunkt eller varighet. Tiden behandles ikke som sikkert ledig.`)
   const floor = Math.ceil(+now / minute) * minute
-  const reservations = sessions.flatMap(session => { try { return [extendedSessionInterval(session)] } catch { warnings.push('En ugyldig studieøkt er utelatt.'); return [] } })
+  const reservations = sessions.flatMap(session => { try { return [{ ...extendedSessionInterval(session), locked: session.locked }] } catch { warnings.push('En ugyldig studieøkt er utelatt.'); return [] } })
+  const activeReservations = reservations.filter(reservation => !tasks.some(task => task.id === reservation.taskId && (task.completed || task.submitted)))
+  const breakMs = (planningRules || DEFAULT_PLANNING_RULES).breakMinutes * minute
   const busy = [...busyWindows, ...events.filter(eventBlocksTime)].map(e => ({ start: Date.parse(e.start), end: Date.parse(e.end) }))
   const windows = (workWindows || []).map(windowInterval)
   const future = unionIntervals((known ? windows : reservations).map(i => ({ start: Math.max(i.start, floor), end: i.end })))
   const available = wholeMinuteIntervals(subtractIntervals(future, busy))
   const totalCapacityMinutes = intervalMinutes(available)
   // Manual and review sessions have no task workload, but still occupy time.
-  let reservedCovered = intersectIntervals(available, reservations.filter(item => !item.taskId)), free = available
+  let reservedCovered = intersectIntervals(available, reservations.filter(item => !item.taskId))
   const reservedIntervals = new Map(tasks.map(task => [task.id, []]))
   const entries = tasks.map(task => {
     const range = getRemainingRange(task)
+    const calendarReservedMinutes = intervalMinutes(reservations.filter(item => item.taskId === task.id).map(item => ({ start: Math.max(item.start, floor), end: item.end })))
     return { taskId: task.id, requiredMinutes: range?.maxMinutes ?? null, requiredMinMinutes: range?.minMinutes ?? null, requiredMaxMinutes: range?.maxMinutes ?? null,
-      allocatedMinutes: 0, reservedMinutes: 0, availableBeforeMinutes: null, missingMinutes: 0, missingMinMinutes: 0, missingMaxMinutes: 0, allocations: [], reasons: [], state: 'unplanned' }
+      allocatedMinutes: 0, reservedMinutes: 0, calendarReservedMinutes, coveredByReservationsMinutes: 0, availableBeforeMinutes: null, missingMinutes: 0, missingMinMinutes: 0, missingMaxMinutes: 0, allocations: [], reasons: [], state: 'unplanned' }
   })
   // Make conflicting reservations explicit and count each minute for at most one task.
   for (const reservation of reservations.filter(r => r.taskId).sort((a, b) => a.start - b.start || a.sessionId.localeCompare(b.sessionId))) {
@@ -79,7 +93,9 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     let deadline = Infinity
     try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig ved tidsskifte. Presiser fristen.'); }
     const occupied = intersectIntervals(available, [reservation])
-    const usable = subtractIntervals(intersectIntervals(available, [{ ...reservation, end: Math.min(reservation.end, deadline) }]), reservedCovered)
+    const conflict = reservation.end > floor && reservationConflict(reservation, activeReservations, floor, breakMs, { lockedOnly: true })
+    const usable = conflict ? [] : reservationWorkIntervals(reservation, floor, deadline, available, reservedCovered)
+    if (conflict) entry.reasons.push(conflict === 'overlap' ? 'En låst reservasjon overlapper en annen reservasjon. Kontroller tidene.' : 'En låst reservasjon mangler valgt pause. Kontroller tidene.')
     if (intervalMinutes(intersectIntervals(occupied, reservedCovered))) warnings.push('Overlappende reservasjoner er telt én gang; rediger oppgavevalget eller tidsrommet.')
     if (intervalMinutes(occupied) < intervalMinutes([reservation])) entry.reasons.push('Deler av reservasjonen er passert, opptatt eller utenfor arbeidstiden.')
     reservedCovered = unionIntervals([...reservedCovered, ...occupied])
@@ -87,7 +103,8 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     reservedIntervals.get(task.id).push(...usable)
     for (const i of usable) entry.allocations.push({ sessionId: reservation.sessionId, startLocal: osloLocal(new Date(i.start).toISOString()), endLocal: osloLocal(new Date(i.end).toISOString()), minutes: intervalMinutes([i]), reserved: true })
   }
-  free = subtractIntervals(available, reservedCovered)
+  const pauses = activeReservations.filter(item => item.locked || planningRules).map(item => ({ start: item.start - breakMs, end: item.end + breakMs }))
+  const free = subtractIntervals(available, [...reservedCovered, ...pauses])
   for (const { task, index } of tasks.map((task, index) => ({ task, index })).sort((a, b) => compareDeadlines(a.task, b.task))) {
     const entry = entries[index], range = getRemainingRange(task), required = range?.maxMinutes ?? range?.minMinutes ?? null
     if (task.completed || task.submitted) { entry.state = 'done'; continue }
@@ -98,6 +115,7 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     const ownReservations = reservations.filter(item => item.taskId === task.id && item.end > floor)
     const reservedFits = indivisible ? ownReservations.length === 1 && Boolean(contiguousWorkInterval(reservedIntervals.get(task.id), required)) : entry.reservedMinutes >= required
     entry.allocatedMinutes = indivisible ? reservedFits ? required : 0 : Math.min(required, entry.reservedMinutes)
+    entry.coveredByReservationsMinutes = entry.allocatedMinutes
     let deadline = Infinity
     try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig eller ugyldig. Ingen tid foreslås.'); }
     if (known && Number.isFinite(deadline)) {

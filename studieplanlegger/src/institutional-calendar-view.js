@@ -40,7 +40,7 @@ export function mountInstitutionalCalendar(host,{getState,onCommit,api}) {
     if(pending)return
     invalidate();const operation=begin(),selectedKind=kind.value,snapshot=selection();message.textContent='Henter publiserte kalenderplaner …'
     try{
-      const data=await api(`/api/import/calendar-sources/${selectedKind}`,{signal:operation.controller.signal})
+      const data=await api(`/api/import/calendar-sources/${selectedKind}`,{signal:operation.controller.signal, ...(selectedKind==='fih'?{timeoutMs:55_000}:{})})
       if(!current(operation)||snapshot!==selection())return
       classes.replaceChildren();sourceChoices.clear();const empty=el('option','Velg din publiserte kalenderplan');empty.value='';classes.append(empty)
       for(const item of data.results||[]){const option=el('option',item.name);option.value=item.sourceUrl+(item.sourceObjectId?`#${encodeURIComponent(item.sourceObjectId)}`:'');sourceChoices.set(option.value,item);classes.append(option)}
@@ -54,7 +54,7 @@ export function mountInstitutionalCalendar(host,{getState,onCommit,api}) {
       const source=new URL(url.value.trim()),period={year:Number(year.value),semester:semester.value},selectedKind=kind.value,config=calendarKinds[selectedKind],sourceObjectId=sourceChoices.get(classes.value)?.sourceObjectId
       if(source.search&&!config.allowQuery||source.hash||source.username||source.password||!config.valid(source))throw new Error('Velg en publisert kalenderlenke fra den valgte kilden.')
       source.pathname=source.pathname.replace(/\/$/,'')
-      const data=await api('/api/import/calendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:source.href,...(sourceObjectId?{sourceObjectId}:{})}),signal:operation.controller.signal})
+      const data=await api('/api/import/calendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:source.href,...(sourceObjectId?{sourceObjectId}:{})}),signal:operation.controller.signal, ...(selectedKind==='fih'?{timeoutMs:55_000}:{})})
       if(!current(operation))return
       if(snapshot!==selection())throw new Error('Kalendervalget er endret under henting. Hent en ny forhåndsvisning.')
       if(selectedKind==='plandisc'?!data.institutional:data.sourceKind!==config.sourceKind)throw new Error('Kilden bekrefter ikke den valgte offentlige kalenderen.')
@@ -74,7 +74,17 @@ export function mountInstitutionalCalendar(host,{getState,onCommit,api}) {
         if(!draft||snapshot!==selection())return{ok:false,error:'Kalendervalget er endret. Hent en ny forhåndsvisning før du bekrefter.'}
         const saved=await onCommit(candidate,result);if(saved?.ok){draft=false;url.value='';classes.value='';output.replaceChildren();message.textContent=`Institusjonskalender lagret: ${result.counts.added} nye og ${result.counts.updated} oppdaterte oppføringer. ${data.institutional?'Ingen arbeidstid er reservert.':'Bare valgte faste samlinger reserverer tid; informasjonsoppføringer gjør det ikke.'}`}return saved
       }})
-      message.textContent=`${parsed.rows.length} ${data.institutional?'informasjonsoppføringer':'kalenderoppføringer'} i valgt semester. Ingen er valgt automatisk.`
+      const events = parsed.rows.filter(row => row.kind === 'event').length
+      const courses = parsed.rows.filter(row => row.kind === 'course').length
+      const deadlines = parsed.rows.filter(row => row.kind === 'task').length
+      const retained = preview.rows.filter(row => row.kind !== 'course' && row.selected && row.matchEntryKey).length
+      const counts = [
+        `${events} ${data.institutional ? (events === 1 ? 'informasjonsoppføring' : 'informasjonsoppføringer') : (events === 1 ? 'kalenderaktivitet' : 'kalenderaktiviteter')}`,
+        ...(deadlines ? [`${deadlines} ${deadlines === 1 ? 'frist' : 'frister'}`] : []),
+        ...(courses ? [`${courses} emneforslag`] : []),
+      ]
+      const selectionNote = retained === 1 ? 'Det tidligere valget er beholdt.' : retained ? 'De tidligere valgene er beholdt.' : 'Ingen er valgt automatisk.'
+      message.textContent = `${new Intl.ListFormat('nb').format(counts)} i valgt semester. ${selectionNote}`
     }catch(error){if(current(operation))message.textContent=error.name==='AbortError'?'Hentingen er avbrutt. Valgene er beholdt.':error.message}finally{finish(operation)}
   })
   return {hasDraft:()=>pending||draft||Boolean(url.value.trim())}

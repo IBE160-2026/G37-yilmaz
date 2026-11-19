@@ -20,10 +20,19 @@ function entryFingerprint(value) {
 }
 const pad = value => String(value).padStart(2, '0')
 const monthNames = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des']
+function monthNumber(name) {
+  const abbreviation = name.toLowerCase().slice(0, 3)
+  return monthNames.indexOf(({ may: 'mai', oct: 'okt', dec: 'des' })[abbreviation] || abbreviation) + 1
+}
 const clockText = '(?:(?:kl\\.?\\s*)?(\\d{1,2})[:.](\\d\\d)|kl\\.?\\s*(\\d{1,2}))'
-const namedDate = new RegExp(`\\b(\\d{1,2})\\.?\\s*(januar|jan|februar|feb|mars|april|apr|mai|juni|jun|juli|jul|august|aug|september|sept|sep|oktober|okt|november|nov|desember|des)(?:\\.(?=\\s)|\\b)(?:\\s+(\\d{4})(?![\\d/]))?(?:\\s+${clockText})?\\b`, 'i')
-const isoLocalDate = new RegExp(`\\b(\\d{4})-(\\d\\d)-(\\d\\d)(?:[ T]+${clockText})?\\b`, 'i')
-const numericDate = new RegExp(`\\b(\\d{1,2})([./])(\\d{1,2})(?:\\2(\\d{4}|\\d{2}))?(?:\\s+${clockText})?\\b`, 'i')
+const months = 'january|januar|jan|february|februar|feb|march|mars|mar|april|apr|may|mai|june|juni|jun|july|juli|jul|august|aug|september|sept|sep|october|oktober|oct|okt|november|nov|december|desember|dec|des'
+const englishClock = `(?:${clockText}|(\\d{1,2})(?=\\s*[ap](?:m\\b|\\.m\\.?)))`
+const clockBoundary = '(?:\\b|(?=Z\\b|[ap](?:m\\b|\\.m\\.?)))'
+const namedDate = new RegExp(`\\b(\\d{1,2})(?:\\.|st\\b|nd\\b|rd\\b|th\\b)?\\s*(${months})(?:\\.(?=\\s)|\\b)(?:\\s+(\\d{4})(?![\\d/]))?(?:,?\\s+(?:at\\s+)?${englishClock})?${clockBoundary}`, 'i')
+const monthFirstDate = new RegExp(`\\b(${months})\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(\\d{4})\\b(?:,?\\s+(?:at\\s+)?${englishClock})?${clockBoundary}`, 'i')
+const meridiem = /^\s*([ap])(?:m\b|\.m\.?(?!\w))/i
+const isoLocalDate = new RegExp(`\\b(\\d{4})-(\\d\\d)-(\\d\\d)(?:[ T]+${clockText})?${clockBoundary}`, 'i')
+const numericDate = new RegExp(`\\b(\\d{1,2})([./])(\\d{1,2})(?:\\2(\\d{4}|\\d{2}))?(?:\\s+${clockText})?${clockBoundary}`, 'i')
 const isoTimestamp = /\b\d{4}-\d\d-\d\dT\d{1,2}[:.]\d\d(?:[\w:.+\/[\]-]|,(?=\d))*/i
 const namedZoneSuffix = value => value.match(/^\s+(?:UTC|GMT|CET|CEST|[A-Za-z_]+\/[A-Za-z_/]+)\b/i)?.[0] || value.match(/^\s+(?:[A-Z]{1,3}[SD]T|[CEW]EST|[CEW]ET|MSK|HKT|SGT|MET)\b/)?.[0] || ''
 function assertText(text) {
@@ -45,24 +54,14 @@ export function parseDocumentDate(value, { namedYear } = {}) {
       return { value: local, raw, issues: [] }
     } catch { return unresolvedPrecision() }
   }
-  let date, time, ambiguous = false
-  const iso = raw.match(isoLocalDate)
-  const norwegian = !iso && raw.match(numericDate)
-  const named = !iso && !norwegian && raw.match(namedDate)
-  const matched = iso || norwegian || named
-  if (matched && matched[0] !== raw || /^\d{4}-\d\d-\d\d/.test(raw) && !iso) return unresolvedPrecision()
-  const clock = (hour, minute, wholeHour) => hour ? `${pad(hour)}:${minute}` : wholeHour ? `${pad(wholeHour)}:00` : ''
-  if (iso) { date = `${iso[1]}-${iso[2]}-${iso[3]}`; time = clock(...iso.slice(4)) }
-  else if (norwegian) {
-    ambiguous = norwegian[2] === '/' && Number(norwegian[1]) <= 12 && Number(norwegian[3]) <= 12 && norwegian[1] !== norwegian[3]
-    if (norwegian[4]?.length === 4) date = `${norwegian[4]}-${pad(norwegian[3])}-${pad(norwegian[1])}`
-    time = clock(...norwegian.slice(5))
+  let { date, time, ambiguous, matched } = documentDateParts(raw, namedYear)
+  if (matched && matched[0] !== raw) {
+    const marker = raw.slice(matched[0].length).match(meridiem)
+    const hour = Number(time?.slice(0, 2))
+    if (!marker || matched[0].length + marker[0].length !== raw.length || !(hour >= 1 && hour <= 12)) return unresolvedPrecision()
+    time = pad(hour % 12 + (marker[1].toLowerCase() === 'p' ? 12 : 0)) + time.slice(2)
   }
-  else if (named) {
-    time = clock(...named.slice(4))
-    const year = named[3] || (time && namedYear)
-    if (year) date = `${year}-${pad(monthNames.indexOf(named[2].toLocaleLowerCase('nb').slice(0, 3)) + 1)}-${pad(named[1])}`
-  }
+  if (/^\d{4}-\d\d-\d\d/.test(raw) && !matched) return unresolvedPrecision()
   const issues = []
   if (!date) issues.push('Datoen mangler et entydig år eller datoformat.')
   if (!time) issues.push('Klokkeslett mangler; bekreft dato uten klokkeslett, oppgi klokkeslett selv eller lagre uten frist.')
@@ -73,33 +72,69 @@ export function parseDocumentDate(value, { namedYear } = {}) {
   return { value: !issues.length ? candidate : '', raw, issues }
 }
 
-function explicitOffsetRangeEnd(startToken, endHour, endMinute) {
-  const match = startToken.match(/^(\d{4}-\d\d-\d\d)T(\d\d):(\d\d)(?::00(?:[.,]0+)?)?(Z|[+-]\d\d:\d\d)$/)
-  if (!match) return ''
-  const startMinutes = Number(match[2]) * 60 + Number(match[3]), endMinutes = Number(endHour) * 60 + Number(endMinute)
-  if (endMinutes > 1439 || endMinutes === startMinutes) return ''
-  let sourceDate
-  try { sourceDate = Temporal.PlainDate.from(match[1]); if (endMinutes < startMinutes) sourceDate = sourceDate.add({ days: 1 }) } catch { return '' }
-  return parseDocumentDate(`${sourceDate}T${pad(endHour)}:${endMinute}${match[4]}`).value
+function documentDateParts(raw, namedYear) {
+  let date, time, ambiguous = false
+  const iso = raw.match(isoLocalDate)
+  const norwegian = !iso && raw.match(numericDate)
+  const named = !iso && !norwegian && raw.match(namedDate)
+  const english = !iso && !norwegian && !named && raw.match(monthFirstDate)
+  const matched = iso || norwegian || named || english
+  const clock = (hour, minute, wholeHour, englishHour) => hour ? `${pad(hour)}:${minute}` : wholeHour || englishHour ? `${pad(wholeHour || englishHour)}:00` : ''
+  if (iso) { date = `${iso[1]}-${iso[2]}-${iso[3]}`; time = clock(...iso.slice(4)) }
+  else if (norwegian) {
+    ambiguous = norwegian[2] === '/' && Number(norwegian[1]) <= 12 && Number(norwegian[3]) <= 12 && norwegian[1] !== norwegian[3]
+    if (norwegian[4]?.length === 4) date = `${norwegian[4]}-${pad(norwegian[3])}-${pad(norwegian[1])}`
+    time = clock(...norwegian.slice(5))
+  }
+  else if (named) {
+    time = clock(...named.slice(4))
+    const year = named[3] || (time && namedYear)
+    if (year) date = `${year}-${pad(monthNumber(named[2]))}-${pad(named[1])}`
+  } else if (english) {
+    date = `${english[3]}-${pad(monthNumber(english[1]))}-${pad(english[2])}`
+    time = clock(...english.slice(4))
+  }
+  return { date, time, ambiguous, matched }
 }
 
-function textDate(value, { event = false } = {}) {
-  const match = [value.match(isoTimestamp), value.match(isoLocalDate), value.match(numericDate), value.match(namedDate)]
+const rangeClock = /^(?:kl\.?\s*)?(\d{1,2})[:.](\d\d)(?:\b|(?=Z\b))(?![./]\d)/i
+const secondsSuffix = /^:\d{2}(?:[.,]\d+)?/
+function timeSuffix(value) {
+  const suffix = value.match(/^(?:[:.,]\d+(?:[.,]\d+)?)?(?:\s*(?:Z\b|[+-]\d{2}(?::?\d{2})?(?::\d+)?|\[[^\]]+\]))?/i)?.[0] || ''
+  const clockMarker = value.slice(suffix.length).match(meridiem)?.[0] || ''
+  return suffix + clockMarker + namedZoneSuffix(value.slice(suffix.length + clockMarker.length))
+}
+
+function textDate(value, { rangeStart = false } = {}) {
+  const match = [value.match(isoTimestamp), value.match(isoLocalDate), value.match(numericDate), value.match(namedDate), value.match(monthFirstDate)]
     .filter(Boolean).sort((first, second) => first.index - second.index)[0]
   if (!match) return null
   const end = match.index + match[0].length
   const tail = value.slice(end)
-  const timestamp = isoTimestamp.test(match[0])
-  if (timestamp) return { raw: (match[0] + namedZoneSuffix(tail)).replace(/\.$/, ''), index: match.index, end, timestamp }
-  // A hyphen following a local teaching time separates start and end, not a UTC offset.
-  const suffixTail = event ? tail.replace(/^\s*[-–—]\s*\d{1,2}[:.]\d\d/, '') : tail
-  const offset = suffixTail.match(/^(?:[:.,]\d+)?(?:\s*(?:Z\b|[+-]\d{2}(?::?\d{2})?(?::\d+)?|\[[^\]]+\]))?/i)?.[0] || ''
-  const suffix = offset + namedZoneSuffix(suffixTail.slice(offset.length))
-  return { raw: match[0] + suffix, index: match.index, end, timestamp }
+  if (isoTimestamp.test(match[0])) {
+    const clockMarker = tail.match(meridiem)?.[0] || ''
+    const suffix = clockMarker + namedZoneSuffix(tail.slice(clockMarker.length))
+    return { raw: (match[0] + suffix).replace(/\.$/, ''), index: match.index, end: end + suffix.length }
+  }
+  if (rangeStart) {
+    // Without a T, a compact hyphen can be the range separator. A distinct
+    // second separator identifies an offset attached to the start time.
+    const seconds = tail.match(secondsSuffix)?.[0] || ''
+    const afterSeconds = tail.slice(seconds.length)
+    const range = afterSeconds.match(/^\s*[-–—]\s*(.+)$/u)
+    const offsetBeforeRange = /^-\d\d:\d\d(?:\s+[-–—]|[–—])/u.test(afterSeconds)
+    const clock = range?.[1].match(rangeClock)?.[0]
+    if (clock && !offsetBeforeRange) {
+      const suffix = range[1].slice(clock.length).replace(secondsSuffix, '')
+      return { raw: match[0] + seconds + namedZoneSuffix(suffix), index: match.index, end: end + seconds.length }
+    }
+  }
+  const suffix = timeSuffix(tail)
+  return { raw: match[0] + suffix, index: match.index, end: end + suffix.length }
 }
 
 const noDeadline = { value: '', raw: '', issues: [] }
-const deadlineCue = /(?<![\p{L}\p{N}\p{M}])(?:frist|deadline|due)(?![\p{L}\p{N}\p{M}])\s*:?\s*(?:(?:er|på|on)\s+)?/giu
+const deadlineCue = /(?<![\p{L}\p{N}\p{M}])(?:innleveringsfrist(?:en)?|leveringsfrist(?:en)?|frist(?:en)?|deadline|due(?:\s+date)?)(?![\p{L}\p{N}\p{M}])\s*:?\s*(?:(?:er|på|is|on|by)\s+)*/giu
 const relativeCue = /(?<![\p{L}\p{N}\p{M}])(?:innen|senest)(?![\p{L}\p{N}\p{M}])\s+/giu
 const relativeDate = /^(?:mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag|i\s+(?:dag|morgen|kveld|natt)|(?:neste|denne|kommende|førstkommende)\s+(?:uke|måned|helg|mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)|(?:utgangen|slutten)\s+av\s+(?:dagen|uken|uka|måneden|semesteret)|kl\.?\s*\d{1,2}|\d{1,2}[:.]\d{2}(?![./]\d)|(?:om\s+)?(?:\d+|en|ei|ett)\s+(?:time|timer|dag|dager|døgn|uke|uker|måned|måneder))(?![\p{L}\p{N}\p{M}])/iu
 const openDeadline = /^(?:ikke\s+(?:bestemt|fastsatt|oppgitt|avklart|satt)|ukjent|uavklart|kommer senere)(?![\p{L}\p{N}\p{M}])/iu
@@ -109,11 +144,10 @@ function deadlineYear(publication, candidate, referenceDate) {
   const due = candidate.raw.match(namedDate)
   const published = publication.match(namedDate)
   if (!due || due[3] || !published || Number(published[1]) > Number(due[1])) return null
-  const month = name => monthNames.indexOf(name.toLowerCase().slice(0, 3)) + 1
-  if (month(published[2]) !== month(due[2])) return null
+  if (monthNumber(published[2]) !== monthNumber(due[2])) return null
   // The dated publication anchors a second date in the same month. If both
   // omit the year, suggest the current one only within that publication month.
-  return published[3] || (referenceDate.month === month(due[2]) && Number(published[1]) <= referenceDate.day ? referenceDate.year : null)
+  return published[3] || (referenceDate.month === monthNumber(due[2]) && Number(published[1]) <= referenceDate.day ? referenceDate.year : null)
 }
 
 function taskTextDeadline(value, referenceDate) {
@@ -129,12 +163,22 @@ function taskTextDeadline(value, referenceDate) {
   if (cues.length > 1) return unresolved(value.slice(cues[0].index), 'Kilden oppgir flere mulige frister. Velg riktig frist.')
   const cue = cues[0]
   if (cue) {
-    const tail = value.slice(cue.index + cue[0].length).replace(/^(?:innen|senest|før)\s+/iu, '')
+    const expression = value.slice(cue.index + cue[0].length).replace(/^(?:innen|senest|før)\s+/iu, '')
+    const changePrefix = expression.match(/^(?:(?:(?:er|ble)\s+)?(?:flyttet|utsatt|endret)\s+fra|(?:(?:was|has\s+been)\s+)?(?:moved|extended|changed)\s+from)\s+/iu)?.[0]
+    const tail = expression.slice(changePrefix?.length || 0)
     if (openDeadline.test(tail) || /(?<!\p{L})uten\s+$/iu.test(value.slice(0, cue.index))) return noDeadline
-    const candidate = textDate(tail)
+    let candidate = textDate(tail)
     if (!candidate || candidate.index !== 0) return unresolved(value.slice(cue.index), 'Fristuttrykket gir ingen entydig dato og klokkeslett. Avklar fristen.')
     const alternative = tail.slice(candidate.end).match(/^\s*(?:[,;/]\s*)?(?:eller|or)\s+(.+)$/iu)?.[1]
     if (alternative && (textDate(alternative) || relativeDate.test(alternative))) return unresolved(tail, 'Kilden oppgir flere mulige frister. Velg riktig frist.')
+    const afterDate = tail.slice(candidate.end).replace(/^\s*[,;–—]\s*/u, ' ')
+    const replacement = changePrefix
+      ? afterDate.match(/^\s+(?:til|to)\s+(.+)$/iu)?.[1]
+      : afterDate.match(/^\s*(?:(?:(?:er|ble)\s+)?(?:flyttet|utsatt|endret)\s+til|(?:(?:was|has\s+been)\s+)?(?:moved|extended|changed)\s+to)\s+(.+)$/iu)?.[1]
+    if (changePrefix || replacement !== undefined || /^\s+(?:(?:er|ble|was)\s+)?(?:flyttet|utsatt|endret|moved|extended|changed)\b/iu.test(afterDate)) {
+      candidate = textDate(replacement || '')
+      if (!candidate || candidate.index !== 0 || textDate(replacement.slice(candidate.end))) return unresolved(expression, 'Den nye fristen er ikke entydig. Velg riktig frist.')
+    }
     const publication = value.slice(0, cue.index).split(publicationCue)[1] || ''
     const namedYear = deadlineYear(publication, candidate, referenceDate)
     const date = parseDocumentDate(candidate.raw, { namedYear })
@@ -149,29 +193,47 @@ function taskTextDeadline(value, referenceDate) {
   return parseDocumentDate(candidate.raw)
 }
 
+const exactClockSuffix = /^(:[0-5]\d(?:[.,]\d{1,3})?)?\s*(Z|[+-]\d\d(?:[:]?\d\d)?)?$/i
+const unresolvedTeachingTime = raw => ({ value: '', issues: raw ? ['Tidspunktet kan ikke tolkes entydig. Oppgi dato og klokkeslett i norsk tid.'] : [] })
+function exactTeachingTime(raw) {
+  const iso = raw.match(/^(\d{4}-\d\d-\d\d)T(\d\d:\d\d)/i)
+  const { date, time, ambiguous, matched } = iso ? { date: iso[1], time: iso[2], matched: iso } : documentDateParts(raw)
+  if (!date || !time || ambiguous) return unresolvedTeachingTime(raw)
+  const precision = raw.slice(matched[0].length).match(exactClockSuffix)
+  if (!precision) return unresolvedTeachingTime(raw)
+  const wall = time + (precision[1] || ''), offset = precision[2]?.toUpperCase() || ''
+  return { ...csvCalendarDate(date + 'T' + wall + offset), date, wall, offset }
+}
+
 function teachingTextTimes(value) {
-  const start = textDate(value, { event: true })
-  const date = parseDocumentDate(start?.raw)
-  const result = { startLocal: date.value, endLocal: '', startRaw: date.raw, startIssues: date.issues }
+  const sourceStart = textDate(value, { rangeStart: true })
+  const date = exactTeachingTime(sourceStart?.raw || '')
+  const result = { startLocal: date.value, endLocal: '', startRaw: sourceStart?.raw || '', startIssues: date.issues, originalStart: date.original }
   if (!date.value) return result
-  const range = value.slice(start.end).match(/^\s*[-–—]\s*(.+)$/u)
+  const range = value.slice(sourceStart.end).match(/^\s*[-–—]\s*(.+)$/u)
   if (!range) return result
-  const clock = range[1].match(/^(?:kl\.?\s*)?(\d{1,2})[:.](\d\d)\b(?![./]\d)/i)
-  if (!clock) {
-    const end = textDate(range[1], { event: true })
-    if (end?.index !== 0) return result
-    const parsedEnd = parseDocumentDate(end.raw)
-    return { ...result, endLocal: parsedEnd.value, endRaw: parsedEnd.raw, endIssues: parsedEnd.issues }
+  const clock = range[1].match(rangeClock)
+  let end, endRaw
+  if (clock) {
+    const suffix = timeSuffix(range[1].slice(clock[0].length))
+    endRaw = clock[0] + suffix
+    const precision = suffix.match(exactClockSuffix)
+    if (!precision) end = unresolvedTeachingTime(endRaw)
+    else {
+      const wall = pad(clock[1]) + ':' + clock[2] + (precision[1] || '')
+      const offset = precision[2]?.toUpperCase() || date.offset
+      let day = Temporal.PlainDate.from(date.date)
+      if (offset === date.offset && wall.slice(0, 5) < date.wall.slice(0, 5)) day = day.add({ days: 1 })
+      end = exactTeachingTime(day.toString() + 'T' + wall + offset)
+      if (date.offset && end.original === date.original) end = unresolvedTeachingTime(endRaw)
+    }
+  } else {
+    const sourceEnd = textDate(range[1])
+    if (sourceEnd?.index !== 0) return result
+    endRaw = sourceEnd.raw
+    end = exactTeachingTime(endRaw)
   }
-  const [, hour, minute] = clock
-  if (start.timestamp && /(?:Z|[+-]\d\d:\d\d)$/.test(start.raw)) {
-    return { ...result, endLocal: explicitOffsetRangeEnd(start.raw, hour, minute), endRaw: clock[0] }
-  }
-  const time = pad(hour) + ':' + minute
-  let day = Temporal.PlainDate.from(date.value.slice(0, 10))
-  if (time < date.value.slice(11)) day = day.add({ days: 1 })
-  const parsedEnd = parseDocumentDate(day.toString() + 'T' + time)
-  return { ...result, endLocal: parsedEnd.value, endRaw: clock[0], endIssues: parsedEnd.issues }
+  return { ...result, endLocal: end.value, endRaw, endIssues: end.issues, originalEnd: end.original }
 }
 
 function baseRow(kind, title, snippet, position, extra = {}) {
@@ -213,7 +275,7 @@ export function parseDocumentText(text, { blocks, format = 'text', referenceDate
       continue
     }
     const eventMarker = value.match(/(?<![\p{L}\p{N}\p{M}])(forelesning|seminar|undervisning|øving|lab|lecture|workshop)(?![\p{L}\p{N}\p{M}])/iu)
-    const taskMarker = value.match(/(?<![\p{L}\p{N}\p{M}])(oppgave|arbeidskrav|innlevering|frist|les|lever|øv|eksamen|assignment|deadline|due|submit|read)(?![\p{L}\p{N}\p{M}])/iu)
+    const taskMarker = value.match(/(?<![\p{L}\p{N}\p{M}])(oppgave|arbeidskrav|innlevering(?:sfrist(?:en)?)?|leveringsfrist(?:en)?|frist(?:en)?|les|lever|øv|eksamen|assignment|deadline|due|submit|read)(?![\p{L}\p{N}\p{M}])/iu)
     const event = Boolean(eventMarker && (!taskMarker || eventMarker.index < taskMarker.index)), task = Boolean(taskMarker)
     const date = event ? noDeadline : taskTextDeadline(value, referenceDate)
     rows.push(baseRow(event ? 'event' : 'task', value, value, position, { courseHint, selected: event || task, unsupported: !event && !task, deadlineLocal: date.value, deadlineRaw: date.raw, deadlineIssues: date.issues, ...(event ? teachingTextTimes(value) : {}), requiresSubmission: /(?<![\p{L}\p{N}\p{M}])(innlevering|lever|submit|assignment)(?![\p{L}\p{N}\p{M}])/iu.test(value) }))

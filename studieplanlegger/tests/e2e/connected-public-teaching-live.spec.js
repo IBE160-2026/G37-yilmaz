@@ -1,9 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { navigate, openCourseImport, openImportMethod, key } from './helpers.js'
-
-// Deployed acceptance runs independent cases with one worker; an unavailable
-// public source must not suppress the remaining bounded checks.
-if (!process.env.AJOUR_REMOTE_URL) test.describe.configure({ mode: 'serial' })
+import { nameFirstLabel, sortByVisibleName } from '../../src/name-sort.js'
+import { parseCalendar } from '../../src/calendar-import.js'
 
 // These are explicit choices made by the isolated test student. They do not
 // infer a real student's campus, group, programme, or teaching term.
@@ -44,27 +42,39 @@ for (const [institution, code, objectLabel, width, expectedSourceObjectId] of sa
     await page.getByRole('combobox', { name: 'Lærested for offentlig undervisning', exact: true }).selectOption(institution)
     await page.getByRole('combobox', { name: 'Lagret emne for undervisning', exact: true }).selectOption('test-course')
     await expect(page.getByLabel('Emnekode, emnenavn eller publisert kullnavn', { exact: true })).toHaveValue(code)
+    const endpoint = action => response => new URL(response.url()).pathname === `/api/import/providers/${institution}/${action}`
+    const searchResponse = page.waitForResponse(endpoint('teaching-search'))
     await page.getByRole('button', { name: 'Søk offentlig undervisning', exact: true }).click()
+    const search = await (await searchResponse).json()
+    expect(search.status, search.error).toBe('ok')
+    const matches = search.results.filter(item => expectedSourceObjectId
+      ? item.sourceObjectId === expectedSourceObjectId
+      : item.term != null ? item.code === code && item.term === 1 : objectLabel.test(item.label))
+    expect(matches, JSON.stringify(search.results.map(({ sourceObjectId, label }) => ({ sourceObjectId, label })))).toHaveLength(1)
+    const [sourceObject] = matches
     const options = page.getByRole('combobox', { name: 'Publisert timeplanvalg', exact: true })
     await expect(options).toBeVisible({ timeout: 45000 })
     const items = await options.locator('option').evaluateAll(nodes => nodes.map(node => ({ value: node.value, label: node.textContent })))
-    // The current name-first UI omits source term prose for HiMolde. The
-    // response assertion below still pins the exact sourceObjectId (code¤1).
-    const selected = items.find(item => item.value !== '' && item.label.includes(code) && (institution === 'himolde' || objectLabel.test(item.label)))
+    // Some TP choices have the name before the code and no ordinal in the UI.
+    // Verify the visible choice and bind it to the exact identity in the source.
+    const displayedLabel = sourceObject.name ? nameFirstLabel(sourceObject) : sourceObject.label
+    const index = sortByVisibleName(search.results, { name: item => item.name || item.label }).indexOf(sourceObject)
+    const selected = items.find(item => item.value === String(index) && item.label === displayedLabel)
     expect(selected, JSON.stringify(items)).toBeTruthy()
     // An exact code match may be proposed by the UI, but import still requires
     // this explicit source selection, activity selection and confirmation.
     expect(['', selected.value]).toContain(await options.inputValue())
     selectedLabel = selected.label
     await options.selectOption(selected.value)
-    const calendarResponse = expectedSourceObjectId ? page.waitForResponse(response => response.url().includes(`/api/import/providers/${institution}/teaching-calendar?`)) : null
+    const calendarResponse = page.waitForResponse(endpoint('teaching-calendar'))
     await page.getByRole('button', { name: 'Forhåndsvis valgt offentlig undervisning', exact: true }).click()
-    if (calendarResponse) {
-      const result = await (await calendarResponse).json()
-      expect(result.status).toBe('ok')
-      expect(result.selected.sourceObjectId).toBe(expectedSourceObjectId)
-      sourceEvidence = { ...sourceEvidence, sourceObjectId: result.selected.sourceObjectId, publicationBoundaries: result.publicationBoundaries, rawEvents: (result.calendar.match(/^BEGIN:VEVENT\s*$/gm) || []).length }
-    }
+    const response = await calendarResponse
+    const result = await response.json()
+    expect(result.status, result.error).toBe('ok')
+    expect(new URL(response.url()).searchParams.get('sourceObjectId')).toBe(sourceObject.sourceObjectId)
+    expect(result.selected.sourceObjectId).toBe(sourceObject.sourceObjectId)
+    const parsed = parseCalendar(result.calendar, { courseId: 'test-course', semester: 'autumn', year: 2026 })
+    sourceEvidence = { ...sourceEvidence, sourceObjectId: result.selected.sourceObjectId, publicationBoundaries: result.publicationBoundaries, rawEvents: (result.calendar.match(/^BEGIN:VEVENT\s*$/gm) || []).length }
     const preview = page.locator('#import-preview')
     await expect(preview).toBeVisible({ timeout: 45000 })
     await preview.locator('summary').filter({ hasText: /^Aktivitetsutvalg/ }).click()
@@ -87,7 +97,7 @@ for (const [institution, code, objectLabel, width, expectedSourceObjectId] of sa
       const sourceDetails = preview.locator('.source-details')
       await sourceDetails.locator('summary').click()
       sourceEvidence.warnings = await sourceDetails.locator('.import-warning').allTextContents()
-      expect(sourceEvidence.warnings.some(text => /manglende eller ugyldig varighet/.test(text))).toBe(true)
+      expect(sourceEvidence.warnings.some(text => /mangler navn eller kilde-ID/.test(text))).toBe(true)
       for (const screenshotWidth of [390, 1440]) {
         await page.setViewportSize({ width: screenshotWidth, height: 1000 })
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
@@ -104,9 +114,18 @@ for (const [institution, code, objectLabel, width, expectedSourceObjectId] of sa
     expect(current.planner.sources).toHaveLength(1)
     expect(current.planner.events.length).toBeGreaterThan(0)
     expect(current.planner.events.every(event => event.courseId === 'test-course')).toBe(true)
+    const occurrence = event => JSON.stringify([event.title, +new Date(event.start), +new Date(event.end)])
+    const sourceOccurrences = new Set(parsed.events.map(occurrence))
+    const selectedGroup = current.planner.sources[0].groups[0]
+    const expectedSelected = new Set(parsed.events.filter(event => event.group === selectedGroup && !event.cancelled).map(occurrence))
+    const active = current.planner.events.filter(event => !event.excluded && !event.cancelled)
+    expect(active.length).toBeGreaterThan(0)
+    expect(active.every(event => sourceOccurrences.has(occurrence(event)))).toBe(true)
+    expect(new Set(active.map(occurrence))).toEqual(expectedSelected)
     expect(current.tasks).toHaveLength(0)
     if (first) {
-      expect(current.planner.events.map(event => event.id)).toEqual(first.planner.events.map(event => event.id))
+      const eventIdentity = event => [event.id, event.start, event.end, event.courseId, event.excluded]
+      expect(current.planner.events.map(eventIdentity)).toEqual(first.planner.events.map(eventIdentity))
       expect(current.planner.sources[0].id).toBe(first.planner.sources[0].id)
     } else first = current
     await page.reload()

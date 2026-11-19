@@ -7,31 +7,38 @@ const deadlineSamples = [
   ['Publisert 1. november, frist 20. november kl. 14', '2026-11-20T14:00'],
   ['Les kapittel 2.10 før frist 19. november 2026 kl. 12:00', '2026-11-19T12:00'],
   ['Frist ikke bestemt', ''],
+  ['Oppgave: Frist 20.11.2026 kl. 09:00 er flyttet til 27.11.2026 kl. 23:59', '2026-11-27T23:59'],
+  ['Oppgave publisert 20.11.2026 kl. 09:00, innleveringsfrist 27.11.2026 kl. 23:59', '2026-11-27T23:59'],
+  ['Leveringsfrist 27.11.2026 kl. 23:59', '2026-11-27T23:59'],
+  ['Oppgave: fristen er 27.11.2026 kl. 23:59', '2026-11-27T23:59'],
+  ['Assignment published November 20, 2026, due date is November 27, 2026 at 11:59 pm', '2026-11-27T23:59'],
   ['Oppgave med frist 20.11.2026 kl. 14:00 eller 27.11.2026 kl. 14:00', '2026-11-27T14:00'],
 ]
 
+async function previewDocument(page, format, name, lines) {
+  await freeze(page, '2026-11-19T09:00:00+01:00')
+  await page.goto('/')
+  await navigate(page, 'subjects')
+  await (await reveal(page.getByRole('button', { name: 'Finn studieprogram', exact: true }))).click()
+  await (await reveal(page.getByRole('button', { name: 'Fra fil eller tekst', exact: true }))).click()
+  if (format === 'text') await (await reveal(page.getByLabel('Eller lim inn tekst'))).fill(lines.join('\n'))
+  else {
+    const mimeType = { txt: 'text/plain', pdf: 'application/pdf', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }[format]
+    const buffer = format === 'pdf' ? syntheticPdf(lines) : format === 'docx' ? await syntheticDocx(lines) : Buffer.from(lines.join('\n'))
+    await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: name + '.' + format, mimeType, buffer })
+  }
+  await page.getByRole('button', { name: 'Vis forhåndsvisning', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible({ timeout: 35000 })
+}
+
 for (const format of ['text', 'txt', 'pdf', 'docx']) {
   test('I01 previews, saves, reloads and undoes contextual deadlines from ' + format, async ({ page }) => {
-    await freeze(page, '2026-11-19T09:00:00+01:00')
-    await page.goto('/')
-    await navigate(page, 'subjects')
-    await (await reveal(page.getByRole('button', { name: 'Finn studieprogram', exact: true }))).click()
-    await (await reveal(page.getByRole('button', { name: 'Fra fil eller tekst', exact: true }))).click()
-    const lines = deadlineSamples.map(([title]) => title)
-    if (format === 'text') await (await reveal(page.getByLabel('Eller lim inn tekst'))).fill(lines.join('\n'))
-    else {
-      const mimeType = { txt: 'text/plain', pdf: 'application/pdf', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }[format]
-      const buffer = format === 'pdf' ? syntheticPdf(lines) : format === 'docx' ? await syntheticDocx(lines) : Buffer.from(lines.join('\n'))
-      await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: 'syntetiske-frister.' + format, mimeType, buffer })
-    }
-
-    await page.getByRole('button', { name: 'Vis forhåndsvisning', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Dette fant jeg', exact: true })).toBeVisible({ timeout: 35000 })
+    await previewDocument(page, format, 'syntetiske-frister', deadlineSamples.map(([title]) => title))
     const rows = page.locator('.document-preview-row')
     const summary = page.locator('.document-confirmation-summary')
     const deadlineInput = row => row.getByLabel('Dato og klokkeslett i norsk tid', { exact: true })
     await expect(rows).toHaveCount(deadlineSamples.length)
-    for (const [index, [title, expected]] of deadlineSamples.slice(0, 4).entries()) {
+    for (const [index, [title, expected]] of deadlineSamples.slice(0, -1).entries()) {
       const row = rows.nth(index)
       await expect(row.locator('summary').first()).toContainText(title)
       await expect(deadlineInput(row)).toHaveValue(expected)
@@ -54,5 +61,28 @@ for (const format of ['text', 'txt', 'pdf', 'docx']) {
     await (await reveal(page.locator('#settings-panel').getByRole('button', { name: 'Angre siste endring', exact: true }))).click()
     await page.reload()
     expect((await saved(page))?.tasks || []).toEqual([])
+  })
+
+  test('teaching from ' + format + ' previews and retains explicit offsets and seconds after saving and reloading', async ({ page }) => {
+    const samples = [
+      { title: 'Seminar 2026-11-20T12:00Z - 13:00-08:00', start: '2026-11-20T12:00:00Z', end: '2026-11-20T21:00:00Z', localStart: '2026-11-20T13:00', localEnd: '2026-11-20T22:00' },
+      { title: 'Seminar 2026-11-20T12:00:07Z - 13:00:45-08:00', start: '2026-11-20T12:00:07Z', end: '2026-11-20T21:00:45Z', localStart: '2026-11-20T13:00:07', localEnd: '2026-11-20T22:00:45' },
+    ]
+    await previewDocument(page, format, 'syntetisk-undervisning', samples.map(({ title }) => title))
+    for (const { title, localStart, localEnd } of samples) {
+      const row = page.locator('.document-preview-row').filter({ hasText: title })
+      await expect(await reveal(row.getByLabel('Start i norsk tid', { exact: true }))).toHaveValue(localStart)
+      await expect(row.getByLabel('Slutt i norsk tid', { exact: true })).toHaveValue(localEnd)
+      await row.getByText('Nøyaktige tidspunkter fra kilden').click()
+      await expect(row.getByText(/Kildeverdier:/)).toContainText(title.split(' - ')[1])
+    }
+    await page.getByRole('button', { name: 'Importer valgte', exact: true }).click()
+    await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
+    await page.reload()
+    expect((await saved(page)).planner.events).toMatchObject(samples.map(({ title, start, end }) => ({ title, start, end })))
+    await navigate(page, 'settings')
+    await (await reveal(page.locator('#settings-panel').getByRole('button', { name: 'Angre siste endring', exact: true }))).click()
+    await page.reload()
+    expect((await saved(page))?.planner?.events || []).toEqual([])
   })
 }

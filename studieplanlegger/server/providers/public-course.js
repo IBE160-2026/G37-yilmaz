@@ -9,7 +9,7 @@ export const clean = value => String(value || '').replace(/\s+/g, ' ').trim()
 export function sourceError(status, message) { throw Object.assign(new Error(message), { status }) }
 export const periodCode = query => `${query.year}${query.semester === 'spring' ? 'V' : 'H'}`
 export const sameCampus = (a, b) => clean(a).toLocaleLowerCase('nb-NO') === clean(b).toLocaleLowerCase('nb-NO')
-export function publicCourseUrl(input, institution, record) {
+export function publicCourseUrl(input, institution, record, { allowMissingRecord = false } = {}) {
   let url
   try { url = new URL(input) } catch { sourceError('invalid-selection', 'Velg et treff fra det offentlige emnesøket først.') }
   const allowed = institution === 'uib' ? url.origin === 'https://www4.uib.no' && /^\/studier\/emner(?:\/[a-z0-9-]+)?\/?$/i.test(url.pathname) : url.origin === 'https://uit.no' && /^\/utdanning\/emner(?:\/emne(?:\/\d+(?:\/[a-z0-9-]+)?)?)?\/?$/i.test(url.pathname)
@@ -18,7 +18,7 @@ export function publicCourseUrl(input, institution, record) {
   const pathRecord = url.pathname.match(/\/emne\/(\d+)/)?.[1], queryRecord = url.searchParams.get('p_document_id')
   if (institution === 'uit' && pathRecord && queryRecord && pathRecord !== queryRecord) sourceError('invalid-selection', 'Kildelenken oppgir motstridende emneidentiteter. Søk og velg emnet på nytt.')
   const identity = institution === 'uib' ? url.pathname.replace(/\/$/, '').split('/')[3]?.toLowerCase() : pathRecord || queryRecord
-  if (record && identity !== String(record).toLowerCase()) sourceError('invalid-selection', 'Kilden returnerte en annen emneidentitet. Søk og velg emnet på nytt.')
+  if (record && (identity || !allowMissingRecord) && identity !== String(record).toLowerCase()) sourceError('invalid-selection', 'Kilden returnerte en annen emneidentitet. Søk og velg emnet på nytt.')
   return url
 }
 export const fetchCoursePage = (fetchText, url, institution, record) => {

@@ -392,7 +392,7 @@ test('plan comparison counts blocked work even when there is enough registered t
   const cards = dialog.locator('article.replan-row')
   await expect(cards).toHaveCount(3)
   for (const card of await cards.all()) {
-    await expect(card).toContainText('0 min fordelt')
+    await expect(card).toContainText('0 min arbeid dekkes')
     await expect(card).toContainText('60 min mangler')
     await expect(card).toContainText('1 oppgave med utelatt arbeid')
     await expect(card).toContainText('Avklar blokkerte oppgaver før hele planen kan gjennomføres.')
@@ -419,7 +419,8 @@ test('P03 and P05 agree on indivisible effort and show pause conflicts without d
   await dialog.locator('summary').filter({ hasText: 'Sammenlign planalternativer' }).click()
   await dialog.getByRole('button', { name: 'Sammenlign planalternativer', exact: true }).click()
   for (const card of await dialog.locator('article.replan-row').all()) {
-    await expect(card).toContainText('0 min fordelt')
+    await expect(card).toContainText('241 min kalenderreservasjon beholdes')
+    await expect(card).toContainText('0 min arbeid dekkes')
     await expect(card).toContainText('minst 241 min mangler')
     await expect(card).toContainText(/Pausekonflikt|mangler valgt pause/)
   }
@@ -432,6 +433,73 @@ test('P09 daily overview gives the known minimum shortage and states the upper b
   const task = { ...base, deadlineLocal: '2026-09-28T13:30', remainingMinutes: null, remainingEstimate: { minMinutes: 241, maxMinutes: null } }
   await seedState(page, { schemaVersion: 1, tasks: [task], workWindows: [{ id: 'available', start: '2026-09-28T11:00:00Z', end: '2026-09-28T11:30:00Z' }], onboarding: { dismissed: true, completed: true } }, 'overview')
   await expect(page.locator('.daily-status')).toContainText('Minst 211 minutter mangler. Du har oppgitt mer enn fire timer. Øvre anslag er ukjent.')
+  await expect(page.locator('#dashboard-suggestions .task-card .capacity-explanation summary')).toHaveText('Minst 211 minutter mangler.')
+})
+
+test('a locked hour covers 30 minutes before the 09:30 deadline through approval, reload and undo', async ({ page }) => {
+  const due = { ...base, title: 'Frist halv ti', deadlineLocal: '2026-10-01T09:30', remainingMinutes: 30 }
+  const other = { ...base, id: 'other', title: 'Annet arbeid', deadlineLocal: '', remainingMinutes: 30 }
+  const lock = { id: 'deadline-lock', taskId: due.id, dateLocal: '2026-10-01', startTime: '09:00', endTime: '10:00', locked: true }
+  await seedState(page, {
+    schemaVersion: 1, tasks: [due, other], sessions: [lock],
+    workWindows: [{ id: 'morning', start: '2026-10-01T07:00:00Z', end: '2026-10-01T10:00:00Z' }],
+    onboarding: { dismissed: true, completed: true },
+  }, 'capacity')
+  await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Realistisk planforslag' })
+  await expect(dialog).toContainText('Forslag innenfor registrert tilgjengelig tid.')
+  await expect(dialog).toContainText('1 økt legges til')
+  await expect(dialog).toContainText('slutter etter oppgavens frist')
+  await expect(dialog).not.toContainText('min mangler før fristen')
+  expect((await saved(page)).sessions).toEqual([lock])
+  await dialog.getByRole('button', { name: 'Bruk planen', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  const approved = await saved(page)
+  expect(approved.sessions).toHaveLength(2)
+  expect(approved.sessions).toContainEqual(lock)
+  expect(approved.sessions).toContainEqual(expect.objectContaining({ taskId: other.id, startTime: '10:10' }))
+  await page.reload()
+  await navigate(page, 'capacity')
+  const capacity = page.locator(`[data-capacity-task="${due.id}"]`)
+  await expect(capacity).toContainText('Kalenderreservasjon: 60 min · Dekket av reservasjoner: 30 min')
+  await expect(capacity).toContainText('Ikke planlagt: 0')
+  expect((await saved(page)).sessions).toEqual(approved.sessions)
+  await navigate(page, 'settings')
+  await page.getByRole('button', { name: 'Angre siste endring', exact: true }).click()
+  expect((await saved(page)).sessions).toEqual([lock])
+})
+
+test('P04 shows the same preserved lock on all comparison cards when no work remains', async ({ page }) => {
+  const due = { ...base, title: 'Åpen med null minutter', remainingMinutes: 0 }
+  const lock = { id: 'zero-lock', taskId: due.id, dateLocal: '2026-10-01', startTime: '09:00', endTime: '09:30', locked: true }
+  await seedState(page, {
+    schemaVersion: 1, tasks: [due], sessions: [lock],
+    workWindows: [{ id: 'morning', start: '2026-10-01T07:00:00Z', end: '2026-10-01T09:00:00Z' }],
+    onboarding: { dismissed: true, completed: true },
+  }, 'capacity')
+  await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Realistisk planforslag' })
+  await dialog.locator('summary').filter({ hasText: 'Sammenlign planalternativer' }).click()
+  await dialog.getByRole('button', { name: 'Sammenlign planalternativer', exact: true }).click()
+  const cards = dialog.locator('article.replan-row')
+  await expect(cards).toHaveCount(3)
+  for (const card of await cards.all()) await expect(card).toContainText('30 min kalenderreservasjon beholdes · 0 min arbeid dekkes')
+  await dialog.getByRole('button', { name: 'Behold dagens plan', exact: true }).click()
+  await page.reload()
+  expect((await saved(page)).sessions).toEqual([lock])
+})
+
+test('task cards keep capacity shortages separate from an unregistered deadline', async ({ page }) => {
+  const work = { ...base, deadlineLocal: '', remainingMinutes: null, remainingEstimate: { minMinutes: 60, maxMinutes: 90 } }
+  await seedState(page, {
+    schemaVersion: 1, tasks: [work],
+    workWindows: [{ id: 'morning', start: '2026-10-01T07:00:00Z', end: '2026-10-01T07:30:00Z' }],
+    onboarding: { dismissed: true, completed: true },
+  }, 'all')
+  const card = row(page, work.title)
+  await card.locator('.capacity-explanation summary').click()
+  await expect(card.locator('.capacity-warning')).toContainText('30–60 min kan mangle.')
+  await expect(card.locator('.capacity-warning')).not.toContainText('før fristen')
 })
 
 test('stale comparison stays open and writes nothing over a newer browser state', async ({ page }) => {

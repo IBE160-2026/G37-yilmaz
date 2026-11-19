@@ -185,8 +185,10 @@ export function createCalendarPage(actions) {
     const continuation = [entry.start < entry.clippedStart ? 'Fortsetter fra forrige dag' : '', entry.end > entry.clippedEnd ? 'Fortsetter neste dag' : ''].filter(Boolean).join(' · ')
     if (continuation) control.append(el('span', continuation, 'entry-continuation'))
     control.title = `${entry.isExam ? 'Eksamen' : kinds[entry.kind]}: ${entry.title}. ${when}. ${kindLabel}`
-    const description = `${entry.isExam ? 'Eksamen' : kinds[entry.kind]}: ${entry.isExam ? entry.title : title}. ${when}. ${kindLabel}${continuation ? `. ${continuation}` : ''}`
-    control.setAttribute('aria-label', compact ? `Kort varighet: ${description}` : description)
+    // Include the full visible card text in display order, even when the
+    // timeline clips or hides some fields to fit the available lane.
+    const label = Array.from(control.children, child => child.textContent).filter(Boolean).join(' ')
+    control.setAttribute('aria-label', compact ? `Kort varighet. ${label}` : label)
     return control
   }
   function addShortControls(timeline) {

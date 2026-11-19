@@ -137,7 +137,7 @@ Emnesøk: **5 V / 2 L / 42 N**. Separate detaljer: **4 V / 5 L / 40 N**. Program
 | [Kunsthøgskolen i Oslo](https://khio.no/studieprogrammer) | V | N | N | L | N | N | N | N | V | V | N | N | Ø |
 | [Norges Handelshøyskole](https://www.nhh.no/studier/) | V | N | V | L | L | N | N | N | V | V | N | N | A |
 | [Norges idrettshøgskole](https://www.nih.no/studier/programmer/) | V | N | N | L | N | N | V | V | V | V | N | N | Ø |
-| [Norges musikkhøgskole](https://student.nmh.no/studiehandboker) | V | N | V | L | N | N | N | N | V | V | N | N | Ø |
+| [Norges musikkhøgskole](https://student.nmh.no/studiene/studiehandboker) | V | N | V | L | N | N | N | N | V | V | N | N | Ø |
 | [VID vitenskapelige høgskole](https://www.vid.no/studier/studieplaner) | V | V | V | L | V | V | V | L | V | A | V | A | A |
 | [Ansgar Høyskole](https://www.ansgarhoyskole.no/student/kalender) | V | V | N | L | V | V | N | L | V | V | N | L | Ø |
 | [Bergen Arkitekthøgskole](https://bas.org/en/master-i-arkitektur/) | V | N | N | L | V | N | N | N | V | Ø | N | Ø | Ø |
@@ -160,7 +160,7 @@ Emnesøk: **5 V / 2 L / 42 N**. Separate detaljer: **4 V / 5 L / 40 N**. Program
 | [Høyskolen for dansekunst](https://www.hfdk.no/for-studenter/studieplan-og-emner) | V | N | N | L | N | N | N | N | V | A | N | A | A |
 | [Høyskolen for yrkesfag](https://hfy.no/) | V | N | N | L | L | N | N | N | V | V | N | L | Ø |
 | [Kriminalomsorgens høgskole og utdanningssenter KRUS](https://www.krus.no/for-aspiranter-og-studenter) | V | V | V | L | V | V | L | L | V | M | N | M | A |
-| [Lillehammer Institute of Music Production and Industries (LIMPI)](https://limpimusic.com/program/) | V | V | V | L | V | V | V | L | V | Ø | N | Ø | Ø |
+| [Lillehammer Institute of Music Production and Industries (LIMPI)](https://limpimusic.com/program) | V | V | V | L | V | V | V | L | V | Ø | N | Ø | Ø |
 | [Norges Høyskole for Helsefag](https://nhfh.no/studier/) | V | N | N | L | V | N | N | N | V | Ø | V | A | A |
 | [Noroff](https://studiekatalog.edutorium.no/nuc/en/programme) | V | V | V | L | V | V | N | N | V | F | F | Ø | A |
 | [Norsk barnebokinstitutt](https://barnebokinstituttet.no/utdanninger-og-kurs/) | V | N | N | L | V | N | V | N | V | M | N | M | Ø |

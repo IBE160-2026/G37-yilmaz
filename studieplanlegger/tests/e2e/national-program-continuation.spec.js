@@ -58,9 +58,9 @@ async function importFirstPeriod(page, sample, options = {}) {
   else await expect(host.locator('[name=programCampus]')).toBeHidden()
   const checked = host.locator('fieldset input[type=checkbox]:checked')
   if (!await checked.count()) await host.locator('fieldset input[type=checkbox]').first().check()
-  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
-  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeVisible()
-  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis (?:1 emne|\d+ emner)|Velg emner$)/ }).click()
+  await expect(host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ })).toBeVisible()
+  await host.getByRole('button', { name: /^Legg til (?:1 emne|\d+ emner)$/ }).click()
   return host
 }
 

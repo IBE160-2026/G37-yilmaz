@@ -17,10 +17,16 @@ async function calendar(page, mode = 'week') {
   await navigate(page, 'calendar'); await page.locator(`[data-calendar-view="${mode}"]`).click(); await page.locator('#full-calendar-date').fill('2026-09-08')
 }
 const fixtures = Object.fromEntries(['uib-search', 'uib-course', 'uit-search', 'uit-course'].map(name => [name, readFileSync(new URL(`../fixtures/public-courses/${name}.html`, import.meta.url), 'utf8')]))
-async function mockProvider(page, institution) {
+async function mockProvider(page, institution, code, record, credits) {
   await page.route(`**/api/import/providers/${institution}/**`, async route => {
     const url = new URL(route.request().url()), action = url.pathname.split('/').at(-1)
-    const result = await providerRequest(institution, action, Object.fromEntries(url.searchParams), { fetchText: async (url, _redirects, validate) => { validate?.(new URL(url)); return fixtures[`${institution}-${action === 'search' ? 'search' : 'course'}`] } })
+    const result = await providerRequest(institution, action, Object.fromEntries(url.searchParams), { fetchText: async (url, _redirects, validate) => {
+      validate?.(new URL(url))
+      const html = fixtures[`${institution}-${action === 'search' ? 'search' : 'course'}`]
+      if (institution !== 'uit') return html
+      return html.replace(/<link rel="canonical"[^>]+>/, '<meta property="og:url" content="https://uit.no/utdanning/emner/emne">')
+        .replaceAll('FYS-3000', code).replaceAll('923370', record).replace('Credits 10', `Credits ${credits}`)
+    } })
     await route.fulfill({ json: result })
   })
 }
@@ -143,12 +149,12 @@ test('legacy calendar filters add personal activities in the real calendar view'
   expect(errors).toEqual([])
 })
 
-for (const [institution, code, record] of [['uib', 'INF100', 'inf100'], ['uit', 'FYS-3000', '923370']]) {
-  for (const live of [false, true]) test(`${live ? 'live public' : 'fixture'} ${institution}: search, preview, save, reload and repeat without losing notes or task IDs`, async ({ page }, testInfo) => {
+for (const [institution, code, record, credits] of [['uib', 'INF100', 'inf100', 10], ['uit', 'FYS-3000', '923370', 10], ['uit', 'INF-0101', '922504', 5]]) {
+  for (const live of [false, true]) test(`${live ? 'live public' : 'fixture'} ${institution} ${code}: search, preview, save, reload and repeat without losing notes or task IDs`, async ({ page }, testInfo) => {
     test.skip(live && process.env.RUN_LIVE_PUBLIC !== '1', 'Explicit bounded public-source acceptance run')
     test.setTimeout(120000)
     const errors = await boot(page, { schemaVersion: 1, tasks: [] })
-    if (!live) await mockProvider(page, institution)
+    if (!live) await mockProvider(page, institution, code, record, credits)
     await previewCourse(page, institution, code)
     await expect(page.locator('#import-preview')).toContainText(`Emnepost: ${record}`)
     await expect(page.getByRole('button', { name: 'Hent undervisning fra TP' })).toHaveCount(0)
@@ -162,10 +168,10 @@ for (const [institution, code, record] of [['uib', 'INF100', 'inf100'], ['uit', 
     await page.evaluate(({ key, linked }) => { const data = JSON.parse(localStorage.getItem(key)); data.tasks = [linked]; localStorage.setItem(key, JSON.stringify(data)) }, { key, linked })
     await page.reload(); await previewCourse(page, institution, code); await page.getByRole('button', { name: 'Importer bare emnet' }).click(); await page.reload()
     const repeated = await saved(page)
-    expect(repeated.planner.courses).toHaveLength(1); expect(repeated.planner.courses[0]).toMatchObject({ id, notes: 'Isolert lokalt notat', sourceRecordId: record, sourceVersion: '2026H', credits: 10 })
+    expect(repeated.planner.courses).toHaveLength(1); expect(repeated.planner.courses[0]).toMatchObject({ id, notes: 'Isolert lokalt notat', sourceRecordId: record, sourceVersion: '2026H', credits })
     expect(repeated.tasks).toEqual([linked]); expect(repeated.planner.events).toEqual([]); expect(repeated.planner.sources).toEqual([])
     if (live) {
-      const response = await page.request.get(`/api/import/providers/${institution}/search?${new URLSearchParams({ q: institution === 'uib' ? 'Programmering' : 'satellite', semester: 'autumn', year: '2026' })}`)
+      const response = await page.request.get(`/api/import/providers/${institution}/search?${new URLSearchParams({ q: institution === 'uib' ? 'Programmering' : code === 'INF-0101' ? 'informatikk' : 'satellite', semester: 'autumn', year: '2026' })}`)
       const result = await response.json(); expect(result.status).toBe('ok')
       await testInfo.attach(`${institution}-acceptance`, { contentType: 'application/json', body: Buffer.from(JSON.stringify({ institution, code, record, id, sourceUrl: repeated.planner.courses[0].sourceUrl, campus: repeated.planner.courses[0].campus, phases: ['search', 'preview', 'save', 'reload', 'repeat', 'name-search'], nameResults: result.results.length, automaticTeaching: false })) })
     }

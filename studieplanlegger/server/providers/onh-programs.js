@@ -64,7 +64,7 @@ export async function onhPrograms(institution, action, query, { fetchText, fetch
     const q = clean(query.q).toLocaleLowerCase('nb')
     return { status: 'ok', results: catalogue.results.filter(row => `${row.name} ${row.officialCode} ${row.campuses.join(' ')}`.toLocaleLowerCase('nb').includes(q)), warnings: ['Katalogen er hentet fra ONHs publiserte studiesøk. Fagskole, forberedende og utenlandske tilbud er utelatt. Egne kildesider for ulike undervisningssteder beholdes.'], completeness: { complete: true, pages: 1, total: catalogue.total, returned: catalogue.results.length, scope: 'Alle eksplisitt merkede høyere tilbud fra den publiserte katalogresponsen.' } }
   }
-  const pdf=String(query.sourceUrl||'').startsWith('https://s3.eu-west-1.amazonaws.com/bhi.no/')
+  const pdf = /\.pdf(?:[?#]|$)/i.test(query.sourceUrl || '')
   if(pdf)onhPdfUrl(query.sourceUrl)
   const selected = catalogue.results.find(row => row.code === query.program && (pdf||row.sourceUrl === onhProgramUrl(query.sourceUrl).href))
   if (!selected) fail('invalid-selection', 'Velg et tilbud og undervisningssted fra ONHs publiserte katalog.')

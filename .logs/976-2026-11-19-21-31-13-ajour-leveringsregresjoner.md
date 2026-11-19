@@ -28,6 +28,10 @@ Rettecommiten `6eaa831ec22ffabc1373d0f3e497104dbbdccc6f` gjelder de oppførte om
 
 Den rapporterte førkontrollen på `12c8d33` hadde 2 790 beståtte enhetstester. En annen planprøve fant 175 avvik i 1 800 alternativer. Originalens generator og enkeltrader var ikke tilgjengelige. Den nye, versjonerte matrisen prøvde 1 800 plankort og bestod alle kontroller i sitt eget testutvalg. De historiske tallene 700 lokale nettlesertester, 67 utelatte og 93 produksjonsscenarier tilhører den vedlagte gjennomgangen av førversjonen. Kontroller og overlappende utvalg summeres ikke.
 
+**Supplert med den andre kontrollen av `ce8babe`.** Gjennomgangen oppgir at originalgeneratoren og radene senere ble gjenfunnet i den eksterne testpakken. På originalens 1 800 alternativer ble 175 avvik redusert til 40. Alle 40 gjaldt en åpen oppgave med null minutter igjen og en låst økt som ble telt ulikt. Den nyere matrisen i repoet har et eget utvalg. Tilfellet med låst økt 09.00–10.00 og frist 09.30 ble kontrollert separat. Pakken med 10 324 kontroller hadde ett eget forventningsavvik for P02. Appen forklarte avhengigheten og lenket til ukeplanen, som er en tillatt P02-flyt.
+
+De 67 utelatte Chromium-prøvene i den ordinære kjøringen på `ce8babe` bestod av 18 oppsettsavhengige lagringsprøver og 49 valgfrie kildeprøver. Lagringsprøvene bestod i en egen kjøring. Blant kildeprøvene bestod seks V1-prøver og fem av de øvrige 43 med opprinnelige forventninger. De øvrige 38 omfattet både reelle appfeil og foreldede testforventninger. I en separat, nyere kildepakke bestod fire av fem forløp. UiTs geovitenskap-prøve brukte en PDF-lenke som det gjeldende programmet hadde erstattet.
+
 ### Åpne punkter
 
 - F03, F05, Vercels kontogrenser og eventuell påkrevd GitHub-CI følges i [sakslisten](issues.md). Dependabot #30 har egne feilede CI-sjekker.

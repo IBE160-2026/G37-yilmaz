@@ -114,7 +114,8 @@ export function createCapacityView(actions) {
         ? capacity.totalMissingMinMinutes > 0 ? `minst ${capacity.totalMissingMinMinutes} min ikke planlagt` : 'øvre grense for uplanlagt arbeid er ukjent'
         : `opptil ${capacity.totalMissingMaxMinutes ?? capacity.totalMissingMinutes} min ikke planlagt`
       const spare = capacity.uncertainPersonalCount ? `${capacity.spareMinutes} min beregnet ledig ut fra kjente tider` : `${capacity.spareMinutes} min ledig i øktene`
-      setText($('#capacity-summary'), `${required} min kjent arbeid${capacity.unknownTaskCount ? ` · ${capacity.unknownTaskCount} oppgaver med ukjent øvre grense` : ''} · ${capacity.totalAllocatedMinutes} min satt av · ${missing} · ${spare}.`)
+      const unknown = capacity.unknownTaskCount
+      setText($('#capacity-summary'), `${required} min kjent arbeid${unknown ? ` · ${unknown} ${unknown === 1 ? 'oppgave' : 'oppgaver'} med ukjent øvre grense` : ''} · ${capacity.totalAllocatedMinutes} min satt av · ${missing} · ${spare}.`)
       setText($('#capacity-warnings'), capacity.warnings.join(' '))
       $('#capacity-warnings').hidden = !capacity.warnings.length
       $('#sessions-empty').hidden = savedSessions.length > 0
@@ -177,9 +178,10 @@ export function createCapacityView(actions) {
         setText(row.title, `${task.course} · ${task.title}`)
         setText(row.deadline, `Frist: ${formatDeadline(task.deadlineLocal, { year: true, disambiguation: task.deadlineDisambiguation })} · ${taskStatus(task)}`)
         const remaining = formatEstimateRange(getRemainingRange(task))
+        const unplannedMax = planned.missingMaxMinutes ?? planned.missingMinutes
         const unplanned = planned.missingMaxMinutes === null
           ? planned.missingMinMinutes > 0 ? `minst ${planned.missingMinMinutes} min, øvre anslag ukjent` : 'ukjent'
-          : `${planned.missingMinMinutes || 0}–${planned.missingMaxMinutes ?? planned.missingMinutes} min`
+          : planned.missingMinMinutes === unplannedMax ? `${unplannedMax} min` : `${planned.missingMinMinutes || 0}–${unplannedMax} min`
         setText(row.minutes, `Gjenstående: ${remaining} · Satt av: ${planned.allocatedMinutes} min · Ikke planlagt: ${unplanned}`)
         const notice = capacityNotice(task, savedSessions, model.planner?.events || [], model.now, planned)
         setText(row.explanation, task.completed ? 'Arbeidet er ferdig.' : getRemainingMinutes(task) === 0 ? 'Ingen arbeidstid gjenstår. Bekreft om oppgaven er fullført.' : notice && (planned.missingMinutes || !planned.requiredMinutes || notice.tone === 'danger' || notice.tone === 'warning') ? notice.text : planned.reasons?.join(' ') || capacity.planningNote || 'Minuttsummen dekker estimatet. Kontroller øktlengder og pauser i Planlegg uken før du bekrefter en plan.')
@@ -188,7 +190,7 @@ export function createCapacityView(actions) {
         if (planned.state) {
           const stateLabel = { unknown: 'Ukjent', unplanned: 'Ikke planlagt', planned: 'Planlagt', insufficient: 'Utilstrekkelig kapasitet', done: 'Ferdig', blocked: 'Blokkert' }[planned.state]
           setText(row.explanation, `${stateLabel}. ${planned.reasons.join(' ')}`)
-          setText(row.minutes, `Gjenstående: ${remaining} · Reservert: ${planned.reservedMinutes} min · Forslag inkludert: ${planned.allocatedMinutes} min${planned.missingMaxMinutes === null ? ` · Ikke planlagt: ${unplanned}` : ''}`)
+          setText(row.minutes, `Gjenstående: ${remaining} · Kalenderreservasjon: ${planned.calendarReservedMinutes} min · Dekket av reservasjoner: ${planned.coveredByReservationsMinutes} min · Med forslag: ${planned.allocatedMinutes} min · Ikke planlagt: ${unplanned}`)
         }
         row.allocations.hidden = !planned.allocations.length
         row.edit.setAttribute('aria-label', `Oppdater arbeid «${task.title}»`)
