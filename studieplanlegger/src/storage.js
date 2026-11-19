@@ -39,6 +39,17 @@ function readRecoveryJournal(raw) {
   }
   return expand(decodeRecoveryJournal(raw))
 }
+function recoverableJournal(raw) {
+  const copies = []
+  let copy = readRecoveryJournal(raw)
+  for (let depth = 0; copy && depth <= 32; depth++, copy = copy.previous) {
+    try {
+      if (validEnvelope(copy.data, { relations: true })) copies.push({ savedAt: copy.savedAt, data: copy.data, raw: copy.raw, depth })
+    } catch { /* A damaged copy does not disqualify its predecessors. */ }
+  }
+  return copies
+}
+const recoveryIndex = (copies, currentRaw) => copies.length > 1 && copies[0].raw === currentRaw ? 1 : 0
 // A privacy purge also reaches the copies that Restore can bring back. Refuse
 // unknown/corrupt journal formats instead of deleting unrelated recovery data.
 function purgeRecoveryJournal(raw) {
@@ -156,7 +167,10 @@ export function createStorage(getStorage) {
         priorRecovery = storage.getItem(RECOVERY_KEY)
         let data, previous
         try { const parsed = currentRaw === null ? { schemaVersion: 1, tasks: [] } : JSON.parse(currentRaw); if (validEnvelope(parsed)) data = parsed } catch { /* Preserve unreadable input verbatim, not an empty snapshot. */ }
-        try { const old = readRecoveryJournal(priorRecovery); const copy = old?.raw === currentRaw && old.previous ? old.previous : old; if (validEnvelope(copy?.data)) previous = { savedAt: copy.savedAt, data: copy.data, raw: copy.raw } } catch { /* Older raw recovery is still retained for rollback. */ }
+        try {
+          const copies = recoverableJournal(priorRecovery), copy = copies[recoveryIndex(copies, currentRaw)]
+          if (copy) previous = { savedAt: copy.savedAt, data: copy.data, raw: copy.raw }
+        } catch { /* Older raw recovery is still retained for rollback. */ }
         staged = encodeRecoveryJournal({ savedAt: new Date().toISOString(), raw: currentRaw, ...(data ? { data } : {}), ...(previous ? { previous } : {}) })
         // Encoding can take time. Recheck both keys before touching recovery;
         // another tab may have committed while this candidate was prepared.
@@ -181,15 +195,16 @@ export function createStorage(getStorage) {
       try {
         const storage = getStorage(), raw = storage.getItem(RECOVERY_KEY)
         if (raw !== recoveryCacheRaw || !recoveryCache) {
-          const copy = readRecoveryJournal(raw)
-          recoveryCache = { copy, valid: validEnvelope(copy?.data), previousValid: validEnvelope(copy?.previous?.data) }
+          recoveryCache = recoverableJournal(raw)
           recoveryCacheRaw = raw
         }
-        let { copy, valid } = recoveryCache
         // A retained staging journal keeps the older copy accessible even if
         // quota/access failure also prevented rollback of the recovery key.
-        if (copy?.previous && (copy.raw === storage.getItem(STORAGE_KEY) || !valid)) { copy = copy.previous; valid = recoveryCache.previousValid }
-        return copy && valid ? structuredClone(copy) : null
+        const index = recoveryIndex(recoveryCache, storage.getItem(STORAGE_KEY))
+        const copy = recoveryCache[index]
+        if (!copy) return null
+        const { savedAt, data, raw: savedRaw, depth } = copy
+        return structuredClone({ savedAt, data, raw: savedRaw, ...(depth ? { fallback: true } : {}), ...(recoveryCache[index + 1] ? { previous: recoveryCache[index + 1] } : {}) })
       } catch { return null }
     },
   }

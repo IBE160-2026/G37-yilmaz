@@ -30,7 +30,7 @@ async function start(page) {
   await page.evaluate(key => localStorage.setItem(key, JSON.stringify({ schemaVersion: 1, tasks: [{ id: 'keep-task', title: 'Behold syntetisk oppgave', course: '', estimatedMinutes: 30, completed: false }], planner: { courses: [], events: [], sources: [] }, onboarding: { dismissed: true, completed: true } })), key)
   await page.reload(); await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
   return page.locator('.program-import')
 }
 async function catalogue(host, institution) {
@@ -47,9 +47,9 @@ async function preview(host) {
   await host.locator('[name=studySemester]').selectOption('semester-1')
   await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
   await host.locator('[name=programCampus]').selectOption('Syntetisk campus')
-  await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
   await expect(host).toHaveAttribute('aria-busy', 'false')
-  await expect(host.getByRole('button', { name: 'Bekreft programimport', exact: true })).toBeEnabled()
+  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeEnabled()
 }
 function deferred() { let resolve; const promise = new Promise(done => { resolve = done }); return { promise, resolve } }
 
@@ -113,7 +113,7 @@ for (const [stage, outcome] of [['programs', 'success'], ['program-cohorts', 'su
           await host.locator('[name=studySemester]').selectOption('semester-1')
           await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
           await host.locator('[name=programCampus]').selectOption('Syntetisk campus')
-          await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+          await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
         }
       }
     }

@@ -25,6 +25,7 @@ export function createServerStorage(getLegacyStorage = () => window.localStorage
   const save = (path, value = envelope) => {
     const response = request('POST', path, { expectedRevision: revision, envelope: value })
     const result = accept(response)
+    if (result.ok && response.data.unchanged) return { ...result, unchanged: true }
     return result.ok ? result : { ...result, error: 'Kunne ikke lagre i databasen. Tidligere data og utkast er beholdt.' }
   }
   return {

@@ -30,7 +30,7 @@ export function subjectEventAgendaEntries(planner, now = new Date(), course) {
   const today = osloLocal(now.toISOString()).slice(0, 10)
   return (planner.events || []).filter(event => {
     if (event.cancelled || event.deleted || course && event.courseId !== course.id) return false
-    return event.activityKind === 'personal' ? event.end ? Date.parse(event.end) >= +now : event.dateLocal >= today : Date.parse(event.end) >= +now
+    return event.activityKind === 'personal' && !event.end ? event.dateLocal >= today : Date.parse(event.end) > +now
   }).map(event => {
     const subject = planner.courses.find(item => item.id === event.courseId), code = subject?.code || subject?.name || '', personal = event.activityKind === 'personal', presentation = eventPresentation(event)
     const time = event.start || `${event.dateLocal}T00:00`, detail = event.point ? `${eventStamp(event)} · ${event.location || 'Sted mangler'}` : personal ? `${event.dateLocal}${event.start ? ` · ${osloLocal(event.start).slice(11)}${event.end ? `–${osloLocal(event.end).slice(11)}` : ' · Varighet ikke oppgitt'}` : ' · Tid ikke oppgitt'} · ${event.location || 'Sted mangler'}` : `${eventStamp(event)} · ${event.location || 'Sted mangler'}`
@@ -269,7 +269,7 @@ export function createSubjectsView(actions) {
     if (kind === 'document' && !disposeDocument) disposeDocument = mountDocumentImport(documentPanel, { getState: actions.getState, onCommit: candidate => actions.commit(candidate, 'Dokumentplan importert'), onCalendar: () => actions.view('calendar'), onUndo: actions.undoImport, onCancel: () => { documentPanel.hidden = true; methods.querySelector('[data-method=document]')?.focus() } })
     else if (kind === 'document') disposeDocument.open?.()
   }
-  for (const [kind, name] of [['institution', 'Fra lærested'], ['document', 'Fra fil eller tekst'], ['calendar', 'Fra kalenderlenke']]) { const control = button(kind === 'institution' ? 'Studieprogram' : name, () => choose(kind)); control.dataset.method = kind; control.setAttribute('aria-label', name); if(kind !== 'institution')control.className='secondary'; methods.append(control) }
+  for (const [kind, name] of [['institution', 'Studieprogram'], ['document', 'Fra fil eller tekst'], ['calendar', 'Fra kalenderlenke']]) { const control = button(name, () => choose(kind)); control.dataset.method = kind; if (kind !== 'institution') control.className = 'secondary'; methods.append(control) }
   const programHost = el('div'); importBox.before(programHost)
   const programView = createProgramImportView({ host: programHost, getState: actions.getState, commitPlanner: next => actions.commit({ ...actions.getState(), planner: next }, 'Ny samlet studieplan'), feedback, manual: () => openEditor('course'), onSettled: actions.refresh, onCourseSearch: context => { choose('institution'); courseDetails.open = true; wizard.open(context) }, api })
   const courseDetails = el('details'); courseDetails.append(el('summary', 'Søk etter ett enkelt emne')); importBox.before(courseDetails); courseDetails.append(importBox)
@@ -575,12 +575,15 @@ export function createSubjectsView(actions) {
       }
       if (!eventList.childElementCount) eventList.append(el('p', 'Ingen undervisning registrert. Legg til manuelt eller importer en kalender.'))
     }
-    const now = model.now || new Date(), nextAgenda = JSON.stringify([planner, model.tasks, courseFilter.value, osloLocal(now.toISOString()).slice(0, 10)])
+    const now = model.now || new Date(), course = planner.courses.find(c => c.id === courseFilter.value)
+    const upcomingEvents = subjectEventAgendaEntries(planner, now, course)
+    const upcomingTasks = model.tasks.filter(t => t.deadlineLocal && (!t.completed || (t.requiresSubmission && !t.submitted)) && matchesCourse(t, course?.id, course) &&
+      (subjectDeadlineUpcoming(t, now) || inspectDeadline(t.deadlineLocal).status === 'ambiguous' && !t.deadlineDisambiguation))
+    const nextAgenda = JSON.stringify([upcomingEvents, upcomingTasks, planner.courses, courseFilter.value])
     if (nextAgenda !== agendaSignature) {
       agendaSignature = nextAgenda; agenda.replaceChildren(el('h3', 'Undervisning og frister'), el('p', 'U: undervisning · F: oppgavefrist. Undervisning vises i norsk tid.', 'muted'))
-      const course = planner.courses.find(c => c.id === courseFilter.value)
-      const entries = subjectEventAgendaEntries(planner, now, course).map(entry => ({ ...entry, key: `event:${entry.event.id}`, sortAt: Date.parse(entry.event.start || toInstant(entry.time)), open: () => { actions.view('subjects'); openEditor('event', entry.event) } }))
-      for (const task of model.tasks.filter(t => t.deadlineLocal && (!t.completed || (t.requiresSubmission && !t.submitted)) && matchesCourse(t, course?.id, course))) {
+      const entries = upcomingEvents.map(entry => ({ ...entry, key: `event:${entry.event.id}`, sortAt: Date.parse(entry.event.start || toInstant(entry.time)), open: () => { actions.view('subjects'); openEditor('event', entry.event) } }))
+      for (const task of upcomingTasks) {
         const time = subjectDeadlineTime(task)
         const unresolved = !time && inspectDeadline(task.deadlineLocal).status === 'ambiguous'
         const taskCourse=planner.courses.find(item=>item.id===task.courseId),code=taskCourse?.code||task.course

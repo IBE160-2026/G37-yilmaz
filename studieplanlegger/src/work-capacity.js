@@ -98,6 +98,14 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     const ownReservations = reservations.filter(item => item.taskId === task.id && item.end > floor)
     const reservedFits = indivisible ? ownReservations.length === 1 && Boolean(contiguousWorkInterval(reservedIntervals.get(task.id), required)) : entry.reservedMinutes >= required
     entry.allocatedMinutes = indivisible ? reservedFits ? required : 0 : Math.min(required, entry.reservedMinutes)
+    let deadline = Infinity
+    try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig eller ugyldig. Ingen tid foreslås.'); }
+    if (known && Number.isFinite(deadline)) {
+      const beforeDeadline = free.map(item => ({ start: item.start, end: Math.min(item.end, deadline) }))
+      entry.availableBeforeMinutes = range.maxMinutes === null && indivisible
+        ? Math.max(0, ...[...beforeDeadline, ...reservedIntervals.get(task.id)].map(item => intervalMinutes([item])))
+        : entry.reservedMinutes + intervalMinutes(beforeDeadline)
+    }
     if (range.maxMinutes === null) {
       entry.state = 'unknown'
       entry.missingMinutes = entry.missingMinMinutes = required - entry.allocatedMinutes
@@ -108,10 +116,8 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
       entry.reasons.push('Øvre grense for gjenstående arbeid er ukjent.')
       continue
     }
-    let need = required - entry.allocatedMinutes, deadline = Infinity
-    try { if (task.deadlineLocal) deadline = deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation) } catch { deadline = -Infinity; entry.reasons.push('Fristen er tvetydig eller ugyldig. Ingen tid foreslås.'); }
+    let need = required - entry.allocatedMinutes
     const retainedReservation = ownReservations.length > 0
-    if (known && Number.isFinite(deadline)) entry.availableBeforeMinutes = entry.reservedMinutes + intervalMinutes(free.map(item => ({ start: item.start, end: Math.min(item.end, deadline) })))
     if (indivisible && need > 0) entry.reasons.push(`Arbeidet kan ikke deles: ${required} min må få plass sammenhengende${retainedReservation ? '. Kontroller reservasjonene; atskilte deler kan ikke fullføre oppgaven' : ''}.`)
     const exceedsMaximum = indivisible && need > 0 && validPlanningRules(planningRules) && need > planningRules.maximumMinutes
     if (exceedsMaximum) entry.reasons.push(`${need} min må holdes samlet, mer enn valgt maksimal øktlengde ${planningRules.maximumMinutes} min.`)
@@ -126,7 +132,7 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
     entry.missingMinMinutes = Math.max(0, (range?.minMinutes ?? 0) - entry.allocatedMinutes)
     entry.missingMaxMinutes = need
     entry.state = !known && !reservedFits ? 'unknown' : need > 0 ? 'insufficient' : reservedFits ? 'planned' : 'unplanned'
-    entry.reasons.push({ unknown: 'Tilgjengelig arbeidstid er ukjent. Registrer arbeidstidsvinduer.', insufficient: `${need} min mangler før fristen i registrert arbeidstid.`, planned: 'Arbeidet har reservert tid. Oppdater gjenstående arbeid selv etter økten.', unplanned: capacityPlanningNote(planningRules) }[entry.state])
+    entry.reasons.push({ unknown: 'Tilgjengelig arbeidstid er ukjent. Registrer arbeidstidsvinduer.', insufficient: `${need} min mangler${task.deadlineLocal ? ' før fristen' : ''} i registrert arbeidstid.`, planned: 'Arbeidet har reservert tid. Oppdater gjenstående arbeid selv etter økten.', unplanned: capacityPlanningNote(planningRules) }[entry.state])
   }
   for (const entry of entries) entry.reasons = [...new Set(entry.reasons)]
   const sum = field => Math.min(Number.MAX_SAFE_INTEGER, entries.reduce((n, e) => n + e[field], 0))

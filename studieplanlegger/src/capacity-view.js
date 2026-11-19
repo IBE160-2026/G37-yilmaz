@@ -146,8 +146,9 @@ export function createCapacityView(actions) {
         row.close.disabled = disabled
         const label = `Studieøkt ${formatDay(session.dateLocal, { year: true })} kl. ${session.startTime}–${session.endTime}${session.locked ? ' · Låst' : ''}`
         setText(row.label, label)
-        row.edit.setAttribute('aria-label', `Rediger ${label.toLowerCase()}`)
-        row.delete.setAttribute('aria-label', `Slett ${label.toLowerCase()}`)
+        row.edit.setAttribute('aria-label', `Rediger økt: ${label}`)
+        row.delete.setAttribute('aria-label', `Slett økt: ${label}`)
+        row.close.setAttribute('aria-label', `Avslutt økt: ${label}`)
         row.edit.disabled = disabled
         row.delete.disabled = disabled
         if (row.item !== position) $('#session-list').insertBefore(row.item, position)
@@ -176,7 +177,11 @@ export function createCapacityView(actions) {
         applyCourseColor(row.item, resolvedCourseId(task))
         setText(row.title, `${task.course} · ${task.title}`)
         setText(row.deadline, `Frist: ${formatDeadline(task.deadlineLocal, { year: true, disambiguation: task.deadlineDisambiguation })} · ${taskStatus(task)}`)
-        setText(row.minutes, `Gjenstående: ${formatEstimateRange(getRemainingRange(task))} · Satt av: ${planned.allocatedMinutes} min · Ikke planlagt: ${planned.missingMinMinutes || 0}–${planned.missingMaxMinutes ?? planned.missingMinutes} min`)
+        const remaining = formatEstimateRange(getRemainingRange(task))
+        const unplanned = planned.missingMaxMinutes === null
+          ? planned.missingMinMinutes > 0 ? `minst ${planned.missingMinMinutes} min, øvre anslag ukjent` : 'ukjent'
+          : `${planned.missingMinMinutes || 0}–${planned.missingMaxMinutes ?? planned.missingMinutes} min`
+        setText(row.minutes, `Gjenstående: ${remaining} · Satt av: ${planned.allocatedMinutes} min · Ikke planlagt: ${unplanned}`)
         const notice = capacityNotice(task, savedSessions, model.planner?.events || [], model.now, planned)
         setText(row.explanation, task.completed ? 'Arbeidet er ferdig.' : getRemainingMinutes(task) === 0 ? 'Ingen arbeidstid gjenstår. Bekreft om oppgaven er fullført.' : notice && (planned.missingMinutes || !planned.requiredMinutes || notice.tone === 'danger' || notice.tone === 'warning') ? notice.text : planned.reasons?.join(' ') || capacity.planningNote || 'Minuttsummen dekker estimatet. Kontroller øktlengder og pauser i Planlegg uken før du bekrefter en plan.')
         row.explanation.className = ['danger', 'warning'].includes(notice?.tone) ? 'capacity-warning' : 'muted'
@@ -184,7 +189,7 @@ export function createCapacityView(actions) {
         if (planned.state) {
           const stateLabel = { unknown: 'Ukjent', unplanned: 'Ikke planlagt', planned: 'Planlagt', insufficient: 'Utilstrekkelig kapasitet', done: 'Ferdig', blocked: 'Blokkert' }[planned.state]
           setText(row.explanation, `${stateLabel}. ${planned.reasons.join(' ')}`)
-          setText(row.minutes, `Gjenstående: ${formatEstimateRange(getRemainingRange(task))} · Reservert: ${planned.reservedMinutes} min · Forslag inkludert: ${planned.allocatedMinutes} min`)
+          setText(row.minutes, `Gjenstående: ${remaining} · Reservert: ${planned.reservedMinutes} min · Forslag inkludert: ${planned.allocatedMinutes} min${planned.missingMaxMinutes === null ? ` · Ikke planlagt: ${unplanned}` : ''}`)
         }
         row.allocations.hidden = !planned.allocations.length
         row.edit.setAttribute('aria-label', `Oppdater arbeid «${task.title}»`)

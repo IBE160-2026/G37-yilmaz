@@ -130,6 +130,37 @@ describe('unparsed document deadlines require an explicit decision', () => {
 
 describe('explicit document deadline corrections retain storage precision and previous data', () => {
   it.each([
+    ['Oppgave publisert 20.11.2026 kl. 09:00, frist 27.11.2026 kl. 23:59', '2026-11-27T23:59'],
+    ['Publisert 1. november, frist 20. november kl. 14', '2026-11-20T14:00'],
+    ['Les kapittel 2.10 før frist 19. november 2026 kl. 12:00', '2026-11-19T12:00'],
+    ['Frist ikke bestemt', ''],
+    ['Les kapittel 2.10', ''],
+    ['Oppgave publisert 20.11.2026 kl. 09:00', ''],
+  ])('I01 recognizes the intended deadline in %s and persists it on reload', (text, deadlineLocal) => {
+    const state = empty(), { storage, reload } = memoryStorage(state)
+    const parsed = parseDocumentText(text, { referenceDate: { year: 2026, month: 11, day: 19 } })
+    const draft = createDocumentImportPreview(state, { ...parsed, contentHash: 'a'.repeat(64) })
+    expect(draft.rows[0]).toMatchObject({ selected: true, deadlineLocal, deadlineMode: deadlineLocal ? 'value' : 'none' })
+    if (text.startsWith('Publisert')) expect(draft.rows[0].deadlineIssues.join(' ')).toContain('Kontroller det foreslåtte årstallet')
+    const result = commit(state, draft)
+    expect(result.ok).toBe(true)
+    expect(storage.writeEnvelope(result.state).ok).toBe(true)
+    expect(reload().tasks[0]).toMatchObject({ title: text, deadlineLocal })
+  })
+
+  it.each([
+    'Frist 20.11.2026 kl. 14:00 eller 27.11.2026 kl. 14:00',
+    'Frist 20.11.2026 kl. 14:00, ny frist 27.11.2026 kl. 14:00',
+    'Oppgave publisert 1. oktober, frist 20. november kl. 14',
+    'Oppgave publisert 1. november, frist før møtet 21.11.2026 kl. 14:00',
+  ])('I01 asks the user to choose when the deadline is uncertain in %s', text => {
+    const state = empty(), draft = preview(state, text)
+    expect(draft.rows[0]).toMatchObject({ selected: true, deadlineLocal: '', deadlineMode: '?' })
+    expect(draft.rows[0].deadlineIssues.length).toBeGreaterThan(0)
+    expect(commit(state, draft).ok).toBe(false)
+  })
+
+  it.each([
     ['dated time', { deadlineMode: 'value', deadlineLocal: '2026-11-06T14:00' }, '2026-11-06T14:00'],
     ['date only', { deadlineMode: 'value', deadlineLocal: '2026-11-06' }, '2026-11-06'],
     ['without deadline', { deadlineMode: 'none' }, ''],

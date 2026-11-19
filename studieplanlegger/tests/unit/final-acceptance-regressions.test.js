@@ -93,6 +93,6 @@ describe('sluttaksept: kapasitet, relasjoner og privat historikk', () => {
     expect(comparison.scenarios[0]).toMatchObject({ allocatedMinutes: 30, remainingCapacityMinutes: 0, reviewSessions: 1 })
     for (const alternative of comparison.scenarios.slice(1)) expect(alternative.reviewSessions).toBe(1)
     const ranged = { ...base(), tasks: [{ ...task, estimatedMinutes: null, remainingEstimate: { minMinutes: 0, maxMinutes: 90 } }] }
-    expect(comparePlans(ranged, { now }).scenarios[0]).toMatchObject({ feasible: false, deadlineRisk: true })
+    expect(comparePlans(ranged, { now }).scenarios[0]).toMatchObject({ feasible: false, deadlineRisk: false })
   })
 })

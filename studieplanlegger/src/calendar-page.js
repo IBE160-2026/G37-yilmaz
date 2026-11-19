@@ -123,7 +123,22 @@ export function createCalendarPage(actions) {
   const dialog = el('dialog', null, 'editor-dialog calendar-details'); document.body.append(dialog)
   const persist = () => actions.saveCalendarPreferences?.(structuredClone(state))?.ok !== false
   const context = () => `${state.view}:${state.date}${state.view === 'week' && state.weekMode === 'workweek' ? ':workweek' : ''}`
-  viewport.addEventListener('scroll', () => { state.scroll[context()] = { top: viewport.scrollTop, left: viewport.scrollLeft }; persist() }, { passive: true })
+  let restoreScroll = false, appliedScroll
+  const position = () => ({ top: viewport.scrollTop, left: viewport.scrollLeft })
+  const samePosition = (a, b) => a?.top === b?.top && a?.left === b?.left
+  function applyScroll() {
+    restoreScroll = false
+    const scroll = state.scroll[context()] || { top: ['day', 'week'].includes(state.view) ? 440 : 0, left: 0 }
+    viewport.scrollTo(scroll.left, scroll.top)
+    appliedScroll = position()
+  }
+  viewport.addEventListener('scroll', () => {
+    const current = position(), wasApplied = samePosition(current, appliedScroll)
+    appliedScroll = undefined
+    if (host.hidden || restoreScroll || wasApplied || samePosition(current, state.scroll[context()])) return
+    state.scroll[context()] = current
+    persist()
+  }, { passive: true })
   function change(patch) { const previous = state; state = { ...state, ...patch }; if (!persist()) state = previous; dateInput.value = state.date; signature = ''; revealContent = Boolean(patch.view || patch.date); render(model) }
   function focusControl(control) {
     const current = control?.isConnected ? control : [...host.querySelectorAll('[data-calendar-focus-key]')].find(node => node.dataset.calendarFocusKey === control?.dataset.calendarFocusKey)
@@ -138,8 +153,15 @@ export function createCalendarPage(actions) {
     const course = model.planner?.courses.find(c => c.id === entry.courseId)
     const dateFormat = new Intl.DateTimeFormat('nb-NO', { dateStyle: 'full', timeStyle: 'short', timeZone: OSLO }), dateOnlyFormat = new Intl.DateTimeFormat('nb-NO', { dateStyle: 'full', timeZone: OSLO })
     dialog.append(el('p', course ? nameFirstLabel(course) : entry.kind === 'personal' ? 'Uten emne' : entry.course || 'Emne ikke oppgitt'))
-    dialog.append(el('p', entry.warning ? formatDeadline(entry.local, { year: true }) : entry.point && entry.allDay ? dateOnlyFormat.format(new Date(entry.start)) : entry.point ? dateFormat.format(new Date(entry.start)) : `${dateFormat.format(new Date(entry.start))} - ${dateFormat.format(new Date(entry.end))}`), el('p', `${timeLabel(entry)} · Europe/Oslo`), el('p', entry.location || 'Sted ikke oppgitt'))
-    if (!entry.point && !entry.warning) dialog.append(el('p', `Faktisk varighet: ${(entry.end - entry.start) / 60000} minutter.`))
+    let when
+    if (entry.warning) when = formatDeadline(entry.local, { year: true })
+    else if (entry.allDay) {
+      const first = dateOnlyFormat.format(new Date(entry.start))
+      const last = !entry.point && entry.end > entry.start ? dateOnlyFormat.format(new Date(entry.end - 1)) : first
+      when = last === first ? first : `${first} – ${last}`
+    } else when = entry.point ? dateFormat.format(new Date(entry.start)) : `${dateFormat.format(new Date(entry.start))} – ${dateFormat.format(new Date(entry.end))}`
+    dialog.append(el('p', when), el('p', `${timeLabel(entry)} · Europe/Oslo`), el('p', entry.location || 'Sted ikke oppgitt'))
+    if (!entry.point && !entry.warning && !entry.allDay) dialog.append(el('p', `Faktisk varighet: ${(entry.end - entry.start) / 60000} minutter.`))
     for (const text of [entry.warning, entry.cancelled ? 'Avlyst i kilden' : '', entry.description, entry.notes, entry.conflict?.message]) if (text) dialog.append(el('p', text))
     const controls = el('div', null, 'actions')
     const edit = entry.kind === 'deadline' ? () => actions.edit(entry.id) : entry.kind === 'session' ? () => actions.editSession(entry.id) : ['teaching', 'information', 'personal'].includes(entry.kind) ? () => actions.editEvent(entry.id) : () => actions.view('capacity')
@@ -163,7 +185,7 @@ export function createCalendarPage(actions) {
     const continuation = [entry.start < entry.clippedStart ? 'Fortsetter fra forrige dag' : '', entry.end > entry.clippedEnd ? 'Fortsetter neste dag' : ''].filter(Boolean).join(' · ')
     if (continuation) control.append(el('span', continuation, 'entry-continuation'))
     control.title = `${entry.isExam ? 'Eksamen' : kinds[entry.kind]}: ${entry.title}. ${when}. ${kindLabel}`
-    const description = `${entry.isExam ? 'Eksamen' : kinds[entry.kind]}: ${entry.title}. ${when}. ${kindLabel}${continuation ? `. ${continuation}` : ''}`
+    const description = `${entry.isExam ? 'Eksamen' : kinds[entry.kind]}: ${entry.isExam ? entry.title : title}. ${when}. ${kindLabel}${continuation ? `. ${continuation}` : ''}`
     control.setAttribute('aria-label', compact ? `Kort varighet: ${description}` : description)
     return control
   }
@@ -213,11 +235,16 @@ export function createCalendarPage(actions) {
     if (!next) return; model = next
     const normalizedPreferences = normalizeCalendarPreferences(model.calendarPreferences)
     const incomingPreferences = JSON.stringify(normalizedPreferences || null)
-    if (incomingPreferences !== preferencesSignature) { preferencesSignature = incomingPreferences; state = normalizedPreferences || defaults(); dateInput.value = state.date }
+    if (incomingPreferences !== preferencesSignature) {
+      preferencesSignature = incomingPreferences
+      state = normalizedPreferences || defaults()
+      dateInput.value = state.date
+      restoreScroll = !samePosition(position(), state.scroll[context()])
+    }
     host.hidden = model.view !== 'calendar' || !model.readable
     if (host.hidden || dialog.open || host.querySelector('.calendar-short-chooser[open]')) return
     const nextSignature = JSON.stringify([model.tasks, model.sessions, model.planner, model.workWindows, model.busyWindows, state.view, state.weekMode, state.date, state.courseId, state.kinds, state.completed, state.cancelled])
-    if (nextSignature === signature) { fitViewport(); return }; signature = nextSignature
+    if (nextSignature === signature) { fitViewport(); if (restoreScroll) applyScroll(); return }; signature = nextSignature
     const previousFocus = document.activeElement?.dataset.calendarFocusKey
     entries = calendarEntries(model)
     const all = el('option', 'Alle emner'); all.value = ''; courseSelect.replaceChildren(all)
@@ -230,7 +257,8 @@ export function createCalendarPage(actions) {
     Object.keys(kinds).forEach((kind, index) => { checks[index].checked = state.kinds.includes(kind) })
     checks.at(-2).checked = state.completed; checks.at(-1).checked = state.cancelled
     weekLabel.hidden = state.view !== 'week'; weekSelect.value = state.weekMode || 'full'
-    const dates = calendarRange(state.date, state.view, state.weekMode), filters = { ...state, courseCode: model.planner?.courses.find(c => c.id === state.courseId)?.code }
+    const selectedCourse = model.planner?.courses.find(c => c.id === state.courseId)
+    const dates = calendarRange(state.date, state.view, state.weekMode), filters = { ...state, courseCode: selectedCourse?.code, courseName: selectedCourse?.name }
     heading.textContent = `${names[state.view]} · ${state.view === 'week' ? `${formatDay(dates[0], { year: true })} – ${formatDay(dates.at(-1), { year: true })}` : formatDay(state.date, { year: true })}`
     viewport.replaceChildren(); viewport.dataset.mode = state.view
     readableContent.replaceChildren(); readableList.hidden = true
@@ -249,6 +277,7 @@ export function createCalendarPage(actions) {
         day.dataset.date = date; day.dataset.actualMinutes = dayAxis.actualMinutes
         day.append(el('h3', new Intl.DateTimeFormat('nb-NO', { weekday: 'short', day: 'numeric', month: 'short', timeZone: OSLO }).format(new Date(bounds.start))))
         const items = entriesForDay(entries, date, filters), points = el('div', null, 'calendar-points')
+        const timedDeadlines = items.filter(e => e.kind === 'deadline' && !e.allDay && !e.warning)
         for (const item of items.filter(e => e.point || e.allDay || e.warning)) points.append(entryButton(item))
         const timed = collisionLanes(items.filter(e => !e.point && !e.allDay && !e.warning && e.kind !== 'work'))
         const extras = items
@@ -260,6 +289,17 @@ export function createCalendarPage(actions) {
         }
         day.append(points)
         const timeline = el('div', null, 'calendar-timeline'); timeline.style.height = `${clockAxis.minutes}px`
+        for (const entry of timedDeadlines) {
+          const hour = dayAxis.hours.find(hour => hour.start <= entry.start && entry.start < hour.end)
+          const top = hour.top + (entry.start - hour.start) / 60_000
+          const marker = el('div', null, 'calendar-duration-marker entry-deadline calendar-deadline-marker')
+          applyCourseColor(marker, resolvedCourseId(entry, model.planner?.courses))
+          marker.dataset.calendarGeometry = entry.key
+          marker.style.top = `${top}px`
+          marker.setAttribute('aria-hidden', 'true')
+          timeline.append(marker)
+          ;(timeline.shortSegments ||= []).push({ entry, top })
+        }
         for (const gap of dayAxis.gaps) { const marker = el('div', 'Ingen lokal time', 'calendar-clock-gap'); marker.style.top = `${gap.top}px`; marker.setAttribute('aria-label', `${gap.label}: denne timen finnes ikke på ${date}. Feltet er ikke arbeidstid.`); timeline.append(marker) }
         for (const entry of items.filter(e => e.kind === 'work')) {
           for (const part of axisSegments(entry, dayAxis)) { const background = el('div', null, 'calendar-work-background'); background.setAttribute('aria-hidden', 'true'); background.style.top = `${part.top}px`; background.style.height = `${part.minutes}px`; timeline.append(background) }
@@ -317,8 +357,7 @@ export function createCalendarPage(actions) {
       viewport.append(grid)
     }
     fitViewport(revealContent); revealContent = false
-    const scroll = state.scroll[context()] || { top: ['day', 'week'].includes(state.view) ? 440 : 0, left: 0 }
-    viewport.scrollTo(scroll.left, scroll.top)
+    applyScroll()
     viewport.querySelectorAll('.calendar-timeline').forEach(addShortControls)
     calendarViewport.refresh()
     if (previousFocus) [...host.querySelectorAll('[data-calendar-focus-key]')].find(e => e.dataset.calendarFocusKey === previousFocus)?.focus({ preventScroll: true })

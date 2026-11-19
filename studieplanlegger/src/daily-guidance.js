@@ -29,6 +29,8 @@ export function suggestionExclusions(tasks, minutes) {
       reason = `${blockers.map(blocker => blocker.reason).join(' ')} Åpne oppgaven for å avklare venting eller forutsetninger.`
     } else if (getRemainingRange(task)?.maxMinutes === 0) {
       reason = 'Gjenstående arbeid er satt til 0, men oppgaven er ikke markert ferdig. Oppdater anslaget eller marker arbeidet ferdig.'
+    } else if (!step && task.splittable === false && getRemainingRange(task)?.maxMinutes === null) {
+      reason = 'Arbeidet kan ikke deles. Oppgi et øvre anslag for å avklare om hele oppgaven får plass i én økt.'
     } else if (!Number.isSafeInteger(getActionMinutes(task)) || getActionMinutes(task) <= 0) {
       reason = 'Tiden for arbeidet er ukjent. Oppgi et gjenstående anslag eller et tidsanslag for neste arbeidssteg.'
     } else {
@@ -48,11 +50,18 @@ export function dailyStatus(model) {
   if (isOverdue(task, now)) return { tone: 'danger', title: task.title, text: `${task.title} har en frist som er passert. ${range ? `${formatEstimateRange(range)} arbeid er fortsatt registrert, og ingen tilgjengelig tid før fristen gjenstår.` : 'Gjenstående arbeid er ukjent.'}`, taskId: task.id, assessable: Boolean(range), availableMinutes: 0, missingMinMinutes: range?.minMinutes ?? null, missingMaxMinutes: range?.maxMinutes ?? null }
   const entry = model.capacity?.tasks?.find(item => item.taskId === task.id)
   const blockers = taskBlockers(task, model.tasks)
-  if (!range || range.maxMinutes === null || !task.deadlineLocal || !entry || entry.availableBeforeMinutes == null || blockers.length) {
-    const reason = !range ? 'Gjenstående arbeid er ukjent.' : range.maxMinutes === null ? 'Arbeidsmengden har ingen øvre grense ennå.' : !task.deadlineLocal ? 'Fristen er ikke registrert.' : blockers.length ? blockers.map(item => item.reason).join(' ') : 'Registrer arbeidstid før fristen.'
-    return { tone: 'neutral', title: task.title, text: `Kan ikke vurderes ennå. ${reason}`, taskId: task.id, assessable: false }
+  const openEstimate = range?.maxMinutes === null
+  const estimateNote = openEstimate ? `${range.minMinutes === 241 ? 'Du har oppgitt mer enn fire timer.' : `Du har oppgitt minst ${range.minMinutes} minutter.`} Øvre anslag er ukjent.` : ''
+  if (!range || !task.deadlineLocal || entry?.availableBeforeMinutes == null || blockers.length) {
+    const reason = !range ? 'Gjenstående arbeid er ukjent.' : !task.deadlineLocal ? 'Fristen er ikke registrert.' : blockers.length ? blockers.map(item => item.reason).join(' ') : 'Registrer arbeidstid før fristen.'
+    return { tone: 'neutral', title: task.title, text: ['Kan ikke vurderes ennå.', reason, estimateNote].filter(Boolean).join(' '), taskId: task.id, assessable: false }
   }
   const { availableBeforeMinutes: available, missingMinMinutes: missingMin, missingMaxMinutes: missingMax } = entry
+  if (openEstimate) {
+    const missing = Math.max(0, range.minMinutes - available)
+    const text = `Du har ${formatDuration(available)} tilgjengelig${task.splittable === false ? ' i den lengste sammenhengende perioden' : ''} før fristen. ${missing ? `Minst ${missing} minutter mangler. ` : ''}${estimateNote}`
+    return { tone: missing ? 'danger' : 'neutral', title: task.title, text, taskId: task.id, assessable: missing > 0, availableMinutes: available, missingMinMinutes: missing, missingMaxMinutes: null }
+  }
   const start = `${task.title} har anslagsvis ${formatEstimateRange(range)} arbeid igjen. Du har ${formatDuration(available)} tilgjengelig før fristen.`
   if (!missingMax) return { tone: 'good', title: task.title, text: `${start} Planen går opp ut fra det du har registrert.`, taskId: task.id, assessable: true, availableMinutes: available, missingMinMinutes: 0, missingMaxMinutes: 0 }
   const continuity = task.splittable === false ? ' Arbeidet må få plass i én sammenhengende økt.' : ''

@@ -1,11 +1,18 @@
 import { closeWork, futureReservations } from './work-log.js'
-import { getRemainingMinutes, estimateChoiceRange } from './tasks.js'
+import { getRemainingMinutes, getRemainingRange, estimateChoiceRange } from './tasks.js'
 import { personalEstimate } from './personal-estimates.js'
 import { taskSteps } from './work-steps.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 import { proposeReview, decideReview, updateReviewTopic, removeAssessmentReview, recordAssessment, assessmentSessionContext } from './review-planning.js'
 
 const el = (tag, text) => { const node = document.createElement(tag); if (text) node.textContent = text; return node }
+const reviewDecision = (status, date, start, endDate, end, deferUntil) => ({
+  status,
+  ...(['approved', 'adjusted'].includes(status) ? { session: { dateLocal: date, startTime: start, ...(endDate ? { endDateLocal: endDate } : {}), endTime: end } } : {}),
+  ...(status === 'deferred' ? { deferUntil } : {}),
+})
+const reviewSlotValues = session => [session?.dateLocal || '', session?.startTime || '', session?.endDateLocal || '', session?.endTime || '']
+
 export function createWorkLogView(actions) {
   const dialog = el('dialog'); dialog.className = 'editor-dialog connected-dialog'; document.body.append(dialog)
   let opener, draft, baseline
@@ -63,6 +70,9 @@ export function createWorkLogView(actions) {
           const updated = prepareAssessmentChange()
           const proposal = updated.ok && proposeReview(updated.state, updated.state.assessments.find(value => value.id === assessment.id))
           editReview.hidden = !((lifecycleChanged() || deferredDue()) && proposal?.suggested)
+          editStatus.value = ''
+          const values = reviewSlotValues(proposal?.proposedSession)
+          for (const [index, field] of [editDate, editStart, editEndDate, editEnd].entries()) field.value = values[index]
         }
         refreshEditReview()
         for (const control of [select, disabled, examDate]) control.addEventListener('change', refreshEditReview)
@@ -76,8 +86,8 @@ export function createWorkLogView(actions) {
             if (!proposal.ok) { form.querySelector('[role=alert]').textContent = proposal.error; return }
             if (proposal.suggested) {
               if (!editStatus.value) { form.querySelector('[role=alert]').textContent = 'Velg om repetisjonen skal godkjennes, justeres, utsettes eller avvises.'; editStatus.focus(); return }
-              const manual = editDate.value && editStart.value && editEnd.value ? { session: { dateLocal: editDate.value, startTime: editStart.value, ...(editEndDate.value && editEndDate.value !== editDate.value ? { endDateLocal: editEndDate.value } : {}), endTime: editEnd.value } } : {}
-              const decided = decideReview(candidate, proposal, { status: editStatus.value, ...(editStatus.value === 'deferred' ? { deferUntil: editDefer.value } : {}), ...(['approved', 'adjusted'].includes(editStatus.value) ? manual : {}) })
+              const decision = reviewDecision(editStatus.value, editDate.value, editStart.value, editEndDate.value, editEnd.value, editDefer.value)
+              const decided = decideReview(candidate, proposal, decision)
               if (!decided.ok) { form.querySelector('[role=alert]').textContent = decided.error; return }
               candidate = decided.state
             }
@@ -93,6 +103,12 @@ export function createWorkLogView(actions) {
       }
       form.elements.outcome.value = outcome
       form.elements.remainingMinutes.value = getRemainingMinutes(task) ?? ''
+      const previousRange = getRemainingRange(task)
+      if (options.partial && previousRange?.maxMinutes === null) {
+        const keep = el('option', `Behold registrert anslag (minst ${previousRange.minMinutes} min, øvre anslag ukjent)`)
+        keep.value = 'keep'; form.elements.remainingChoice.prepend(keep)
+        form.elements.remainingChoice.value = 'keep'
+      }
       form.elements.remainingChoice.onchange = () => { form.elements.remainingMinutes.hidden = form.elements.remainingChoice.value !== 'exact'; if (!form.elements.remainingMinutes.hidden) form.elements.remainingMinutes.focus() }
       form.querySelector('[data-cancel]').onclick = close
       const review = form.querySelector('[data-review]'), reviewTime = form.querySelector('[data-review-time]'), defer = form.querySelector('[data-defer]')
@@ -130,7 +146,7 @@ export function createWorkLogView(actions) {
         const time = proposal.proposedSession ? ` Foreslått kollisjonsfri tid: ${proposal.proposedSession.dateLocal} kl. ${proposal.proposedSession.startTime}–${proposal.proposedSession.endDateLocal ? `${proposal.proposedSession.endDateLocal} ` : ''}${proposal.proposedSession.endTime}.` : ''
         proposalPreview.textContent = review.hidden ? '' : `${proposal.error || proposal.explanation || ''} ${(proposal.uncertainty || []).join(' ')}${time}`
         if (!manualReviewTime) {
-          const values = proposal.proposedSession ? [proposal.proposedSession.dateLocal, proposal.proposedSession.startTime, proposal.proposedSession.endDateLocal || '', proposal.proposedSession.endTime] : ['', '', '', '']
+          const values = reviewSlotValues(proposal.proposedSession)
           timeFields.forEach((name, index) => { form.elements[name].value = values[index] })
         }
         updateReviewStatus()
@@ -161,7 +177,7 @@ export function createWorkLogView(actions) {
         if (JSON.stringify(actions.state()) !== baseline) { error.textContent = 'Dataene er endret. Avbryt og åpne arbeidsregistreringen på nytt; utkastet er beholdt.'; return }
         const choice = form.elements.remainingChoice.value
         const result = closeWork(actions.state(), { ...draft, outcome: form.elements.outcome.value, actualMinutes: form.elements.actualMinutes.value,
-          remainingMinutes: choice === 'exact' ? form.elements.remainingMinutes.value : '', remainingEstimate: estimateChoiceRange(choice), completeTask: form.elements.completeTask.checked,
+          remainingMinutes: choice === 'exact' ? form.elements.remainingMinutes.value : '', remainingEstimate: choice === 'keep' ? previousRange : estimateChoiceRange(choice), completeTask: form.elements.completeTask.checked,
           interrupted: form.elements.interrupted.checked, historyComplete: form.elements.historyComplete.checked, confirmRelease: form.elements.confirmRelease.checked })
         if (!result.ok) { error.textContent = result.error; return }
         let candidate = result.state
@@ -181,8 +197,7 @@ export function createWorkLogView(actions) {
           if (proposal.suggested) {
             const status = form.elements.reviewStatus.value
             if (!status) { error.textContent = 'Velg om repetisjonen skal godkjennes, justeres, utsettes eller avvises.'; return }
-            const hasManualTime = form.elements.reviewDate.value && form.elements.reviewStart.value && form.elements.reviewEnd.value
-            const decision = { status, ...(status === 'deferred' ? { deferUntil: form.elements.deferUntil.value } : {}), ...(['approved', 'adjusted'].includes(status) && hasManualTime ? { session: { dateLocal: form.elements.reviewDate.value, startTime: form.elements.reviewStart.value, ...(form.elements.reviewEndDate.value && form.elements.reviewEndDate.value !== form.elements.reviewDate.value ? { endDateLocal: form.elements.reviewEndDate.value } : {}), endTime: form.elements.reviewEnd.value } } : {}) }
+            const decision = reviewDecision(status, ...timeFields.map(name => form.elements[name].value), form.elements.deferUntil.value)
             const decided = decideReview(candidate, proposal, decision)
             if (!decided.ok) { error.textContent = decided.error; return }
             candidate = decided.state

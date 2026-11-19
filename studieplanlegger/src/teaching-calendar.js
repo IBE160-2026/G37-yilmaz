@@ -1,11 +1,21 @@
 import { osloLocal } from './planner.js'
 import { applyCourseColor } from './course-colors.js'
 import { eventPresentation } from './event-kind.js'
-const eventOrder = event => event.start || `${event.dateLocal || ''}T00:00`
+import { dayBounds } from './calendar-model.js'
+
+const eventOrder = event => event.start ? Date.parse(event.start) : dayBounds(event.dateLocal).start
+const eventDays = event => {
+  const start = event.start ? osloLocal(event.start).slice(0, 10) : event.dateLocal
+  const end = event.end && Date.parse(event.end) > Date.parse(event.start)
+    ? osloLocal(new Date(Date.parse(event.end) - 1).toISOString()).slice(0, 10)
+    : start
+  return { event, start, end }
+}
+const activeEvent = event => !event.cancelled && !event.excluded && !event.deleted
+const chronological = (a, b) => eventOrder(a) - eventOrder(b) || a.title.localeCompare(b.title, 'nb')
 
 export function eventsOnDay(events, day) {
-  return events.filter(event => !event.cancelled && !event.deleted && (event.activityKind === 'personal' ? event.dateLocal === day : osloLocal(event.start).slice(0, 10) <= day && osloLocal(new Date(Date.parse(event.end) - 1).toISOString()).slice(0, 10) >= day))
-    .sort((a, b) => (a.start || a.dateLocal).localeCompare(b.start || b.dateLocal) || a.title.localeCompare(b.title, 'nb'))
+  return events.filter(activeEvent).map(eventDays).filter(item => item.start <= day && item.end >= day).map(item => item.event).sort(chronological)
 }
 
 // Composes with the existing calendar's date selection and keyboard navigation.
@@ -19,9 +29,9 @@ export function createTeachingLayer(host, actions) {
       const nextPrepared = JSON.stringify(events)
       if (nextPrepared !== preparedSignature) {
         preparedSignature = nextPrepared
-        prepared = events.filter(e => !e.cancelled && !e.deleted).map(event => event.activityKind === 'personal' ? { event, start: event.dateLocal, end: event.dateLocal } : ({ event, start: osloLocal(event.start).slice(0, 10), end: osloLocal(new Date(Date.parse(event.end) - 1).toISOString()).slice(0, 10) }))
+        prepared = events.filter(activeEvent).map(eventDays)
       }
-      const onDay = day => prepared.filter(e => e.start <= day && e.end >= day).map(e => e.event).sort((a, b) => eventOrder(a).localeCompare(eventOrder(b)) || a.title.localeCompare(b.title, 'nb'))
+      const onDay = day => prepared.filter(e => e.start <= day && e.end >= day).map(e => e.event).sort(chronological)
       if (!host.querySelector('.calendar-teaching-kind')) {
         const legend = document.createElement('span'); legend.className = 'calendar-teaching-kind'; legend.textContent = 'Undervisning · U · Egen aktivitet · E'; host.querySelector('.calendar-legend')?.append(legend)
       }
@@ -36,7 +46,7 @@ export function createTeachingLayer(host, actions) {
       const selected = host.querySelector('[data-calendar-date][aria-pressed="true"]')?.dataset.calendarDate
       const month = host.querySelector('[data-calendar-date]:not(.is-outside)')?.dataset.calendarDate.slice(0, 7)
       const agendaMode = host.querySelector('.calendar-month-view')?.hidden
-      const items = agendaMode ? prepared.filter(e => e.start.slice(0, 7) <= month && e.end.slice(0, 7) >= month).map(e => e.event).sort((a, b) => eventOrder(a).localeCompare(eventOrder(b))) : onDay(selected || '')
+      const items = agendaMode ? prepared.filter(e => e.start.slice(0, 7) <= month && e.end.slice(0, 7) >= month).map(e => e.event).sort(chronological) : onDay(selected || '')
       const nextSignature = JSON.stringify([items, selected, month, agendaMode, disabled, courses.map(course => [course.id, course.code])])
       if (nextSignature === signature && section.isConnected) return
       signature = nextSignature
@@ -46,7 +56,7 @@ export function createTeachingLayer(host, actions) {
       let heading = section.querySelector('h4')
       if (!heading) { heading = document.createElement('h4'); section.prepend(heading) }
       heading.textContent = agendaMode ? 'Kalenderaktiviteter denne måneden' : 'Kalenderaktiviteter på valgt dag'
-      section.hidden = !events.some(e => !e.cancelled && !e.deleted)
+      section.hidden = !prepared.length
       let empty = section.querySelector('.calendar-teaching-empty')
       if (!empty) { empty = document.createElement('p'); empty.className = 'calendar-teaching-empty'; empty.textContent = 'Ingen undervisning i dette tidsrommet.'; section.append(empty) }
       empty.hidden = !!items.length

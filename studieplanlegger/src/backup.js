@@ -3,6 +3,9 @@ import { boundedImportWarnings } from './import-source-contract.js'
 import { taskSteps, migrateLegacyStep, legacyStepId } from './work-steps.js'
 
 export const BACKUP_VERSION = 1
+export const MAX_BACKUP_BYTES = 20_000_000
+export const BACKUP_SIZE_ERROR = 'Sikkerhetskopien kan være på maks 20 MB. Eksisterende plan er beholdt.'
+export class BackupTooLarge extends Error {}
 const secretKey = /^(?:authorization|accesstoken|refreshtoken|token|password|pwd|secret|clientsecret|credentials|apikey|headers|cookie|cookies)$/i
 const normalKey = key => key.replace(/[^a-z0-9]/gi, '')
 const credentialParameter = key => { const name = normalKey(key); return secretKey.test(name) || /(?:token|secret|password|authorization|credential|apikey)/i.test(name) || /^(key|auth|sig|signature)$/i.test(key) }
@@ -125,17 +128,27 @@ export function previewLocalRecovery(saved, current) {
   return { ok: true, data, before: count(current), after: count(data), localRecovery: true }
 }
 export function previewBackup(input, current) {
+  const invalid = error => ({ ok: false, error: `${error} Eksisterende plan er beholdt.` })
+  if (typeof input !== 'string') return invalid('Sikkerhetskopien kunne ikke leses som tekst.')
+  if (new TextEncoder().encode(input).byteLength > MAX_BACKUP_BYTES) return { ok: false, error: BACKUP_SIZE_ERROR }
+  if (!input.trim()) return invalid('Sikkerhetskopien er tom. Velg en JSON-fil eksportert fra Ajour.')
+  let backup
+  try { backup = JSON.parse(input) }
+  catch { return invalid('Sikkerhetskopien inneholder ugyldig JSON. Velg en ny eksportfil fra Ajour.') }
   try {
-    if (typeof input !== 'string' || input.length > 20_000_000) throw new Error('Filen må være mindre enn 20 MB.')
-    const backup = JSON.parse(input)
-    if (backup.format !== 'studieplan-local-backup' || backup.backupVersion !== BACKUP_VERSION || !Number.isFinite(Date.parse(backup.createdAt)) || !validEnvelope(backup.data, { relations: true })) throw new Error('Ugyldig sikkerhetskopi, versjon eller relasjon. Lagrede data er beholdt.')
+    if (backup?.format !== 'studieplan-local-backup' || backup.backupVersion !== BACKUP_VERSION || !Number.isFinite(Date.parse(backup.createdAt)) || !validEnvelope(backup.data, { relations: true })) return invalid('Ugyldig sikkerhetskopi. Filen må inneholde en støttet Ajour-plan med gyldige koblinger.')
     const data = withoutConnections(backup.data)
-    if (!validEnvelope(data, { relations: true })) throw new Error('Eksportidentiteter eller relasjoner er ugyldige. Dataene er beholdt.')
+    if (!validEnvelope(data, { relations: true })) return invalid('Ugyldig sikkerhetskopi. Koblingene i filen kunne ikke bevares.')
     return { ok: true, data, before: count(current), after: count(data), createdAt: backup.createdAt, rekeyedIds: backup.rekeyedIds || 0, reconnect: data.planner?.sources.filter(source => source.reconnectRequired).length || 0 }
-  } catch (error) { return { ok: false, error: error.message } }
+  } catch { return invalid('Ugyldig sikkerhetskopi. Innholdet kunne ikke leses som en Ajour-plan.') }
+}
+export function backupFile(backup) {
+  const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' })
+  if (blob.size > MAX_BACKUP_BYTES) throw new BackupTooLarge(BACKUP_SIZE_ERROR)
+  return blob
 }
 export function downloadBackup(backup) {
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob)
+  const url = URL.createObjectURL(backupFile(backup))
   const link = document.createElement('a'); link.href = url; link.download = `ajour-${backup.createdAt.slice(0, 10)}.json`; link.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }

@@ -4,6 +4,7 @@ import { formatDeadline, taskStatus } from './calendar.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 import { taskBlockers, unblocksCount, canStartTask } from './task-dependencies.js'
 import { primaryWorkStep } from './work-steps.js'
+import { calendarToday } from './calendar-model.js'
 
 const node = (tag, className = '', text = '') => {
   const element = document.createElement(tag)
@@ -49,7 +50,7 @@ export function createTaskList(list, actions) {
     const primary = node('button', 'task-primary')
     primary.type = 'button'
     const menu = node('details', 'task-menu')
-    const summary = node('summary', '', 'Flere ···')
+    const summary = node('summary', '', 'Flere')
     summary.addEventListener('click', () => {
       for (const other of document.querySelectorAll('.task-menu[open]')) if (other !== menu) other.open = false
     })
@@ -107,6 +108,7 @@ export function createTaskList(list, actions) {
     rows,
     disable(disabled) { for (const row of rows.values()) setDisabled(row, disabled) },
     render(tasks, { now, disabled, minutes = 30, suggestion = false, compact = false, alternatives = false, capacity = [], allTasks = tasks }) {
+      const year = calendarToday(now).slice(0, 4)
       const signature = `${suggestion ? 'suggest-' : 'list-'}${tasks.map(task => task.id).join(',')}`
       if (signature !== renderSignature) {
         renderSignature = signature
@@ -134,7 +136,7 @@ export function createTaskList(list, actions) {
         const ready = Boolean(task.requiresSubmission && task.completed && !task.submitted)
         setText(row.status, taskStatus(task))
         row.status.className = `status-badge ${task.submitted ? 'is-submitted' : ready ? 'is-ready' : task.completed ? 'is-completed' : 'is-open'}`
-        setText(row.deadline, formatDeadline(task.deadlineLocal, { year: Number((task.deadlineLocal || '').slice(0, 4)) !== now.getFullYear(), disambiguation: task.deadlineDisambiguation }))
+        setText(row.deadline, formatDeadline(task.deadlineLocal, { year: task.deadlineLocal?.slice(0, 4) !== year, disambiguation: task.deadlineDisambiguation }))
         row.deadline.dateTime = task.deadlineLocal || ''
         row.estimate.hidden = task.estimatedMinutes == null
         setText(row.estimate, task.estimatedMinutes == null ? '' : `Opprinnelig anslag: ${task.estimatedMinutes} min`)

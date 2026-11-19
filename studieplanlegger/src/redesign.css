@@ -199,7 +199,7 @@ body:not([data-design-view='overview']):not([data-design-view='time']) .onboardi
 .task-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; padding: 0; border: 0; }
 .task-primary { font-size: .8125rem; }
 .task-menu > summary { padding: 10px; min-height: 44px; background: none; border: 0; color: var(--muted); font-size: .75rem; }
-.task-menu-items { max-width: min(340px, calc(100vw - 60px)); padding: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-soft); }
+.task-menu-items { max-width: 340px; padding: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-soft); }
 .task-menu-items button { background: transparent; color: var(--ink); font-size: .8125rem; text-align: left; }
 .task-menu-items button:hover { background: var(--lavender-soft); color: var(--ink); }
 .completion-control { font-size: .8125rem; }
@@ -458,7 +458,7 @@ body:not([data-design-view='overview']):not([data-design-view='time']) .onboardi
 .deadline-row p { font-weight: 600; }
 @media (max-width: 760px) {
   .header-actions { width: 100%; justify-content: flex-start; }
-  .header-actions button { flex: 1 1 auto; min-width: 0; white-space: nowrap; }
+  .header-actions button { flex: 1 1 auto; min-width: 0; white-space: normal; }
   .daily-overview, .next-plan { padding: 16px; }
 }
 @media (max-width: 760px) {
@@ -518,6 +518,7 @@ input:is([type='checkbox'], [type='radio']) { accent-color: var(--ink); }
 .view-actions { position: relative; inset: auto; display: flex; flex-direction: row; flex-wrap: wrap; align-self: stretch; align-items: stretch; gap: 2px; margin: 0; padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
 .view-actions button { display: flex; align-items: center; position: relative; gap: 6px; min-width: 0; min-height: 52px; padding: 12px 10px 22px; color: var(--muted); background: transparent; border: 0; border-radius: 0; font-size: .8125rem; font-weight: 500; text-align: center; z-index: 1; }
 .view-actions button svg { display: none; }
+.view-actions .nav-text { min-width: 0; overflow-wrap: anywhere; }
 .view-actions button:hover:not(:disabled) { color: var(--ink); background: var(--surface-soft); }
 .view-actions button[aria-pressed='true'], #mobile-navigation-more[data-active-route] { color: var(--ink); font-weight: 750; }
 .view-actions button[aria-pressed='true']::after, #mobile-navigation-more[data-active-route]::after { content: ''; display: block; position: absolute; bottom: 0; left: 8px; right: 8px; height: 3px; border-radius: 3px; background: var(--ink); transform: none; }
@@ -676,6 +677,14 @@ body[data-design-view='calendar'] .page { width: min(1440px, calc(100% - 56px));
 }
 
 /* Appearance is a local preference; changing these variables never rebuilds a view. */
+@media (max-width: 760px) {
+  body { overflow-wrap: anywhere; }
+  :is(button, summary, legend) { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+  :is(fieldset, .app-header > *, .task-actions > *, .daily-task-actions > *) { min-width: 0; }
+  .app-header { flex-wrap: wrap; }
+  #new-task, .custom-time .light-button { white-space: normal; }
+}
+
 html { accent-color: var(--ink); scrollbar-color: var(--field-border) var(--canvas); }
 ::selection { color: var(--ink); background: var(--lavender); }
 option, optgroup { color: var(--ink); background: var(--field); }

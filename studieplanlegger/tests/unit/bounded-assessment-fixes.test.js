@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { assessmentSessionContext, purgeAssessments, recordAssessment, removeAssessmentReview, updateReviewTopic, validAssessments } from '../../src/review-planning.js'
 import { closeWork } from '../../src/work-log.js'
 import { validEnvelope } from '../../src/storage.js'
+import { previewBackup } from '../../src/backup.js'
 
 const task = { id: 'assessment-task', title: 'Syntetisk hovedoppgave', course: '', deadlineLocal: '', estimatedMinutes: 90, remainingMinutes: 90, completed: false }
 const otherTask = { ...task, id: 'other-task', title: 'Syntetisk annen oppgave' }
@@ -18,11 +19,14 @@ const independentlyReferencedReview = () => {
 }
 
 describe('bounded assessment topic and session contract', () => {
-  it('reports an unknown historical task name when the stored task and session snapshots refer to different tasks', () => {
+  it.each([otherTask.id, 'unknown-task'])('rejects a backup whose archived session links to %s rather than the logged task', archivedTaskId => {
     const closed = close(state())
-    const historical = { ...closed.state, workLogs: closed.state.workLogs.map(log => ({ ...log, sessionSnapshot: { ...log.sessionSnapshot, taskId: otherTask.id } })) }
+    const historical = { ...closed.state, workLogs: closed.state.workLogs.map(log => ({ ...log, sessionSnapshot: { ...log.sessionSnapshot, taskId: archivedTaskId } })) }
     const before = structuredClone(historical)
-    expect(validEnvelope(historical, { relations: true })).toBe(true)
+    expect(validEnvelope(closed.state, { relations: true })).toBe(true)
+    expect(validEnvelope(historical, { relations: true })).toBe(false)
+    const backup = { format: 'studieplan-local-backup', backupVersion: 1, createdAt: '2026-09-28T10:30:00Z', data: historical }
+    expect(previewBackup(JSON.stringify(backup), closed.state)).toMatchObject({ ok: false, error: expect.stringContaining('Eksisterende plan er beholdt') })
     expect(assessmentSessionContext(historical, { sessionId: session.id })).toBe('Historisk økt: 2026-09-28 kl. 10:00–10:30 · Oppgave: historisk navn ukjent.')
     expect(historical).toEqual(before)
   })

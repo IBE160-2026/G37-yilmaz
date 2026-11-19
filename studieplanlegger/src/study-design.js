@@ -154,7 +154,7 @@ export function createStudyDesign(actions) {
       details.hidden = !notice || (warning.hidden && !['danger', 'warning'].includes(notice.tone))
       if (notice) {
         details.dataset.tone = notice.tone; text(details.querySelector('summary'), notice.text)
-        text(details.querySelector('.capacity-context'), notice.detail || 'Legg til studieøkter under Kapasitet for å se hvor mye arbeid du har satt av tid til.')
+        text(details.querySelector('.capacity-context'), notice.detail || 'Legg til studieøkter under Planlegg uken for å se hvor mye arbeid du har satt av tid til.')
       }
     }
     text($('#planning-status'), model.sessions?.length ? 'Planlagte økter og gjenstående arbeid' : 'Ingen studieøkt planlagt ennå.')

@@ -36,9 +36,11 @@ På mobil ligger hovedmålene i toppnavigasjonen; øvrige valg ligger under **Me
 
 ## Sikkerhetskopi og lagring
 
+Nettutgaven lagrer planen i nettleserprofilen på Ajours nettadresse. Lokal Node- og Docker-drift lagrer planen i SQLite.
+
 Velg **Innstillinger → Data og sikkerhetskopi → Eksporter sikkerhetskopi**, og oppbevar JSON-filen privat utenfor kildekoden. Ved flytting til en annen adresse, profil eller enhet åpner du Ajour der og velger **Innstillinger → Data og sikkerhetskopi → Importer sikkerhetskopi**. Velg filen, kontroller forhåndsvisningen og bekreft med **Erstatt lokale data**. Ta en ny kopi før du erstatter en eksisterende plan; en ukjent kopi kan først prøves i en separat nettleserprofil.
 
-Filer over **20 000 000 byte (20 MB)** avvises før forhåndsvisning i alle driftsformer, også lokal Node-/Docker-drift. Dette er en fast importgrense, separat fra nettleserens lagringskvote.
+Forhåndsvisning, import og eksport bruker samme størrelsesgrense på **maks 20 MB (20 000 000 UTF-8-byte)**. Hvis den fulle kopien er for stor, kan du prøve å eksportere uten Angre-historikken. Lokal Node- og Docker-drift kan også sikres ved å ta en separat kopi av SQLite-dataene mens serveren er stoppet. Nettleserens egen lagringskvote gjelder i tillegg ved gjenoppretting i nettutgaven.
 
 En portabel sikkerhetskopi bevarer opplysninger og relasjoner, men utelater kalenderforbindelser og kjente tilgangsnøkler. Kildene må kobles til igjen. **Tema og emnefargepreferanser inngår ikke i sikkerhetskopien.** En full kopi kan inneholde tidligere opplysninger i Angre-historikk og papirkurv. Sletting i appen endrer ikke filer som allerede er lastet ned, og komprimering er ikke kryptering.
 
@@ -238,6 +240,17 @@ npm.cmd start
 ```
 
 Åpne **http://127.0.0.1:8080**. Første oppstart er tom. Kontroller serveren fra en annen terminal med `Invoke-RestMethod http://127.0.0.1:8080/api/health`. Ctrl+C stopper serveren. Neste gang setter du de samme miljøvariablene og kjører `npm.cmd start`; bygg på nytt etter kodeendringer. Miljøvariablene gjelder bare terminalen der de ble satt.
+
+På macOS og Linux, start i repository-roten med Node.js 24 og et POSIX-skall:
+
+```sh
+cd studieplanlegger &&
+npm ci &&
+npm run build &&
+HOST=127.0.0.1 PORT=8080 STUDIEPLAN_DB="$PWD/artifacts/local-node/studieplan.sqlite" STUDIEPLAN_SEED=false STUDIEPLAN_SEED_JSON= npm start
+```
+
+Kontroller oppstarten fra en annen terminal med `curl -fsS http://127.0.0.1:8080/api/health`.
 
 Bruk samme databasefil ved omstart. Ikke slett den eller eventuelle SQLite-sidefiler for å «starte på nytt» hvis planen skal beholdes. Ta sikkerhetskopi i appen før endringer i driften. En vanlig filkopi av en database i bruk er ikke oppskriften for portabel sikkerhetskopi. Hvis porten er opptatt, velg en ledig port eller avslutt din egen prøveprosess; ikke stopp en ukjent tjeneste.
 

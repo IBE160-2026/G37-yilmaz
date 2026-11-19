@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdtempSync, renameSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -193,6 +193,27 @@ describe('SQLite state repository', () => {
     db.close()
   })
 
+  it('reads the revision and contents from one SQLite snapshot during a competing write', () => {
+    const { db, filename } = database(), writer = new StateDatabase(filename)
+    const old = state(), next = structuredClone(old)
+    next.tasks[0].title = 'Changed in the other connection'
+    try {
+      db.save(old, 0)
+      const prepare = db.db.prepare.bind(db.db)
+      const spy = vi.spyOn(db.db, 'prepare').mockImplementation(sql => {
+        // The metadata query has completed when the reader starts its first
+        // entity query. WAL allows this separate connection to commit now.
+        if (sql === 'SELECT payload_json FROM courses ORDER BY position') {
+          spy.mockRestore()
+          writer.save(next, 1)
+        }
+        return prepare(sql)
+      })
+      expect(db.read()).toEqual({ revision: 1, envelope: old })
+      expect(db.read()).toEqual({ revision: 2, envelope: next })
+    } finally { writer.close(); db.close() }
+  })
+
   it('preserves completed review session identities without a dangling live-session foreign key', () => {
     const { db, filename } = database(), expected = state()
     const session = { ...expected.sessions[0], reviewKey: 'review:topic:assessment', reviewTopicId: 'topic' }
@@ -240,6 +261,23 @@ describe('SQLite state repository', () => {
     const reopened = new StateDatabase(filename)
     expect(reopened.read()).toEqual({ revision: 1, envelope: expected })
     reopened.close()
+  })
+
+  it('migrates empty optional browser IDs without writing dangling foreign keys', () => {
+    const { db, filename } = database(), expected = state()
+    expected.tasks[0].courseId = ''
+    expected.sessions[0].taskId = ''
+    expected.planner.events[0].sourceId = ''
+    try {
+      const raw = JSON.stringify(expected), preview = db.previewLegacy(raw)
+      expect(db.importLegacy(raw, preview.fingerprint, 0).envelope).toEqual(expected)
+      expect(db.db.prepare('SELECT task_id FROM sessions').get().task_id).toBeNull()
+      expect(db.db.prepare('SELECT source_id FROM planner_events').get().source_id).toBeNull()
+      expect(db.db.prepare('PRAGMA foreign_key_check').all()).toEqual([])
+    } finally { db.close() }
+    const reopened = new StateDatabase(filename)
+    try { expect(reopened.read()).toEqual({ revision: 1, envelope: expected }) }
+    finally { reopened.close() }
   })
 
   it('makes recovery snapshots and work-history purge part of one transaction', () => {

@@ -16,7 +16,7 @@ const plan = {
 async function importSemester(page, studySemester, year, semester) {
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption('skrivekunst')
   await host.getByRole('button', { name: 'Hent studieprogram', exact: true }).click()
@@ -27,8 +27,8 @@ async function importSemester(page, studySemester, year, semester) {
   await host.locator('[name=clarifiedYear]').fill(String(year)); await host.locator('[name=clarifiedSemester]').selectOption(semester)
   await host.locator('[name=programCampus]').selectOption('Bergen')
   await host.locator('.activity-choices input[type=checkbox]').check()
-  await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-  await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
   await expect(host.getByRole('status')).toContainText('1 emne')
 }
 
@@ -65,7 +65,7 @@ test('Skrivekunst rejects a calendar period outside the published study-year map
   await page.goto('/')
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption('skrivekunst')
   await host.getByRole('button', { name: 'Hent studieprogram', exact: true }).click()
@@ -77,7 +77,7 @@ test('Skrivekunst rejects a calendar period outside the published study-year map
   await host.locator('[name=clarifiedYear]').fill('2200')
   await host.locator('[name=programCampus]').selectOption('Bergen')
   await host.locator('.activity-choices input[type=checkbox]').check()
-  await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
   await expect(host.getByRole('status')).toContainText('Kilden knytter 1. studiesemester til høst 2026')
   const stored = await page.evaluate(key => { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw).planner.courses : [] }, key)
   expect(stored).toHaveLength(0)

@@ -57,7 +57,7 @@ describe('persisted source timing validation at storage and backup boundaries', 
 
     expect(validEnvelope(candidate, { relations: true })).toBe(false)
     const result = previewBackup(backup(candidate), current)
-    expect(result).toMatchObject({ ok: false, error: expect.stringContaining('Lagrede data er beholdt') })
+    expect(result).toMatchObject({ ok: false, error: expect.stringContaining('Eksisterende plan er beholdt') })
     expect(result.data).toBeUndefined()
     expect(candidate).toEqual(candidateBefore)
     expect(current).toEqual(before)

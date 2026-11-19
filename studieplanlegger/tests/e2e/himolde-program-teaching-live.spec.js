@@ -32,7 +32,7 @@ test('live HiMolde IT 2026 programme hands IBE110, IBE430 and IBE160 to teaching
   await page.reload()
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption('himolde')
   await host.locator('[name=programQuery]').fill('it')
@@ -53,8 +53,8 @@ test('live HiMolde IT 2026 programme hands IBE110, IBE430 and IBE160 to teaching
   await expect(host.getByRole('checkbox', { name: /IBE430.*Påkrevd/ })).toBeChecked()
   await host.getByRole('radio', { name: /IBE160/ }).check()
   await expect(host.getByText('Forbered og kontroller undervisning for 3 emner', { exact: true })).toBeVisible()
-  await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-  await expect(host.getByRole('button', { name: 'Bekreft programimport', exact: true })).toBeVisible({ timeout: 120_000 })
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeVisible({ timeout: 120_000 })
 
   for (const code of codes) {
     const card = host.locator('.import-preview article.course-card').filter({ hasText: new RegExp(`^${code}\\b`) }).first()
@@ -76,7 +76,7 @@ test('live HiMolde IT 2026 programme hands IBE110, IBE430 and IBE160 to teaching
 
   expect(new Set(observed.searches.filter(Boolean))).toEqual(new Set(codes))
   expect(new Set(observed.calendars)).toEqual(new Set(Object.values(sourceIds)))
-  await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
   await expect(host.getByRole('status')).toContainText(/3 emner er lagret samlet/i)
   const first = await page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)), key)
   expect(first.planner.courses.map(course => course.code).sort()).toEqual([...codes].sort())

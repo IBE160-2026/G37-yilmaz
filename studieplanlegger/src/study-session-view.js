@@ -20,14 +20,15 @@ export function createStudySessionView(actions) {
       const stepId = step?.id
       const heading = el('h2', step ? step.title || step.description : task.title); heading.id = 'study-session-heading'
       dialog.setAttribute('aria-labelledby', heading.id)
-      const partial = getActionMinutes(task) > plannedMinutes
-      const context = el('p', `Planlagt varighet: ${plannedMinutes} minutter. ${step ? `Oppgave: ${task.title}. ${partial ? 'Dette er en deløkt på arbeidssteget. ' : ''}Stegets tid er allerede inkludert i oppgavens gjenstående arbeid.` : `${partial ? 'Dette er en deløkt. ' : ''}Totalt gjenstående arbeid: ${formatEstimateRange(getRemainingRange(task))}.`}`)
+      const range = getRemainingRange(task)
+      const partial = getActionMinutes(task) > plannedMinutes || (!step && range?.maxMinutes === null)
+      const context = el('p', `Planlagt varighet: ${plannedMinutes} minutter. ${step ? `Oppgave: ${task.title}. ${partial ? 'Dette er en deløkt på arbeidssteget. ' : ''}Stegets tid er allerede inkludert i oppgavens gjenstående arbeid.` : `${partial ? 'Dette er en deløkt. ' : ''}Totalt gjenstående arbeid: ${formatEstimateRange(range)}.`}`)
       const note = el('p', 'Start registrerer ikke fremdrift. Du bekrefter selv hva som skjedde når økten avsluttes.', 'muted')
       const actionsRow = el('div', '', 'actions'), start = el('button', 'Start økten'), cancel = el('button', 'Avbryt', 'secondary')
       start.type = cancel.type = 'button'; cancel.onclick = close
       start.onclick = () => {
         if (!started) {
-          started = true; start.textContent = 'Avslutt økten'; context.textContent = `${step ? step.title || step.description : task.title} · ${plannedMinutes} minutter planlagt.`; note.textContent = 'Økten er startet lokalt. Ingenting regnes som utført før du velger et utfall.'; start.focus()
+          started = true; start.textContent = 'Avslutt økten'; context.textContent = `${step ? step.title || step.description : task.title} · ${plannedMinutes} minutter planlagt${partial ? ' som deløkt' : ''}.`; note.textContent = 'Økten er startet lokalt. Ingenting regnes som utført før du velger et utfall.'; start.focus()
         } else {
           close(); actions.finish(taskId, plannedMinutes, stepId, partial)
         }

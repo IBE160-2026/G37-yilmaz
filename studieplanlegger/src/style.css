@@ -738,7 +738,17 @@ main {
 }
 
 .task-menu {
-  position: relative;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.task-menu[open] {
+  flex-basis: 100%;
+}
+
+.task-menu > summary {
+  width: fit-content;
+  max-width: 100%;
 }
 
 .task-menu summary {
@@ -766,11 +776,8 @@ main {
 }
 
 .task-menu-items {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 6px);
-  min-width: 220px;
-  z-index: 4;
+  margin-block-start: 6px;
+  width: 100%;
   display: grid;
   gap: 4px;
   padding: 7px;
@@ -1640,8 +1647,6 @@ textarea { min-height: 90px; resize: vertical; }
 .calendar-teaching > button { display: block; width: 100%; padding: .6rem; text-align: left; font-size: .8rem; color: var(--ink); border: 1px solid var(--line); background: var(--surface); margin-bottom: .5rem; }
 html { scroll-behavior: auto; }
 .task-card, .next-action, .calendar-task-course, .teaching-agenda { min-width: 0; overflow-wrap: anywhere; }
-.task-card:has(.task-menu[open]) { position: relative; z-index: 30; }
-.task-menu[open] { z-index: 31; }
 .focus-panel { overflow: visible; }
 .teaching-agenda button, .calendar-teaching > button { white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
 .calendar-task-title, .calendar-task-content, footer p { min-width: 0; overflow-wrap: anywhere; }
@@ -1650,7 +1655,6 @@ button, input, select, textarea, summary, a { scroll-margin: 12px; }
 a:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .skip-link:focus { position: fixed; inset: 12px auto auto 12px; transform: none; transition: none; z-index: 200; }
 input:focus, input:focus-within, select:focus, textarea:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
-.focus-panel:has(.task-menu[open]) { position: relative; z-index: 50; }
 .work-area { align-content: start; }
 .teaching-choice-list { max-height: min(42vh, 24rem); overflow-y: auto; overscroll-behavior: contain; min-width: 0; padding: .75rem; margin-block: .75rem; border: 1px solid var(--line); border-radius: .5rem; scrollbar-gutter: stable; }
 .teaching-choice-list label { display: flex; align-items: flex-start; gap: .5rem; margin-block: .75rem; white-space: normal; overflow-wrap: anywhere; }

@@ -18,7 +18,7 @@ export function calendarRange(date, view, weekMode = 'full') {
 }
 export function calendarEntries({ tasks = [], sessions = [], planner = {}, workWindows = [], busyWindows = [] }) {
   const courseCode = courseId => (planner.courses || []).find(course => course.id === courseId)?.code || ''
-  const entries = (planner.events || []).filter(e => !e.deleted).map(e => {
+  const entries = (planner.events || []).filter(e => !e.deleted && (!e.excluded || (e.sourceBase?.cancelled ?? e.exclusionCancelled))).map(e => {
     if (e.activityKind !== 'personal') return { ...e, isExam: isExamEvent(e), courseCode: courseCode(e.courseId), key: `event:${e.id}`, kind: e.transparent || e.information || e.transparency === 'TRANSPARENT' ? 'information' : 'teaching', start: Date.parse(e.start), end: Date.parse(e.end) }
     const bounds = dayBounds(e.dateLocal), start = e.start ? Date.parse(e.start) : bounds.start, end = e.end ? Date.parse(e.end) : start
     return { ...e, key: `event:${e.id}`, kind: 'personal', courseCode: '', start, end, point: Boolean(e.point || !e.end), allDay: e.allDay || !e.start, timingPrecision: e.point ? 'point' : e.end ? 'interval' : e.start ? 'start' : 'date' }
@@ -26,7 +26,11 @@ export function calendarEntries({ tasks = [], sessions = [], planner = {}, workW
   for (const task of tasks.filter(t => t.deadlineLocal)) {
     let start, warning = ''
     const allDay = task.deadlineLocal.length === 10
-    try { start = allDay ? dayBounds(task.deadlineLocal).start : Date.parse(deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation)) } catch { warning = `${inspectDeadline(task.deadlineLocal).message} Rediger fristen for å presisere.` }
+    try { start = allDay ? dayBounds(task.deadlineLocal).start : Date.parse(deadlineInstant(task.deadlineLocal, task.deadlineDisambiguation)) } catch {
+      const inspection = inspectDeadline(task.deadlineLocal)
+      start = inspection.options.length ? Date.parse(inspection.options[0].instant) : undefined
+      warning = `${inspection.message} Rediger fristen for å presisere.`
+    }
     entries.push({ ...task, courseCode: courseCode(task.courseId), key: `task:${task.id}`, kind: 'deadline', point: true, allDay, start, end: start, local: task.deadlineLocal, warning, done: task.completed && (!task.requiresSubmission || task.submitted) })
   }
   for (const session of sessions) {

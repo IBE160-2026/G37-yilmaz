@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { mkdirSync, readFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
+import { isDeepStrictEqual } from 'node:util'
 import { validEnvelope } from '../src/storage.js'
 import { purgeWorkHistory } from '../src/work-log.js'
 
@@ -90,7 +91,7 @@ export class StateDatabase {
   }
 
   _upgradeForeignKeys() {
-    const current = this.read()
+    const current = this._read()
     const { updated_at: updatedAt } = this.db.prepare('SELECT updated_at FROM state_meta WHERE singleton=1').get()
     for (const table of ['review_decisions','assessments','topics','dependencies','missing_dependencies','sessions','work_logs','planner_events','planner_sources','import_entries','import_sources','tasks','courses','windows','history_state']) this.db.exec(`DROP TABLE IF EXISTS ${table}`)
     this.db.exec(`
@@ -136,6 +137,15 @@ export class StateDatabase {
   }
 
   read() {
+    this.db.exec('BEGIN')
+    try {
+      const current = this._read()
+      this.db.exec('COMMIT')
+      return current
+    } catch (error) { this.db.exec('ROLLBACK'); throw error }
+  }
+
+  _read() {
     const meta = this.db.prepare('SELECT revision, preferences_json, shape_json FROM state_meta WHERE singleton=1').get()
     const preferences = parse(meta.preferences_json)
     let shape = parse(meta.shape_json)
@@ -194,7 +204,7 @@ export class StateDatabase {
         else dependency.run(task.id, prerequisiteId, position, json(value))
       })
     }
-    insertPayloads('sessions', envelope.sessions, ['id','position','task_id','date_local','payload_json'], (v,p) => [v.id,p,v.taskId ?? null,v.dateLocal ?? null])
+    insertPayloads('sessions', envelope.sessions, ['id','position','task_id','date_local','payload_json'], (v,p) => [v.id,p,v.taskId || null,v.dateLocal ?? null])
     insertPayloads('work_logs', envelope.workLogs, ['id','position','task_id','operation_id','outcome','payload_json'], (v,p) => [v.id,p,v.taskId ?? null,v.operationId ?? null,v.outcome ?? null])
     insertPayloads('topics', envelope.topics, ['id','position','course_id','task_id','payload_json'], (v,p) => [v.id,p,v.courseId ?? null,v.taskId ?? null])
       insertPayloads('assessments', envelope.assessments, ['id','position','topic_id','session_id','assessed_at','payload_json'], (v,p) => [v.id,p,v.topicId,v.sessionId ?? null,v.assessedAt])
@@ -203,7 +213,7 @@ export class StateDatabase {
     const liveSessionIds = new Set((envelope.sessions || []).map(session => session.id))
     insertPayloads('review_decisions', envelope.reviewDecisions, ['id','position','assessment_id','review_key','status','session_id','payload_json'], (v,p) => [v.id,p,v.assessmentId,v.reviewKey,v.status,liveSessionIds.has(v.sessionId) ? v.sessionId : null])
     insertPayloads('planner_sources', envelope.planner?.sources, ['id','position','course_id','kind','payload_json'], (v,p) => [v.id,p,v.courseId ?? null,v.kind ?? null])
-    insertPayloads('planner_events', envelope.planner?.events, ['id','position','course_id','source_id','start_at','payload_json'], (v,p) => [v.id,p,v.courseId || null,v.sourceId ?? null,v.start ?? null])
+    insertPayloads('planner_events', envelope.planner?.events, ['id','position','course_id','source_id','start_at','payload_json'], (v,p) => [v.id,p,v.courseId || null,v.sourceId || null,v.start ?? null])
     const importSource = this.db.prepare('INSERT INTO import_sources(id,position,kind,content_hash,payload_json) VALUES (?,?,?,?,?)')
     const importEntry = this.db.prepare('INSERT INTO import_entries(source_id,entry_key,position,target_id,kind,payload_json) VALUES (?,?,?,?,?,?)')
     ;(envelope.importSources || []).forEach((source, position) => {
@@ -230,12 +240,20 @@ export class StateDatabase {
     this.db.prepare("UPDATE state_meta SET revision=?, preferences_json=?, shape_json=?, updated_at=datetime('now') WHERE singleton=1").run(nextRevision, json(preferences), json(shape))
   }
 
-  save(envelope, expectedRevision, { snapshot = false } = {}) {
+  replace(envelope, expectedRevision) {
+    return this.save(envelope, expectedRevision, { snapshot: true, skipIdentical: true })
+  }
+
+  save(envelope, expectedRevision, { snapshot = false, skipIdentical = false } = {}) {
     if (!validEnvelope(envelope, { relations: true })) throw new TypeError('invalid-envelope')
     this.db.exec('BEGIN IMMEDIATE')
     try {
-      const current = this.read()
+      const current = this._read()
       if (current.revision !== expectedRevision) throw new RevisionConflict(current.revision)
+      if (skipIdentical && isDeepStrictEqual(current.envelope, envelope)) {
+        this.db.exec('COMMIT')
+        return { ...current, unchanged: true }
+      }
       if (snapshot) {
         this.db.prepare("INSERT INTO recovery_snapshots(created_at,revision,payload_json) VALUES(datetime('now'),?,?)").run(current.revision, json(current.envelope))
         this.db.exec('DELETE FROM recovery_snapshots WHERE id NOT IN (SELECT id FROM recovery_snapshots ORDER BY id DESC LIMIT 20)')
@@ -262,7 +280,7 @@ export class StateDatabase {
     if (preview.fingerprint !== fingerprint) throw new TypeError('legacy-fingerprint-mismatch')
     this.db.exec('BEGIN IMMEDIATE')
     try {
-      const current = this.read()
+      const current = this._read()
       const receipt = this.db.prepare('SELECT fingerprint FROM legacy_archives WHERE fingerprint=?').get(fingerprint)
       if (receipt) { this.db.exec('COMMIT'); return { ...current, repeated: true } }
       if (current.revision !== expectedRevision) throw new RevisionConflict(current.revision)
@@ -283,7 +301,7 @@ export class StateDatabase {
   purge(expectedRevision) {
     this.db.exec('BEGIN IMMEDIATE')
     try {
-      const current = this.read()
+      const current = this._read()
       if (current.revision !== expectedRevision) throw new RevisionConflict(current.revision)
       const purged = purgeWorkHistory(current.envelope), nextRevision = current.revision + 1
       this._replace(purged, nextRevision)

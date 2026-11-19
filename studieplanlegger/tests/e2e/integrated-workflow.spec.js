@@ -338,19 +338,37 @@ test('plan comparison exposes all three same-baseline alternatives, applies one,
   await expect(dialog.getByRole('heading', { name: 'Behold dagens plan', exact: true })).toBeVisible()
   await expect(dialog.getByRole('heading', { name: /Redusert kapasitet/ })).toBeVisible()
   await expect(dialog.getByRole('heading', { name: 'Valgte prioriterte oppgaver', exact: true })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Bruk planen', exact: true })).toBeDisabled()
+  const reduced = dialog.getByRole('heading', { name: 'Redusert kapasitet (75 %)', exact: true }).locator('..')
+  await reduced.getByRole('button', { name: 'Velg dette utkastet' }).click()
+  await expect(dialog.getByRole('heading', { name: 'Valgt plan: Redusert kapasitet (75 %)' })).toBeVisible()
+  await dialog.getByText('Øktlengde og pauser', { exact: true }).click()
+  const pause = dialog.getByLabel('Pause (min)', { exact: true })
+  await pause.fill('11'); await pause.press('Tab')
+  await expect(dialog.getByRole('heading', { name: 'Sammenlign komplette planer' })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Bruk planen', exact: true })).toBeDisabled()
+  await dialog.getByRole('button', { name: 'Sammenlign planalternativer', exact: true }).click()
+  await expect(dialog.getByRole('button', { name: 'Bruk planen', exact: true })).toBeDisabled()
   await dialog.getByRole('button', { name: 'Behold dagens plan', exact: true }).click()
   expect(await saved(page)).toEqual(before)
   await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()
   const reopened = page.getByRole('dialog', { name: 'Realistisk planforslag' }); await reopened.locator('details').filter({ has: page.locator('summary', { hasText: 'Sammenlign planalternativer' }) }).locator('summary').click(); await reopened.getByRole('checkbox', { name: base.title, exact: true }).check(); await reopened.getByRole('button', { name: 'Sammenlign planalternativer', exact: true }).click()
+  await expect(reopened.getByRole('button', { name: 'Bruk planen', exact: true })).toBeDisabled()
   await expect(reopened.getByText('Alternativet har kapasitetsmangel; ikke alt arbeid får plass.').first()).toBeVisible()
   await expect(reopened.getByText(/repetisjonsøkter beholdes/).first()).toBeVisible()
   expect(await saved(page)).toEqual(before)
   const priorityScenario = reopened.getByRole('heading', { name: 'Valgte prioriterte oppgaver', exact: true }).locator('..')
   await priorityScenario.getByRole('button', { name: 'Velg dette utkastet' }).click()
+  await expect(reopened.getByRole('heading', { name: 'Valgt plan: Valgte prioriterte oppgaver' })).toBeVisible()
   await expect(reopened.getByRole('button', { name: 'Bruk planen', exact: true })).toBeFocused()
   await reopened.getByRole('button', { name: 'Bruk planen', exact: true }).click()
-  expect((await saved(page)).sessions).not.toHaveLength(0)
-  await page.locator('.contextual-undo').getByRole('button', { name: 'Angre siste endring', exact: true }).click()
+  const applied = await saved(page)
+  expect(applied.sessions).toHaveLength(6)
+  await page.reload()
+  expect((await saved(page)).sessions).toEqual(applied.sessions)
+  await navigate(page, 'settings')
+  await page.locator('#settings-panel').getByRole('button', { name: 'Angre siste endring', exact: true }).click()
+  await page.reload()
   const undone = await saved(page)
   expect(undone.sessions).toEqual([])
 })
@@ -381,6 +399,39 @@ test('plan comparison counts blocked work even when there is enough registered t
     await expect(card).toContainText(`«${task.title}»: Venter på: Avventer veileder.`)
   }
   expect(await saved(page)).toEqual(before)
+})
+
+test('P03 and P05 agree on indivisible effort and show pause conflicts without deleting locked work', async ({ page }) => {
+  const task = { ...base, title: 'Udelelig presentasjon', remainingMinutes: null, remainingEstimate: { minMinutes: 241, maxMinutes: null }, splittable: false }
+  const sessions = [
+    { id: 'first-portion', taskId: task.id, dateLocal: '2026-10-01', startTime: '10:00', endTime: '12:00', locked: true },
+    { id: 'second-portion', taskId: task.id, dateLocal: '2026-10-01', startTime: '12:00', endTime: '14:01', locked: true },
+  ]
+  await seedState(page, {
+    schemaVersion: 1, tasks: [task], sessions,
+    workWindows: [{ id: 'work', start: '2026-10-01T08:00:00Z', end: '2026-10-01T16:00:00Z' }],
+    planningPreferences: { sessionMinutes: 30, minimumMinutes: 15, maximumMinutes: 500, breakMinutes: 10 },
+    onboarding: { dismissed: true, completed: true },
+  }, 'capacity')
+  await expect(page.locator('[data-capacity-task=integrated]')).toContainText('Ikke planlagt: minst 241 min, øvre anslag ukjent')
+  await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Realistisk planforslag' })
+  await dialog.locator('summary').filter({ hasText: 'Sammenlign planalternativer' }).click()
+  await dialog.getByRole('button', { name: 'Sammenlign planalternativer', exact: true }).click()
+  for (const card of await dialog.locator('article.replan-row').all()) {
+    await expect(card).toContainText('0 min fordelt')
+    await expect(card).toContainText('minst 241 min mangler')
+    await expect(card).toContainText(/Pausekonflikt|mangler valgt pause/)
+  }
+  await dialog.getByRole('button', { name: 'Behold dagens plan', exact: true }).click()
+  await page.reload()
+  expect((await saved(page)).sessions).toEqual(sessions)
+})
+
+test('P09 daily overview gives the known minimum shortage and states the upper bound is unknown', async ({ page }) => {
+  const task = { ...base, deadlineLocal: '2026-09-28T13:30', remainingMinutes: null, remainingEstimate: { minMinutes: 241, maxMinutes: null } }
+  await seedState(page, { schemaVersion: 1, tasks: [task], workWindows: [{ id: 'available', start: '2026-09-28T11:00:00Z', end: '2026-09-28T11:30:00Z' }], onboarding: { dismissed: true, completed: true } }, 'overview')
+  await expect(page.locator('.daily-status')).toContainText('Minst 211 minutter mangler. Du har oppgitt mer enn fire timer. Øvre anslag er ukjent.')
 })
 
 test('stale comparison stays open and writes nothing over a newer browser state', async ({ page }) => {

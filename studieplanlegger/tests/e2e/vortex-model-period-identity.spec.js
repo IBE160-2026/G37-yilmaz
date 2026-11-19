@@ -15,7 +15,7 @@ const plan = parseVortexPlan('hiof', html, { program: program.code, cohort: '202
 async function importPeriod(page, periodIndex, studySemester) {
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption('hiof')
   await host.getByRole('button', { name: 'Hent studieprogram', exact: true }).click()
@@ -28,8 +28,8 @@ async function importPeriod(page, periodIndex, studySemester) {
   await host.locator('[name=clarifiedStudySemester]').fill(String(studySemester))
   await host.locator('[name=calendarSemester]').selectOption(`${period.year}:${period.semester}`)
   await expect(host.locator('[name=programCampus]')).toBeHidden()
-  await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-  await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
   await expect(host.getByRole('status')).toContainText(/lagret/i)
 }
 

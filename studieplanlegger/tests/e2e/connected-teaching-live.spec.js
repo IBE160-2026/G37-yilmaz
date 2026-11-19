@@ -52,7 +52,7 @@ for (const sample of samples) test(`${sample.unavailableTeaching ? 'live program
     // Exercise the actual published course, selected explicitly by this test student.
     for (const control of await host.locator('.activity-choices input').all()) await control.uncheck()
     await host.getByRole('checkbox', { name: new RegExp(`^${sample.code} `) }).check()
-    await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
     const summary = host.getByText(`Offentlig timeplan for ${sample.code}`, { exact: true })
     await expect(summary).toBeVisible({ timeout: 60000 }); await summary.click()
     if (sample.teachingQuery) await host.getByRole('textbox', { name: `Timeplansøk for ${sample.code}`, exact: true }).fill(sample.teachingQuery)
@@ -82,7 +82,7 @@ for (const sample of samples) test(`${sample.unavailableTeaching ? 'live program
     expect(await saved()).toEqual(before)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
     if (attempt === 0) await page.screenshot({ path: testInfo.outputPath('real-teaching-preview.png'), fullPage: true })
-    await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+    await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
     await expect.poll(async () => (await saved())?.planner?.courses?.length || 0).toBe(1)
     if (sample.unavailableTeaching) expect((await saved()).planner.events).toHaveLength(0)
     else await expect.poll(async () => (await saved())?.planner?.events?.length || 0).toBeGreaterThan(0)

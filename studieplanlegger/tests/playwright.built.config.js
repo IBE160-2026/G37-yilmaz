@@ -16,6 +16,8 @@ export default defineConfig({
     'text-registration-exam.spec.js',
     'deadline-followup.spec.js',
     'epic4-retro-agendas.spec.js', 'epic4-retro-consumers.spec.js',
+    'delivery-accessibility.spec.js', 'delivery-calendar.spec.js',
+    'connected-document.spec.js', 'calendar-viewport-corrections.spec.js',
   ],
   outputDir: process.env.AJOUR_BUILT_RESULTS,
   fullyParallel: true, workers: 2, timeout: 60_000,

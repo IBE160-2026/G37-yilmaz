@@ -1,7 +1,7 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { validateSession } from './capacity.js'
-import { extendedSessionInterval, subtractIntervals } from './work-capacity.js'
-import { eventBlocksTime, uncertainPersonalTiming } from './planner.js'
+import { extendedSessionInterval, subtractIntervals, wholeMinuteIntervals } from './work-capacity.js'
+import { eventBlocksTime, OSLO, uncertainPersonalTiming } from './planner.js'
 
 const clean = value => typeof value === 'string' && value === value.trim() && value.length > 0 && value.length <= 2000
 const isoInstant = value => { try { Temporal.Instant.from(value); return typeof value === 'string' } catch { return false } }
@@ -114,23 +114,28 @@ export function assessmentSessionContext(state, assessment) {
 
 function freeReviewSession(state, now, examDate) {
   if (!examDate || !isoDate(examDate) || !state.workWindows?.length) return null
-  const lower = +now, upper = Temporal.PlainDate.from(examDate).toZonedDateTime('Europe/Oslo').toInstant().epochMilliseconds
+  const lower = +now, upper = Temporal.PlainDate.from(examDate).toZonedDateTime(OSLO).epochMilliseconds
   const occupied = [
     ...(state.busyWindows || []).map(item => ({ start: Date.parse(item.start), end: Date.parse(item.end) })),
     ...(state.planner?.events || []).filter(eventBlocksTime).map(item => ({ start: Date.parse(item.start), end: Date.parse(item.end) })),
     ...(state.sessions || []).map(item => { try { return extendedSessionInterval(item) } catch { return null } }).filter(Boolean),
   ]
-  for (const window of state.workWindows) {
-    let start = Math.max(lower, Date.parse(window.start)), end = Math.min(upper, Date.parse(window.end))
-    start = Math.ceil(start / 1_800_000) * 1_800_000
-    while (start + 1_800_000 <= end) {
-      const finish = start + 1_800_000
-      if (!occupied.some(item => item.start < finish && item.end > start)) {
-        const a = Temporal.Instant.fromEpochMilliseconds(start).toZonedDateTimeISO('Europe/Oslo').toPlainDateTime().toString().slice(0, 16)
-        const b = Temporal.Instant.fromEpochMilliseconds(finish).toZonedDateTimeISO('Europe/Oslo').toPlainDateTime().toString().slice(0, 16)
-        return { dateLocal: a.slice(0, 10), startTime: a.slice(11), ...(b.slice(0, 10) !== a.slice(0, 10) ? { endDateLocal: b.slice(0, 10) } : {}), endTime: b.slice(11) }
+  const windows = state.workWindows.map(window => ({ start: Math.max(lower, Date.parse(window.start)), end: Math.min(upper, Date.parse(window.end)) }))
+  for (const free of wholeMinuteIntervals(subtractIntervals(windows, occupied))) {
+    for (let start = free.start; start + 1_800_000 <= free.end; start += 60_000) {
+      const end = start + 1_800_000
+      const a = Temporal.Instant.fromEpochMilliseconds(start).toZonedDateTimeISO(OSLO)
+      const b = Temporal.Instant.fromEpochMilliseconds(end).toZonedDateTimeISO(OSLO)
+      const dateLocal = a.toPlainDate().toString(), endDate = b.toPlainDate().toString()
+      const slot = {
+        dateLocal, startTime: a.toPlainTime().toString({ smallestUnit: 'minute' }),
+        ...(dateLocal !== endDate || a.offset !== b.offset ? { endDateLocal: endDate } : {}),
+        endTime: b.toPlainTime().toString({ smallestUnit: 'minute' }),
       }
-      start += 1_800_000
+      try {
+        const actual = extendedSessionInterval({ ...slot, id: 'review-preview' })
+        if (actual.start === start && actual.end === end) return slot
+      } catch { /* Ambiguous local endpoints cannot be accepted by the session editor. */ }
     }
   }
   return null
@@ -155,14 +160,17 @@ export function proposeReview(state, assessment, { now = new Date() } = {}) {
   if (!session) uncertainty.push(examDate ? 'Ingen kollisjonsfri kapasitet er registrert før eksamen; velg tidspunkt eller registrer kapasitet.' : 'Kapasitet før eksamen kan ikke beregnes uten eksamensdato; velg tidspunkt før godkjenning.')
   return { ok: true, reviewKey: key, assessmentId: assessment.id, suggested: true, topicId: topic.id, title: `Repetisjon: ${topic.title}`, rating: assessment.rating,
     explanation: `Du vurderte temaet til ${assessment.rating} av 5. Den deterministiske regelen foreslår repetisjon ved vurdering 1 eller 2.`,
-    uncertainty, proposedSession: session ? { dateLocal: session.dateLocal, startTime: session.startTime, ...(session.endDateLocal ? { endDateLocal: session.endDateLocal } : {}), endTime: session.endTime } : null, ...(existing ? { replaceDecisionId: existing.id } : {}), createdAt: new Date(now).toISOString() }
+    uncertainty, proposedSession: session, ...(existing ? { replaceDecisionId: existing.id } : {}), createdAt: new Date(now).toISOString() }
 }
 
 export function decideReview(state, proposal, decision, { id, sessionId } = {}) {
   if (!proposal?.suggested || !['approved', 'adjusted', 'deferred', 'rejected'].includes(decision?.status)) return { ok: false, error: 'Velg en gyldig beslutning.' }
   const decidedAt = decision.decidedAt || new Date().toISOString()
   if (!isoInstant(decidedAt)) return { ok: false, error: 'Beslutningstidspunktet er ugyldig.' }
-  if (decision.status === 'deferred' && !isoDate(decision.deferUntil)) return { ok: false, error: 'Velg en gyldig dato repetisjonen utsettes til.' }
+  if (decision.status === 'deferred') {
+    const today = Temporal.Instant.from(decidedAt).toZonedDateTimeISO(OSLO).toPlainDate().toString()
+    if (!isoDate(decision.deferUntil) || decision.deferUntil <= today) return { ok: false, error: 'Velg en fremtidig dato repetisjonen utsettes til.' }
+  }
   const assessment = (state.assessments || []).find(item => item.id === proposal.assessmentId)
   if (!assessment || reviewKey(assessment) !== proposal.reviewKey || assessment.topicId !== proposal.topicId || assessment.rating !== proposal.rating) return { ok: false, stale: true, error: 'Egenvurderingen er endret. Lag et nytt repetisjonsforslag.' }
   const current = proposeReview(state, assessment, { now: new Date(decidedAt) })
@@ -174,8 +182,8 @@ export function decideReview(state, proposal, decision, { id, sessionId } = {}) 
   const next = { ...structuredClone(state), reviewDecisions: [...(state.reviewDecisions || []).filter(item => item.id !== existing?.id), record] }
   if (existing?.sessionId) next.sessions = (next.sessions || []).filter(item => item.id !== existing.sessionId)
   if (['approved', 'adjusted'].includes(decision.status)) {
-    const value = decision.session || current.proposedSession
-    if (!value) return { ok: false, error: 'Velg et tidspunkt før repetisjonen godkjennes.' }
+    const value = decision.session ?? (decision.status === 'approved' ? proposal.proposedSession : null)
+    if (!value?.dateLocal || !value.startTime || !value.endTime) return { ok: false, error: 'Velg et fullstendig tidspunkt før repetisjonen godkjennes.' }
     const sid = sessionId || crypto.randomUUID()
     record.sessionId = sid
     const session = { id: sid, ...value, reviewKey: current.reviewKey, reviewTopicId: assessment.topicId, locked: false }

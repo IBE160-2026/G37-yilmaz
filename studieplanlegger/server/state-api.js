@@ -50,7 +50,7 @@ export function stateMiddleware(database) {
       }
       if (url.pathname === '/api/state/replace' && req.method === 'POST') {
         const value = writeBody(await body(req))
-        return send(200, database.save(value.envelope, value.expectedRevision, { snapshot: true }))
+        return send(200, database.replace(value.envelope, value.expectedRevision))
       }
       if (url.pathname === '/api/state/recovery' && req.method === 'GET') return send(200, { recovery: database.recovery() })
       if (url.pathname === '/api/state/purge-work-history' && req.method === 'POST') {

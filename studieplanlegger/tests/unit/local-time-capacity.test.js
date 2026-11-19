@@ -54,7 +54,7 @@ describe('repeated reservation explanations', () => {
     for (const [index, missing] of [[0, 720], [1, 1200]]) {
       expect(result.tasks[index]).toMatchObject({ state: 'insufficient', requiredMinutes: 1200, missingMinutes: missing, reasons: [
         'Deler av reservasjonen er passert, opptatt eller utenfor arbeidstiden.',
-        `${missing} min mangler før fristen i registrert arbeidstid.`,
+        `${missing} min mangler i registrert arbeidstid.`,
       ] })
     }
     expect({ tasks, sessions, workWindows }).toEqual(before)

@@ -7,7 +7,7 @@ test('AHO public design plan previews, saves, reloads and repeats', async ({ pag
   async function runImport() {
     await navigate(page, 'subjects')
     await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-    await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+    await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
     const host = page.locator('.program-import')
     await host.locator('[name=institution]').selectOption('aho')
     await host.locator('[name=programQuery]').fill('Master i design')
@@ -23,10 +23,10 @@ test('AHO public design plan previews, saves, reloads and repeats', async ({ pag
     await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
     await host.locator('[name=programCampus]').selectOption('AHO OSLO')
     await expect(host.locator('fieldset input[type=checkbox]:checked')).toHaveCount(2)
-    await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
     await expect(host).toContainText('70 111')
     await expect(host).toContainText('AHO OSLO')
-    await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+    await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
     await expect(host.getByRole('status')).toContainText(/lagret/i)
     return host
   }

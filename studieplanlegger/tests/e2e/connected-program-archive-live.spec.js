@@ -46,17 +46,17 @@ for (const sample of samples) test(`live published programme PDF edition: ${samp
     for (const box of await host.locator('.activity-choices input').all()) await box.uncheck()
     await host.getByRole('checkbox', { name: new RegExp(`^${sample.code} `) }).check()
     if (sample.clarifyStudySemester) {
-      await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+      await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
       await expect(host.getByRole('status')).toContainText('Oppgi hvilket studiesemester')
       expect(await state()).toEqual(before)
       await host.locator('[name=clarifiedStudySemester]').fill('3')
-      await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+      await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
       await expect(host.getByRole('status')).toContainText('innen kildens oppgitte studieår')
       expect(await state()).toEqual(before)
       await host.locator('[name=clarifiedStudySemester]').fill('1')
     }
-    await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-    await expect(host.getByRole('button', { name: 'Bekreft programimport', exact: true })).toBeVisible({ timeout: 60000 })
+    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+    await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeVisible({ timeout: 60000 })
     expect(await state()).toEqual(before)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
     if (!attempt) {
@@ -66,7 +66,7 @@ for (const sample of samples) test(`live published programme PDF edition: ${samp
       await page.screenshot({ path: info.outputPath('public-pdf-edition-preview-desktop.png'), fullPage: true })
       await page.setViewportSize({ width: 390, height: 1000 })
     }
-    await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+    await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
     await expect(host.locator('.import-preview')).toBeHidden()
     const current = await state()
     expect(current.planner.courses).toHaveLength(1)

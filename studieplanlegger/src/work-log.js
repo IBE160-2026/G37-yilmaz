@@ -30,7 +30,12 @@ export function validWorkLogs(values, envelope) {
       validTasks([log.taskSnapshot]) && log.taskSnapshot.id === log.taskId &&
       (log.stepId === undefined || typeof log.stepId === 'string' && Boolean(log.stepId.trim()) && taskSteps(log.taskSnapshot).some(step => step.id === log.stepId) &&
         (log.outcome !== 'done' || log.stepCompleted === true)) &&
-      (log.sessionSnapshot === undefined || (() => { try { return log.sessionSnapshot.id === log.sessionId && Boolean(extendedSessionInterval(log.sessionSnapshot)) } catch { return false } })()) &&
+      (log.sessionSnapshot === undefined || (() => {
+        try {
+          const archived = log.sessionSnapshot
+          return archived.id === log.sessionId && (!archived.taskId || archived.taskId === log.taskId) && Boolean(extendedSessionInterval(archived))
+        } catch { return false }
+      })()) &&
       (log.taskDeleted === undefined || typeof log.taskDeleted === 'boolean') &&
       (!envelope || envelope.tasks.some(task => task.id === log.taskId) || log.taskDeleted === true)
   })

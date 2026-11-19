@@ -2,6 +2,7 @@ import { createTeachingLayer } from './teaching-calendar.js'
 import { isOverdue, sortedTasks } from './tasks.js'
 import { inspectDeadline } from './deadline.js'
 import { applyCourseColor, courseColorSlot, resolvedCourseId } from './course-colors.js'
+import { calendarToday } from './calendar-model.js'
 export { courseColor } from './course-colors.js'
 
 const MONTHS = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember']
@@ -126,7 +127,7 @@ function createDeadlineCalendar(host, { edit, editSession }) {
   const next = button('›', 'calendar-nav-button secondary', () => shiftMonth(1))
   next.setAttribute('aria-label', 'Neste måned')
   navigation.append(previous, heading, next)
-  const today = button('I dag', 'calendar-today-button secondary', () => selectDate(dateKey(snapshot.now)))
+  const today = button('I dag', 'calendar-today-button secondary', () => selectDate(calendarToday(snapshot.now)))
   const modes = element('div', 'calendar-mode')
   modes.setAttribute('role', 'group')
   modes.setAttribute('aria-label', 'Kalendervisning')
@@ -253,7 +254,7 @@ function createDeadlineCalendar(host, { edit, editSession }) {
         card.time.dateTime = `${session.dateLocal}T${session.startTime}`
         card.editButton.disabled = snapshot.disabled || typeof editSession !== 'function'
         card.editButton.setAttribute('aria-label',
-          `Rediger studieøkt ${formatDay(session.dateLocal, { year: true })} kl. ${session.startTime}–${session.endTime}`)
+          `Rediger økt ${formatDay(session.dateLocal, { year: true })} kl. ${session.startTime}–${session.endTime}`)
         if (card.item !== position) list.insertBefore(card.item, position)
         position = card.item.nextElementSibling
       }
@@ -320,7 +321,7 @@ function createDeadlineCalendar(host, { edit, editSession }) {
     const focusedTask = active?.dataset.calendarEdit
     const focusedSession = active?.dataset.calendarSessionEdit
     const { year, month } = period
-    const currentDay = dateKey(snapshot.now)
+    const currentDay = calendarToday(snapshot.now)
     const monthTasks = tasksForMonth(snapshot.tasks, year, month)
     const monthSessions = sessionsForMonth(snapshot.sessions, year, month)
     const selected = tasksForDay(snapshot.tasks, selectedDate)
@@ -457,8 +458,9 @@ function createDeadlineCalendar(host, { edit, editSession }) {
     render({ tasks, allTasks = tasks, sessions = [], now, disabled = false }) {
       snapshot = { tasks, allTasks, sessions, now, disabled }
       if (!period) {
-        selectedDate = dateKey(now)
-        period = { year: now.getFullYear(), month: now.getMonth() }
+        selectedDate = calendarToday(now)
+        const [year, month] = dateParts(selectedDate)
+        period = { year, month: month - 1 }
       }
       draw()
     },

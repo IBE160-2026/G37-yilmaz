@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { parseDocumentIcs } from '../../src/document-parsers.js'
+import { parseDocumentIcs, parseDocumentText } from '../../src/document-parsers.js'
 import { createDocumentImportPreview, buildDocumentImportCommit, refreshDocumentImportPreview, refreshDocumentConflicts, documentSourceChanged, addDocumentCourseDraft } from '../../src/import-preview.js'
 import { validateCourse, validateEvent, validPlanner } from '../../src/planner.js'
 import { validImportSources } from '../../src/import-source-contract.js'
 import { calendarEntries, entriesForDay } from '../../src/calendar-model.js'
+import { generateCalendarIcs } from '../../src/calendar-export.js'
 import { recordChange, undoLast } from '../../src/history.js'
 
 // All names, IDs and calendar metadata in this file are invented test data.
@@ -17,6 +18,73 @@ const course = (id, code, university = 'Syntetisk institusjon', year = 2026) => 
 const metadata = (code, name) => `X-COURSE-CODE:${code}\r\nX-COURSE-NAME:${name}\r\nX-UNIVERSITY:Syntetisk institusjon`
 
 describe('one bounded calendar file with stable independent identity', () => {
+  it.each(['Europe/Oslo', 'America/New_York', 'Pacific/Auckland'])('I02 keeps exclusive all-day dates through display, export and a fresh import from %s', zone => {
+    const ics = calendar(
+      'X-WR-TIMEZONE:' + zone,
+      'BEGIN:VEVENT\r\nUID:one-day\r\nSUMMARY:En heldag\r\nDTSTART;VALUE=DATE:20261120\r\nDTEND;VALUE=DATE:20261121\r\nEND:VEVENT',
+      'BEGIN:VEVENT\r\nUID:several-days\r\nSUMMARY:Flere heldager\r\nDTSTART;VALUE=DATE:20261120\r\nDTEND;VALUE=DATE:20261123\r\nEND:VEVENT',
+      'BEGIN:VEVENT\r\nUID:timed\r\nSUMMARY:Tidsbestemt aktivitet\r\nDTSTART;TZID=' + zone + ':20261120T120000\r\nDTEND;TZID=' + zone + ':20261120T130000\r\nEND:VEVENT',
+    )
+    const initial = save(empty(), draft(empty(), ics))
+    const readDay = (state, day) => entriesForDay(calendarEntries(state), day).map(item => item.title)
+    expect(initial.planner.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({ title: 'En heldag', allDay: true, start: '2026-11-19T23:00:00.000Z', end: '2026-11-20T23:00:00.000Z' }),
+      expect.objectContaining({ title: 'Flere heldager', allDay: true, start: '2026-11-19T23:00:00.000Z', end: '2026-11-22T23:00:00.000Z' }),
+    ]))
+    const timed = initial.planner.events.find(item => item.title === 'Tidsbestemt aktivitet')
+    expect(timed.start).toBe({
+      'Europe/Oslo': '2026-11-20T11:00:00.000Z',
+      'America/New_York': '2026-11-20T17:00:00.000Z',
+      'Pacific/Auckland': '2026-11-19T23:00:00.000Z',
+    }[zone])
+    expect(Date.parse(timed.end) - Date.parse(timed.start)).toBe(60 * 60_000)
+    const copy = generateCalendarIcs(initial, { includeTeaching: true })
+    expect(copy).toContain('DTSTART;VALUE=DATE:20261120')
+    expect(copy).toContain('DTEND;VALUE=DATE:20261121')
+    expect(copy).toContain('DTEND;VALUE=DATE:20261123')
+    const restored = save(empty(), draft(empty(), copy, 'c'))
+    const times = state => state.planner.events.map(({ start, end, allDay }) => [start, end, allDay]).sort()
+    expect(times(restored)).toEqual(times(initial))
+    for (const state of [initial, restored]) {
+      expect(readDay(state, '2026-11-19')).toEqual([])
+      expect(readDay(state, '2026-11-20')).toHaveLength(3)
+      expect(readDay(state, '2026-11-21')).toHaveLength(1)
+      expect(readDay(state, '2026-11-22')).toHaveLength(1)
+      expect(readDay(state, '2026-11-23')).toEqual([])
+    }
+  })
+
+  it.each([
+    ['20.11.2026 kl. 23.30–01.00', '2026-11-20T23:30', '2026-11-21T01:00', '2026-11-20T22:30:00Z', '2026-11-21T00:00:00Z'],
+    ['2026-11-20T23:30-05:00 – 01:00', '2026-11-21T05:30', '2026-11-21T07:00', '2026-11-21T04:30:00Z', '2026-11-21T06:00:00Z'],
+    ['2026-11-20T23:30-05:00 – 2026-11-22T01:00-05:00', '2026-11-21T05:30', '2026-11-22T07:00', '2026-11-21T04:30:00Z', '2026-11-22T06:00:00Z'],
+  ])('keeps the ending date and source offset of overnight teaching %s', (range, startLocal, endLocal, start, end) => {
+    const state = empty()
+    const parsed = parseDocumentText('Syntetisk seminar ' + range)
+    expect(parsed.rows[0]).toMatchObject({ kind: 'event', startLocal, endLocal })
+    const result = save(state, createDocumentImportPreview(state, { ...parsed, contentHash: 'a'.repeat(64) }))
+    expect(JSON.parse(JSON.stringify(result)).planner.events[0]).toMatchObject({ start, end })
+  })
+
+  it.each([
+    ['Synthetic/Clock', 'DUE;TZID=Synthetic/Clock:20261120T233000'],
+    ['Synthetic/Clock', 'DUE:20261120T233000'],
+    ['America/New_York', 'DUE;TZID=America/New_York:20261120T233000'],
+  ])('keeps the calendar-provided timezone for VTODO %s, %s, alongside VEVENT', (zone, due) => {
+    const text = calendar(
+      'X-WR-TIMEZONE:' + zone,
+      'BEGIN:VTIMEZONE\r\nTZID:' + zone + '\r\nBEGIN:STANDARD\r\nDTSTART:19700101T000000\r\nTZOFFSETFROM:-0800\r\nTZOFFSETTO:-0800\r\nEND:STANDARD\r\nEND:VTIMEZONE',
+      'BEGIN:VEVENT\r\nUID:seminar\r\nSUMMARY:Kveldsseminar\r\nDTSTART;TZID=' + zone + ':20261120T233000\r\nDTEND;TZID=' + zone + ':20261121T010000\r\nEND:VEVENT',
+      'BEGIN:VTODO\r\nUID:todo\r\nSUMMARY:Lever oppgaven\r\n' + due + '\r\nEND:VTODO',
+    )
+    const state = empty(), preview = draft(state, text)
+    expect(preview.rows.find(row => row.kind === 'event')).toMatchObject({ startLocal: '2026-11-21T08:30', endLocal: '2026-11-21T10:00' })
+    expect(preview.rows.find(row => row.kind === 'task')).toMatchObject({ deadlineLocal: '2026-11-21T08:30', deadlineMode: 'value' })
+    const restored = JSON.parse(JSON.stringify(save(state, preview)))
+    expect(restored.tasks[0].deadlineLocal).toBe('2026-11-21T08:30')
+    expect(restored.planner.events[0]).toMatchObject({ start: '2026-11-21T07:30:00.000Z', end: '2026-11-21T09:00:00.000Z' })
+  })
+
   it('partial reimport preserves IDs, local notes, course relations and unaffected events while applying case-insensitive cancellation', () => {
     const initialText = calendar(event('retained', 'Oppdiktet beholdt'), event('cancelled', 'Oppdiktet avlyst'), event('unaffected', 'Oppdiktet uberørt'))
     const state = save(empty(), draft(empty(), initialText)), sourceId = state.importSources[0].id

@@ -190,7 +190,8 @@ export function completeNextStep(tasks, id) {
 }
 
 export function getActionMinutes(task) {
-  return primaryWorkStep(task)?.estimatedMinutes ?? getRemainingRange(task)?.maxMinutes ?? null
+  const range = getRemainingRange(task)
+  return primaryWorkStep(task)?.estimatedMinutes ?? range?.maxMinutes ?? (task.splittable !== false ? range?.minMinutes ?? null : null)
 }
 
 export function getSessionMinutes(task, availableMinutes) {
@@ -286,9 +287,10 @@ export function selectTasksForMinutes(tasks, minutes, { includePartial = false }
 
 export function suggestionReason(task, minutes, now = new Date(), index = 0, allTasks = []) {
   const activeStep = primaryWorkStep(task)
+  const range = getRemainingRange(task)
   const sessionMinutes = getSessionMinutes(task, minutes)
   const fit = activeStep ? `${getActionMinutes(task) <= minutes ? `Passer innen ${minutes} minutter. ` : ''}Neste steg: «${activeStep.title || activeStep.description}», ${sessionMinutes} min${getActionMinutes(task) > sessionMinutes ? ' som deløkt' : ''}. Hele oppgaven er ikke ferdig etter steget`
-    : getActionMinutes(task) > minutes ? `En deløkt på ${minutes} min av ${formatEstimateRange(getRemainingRange(task))} gjenstående arbeid`
+    : getActionMinutes(task) > minutes || range?.maxMinutes === null ? `En deløkt på ${sessionMinutes} min av ${formatEstimateRange(range)} gjenstående arbeid`
       : 'Passer innen ' + minutes + ' minutter'
   const { downstream } = actionUrgency(task, allTasks)
   const downstreamReason = downstream && compareDeadlines(downstream, task) <= 0

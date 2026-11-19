@@ -1,15 +1,7 @@
 import { reveal } from './helpers.js'
 import { test, expect } from '@playwright/test'
+import { syntheticPdf } from '../helpers/synthetic-documents.js'
 
-function pdf(text) {
-  const stream = `BT /F1 12 Tf 40 750 Td (${text.replace(/[()\\]/g, '\\$&')}) Tj ET`
-  const objects = ['<< /Type /Catalog /Pages 2 0 R >>', '<< /Type /Pages /Kids [3 0 R] /Count 1 >>', '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`]
-  let content = '%PDF-1.4\n', offsets = [0]
-  for (const [index, object] of objects.entries()) { offsets.push(Buffer.byteLength(content)); content += `${index + 1} 0 obj\n${object}\nendobj\n` }
-  const start = Buffer.byteLength(content)
-  content += `xref\n0 6\n0000000000 65535 f \n${offsets.slice(1).map(offset => `${String(offset).padStart(10, '0')} 00000 n \n`).join('')}trailer\n<< /Root 1 0 R /Size 6 >>\nstartxref\n${start}\n%%EOF`
-  return Buffer.from(content)
-}
 async function mount(page) {
   await page.goto('/tests/fixtures/document-component.html')
   await page.evaluate(async () => {
@@ -25,7 +17,7 @@ async function mount(page) {
 test('real local PDF worker extracts preview and saves an unassigned task', async ({ page }) => {
   const requests = []; page.on('request', request => { if (!request.url().startsWith('http://127.0.0.1:')) requests.push(request.url()) })
   await mount(page)
-  await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: 'privat-test.pdf', mimeType: 'application/pdf', buffer: pdf('Innlevering 1 frist 2026-09-16 kl. 14:00') })
+  await page.getByLabel('Velg fil', { exact: true }).setInputFiles({ name: 'privat-test.pdf', mimeType: 'application/pdf', buffer: syntheticPdf(['Innlevering 1 frist 2026-09-16 kl. 14:00']) })
   await (await reveal(page.getByRole('button', { name: 'Vis forhåndsvisning' }))).click()
   await page.waitForFunction(() => document.querySelector('.document-preview') || document.querySelector('[role=alert]')?.textContent, undefined, { timeout: 35000 })
   await expect(page.getByRole('heading', { name: 'Dette fant jeg' })).toBeVisible({ timeout: 35000 })

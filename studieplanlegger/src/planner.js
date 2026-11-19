@@ -323,7 +323,13 @@ export function mergeCourseOnly(planner, course) {
   result.sources = result.sources.filter(item => item.id !== source.id)
   return result
 }
-export const matchesCourse = (item, courseId, course) => !courseId || (item?.courseId ? item.courseId === courseId : Boolean(course && [course.code, course.name].filter(Boolean).includes(item?.course)))
+export function matchesCourse(item, courseId, course) {
+  if (!courseId) return true
+  if (item?.courseId) return item.courseId === courseId
+  const label = item?.course?.trim()
+  if (!label) return false
+  return label === courseId || [course?.code, course?.name].some(value => value?.trim().toLocaleLowerCase('nb-NO') === label.toLocaleLowerCase('nb-NO'))
+}
 export function teachingOverlap(events, now, minutes) {
   const start = +now, end = start + minutes * 60000
   const overlaps = events.filter(e => eventBlocksTime(e) && Date.parse(e.start) < end && Date.parse(e.end) > start).sort((a, b) => a.start.localeCompare(b.start))

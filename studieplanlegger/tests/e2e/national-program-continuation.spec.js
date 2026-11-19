@@ -41,7 +41,7 @@ async function samples() {
 async function importFirstPeriod(page, sample, options = {}) {
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption(sample.id)
   await host.getByRole('button', { name: 'Hent studieprogram', exact: true }).click()
@@ -58,9 +58,9 @@ async function importFirstPeriod(page, sample, options = {}) {
   else await expect(host.locator('[name=programCampus]')).toBeHidden()
   const checked = host.locator('fieldset input[type=checkbox]:checked')
   if (!await checked.count()) await host.locator('fieldset input[type=checkbox]').first().check()
-  await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-  await expect(host.getByRole('button', { name: 'Bekreft programimport', exact: true })).toBeVisible()
-  await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeVisible()
+  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
   return host
 }
 

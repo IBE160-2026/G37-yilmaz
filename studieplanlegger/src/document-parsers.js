@@ -20,7 +20,11 @@ function entryFingerprint(value) {
 }
 const pad = value => String(value).padStart(2, '0')
 const monthNames = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des']
-const namedDate = /\b(\d{1,2})\.?\s*(januar|jan|februar|feb|mars|april|apr|mai|juni|jun|juli|jul|august|aug|september|sept|sep|oktober|okt|november|nov|desember|des)\.?(?:\s+(\d{4})(?![\d/]))?(?:\s+(?:kl\.?\s*)?(\d{1,2})[:.](\d\d))?\b/i
+const clockText = '(?:(?:kl\\.?\\s*)?(\\d{1,2})[:.](\\d\\d)|kl\\.?\\s*(\\d{1,2}))'
+const namedDate = new RegExp(`\\b(\\d{1,2})\\.?\\s*(januar|jan|februar|feb|mars|april|apr|mai|juni|jun|juli|jul|august|aug|september|sept|sep|oktober|okt|november|nov|desember|des)(?:\\.(?=\\s)|\\b)(?:\\s+(\\d{4})(?![\\d/]))?(?:\\s+${clockText})?\\b`, 'i')
+const isoLocalDate = new RegExp(`\\b(\\d{4})-(\\d\\d)-(\\d\\d)(?:[ T]+${clockText})?\\b`, 'i')
+const numericDate = new RegExp(`\\b(\\d{1,2})([./])(\\d{1,2})(?:\\2(\\d{4}|\\d{2}))?(?:\\s+${clockText})?\\b`, 'i')
+const isoTimestamp = /\b\d{4}-\d\d-\d\dT\d{1,2}[:.]\d\d(?:[\w:.+\/[\]-]|,(?=\d))*/i
 const namedZoneSuffix = value => value.match(/^\s+(?:UTC|GMT|CET|CEST|[A-Za-z_]+\/[A-Za-z_/]+)\b/i)?.[0] || value.match(/^\s+(?:[A-Z]{1,3}[SD]T|[CEW]EST|[CEW]ET|MSK|HKT|SGT|MET)\b/)?.[0] || ''
 function assertText(text) {
   if (text.length > DOCUMENT_LIMITS.textCharacters) throw new Error('Dokumentet inneholder for mye tekst (maks 1 million tegn). Del dokumentet før import; ingen del er lagret.')
@@ -28,7 +32,7 @@ function assertText(text) {
 }
 
 // A calendar date is never silently promoted to a deadline at midnight.
-export function parseDocumentDate(value) {
+export function parseDocumentDate(value, { namedYear } = {}) {
   const raw = clean(value)
   if (!raw) return { value: '', raw: '', issues: [] }
   const unresolvedPrecision = () => ({ value: '', raw, issues: ['Tidssonen eller tidsnøyaktigheten kan ikke lagres entydig. Bekreft dato og klokkeslett i norsk tid.'] })
@@ -42,19 +46,22 @@ export function parseDocumentDate(value) {
     } catch { return unresolvedPrecision() }
   }
   let date, time, ambiguous = false
-  const iso = raw.match(/^(\d{4})-(\d\d)-(\d\d)(?:[ T]+(?:kl\.?\s*)?(\d{1,2})[:.](\d\d))?$/i)
-  const norwegian = !iso && raw.match(/^(\d{1,2})([./])(\d{1,2})(?:\2(\d{4}|\d{2}))?(?:\s+(?:kl\.?\s*)?(\d{1,2})[:.](\d\d))?$/i)
+  const iso = raw.match(isoLocalDate)
+  const norwegian = !iso && raw.match(numericDate)
   const named = !iso && !norwegian && raw.match(namedDate)
-  if (/^\d{4}-\d\d-\d\d/.test(raw) && !iso || named && named[0] !== raw) return unresolvedPrecision()
-  if (iso) { date = `${iso[1]}-${iso[2]}-${iso[3]}`; if (iso[4]) time = `${pad(iso[4])}:${iso[5]}` }
+  const matched = iso || norwegian || named
+  if (matched && matched[0] !== raw || /^\d{4}-\d\d-\d\d/.test(raw) && !iso) return unresolvedPrecision()
+  const clock = (hour, minute, wholeHour) => hour ? `${pad(hour)}:${minute}` : wholeHour ? `${pad(wholeHour)}:00` : ''
+  if (iso) { date = `${iso[1]}-${iso[2]}-${iso[3]}`; time = clock(...iso.slice(4)) }
   else if (norwegian) {
     ambiguous = norwegian[2] === '/' && Number(norwegian[1]) <= 12 && Number(norwegian[3]) <= 12 && norwegian[1] !== norwegian[3]
     if (norwegian[4]?.length === 4) date = `${norwegian[4]}-${pad(norwegian[3])}-${pad(norwegian[1])}`
-    if (norwegian[5]) time = `${pad(norwegian[5])}:${norwegian[6]}`
+    time = clock(...norwegian.slice(5))
   }
   else if (named) {
-    if (named[3]) date = `${named[3]}-${pad(monthNames.indexOf(named[2].toLocaleLowerCase('nb').slice(0, 3)) + 1)}-${pad(named[1])}`
-    if (named[4]) time = `${pad(named[4])}:${named[5]}`
+    time = clock(...named.slice(4))
+    const year = named[3] || (time && namedYear)
+    if (year) date = `${year}-${pad(monthNames.indexOf(named[2].toLocaleLowerCase('nb').slice(0, 3)) + 1)}-${pad(named[1])}`
   }
   const issues = []
   if (!date) issues.push('Datoen mangler et entydig år eller datoformat.')
@@ -74,6 +81,97 @@ function explicitOffsetRangeEnd(startToken, endHour, endMinute) {
   let sourceDate
   try { sourceDate = Temporal.PlainDate.from(match[1]); if (endMinutes < startMinutes) sourceDate = sourceDate.add({ days: 1 }) } catch { return '' }
   return parseDocumentDate(`${sourceDate}T${pad(endHour)}:${endMinute}${match[4]}`).value
+}
+
+function textDate(value, { event = false } = {}) {
+  const match = [value.match(isoTimestamp), value.match(isoLocalDate), value.match(numericDate), value.match(namedDate)]
+    .filter(Boolean).sort((first, second) => first.index - second.index)[0]
+  if (!match) return null
+  const end = match.index + match[0].length
+  const tail = value.slice(end)
+  const timestamp = isoTimestamp.test(match[0])
+  if (timestamp) return { raw: (match[0] + namedZoneSuffix(tail)).replace(/\.$/, ''), index: match.index, end, timestamp }
+  // A hyphen following a local teaching time separates start and end, not a UTC offset.
+  const suffixTail = event ? tail.replace(/^\s*[-–—]\s*\d{1,2}[:.]\d\d/, '') : tail
+  const offset = suffixTail.match(/^(?:[:.,]\d+)?(?:\s*(?:Z\b|[+-]\d{2}(?::?\d{2})?(?::\d+)?|\[[^\]]+\]))?/i)?.[0] || ''
+  const suffix = offset + namedZoneSuffix(suffixTail.slice(offset.length))
+  return { raw: match[0] + suffix, index: match.index, end, timestamp }
+}
+
+const noDeadline = { value: '', raw: '', issues: [] }
+const deadlineCue = /(?<![\p{L}\p{N}\p{M}])(?:frist|deadline|due)(?![\p{L}\p{N}\p{M}])\s*:?\s*(?:(?:er|på|on)\s+)?/giu
+const relativeCue = /(?<![\p{L}\p{N}\p{M}])(?:innen|senest)(?![\p{L}\p{N}\p{M}])\s+/giu
+const relativeDate = /^(?:mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag|i\s+(?:dag|morgen|kveld|natt)|(?:neste|denne|kommende|førstkommende)\s+(?:uke|måned|helg|mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)|(?:utgangen|slutten)\s+av\s+(?:dagen|uken|uka|måneden|semesteret)|kl\.?\s*\d{1,2}|\d{1,2}[:.]\d{2}(?![./]\d)|(?:om\s+)?(?:\d+|en|ei|ett)\s+(?:time|timer|dag|dager|døgn|uke|uker|måned|måneder))(?![\p{L}\p{N}\p{M}])/iu
+const openDeadline = /^(?:ikke\s+(?:bestemt|fastsatt|oppgitt|avklart|satt)|ukjent|uavklart|kommer senere)(?![\p{L}\p{N}\p{M}])/iu
+const publicationCue = /(?<![\p{L}\p{N}\p{M}])(?:publisert|published|oppdatert|updated)(?![\p{L}\p{N}\p{M}])\s*:?\s*/iu
+
+function deadlineYear(publication, candidate, referenceDate) {
+  const due = candidate.raw.match(namedDate)
+  const published = publication.match(namedDate)
+  if (!due || due[3] || !published || Number(published[1]) > Number(due[1])) return null
+  const month = name => monthNames.indexOf(name.toLowerCase().slice(0, 3)) + 1
+  if (month(published[2]) !== month(due[2])) return null
+  // The dated publication anchors a second date in the same month. If both
+  // omit the year, suggest the current one only within that publication month.
+  return published[3] || (referenceDate.month === month(due[2]) && Number(published[1]) <= referenceDate.day ? referenceDate.year : null)
+}
+
+function taskTextDeadline(value, referenceDate) {
+  const explicit = [...value.matchAll(deadlineCue)]
+  const relative = [...value.matchAll(relativeCue)].filter(cue => {
+    const tail = value.slice(cue.index + cue[0].length)
+    return relativeDate.test(tail) || textDate(tail)?.index === 0
+  })
+  // A nested «frist innen …» is one cue. Different deadline clauses need a choice.
+  const cues = [...explicit, ...relative.filter(cue => !explicit.some(marker => marker.index + marker[0].length === cue.index))]
+    .sort((first, second) => first.index - second.index)
+  const unresolved = (raw, issue) => ({ value: '', raw, issues: [issue] })
+  if (cues.length > 1) return unresolved(value.slice(cues[0].index), 'Kilden oppgir flere mulige frister. Velg riktig frist.')
+  const cue = cues[0]
+  if (cue) {
+    const tail = value.slice(cue.index + cue[0].length).replace(/^(?:innen|senest|før)\s+/iu, '')
+    if (openDeadline.test(tail) || /(?<!\p{L})uten\s+$/iu.test(value.slice(0, cue.index))) return noDeadline
+    const candidate = textDate(tail)
+    if (!candidate || candidate.index !== 0) return unresolved(value.slice(cue.index), 'Fristuttrykket gir ingen entydig dato og klokkeslett. Avklar fristen.')
+    const alternative = tail.slice(candidate.end).match(/^\s*(?:[,;/]\s*)?(?:eller|or)\s+(.+)$/iu)?.[1]
+    if (alternative && (textDate(alternative) || relativeDate.test(alternative))) return unresolved(tail, 'Kilden oppgir flere mulige frister. Velg riktig frist.')
+    const publication = value.slice(0, cue.index).split(publicationCue)[1] || ''
+    const namedYear = deadlineYear(publication, candidate, referenceDate)
+    const date = parseDocumentDate(candidate.raw, { namedYear })
+    if (namedYear && date.value) date.issues.push('Kilden oppgir ikke år for fristen. Kontroller det foreslåtte årstallet.')
+    return date
+  }
+  const candidate = textDate(value)
+  if (!candidate) return noDeadline
+  const prefix = value.slice(0, candidate.index)
+  if (publicationCue.test(prefix) || /(?:kapittel|chapter)\s*$/iu.test(prefix)) return noDeadline
+  if (textDate(value.slice(candidate.end))) return unresolved(value.slice(candidate.index), 'Kilden inneholder flere datoer uten entydig fristmerking. Velg riktig frist.')
+  return parseDocumentDate(candidate.raw)
+}
+
+function teachingTextTimes(value) {
+  const start = textDate(value, { event: true })
+  const date = parseDocumentDate(start?.raw)
+  const result = { startLocal: date.value, endLocal: '', startRaw: date.raw, startIssues: date.issues }
+  if (!date.value) return result
+  const range = value.slice(start.end).match(/^\s*[-–—]\s*(.+)$/u)
+  if (!range) return result
+  const clock = range[1].match(/^(?:kl\.?\s*)?(\d{1,2})[:.](\d\d)\b(?![./]\d)/i)
+  if (!clock) {
+    const end = textDate(range[1], { event: true })
+    if (end?.index !== 0) return result
+    const parsedEnd = parseDocumentDate(end.raw)
+    return { ...result, endLocal: parsedEnd.value, endRaw: parsedEnd.raw, endIssues: parsedEnd.issues }
+  }
+  const [, hour, minute] = clock
+  if (start.timestamp && /(?:Z|[+-]\d\d:\d\d)$/.test(start.raw)) {
+    return { ...result, endLocal: explicitOffsetRangeEnd(start.raw, hour, minute), endRaw: clock[0] }
+  }
+  const time = pad(hour) + ':' + minute
+  let day = Temporal.PlainDate.from(date.value.slice(0, 10))
+  if (time < date.value.slice(11)) day = day.add({ days: 1 })
+  const parsedEnd = parseDocumentDate(day.toString() + 'T' + time)
+  return { ...result, endLocal: parsedEnd.value, endRaw: clock[0], endIssues: parsedEnd.issues }
 }
 
 function baseRow(kind, title, snippet, position, extra = {}) {
@@ -99,7 +197,7 @@ function finish(rows, warnings = [], format = 'text') {
   return { format, rows, warnings: [...new Set(warnings)], complete: true }
 }
 
-export function parseDocumentText(text, { blocks, format = 'text' } = {}) {
+export function parseDocumentText(text, { blocks, format = 'text', referenceDate = Temporal.Now.plainDateISO(OSLO) } = {}) {
   assertText(text)
   const rows = [], warnings = ['Teksttolking er et forslag. Kontroller oppgavetype, emne, dato og klokkeslett mot kildeutdraget.']
   let courseHint = ''
@@ -117,39 +215,8 @@ export function parseDocumentText(text, { blocks, format = 'text' } = {}) {
     const eventMarker = value.match(/(?<![\p{L}\p{N}\p{M}])(forelesning|seminar|undervisning|øving|lab|lecture|workshop)(?![\p{L}\p{N}\p{M}])/iu)
     const taskMarker = value.match(/(?<![\p{L}\p{N}\p{M}])(oppgave|arbeidskrav|innlevering|frist|les|lever|øv|eksamen|assignment|deadline|due|submit|read)(?![\p{L}\p{N}\p{M}])/iu)
     const event = Boolean(eventMarker && (!taskMarker || eventMarker.index < taskMarker.index)), task = Boolean(taskMarker)
-    // Keep the whole timestamp token, including unsupported suffixes. Matching
-    // just its supported prefix would silently reinterpret the remaining zone.
-    const isoMatch = value.match(/\b\d{4}-\d\d-\d\dT\d{1,2}[:.]\d\d(?:[\w:.+\/[\]-]|,(?=\d))*/i)
-    const isoToken = isoMatch && (isoMatch[0] + namedZoneSuffix(value.slice(isoMatch.index + isoMatch[0].length))).replace(/\.$/, '')
-    const localDate = !isoToken && (value.match(/\b\d{4}-\d\d-\d\d(?:\s+(?:kl\.?\s*)?\d{1,2}[:.]\d\d)?\b/i) || value.match(/\b\d{1,2}[./]\d{1,2}(?:[./](?:\d{4}|\d{2}))?(?:\s+(?:kl\.?\s*)?\d{1,2}[:.]\d\d)?\b/i) || value.match(namedDate))
-    let localSuffix = ''
-    if (localDate) {
-      let tail = value.slice(localDate.index + localDate[0].length)
-      // A hyphen in an explicitly local teaching range separates its end time.
-      // T-form ISO offsets retain their different meaning above. A zone after
-      // either local time still needs clarification, including after a range.
-      if (event) tail = tail.replace(/^\s*[-–]\s*\d{1,2}[:.]\d\d/, '')
-      localSuffix = tail.match(/^(?:[:.,]\d+)?(?:\s*(?:Z\b|[+-]\d{2}(?::?\d{2})?(?::\d+)?|\[[^\]]+\]))?/i)?.[0] || ''
-      localSuffix += namedZoneSuffix(tail.slice(localSuffix.length))
-    }
-    // An explicit deadline cue still needs a decision when its date cannot be
-    // parsed. Weekday mentions alone never create or infer a deadline.
-    const relativeDeadlineCue = !event && value.match(/(?<![\p{L}\p{N}\p{M}])(?:innen|senest)\s+(?:mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag|i\s+(?:dag|morgen|kveld|natt)|(?:neste|denne|kommende|førstkommende)\s+(?:uke|måned|helg|mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)|(?:utgangen|slutten)\s+av\s+(?:dagen|uken|uka|måneden|semesteret)|kl\.?\s*\d{1,2}|\d{1,2}[:.]\d{2}(?![./]\d)|(?:om\s+)?(?:\d+|en|ei|ett)\s+(?:time|timer|dag|dager|døgn|uke|uker|måned|måneder))(?![\p{L}\p{N}\p{M}]).*$/iu)?.[0]
-    const deadlineCue = value.match(/(?<![\p{L}\p{N}\p{M}])(?:frist|deadline|due)(?![\p{L}\p{N}\p{M}])\s*:?\s*.*$|(?<![\p{L}\p{N}\p{M}])(?:leveres|innleveres|innlevering)\s+(?:innen|senest)\s+.+$/iu)?.[0]
-    // A different date elsewhere in the sentence cannot resolve this cue.
-    const dateRaw = relativeDeadlineCue || isoToken || (localDate && localDate[0] + localSuffix) || deadlineCue || ''
-    const date = parseDocumentDate(dateRaw)
-    const row = baseRow(event ? 'event' : 'task', value, value, position, { courseHint, selected: event || task, unsupported: !event && !task, deadlineLocal: date.value, deadlineRaw: dateRaw, deadlineIssues: date.issues, requiresSubmission: /(?<![\p{L}\p{N}\p{M}])(innlevering|lever|submit|assignment)(?![\p{L}\p{N}\p{M}])/iu.test(value) })
-    if (event) {
-      row.startLocal = date.value
-      const endTime = isoToken
-        ? value.slice(value.indexOf(isoToken) + isoToken.length).match(/^\s*[-–]\s*(\d{1,2})[:.](\d\d)/)?.slice(1)
-        : value.match(/\d{1,2}[:.]\d\d\s*[-–]\s*(\d{1,2})[:.](\d\d)/)?.slice(1)
-      if (row.startLocal && endTime) row.endLocal = isoToken
-        ? explicitOffsetRangeEnd(isoToken, endTime[0], endTime[1])
-        : `${row.startLocal.slice(0, 10)}T${pad(endTime[0])}:${endTime[1]}`
-    }
-    rows.push(row)
+    const date = event ? noDeadline : taskTextDeadline(value, referenceDate)
+    rows.push(baseRow(event ? 'event' : 'task', value, value, position, { courseHint, selected: event || task, unsupported: !event && !task, deadlineLocal: date.value, deadlineRaw: date.raw, deadlineIssues: date.issues, ...(event ? teachingTextTimes(value) : {}), requiresSubmission: /(?<![\p{L}\p{N}\p{M}])(innlevering|lever|submit|assignment)(?![\p{L}\p{N}\p{M}])/iu.test(value) }))
   }
   if (rows.some(r => r.unsupported)) warnings.push('Noen tekstlinjer kunne ikke klassifiseres og er ikke valgt. Du kan velge og redigere dem som oppgaver eller undervisning.')
   return finish(rows, warnings, format)
@@ -451,12 +518,23 @@ export function parseDocumentIcs(text, { semester, year } = {}) {
     const title = clean(component.getFirstPropertyValue('summary')), due = component.getFirstPropertyValue('due'), property = component.getFirstProperty('due')
     let date = { value: '', raw: '', issues: [] }
     if (due) {
-      const raw = due.toString(), zone = property.getParameter('tzid')
+      const raw = due.toString()
+      const zone = property.getParameter('tzid') || (due.zone?.tzid !== 'UTC' && root.getFirstPropertyValue('x-wr-timezone'))
       date = parseDocumentDate(raw)
       if (!due.isDate && zone) {
         // RFC 5545 resolves a gap with the earlier offset and an overlap to
         // its first instant. Task precision checks still run after conversion.
-        try { date = { ...parseDocumentDate(Temporal.PlainDateTime.from(raw).toZonedDateTime(zone, { disambiguation: 'compatible' }).toInstant().toString()), raw } }
+        try {
+          const embedded = root.getTimeZoneByID(zone)
+          let instant
+          if (embedded) {
+            const sourceTime = due.clone()
+            sourceTime.zone = embedded
+            instant = Temporal.Instant.fromEpochMilliseconds(sourceTime.toUnixTime() * 1000)
+          } else instant = Temporal.PlainDateTime.from(raw).toZonedDateTime(zone, { disambiguation: 'compatible' }).toInstant()
+          date = { ...parseDocumentDate(instant.toString()), raw }
+          if (!property.getParameter('tzid')) warnings.push(`Frister uten tidssone tolkes som ${zone}, kalenderens oppgitte tidssone.`)
+        }
         catch { date = { value: '', raw, issues: ['Fristens tidssone eller klokkeslett er ukjent eller tvetydig.'] } }
       } else if (!due.isDate && due.zone?.tzid !== 'UTC') date = { value: '', raw, issues: ['Fristen mangler tidssone. Bekreft dato og klokkeslett i norsk tid.'] }
     }
@@ -515,8 +593,9 @@ export async function guardDocxArchive(buffer) {
   return { entries: count, expandedBytes: total }
 }
 
-export async function parseDocumentBytes(buffer, { format = 'text', semester, year, encoding, columns, onProgress = () => {} } = {}) {
+export async function parseDocumentBytes(buffer, { format = 'text', semester, year, encoding, columns, readAt, onProgress = () => {} } = {}) {
   if (!(buffer instanceof ArrayBuffer) || buffer.byteLength > (['pdf', 'docx'].includes(format) ? DOCUMENT_LIMITS.binaryBytes : DOCUMENT_LIMITS.textBytes)) throw new Error('Filen er for stor (PDF/DOCX maks 10 MB, tekst/CSV/ICS maks 2 MB).')
+  const referenceDate = readAt === undefined ? undefined : Temporal.Instant.fromEpochMilliseconds(readAt).toZonedDateTimeISO(OSLO).toPlainDate()
   if (format === 'docx') {
     await guardDocxArchive(buffer)
     const mammoth = (await import('mammoth/mammoth.browser.js')).default
@@ -524,7 +603,7 @@ export async function parseDocumentBytes(buffer, { format = 'text', semester, ye
     // No HTML conversion, linked-image reads or embedded style maps are used.
     const result = await mammoth.extractRawText({ arrayBuffer: buffer })
     assertText(result.value)
-    const parsed = parseDocumentText(result.value, { format, blocks: result.value.split(/\n\n/).map((text, index) => ({ text, position: `Avsnitt ${index + 1}` })) })
+    const parsed = parseDocumentText(result.value, { format, referenceDate, blocks: result.value.split(/\n\n/).map((text, index) => ({ text, position: `Avsnitt ${index + 1}` })) })
     if (result.messages.length) { parsed.complete = false; parsed.warnings.push('Word-leseren rapporterte innhold som ikke kunne tolkes. Kontroller tekstutdragene; tabeller, bilder og formatering kan miste sammenheng.') }
     return parsed
   }
@@ -554,7 +633,7 @@ export async function parseDocumentBytes(buffer, { format = 'text', semester, ye
       }
       const text = blocks.map(b => b.text).join('\n')
       if (text.trim().length < 10) throw new Error('PDF-filen har ingen lesbar tekst. Den kan være skannet. Lim inn teksten eller registrer planen manuelt.')
-      const parsed = parseDocumentText(text, { blocks, format })
+      const parsed = parseDocumentText(text, { blocks, format, referenceDate })
       if (emptyPages) { parsed.complete = false; parsed.warnings.push(`${emptyPages} sider mangler lesbar tekst. Bilder og skannede sider er ikke tolket. Lim inn manglende tekst eller registrer den manuelt.`) }
       return parsed
     } finally { await loading.destroy() }
@@ -573,5 +652,5 @@ export async function parseDocumentBytes(buffer, { format = 'text', semester, ye
     throw Object.assign(new Error('Ser teksten riktig ut? Kontroller utdraget før du går videre.'), { clarification: { kind: 'encoding', ...(candidates.length === 1 ? { suggestedEncoding: candidates[0].encoding, sample: csvSample(candidates[0].value) } : { sample: 'Teksten kunne ikke vises sikkert. Åpne tekstdetaljene og velg en annen teksttolking.' }) } })
   }
   if (text.includes('\uFFFD') || text.includes('\u0000')) throw new Error('Tekstfilen inneholder ugyldige eller erstattede tegn. Kontroller tegnkodingen eller lagre på nytt som UTF-8.')
-  return format === 'csv' ? parseDocumentCsv(text, { columns }) : format === 'ics' ? parseDocumentIcs(text, { semester, year }) : parseDocumentText(text)
+  return format === 'csv' ? parseDocumentCsv(text, { columns }) : format === 'ics' ? parseDocumentIcs(text, { semester, year }) : parseDocumentText(text, { referenceDate })
 }

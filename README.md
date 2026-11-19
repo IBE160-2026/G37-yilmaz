@@ -60,9 +60,11 @@ Avgrensningen og [rekonstruerte planer fra 16. oktober](.docs/planning-artifacts
 
 **Prosjekteierens sju scenarier og tilleggsprøven for navngitt Start er bestått 3.–4. november.** [Prøverapporten](.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktisk gjennomføring, rettet prøveutførelse og metodegrenser. Den inkluderer gjenoppretting i et separat, tomt Chrome Gjest-miljø og lukker det tidligere dekningsforbeholdet for SC-07/R-07. Tidligere daterte omprøvinger, SC-07/1200–30 og Outlook-prøven beholder sine resultater. [Automatiske kontroller](studieplanlegger/VERIFICATION.md) er et separat bevisgrunnlag.
 
-Markdown er refleksjonsrapportens eneste format i repoet. [Leveringsstatus](.docs/planning-artifacts/README.md#leveringsstatus) og [vurderingsgrunnlag](.docs/planning-artifacts/README.md#leveringskontroll) står i planindeksen. [Begrensningsoversikten](studieplanlegger/README.md#kjente-begrensninger-ved-levering) skiller V1-grenser og historiske funn fra dagens prøver; historisk F03 og personvernoppfølging er ikke lukket av egenutprøvingen.
+Markdown er refleksjonsrapportens eneste format i repoet. [Leveringsstatus](.docs/planning-artifacts/README.md#leveringsstatus) og [vurderingsgrunnlag](.docs/planning-artifacts/README.md#leveringskontroll) står i planindeksen.
 
-Oppfølgingen av historisk tilgangsmateriale er avsluttet, og GitHub About viser hovedadressen. Grenbeskyttelse og plattformgrenser følges i [auditoppfølgingen](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md).
+- **Historisk personvernoppfølging:** 9. november ble avtalt Git-historikk ryddet og oppfølgingen av funn 1–4 avsluttet. Eldre kopier og gamle PR-referanser kan fortsatt inneholde opprinnelig materiale. [Oppryddingsrapporten](.docs/implementation-artifacts/history-cleanup-2026-11-09.md)
+- **F03, fritekstimport:** Det historiske testtilfellet står åpent fordi originalfilen mangler. [Kjente begrensninger](studieplanlegger/README.md#kjente-begrensninger-ved-levering)
+- **Plattformoppfølging:** GitHub About viser hovedadressen. Grenbeskyttelse og Vercels kontogrenser følges i [sakslisten](.logs/issues.md).
 
 <a id="kjør-den-komplette-lokale-leveransen"></a>
 <a id="tester-og-produksjonsbygg"></a>

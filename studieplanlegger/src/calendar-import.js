@@ -206,9 +206,12 @@ export function calendarDateWarning(component, index, fields) {
   return `${component.name.toUpperCase()} ${index + 1}${title ? ` (${title})` : ''} har ugyldig dato eller klokkeslett i ${fields.map(field => field.toUpperCase()).join(', ')} og er utelatt.`
 }
 
-function calendarInterval(component, start, end, fallback, explicitPeriod = false) {
-  const instant = value => value.isDate ? Temporal.PlainDate.from(value.toString()).toZonedDateTime(fallback).epochMilliseconds : value.toUnixTime() * 1000
-  const startTime = instant(start), endTime = instant(end)
+// VALUE=DATE is a day on the calendar in every zone. Anchor the start and
+// exclusive end to Oslo midnight without applying the source clock's offset.
+const calendarInstant = value => value.isDate ? Temporal.PlainDate.from(value.toString()).toZonedDateTime(OSLO).epochMilliseconds : value.toUnixTime() * 1000
+
+function calendarInterval(component, start, end, explicitPeriod = false) {
+  const startTime = calendarInstant(start), endTime = calendarInstant(end)
   const point = !explicitPeriod && !start.isDate && endTime === startTime && !component.hasProperty('dtend') && !component.hasProperty('duration')
   return { startTime, endTime, point, valid: endTime > startTime || point }
 }
@@ -237,36 +240,37 @@ function occurrenceMetadata(uid, recurrence, fallback) {
 // for six months from its start, with an explicit warning; ICAL still owns all
 // recurrence and timezone interpretation, and the same work limit applies.
 function fileWindow(components, fallback, warnings) {
-  const instant = value => value.isDate ? Temporal.PlainDate.from(value.toString()).toZonedDateTime(fallback).epochMilliseconds : value.toUnixTime() * 1000
   const dates = []; let iterations = 0
   for (const component of components) {
     for (const name of ['dtstart', 'dtend', 'recurrence-id', 'rdate']) for (const property of component.getAllProperties(name)) for (const date of property.getValues()) {
-      if (date instanceof ICAL.Period) dates.push(instant(date.start), instant(date.getEnd()))
-      else dates.push(instant(date))
+      if (date instanceof ICAL.Period) dates.push(calendarInstant(date.start), calendarInstant(date.getEnd()))
+      else dates.push(calendarInstant(date))
     }
     if (!component.hasProperty('dtstart')) continue
     const event = new ICAL.Event(component)
-    dates.push(instant(event.endDate))
-    for (const property of component.getAllProperties('rdate')) for (const date of property.getValues()) if (!(date instanceof ICAL.Period)) dates.push(instant(event.getOccurrenceDetails(date).endDate))
+    dates.push(calendarInstant(event.endDate))
+    for (const property of component.getAllProperties('rdate')) for (const date of property.getValues()) if (!(date instanceof ICAL.Period)) dates.push(calendarInstant(event.getOccurrenceDetails(date).endDate))
     if (component.hasProperty('recurrence-id')) continue
     if (!event.isRecurring()) continue
     const unbounded = component.getAllProperties('rrule').some(property => { const rule = property.getFirstValue(); return !rule.count && !rule.until })
     if (unbounded) {
-      const end = Temporal.Instant.fromEpochMilliseconds(instant(event.startDate)).toZonedDateTimeISO(fallback).add({ months: 6 }).epochMilliseconds
+      const start = calendarInstant(event.startDate)
+      const end = sixMonthEnd(event.startDate, fallback)
       dates.push(end)
-      warnings.push(`En gjentakelse uten sluttdato er avgrenset til seks måneder fra første dato (${osloDate(instant(event.startDate))}–${osloDate(end)}). Uttrykkelige ekstra datoer (RDATE) beholdes. Velg et kalendersemester under periodevalg for en annen avgrensning.`)
+      warnings.push(`En gjentakelse uten sluttdato er avgrenset til seks måneder fra første dato (${osloDate(start)}–${osloDate(end)}). Uttrykkelige ekstra datoer (RDATE) beholdes. Velg et kalendersemester under periodevalg for en annen avgrensning.`)
       continue
     }
     const iterator = event.iterator(); let occurrence
     while ((occurrence = iterator.next())) {
       if (++iterations > 20000) throw new Error('Gjentakelsene er for omfattende. Eksporter en avgrenset kalender.')
-      dates.push(occurrence instanceof ICAL.Period ? instant(occurrence.getEnd()) : instant(occurrence) + Math.max(0, instant(event.endDate) - instant(event.startDate)))
+      dates.push(occurrence instanceof ICAL.Period ? calendarInstant(occurrence.getEnd()) : calendarInstant(occurrence) + Math.max(0, calendarInstant(event.endDate) - calendarInstant(event.startDate)))
     }
   }
   const finite = dates.filter(Number.isFinite)
   if (!finite.length) return { start: '1970-01-01T00:00:00Z', end: '1970-01-02T00:00:00Z' }
   return { start: new Date(Math.min(...finite) - 86400000).toISOString(), end: new Date(Math.max(...finite) + 86400000).toISOString() }
 }
+const sixMonthEnd = (start, fallback) => Temporal.Instant.fromEpochMilliseconds(calendarInstant(start)).toZonedDateTimeISO(start.isDate ? OSLO : fallback).add({ months: 6 }).epochMilliseconds
 const osloDate = value => Temporal.Instant.fromEpochMilliseconds(value).toZonedDateTimeISO(OSLO).toPlainDate().toString()
 
 export function parseCalendar(input, { courseId, semester, year, fileImport = false }) {
@@ -321,7 +325,7 @@ export function parseCalendar(input, { courseId, semester, year, fileImport = fa
       // validation still runs below for expanded recurrence and RDATE periods.
       if (component.getFirstPropertyValue('status') !== 'CANCELLED') {
         const item = new ICAL.Event(component)
-        if (!calendarInterval(component, item.startDate, item.endDate, fallback).valid) {
+        if (!calendarInterval(component, item.startDate, item.endDate).valid) {
           rejectedComponents.add(component); skipped = true; warnings.push('En økt har manglende eller ugyldig varighet og er utelatt.'); continue
         }
       }
@@ -349,7 +353,7 @@ export function parseCalendar(input, { courseId, semester, year, fileImport = fa
     function append(item, start, end, recurrence, explicitPeriod = false) {
       if (item.component.getFirstPropertyValue('status') === 'CANCELLED') return
       if (!start || !end) { rejectedOccurrences++; rejectedComponents.add(item.component); skipped = true; warnings.push('En økt mangler start eller slutt og er utelatt.'); return }
-      const { startTime, endTime, point, valid } = calendarInterval(item.component, start, end, fallback, explicitPeriod)
+      const { startTime, endTime, point, valid } = calendarInterval(item.component, start, end, explicitPeriod)
       if (!valid) { rejectedOccurrences++; rejectedComponents.add(item.component); skipped = true; warnings.push('En økt har manglende eller ugyldig varighet og er utelatt.'); return }
       if ((point ? startTime < from : endTime <= from) || startTime >= until) { filteredOccurrences++; return }
       const sourceTitle = item.summary?.trim(), rawKind = item.component.getFirstPropertyValue('x-studieplan-activity-kind'), activityKind = fileImport && rawKind === 'personal' ? 'personal' : normalizeActivityKind(rawKind)
@@ -414,7 +418,7 @@ export function parseCalendar(input, { courseId, semester, year, fileImport = fa
       const iterator = event.iterator()
       const endlessFileSeries = fileImport && !semester && !year && component.getAllProperties('rrule').some(property => { const rule = property.getFirstValue(); return !rule.count && !rule.until })
       if (endlessFileSeries) boundedSeries = true
-      const seriesUntil = endlessFileSeries ? Math.min(until, Temporal.Instant.fromEpochMilliseconds(event.startDate.toUnixTime() * 1000).toZonedDateTimeISO(fallback).add({ months: 6 }).epochMilliseconds) : until
+      const seriesUntil = endlessFileSeries ? Math.min(until, sixMonthEnd(event.startDate, fallback)) : until
       const appendOccurrence = value => {
         const period = value instanceof ICAL.Period ? value : null, occurrence = period ? period.start : value
         if (overriddenByRejected(occurrence) || component.getAllProperties('exdate').flatMap(property => property.getValues()).some(date => date.compare(occurrence) === 0)) return
@@ -427,7 +431,7 @@ export function parseCalendar(input, { courseId, semester, year, fileImport = fa
         if (++iterations > 20000) throw new Error('Gjentakelsene er for omfattende. Eksporter en kalender avgrenset til semesteret.')
         const period = occurrence instanceof ICAL.Period ? occurrence : null
         if (period) occurrence = period.start
-        if (occurrence.toUnixTime() * 1000 >= seriesUntil) break
+        if (calendarInstant(occurrence) >= seriesUntil) break
         appendOccurrence(period || occurrence)
       }
       // The rule horizon is not a cutoff for dates explicitly listed by the
@@ -435,7 +439,7 @@ export function parseCalendar(input, { courseId, semester, year, fileImport = fa
       // across the intervening months/years.
       if (endlessFileSeries) for (const property of component.getAllProperties('rdate')) for (const value of property.getValues()) {
         const date = value instanceof ICAL.Period ? value.start : value
-        if (date.toUnixTime() * 1000 < seriesUntil) continue
+        if (calendarInstant(date) < seriesUntil) continue
         if (++iterations > 20000) throw new Error('Gjentakelsene er for omfattende. Eksporter en avgrenset kalender.')
         appendOccurrence(value)
       }

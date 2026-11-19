@@ -127,6 +127,7 @@ body[data-design-view='calendar'] #hovedinnhold { padding-top: 8px; }
 }
 .calendar-duration-marker { position: absolute; border: 0; border-radius: 2px; background: var(--course-color, var(--course-neutral-marker)); pointer-events: none; z-index: 1; }
 .calendar-duration-marker.entry-session { background: var(--course-color, var(--course-neutral-marker)); }
+.calendar-deadline-marker { inset-inline: 0; height: 2px; z-index: 3; }
 .calendar-timeline.has-short-events { margin-right: 48px; }
 .calendar-short-control { position: absolute; left: calc(100% + 4px); width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 2px; font-size: 1rem; font-weight: 600; line-height: 1.2; white-space: nowrap; z-index: 2; border-color: var(--field-border); color: var(--ink); background: var(--lavender-soft); }
 .calendar-short-chooser { display: none; }

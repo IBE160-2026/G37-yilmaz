@@ -25,7 +25,7 @@ async function start(page, institution, planner = { courses: [], events: [], sou
 async function openProgrammes(page) {
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
 }
 const sourceMessage = host => host.locator(':scope > p[aria-live]:not([role])')
 
@@ -102,10 +102,10 @@ test('AHO gap-aware reimport corrects old semester 8/9 bindings without duplicat
     await host.locator('[name=programCampus]').selectOption('AHO OSLO')
     await expect(host).toContainText(period.courses[0].name)
     const beforePreview = await raw(page)
-    await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
     await expect(host.locator('.import-preview')).toContainText(`${period.studySemester}. studiesemester`)
     expect(await raw(page)).toBe(beforePreview)
-    await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+    await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
     await expect(host.locator('.program-action-status')).toContainText('1 emne er lagret samlet')
     const committed = await saved(page)
     expect(committed.planner.courses.map(course => course.id)).toEqual(ids)

@@ -75,7 +75,7 @@ The 24 October results are reused only as dated technical history. Their source/
 
 ## Feedback alignment — 2026-10-16
 
-The teacher's feedback of 6 October 2026 assessed `brief.md` at commit `5e23204`. The existing [brief](../../brief.md) was revised on 16 October 2026. The current [PRD](../planning-artifacts/PRD.md) and [user stories](../planning-artifacts/EPICS-CURRENT.md) were added the same day, based on the existing implementation at commit `1a58ffce782fd4e42a7153e21e82fc982ae00268`. [Teacher feedback](../../tilbakemelding-product-brief.md)
+The teacher's feedback of 6 October 2026 assessed `brief.md` at commit `5e23204` in the pre-cleanup Git history. The project revised the [brief](../../brief.md) and added the [PRD](../planning-artifacts/PRD.md) and [user stories](../planning-artifacts/EPICS-CURRENT.md) on 16 October 2026, based on the existing implementation at pre-cleanup commit `1a58ffce782fd4e42a7153e21e82fc982ae00268`. [Teacher feedback](../../tilbakemelding-product-brief.md) · [Verifiable 16 October revision](https://github.com/IBE160-2026/G37-yilmaz/commit/79623313e9e96575f79c548d3394665ec18cce38)
 
 Historical PRD/epics remain at their original paths in pre-cleanup commit `1a39aaf450c3ff4a59908fd8caba9de10230b9a6`; ignored local copies and private reflections were not republished.
 

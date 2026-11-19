@@ -1,5 +1,6 @@
 ﻿import { overdueCount, tasksThisWeek, weekBounds } from './tasks.js'
-import { createCalendar, dateKey, formatDay } from './calendar.js'
+import { createCalendar, formatDay } from './calendar.js'
+import { calendarToday, addDays } from './calendar-model.js'
 import { createTaskList } from './task-view.js'
 import { createCapacityView } from './capacity-view.js'
 import { createTaskForm } from './task-form.js'
@@ -369,15 +370,14 @@ export function createUI(actions) {
       for (const name of Object.keys(titles)) $(`#view-${name}`).setAttribute('aria-pressed', String(name === view))
       const subjectButton = $('#view-subjects')
       if (subjectButton) subjectButton.setAttribute('aria-pressed', String(view === 'subjects'))
-      setText($('#today-label'), formatDay(dateKey(now), { weekday: true, year: true }))
+      setText($('#today-label'), formatDay(calendarToday(now), { weekday: true, year: true }))
       setText($('#summary-week-count'), String(tasksThisWeek(tasks, now).filter(pending).length))
       setText($('#summary-overdue-count'), String(overdue))
       setText($('#summary-ready-count'), String(readyCount))
       $('#week-info').hidden = view !== 'week'
       const bounds = weekBounds(now)
-      const sunday = new Date(now)
-      sunday.setDate(sunday.getDate() - (sunday.getDay() + 6) % 7 + 6)
-      setText($('#week-range'), `${formatDay(bounds.start.slice(0, 10))} – ${formatDay(dateKey(sunday))}`)
+      const monday = bounds.start.slice(0, 10)
+      setText($('#week-range'), `${formatDay(monday)} – ${formatDay(addDays(monday, 6))}`)
       setText($('#overdue-count'), `${overdueCount(tasks, now)} forfalte oppgaver på tvers av alle uker.`)
       $('#draft-info').hidden = form.hidden || !tasks.length
       minuteInput.setAttribute('aria-invalid', String(Boolean(minuteError)))

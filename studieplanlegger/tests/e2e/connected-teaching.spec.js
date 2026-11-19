@@ -26,7 +26,7 @@ test('public teaching requires an explicit source object and groups, then saves 
   async function previewProgram() {
     await navigate(page, 'subjects')
     await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-    await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+    await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
     const host = page.locator('.program-import')
     await host.locator('[name=institution]').selectOption('usn')
     await host.getByRole('button', { name: 'Hent studieprogram', exact: true }).click()
@@ -37,7 +37,7 @@ test('public teaching requires an explicit source object and groups, then saves 
     await host.locator('[name=studySemester]').selectOption('first')
     await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
     await expect(host.locator('[name=programCampus]')).toBeHidden()
-    await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
     await expect(host.locator('.program-action-status')).toBeFocused()
     return host
   }
@@ -59,7 +59,7 @@ test('public teaching requires an explicit source object and groups, then saves 
     if (attempt === 0) await expect(groups.getByRole('checkbox').first()).not.toBeChecked()
     await groups.getByRole('checkbox').first().check()
     expect(await stored(page)).toEqual(before)
-    await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+    await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
     await expect(host.getByRole('status')).toBeFocused()
     await expect.poll(async () => (await stored(page))?.planner?.events?.length).toBe(1)
     const after = await stored(page)
@@ -74,7 +74,7 @@ test('public teaching requires an explicit source object and groups, then saves 
   if (!await timetable.evaluate(node => node.open)) await timetable.locator(':scope > summary').click()
   await host.getByRole('button', { name: 'Søk offentlig undervisning for TEST101', exact: true }).click()
   await expect(host.getByRole('status')).toContainText('Syntetisk kildefeil')
-  await expect(host.getByRole('button', { name: 'Bekreft programimport', exact: true })).toBeEnabled()
+  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeEnabled()
   expect(await stored(page)).toEqual(beforeFailure)
 })
 
@@ -98,7 +98,7 @@ test('one programme preparation fetches an exact teaching object and commits onc
   await page.reload()
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption('himolde')
   await host.getByRole('button', { name: 'Hent studieprogram', exact: true }).click()
@@ -108,7 +108,7 @@ test('one programme preparation fetches an exact teaching object and commits onc
   await host.locator('[name=model]').selectOption('common')
   await host.locator('[name=studySemester]').selectOption('first')
   await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
-  await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
 
   await expect(host.getByText('Undervisning klar for import', { exact: true })).toBeVisible()
   await expect(host.getByLabel('Timeplanobjekt for IBE160', { exact: true })).toHaveValue('0')
@@ -130,7 +130,7 @@ test('one programme preparation fetches an exact teaching object and commits onc
   await largeText.evaluate(node => node.remove())
   await page.setViewportSize({ width: 1440, height: 1000 })
 
-  await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
   await expect(host.locator('.program-action-status')).toContainText('1 emne er lagret samlet. 1 undervisningshendelse ble importert')
   expect(calendarCalls).toBe(1)
   expect(await page.evaluate(() => window.writeAttempts.length)).toBe(1)

@@ -49,6 +49,20 @@ test('subject agenda renderer prioritizes repair and orders mixed offset instant
   expect(await raw(page)).toBe(before)
   expect(await writes(page)).toEqual([])
 })
+
+test('the legacy subject agenda removes deadlines and teaching as each passes without a reload', async ({ page }) => {
+  const deadline = task('Frist på minuttet', '2026-09-03T12:01')
+  const teaching = { id: 'ending', title: 'Undervisning som slutter', courseId: course.id, start: '2026-09-03T09:30:00Z', end: '2026-09-03T10:02:00Z', location: '', notes: '' }
+  await seedAgenda(page, [deadline], { now: '2026-09-03T10:00:59Z', events: [teaching] })
+  const agenda = page.locator('#teaching-agenda li')
+  await expect(agenda).toHaveCount(2)
+  await page.clock.runFor(1001)
+  await expect(agenda).toHaveCount(1)
+  await expect(agenda).toContainText(teaching.title)
+  await page.clock.runFor(60_000)
+  await expect(agenda).toHaveCount(0)
+  expect(await writes(page)).toEqual([])
+})
 })
 
 test('clock refresh keeps keyboard repair reachable when the focused legacy deadline moves beyond collapsed rows', async ({ page }) => {

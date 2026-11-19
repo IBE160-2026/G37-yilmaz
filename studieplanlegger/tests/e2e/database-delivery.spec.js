@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
 import { deleteTask, edit, navigate, openMenu } from './helpers.js'
+import { storageStressFixture, syntheticStorageBackup } from '../fixtures/storage-stress.js'
 
 test.describe.configure({ mode: 'serial' })
 
@@ -136,7 +138,7 @@ test('programme import persists across reload, remains repeat-safe and is undoab
     await navigate(page, 'subjects')
     const importButton=page.getByRole('button', { name: 'Finn studieprogram', exact: true })
     if(await importButton.getAttribute('aria-expanded')!=='true')await importButton.click()
-    await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+    await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
     const host = page.locator('.program-import')
     await host.locator('[name=institution]').selectOption('himolde')
     await host.getByRole('button', { name: 'Hent studieprogram', exact: true }).click()
@@ -146,8 +148,8 @@ test('programme import persists across reload, remains repeat-safe and is undoab
     await host.locator('[name=model]').selectOption('common')
     await host.locator('[name=studySemester]').selectOption('1')
     await host.locator('[name=calendarSemester]').selectOption('2026:autumn')
-    await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-    await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+    await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+    await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
   }
   const importedCount = () => page.evaluate(async () => {
     const saved = await (await fetch('/api/state')).json()
@@ -166,4 +168,74 @@ test('programme import persists across reload, remains repeat-safe and is undoab
   await expect.poll(importedCount).toBe(1)
   await page.reload()
   await expect.poll(importedCount).toBe(1)
+})
+
+test('SQLite exports 500 events and 11 undo entries to a restorable file and retains the earlier recovery', async ({ page }, info) => {
+  test.setTimeout(120_000)
+  const { legacy } = storageStressFixture()
+  const sample = legacy.history.undo.at(-1)
+  for (let i = 0; i < 8; i++) legacy.history.undo.push({ ...sample, id: `synthetic-sqlite-backup-undo-${i}` })
+  expect(legacy.planner.events).toHaveLength(500)
+  expect(legacy.history.undo).toHaveLength(11)
+  expect(Buffer.byteLength(syntheticStorageBackup(legacy))).toBeGreaterThan(20_000_000)
+
+  const readState = async () => (await page.request.get('/api/state')).json()
+  const writeState = async envelope => {
+    const { revision } = await readState()
+    expect((await page.request.put('/api/state', { data: { expectedRevision: revision, envelope } })).ok()).toBe(true)
+  }
+  await writeState(legacy)
+  await page.goto('/')
+  await navigate(page, 'settings')
+  const download = async name => {
+    const pending = page.waitForEvent('download')
+    await page.getByRole('button', { name, exact: true }).click()
+    return readFile(await (await pending).path())
+  }
+  const file = await download('Eksporter sikkerhetskopi')
+  expect(file.length).toBeLessThanOrEqual(20_000_000)
+  expect(JSON.parse(file.toString()).data).toEqual(legacy)
+  await info.attach('syntetisk-stor-sikkerhetskopi', { body: JSON.stringify({ events: 500, undo: 11, utf8Bytes: file.length }), contentType: 'application/json' })
+
+  const empty = { schemaVersion: 1, tasks: [] }
+  await writeState(empty)
+  await page.reload()
+  await navigate(page, 'settings')
+  const preview = page.getByRole('dialog', { name: 'Forhåndsvis gjenoppretting' })
+  const restore = async file => {
+    await page.locator('#backup-file').setInputFiles({ name: 'syntetisk-stor.json', mimeType: 'application/json', buffer: file })
+    await expect(preview).toContainText('Undervisning:')
+    await preview.getByRole('button', { name: 'Erstatt lokale data', exact: true }).click()
+    await expect(preview).not.toBeVisible()
+  }
+  await restore(file)
+  await page.reload()
+  await navigate(page, 'settings')
+  const restored = await readState()
+  expect(restored.envelope).toEqual(legacy)
+  const readRecovery = async () => (await page.request.get('/api/state/recovery')).json()
+  const recovery = await readRecovery()
+  expect(recovery.recovery.data).toEqual(empty)
+  await restore(file)
+  await expect(page.locator('#settings-panel > [role=status]')).toContainText('Ingenting er skrevet')
+  expect(await readState()).toEqual(restored)
+  expect(await readRecovery()).toEqual(recovery)
+
+  const oversized = { ...legacy, syntheticPadding: 'x'.repeat(8_000_000) }
+  await writeState(oversized)
+  await page.reload()
+  await navigate(page, 'settings')
+  const unexpectedDownloads = []
+  page.on('download', item => unexpectedDownloads.push(item))
+  await page.getByRole('button', { name: 'Eksporter sikkerhetskopi', exact: true }).click()
+  await expect(page.locator('#settings-panel > [role=status]')).toContainText('Ingen fil ble lastet ned')
+  expect(unexpectedDownloads).toHaveLength(0)
+  const smaller = await download('Eksporter uten Angre-historikk')
+  expect(smaller.length).toBeLessThan(20_000_000)
+  const slimPlan = { ...oversized, history: { ...oversized.history, undo: [] } }
+  expect(JSON.parse(smaller.toString()).data).toEqual(slimPlan)
+  expect((await readState()).envelope).toEqual(oversized)
+  await restore(smaller)
+  await page.reload()
+  expect((await readState()).envelope).toEqual(slimPlan)
 })

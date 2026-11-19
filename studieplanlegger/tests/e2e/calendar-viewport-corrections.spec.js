@@ -29,6 +29,42 @@ async function metrics(page) {
   })
 }
 
+test('restoring only calendar scroll restores the viewport and keeps the earlier copy on repeat', async ({ page }) => {
+  const date = '2026-09-08', context = `week:${date}`
+  const initial = { ...data(), calendarPreferences: { version: 2, view: 'week', date, weekMode: 'full', courseId: '', kinds: ['teaching'], completed: false, cancelled: false, scroll: { [context]: { top: 120, left: 0 } } } }
+  await boot(page, initial)
+  const viewport = page.locator('.full-calendar-viewport')
+  const position = () => viewport.evaluate(element => element.scrollTop)
+  await expect.poll(position).toBe(120)
+  const candidate = structuredClone(initial)
+  candidate.calendarPreferences.scroll[context].top = 640
+  const backup = { format: 'studieplan-local-backup', backupVersion: 1, createdAt: '2026-09-08T06:00:00Z', data: candidate }
+  const dialog = page.getByRole('dialog', { name: 'Forhåndsvis gjenoppretting', exact: true })
+  const confirm = () => dialog.getByRole('button', { name: 'Erstatt lokale data', exact: true }).click()
+  const importFile = async () => {
+    await page.locator('#backup-file').setInputFiles({ name: 'syntetisk-kalendervisning.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(backup)) })
+    await confirm()
+  }
+  await navigate(page, 'settings')
+  await importFile()
+  await navigate(page, 'calendar')
+  await expect.poll(position).toBe(640)
+  expect((await saved(page)).calendarPreferences.scroll[context].top).toBe(640)
+  await page.reload()
+  await navigate(page, 'calendar')
+  await expect.poll(position).toBe(640)
+  await navigate(page, 'settings')
+  await importFile()
+  await expect(page.locator('#settings-panel [role=status]')).toContainText('Ingenting er skrevet')
+  await page.getByRole('button', { name: 'Gjenopprett forrige kopi', exact: true }).click()
+  await confirm()
+  await navigate(page, 'calendar')
+  await expect.poll(position).toBe(120)
+  await page.reload()
+  await navigate(page, 'calendar')
+  await expect.poll(position).toBe(120)
+})
+
 test('viewport clipping follows scroll and resize without changing duration, focus, values or reload state', async ({ page }, testInfo) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message))
   await boot(page); const before = await saved(page), viewport = page.locator('.full-calendar-viewport')

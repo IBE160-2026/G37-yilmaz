@@ -1,4 +1,4 @@
-import { createReplan, applyReplan, replanMoveAlternatives } from './replanning.js'
+import { createReplan, applyReplan, replanMoveAlternatives, sameSessionTime } from './replanning.js'
 import { DEFAULT_PLANNING_RULES } from './planning-rules.js'
 import { getRemainingRange } from './tasks.js'
 import { STUDY_TIME_PRESETS, availabilityFor } from './study-time.js'
@@ -16,7 +16,7 @@ const dayLabel = value => {
   try { return new Intl.DateTimeFormat('nb-NO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Oslo' }).format(new Date(`${value}T12:00:00Z`)) } catch { return value }
 }
 const sessionLabel = session => `${dayLabel(session.dateLocal)} kl. ${session.startTime}–${session.endTime} · ${duration(session)} min`
-const sameTime = change => change.original && change.proposed && ['dateLocal', 'startTime', 'endDateLocal', 'endTime'].every(key => (change.original[key] || (key === 'endDateLocal' ? change.original.dateLocal : '')) === (change.proposed[key] || (key === 'endDateLocal' ? change.proposed.dateLocal : '')))
+const sameTime = change => change.original && change.proposed && sameSessionTime(change.original, change.proposed)
 
 export function createReplanningView(actions) {
   const dialog = el('dialog'); dialog.className = 'editor-dialog connected-dialog simple-plan-dialog'; document.body.append(dialog)
@@ -71,7 +71,14 @@ export function createReplanningView(actions) {
     const ruleGrid = el('div', '', 'form-grid')
     for (const [key, label] of [['sessionMinutes', 'Vanlig økt (min)'], ['minimumMinutes', 'Minste økt (min)'], ['maximumMinutes', 'Lengste økt (min)'], ['breakMinutes', 'Pause (min)']]) {
       const wrapper = el('label', label), input = el('input'); input.name = key; input.type = 'number'; input.min = key === 'breakMinutes' ? '0' : '1'; input.max = '1440'; input.value = rules[key]
-      input.onchange = () => { rules[key] = Number(input.value); compute() }; wrapper.append(input); ruleGrid.append(wrapper)
+      input.onchange = () => {
+        rules[key] = Number(input.value)
+        if (['minimumMinutes', 'maximumMinutes'].includes(key) && rules.minimumMinutes <= rules.maximumMinutes) {
+          rules.sessionMinutes = Math.max(rules.minimumMinutes, Math.min(rules.maximumMinutes, rules.sessionMinutes))
+          ruleGrid.querySelector('[name=sessionMinutes]').value = rules.sessionMinutes
+        }
+        compute()
+      }; wrapper.append(input); ruleGrid.append(wrapper)
     }
     const update = el('button', 'Oppdater forslag', 'secondary'); update.type = 'button'; update.onclick = compute
     ruleDetails.append(ruleSummary, ruleGrid, update); dialog.append(ruleDetails)
@@ -80,7 +87,10 @@ export function createReplanningView(actions) {
         const priorities = el('fieldset', '', 'comparison-priorities'); priorities.append(el('legend', 'Oppgaver i prioritert alternativ'))
         for (const task of state.tasks.filter(item => !item.completed)) {
           const label = el('label', '', 'check-label'), input = el('input'); input.type = 'checkbox'; input.value = task.id
-          input.onchange = () => { comparisonPriorityIds = [...priorities.querySelectorAll('input:checked')].map(item => item.value) }
+          input.onchange = () => {
+            comparisonPriorityIds = [...priorities.querySelectorAll('input:checked')].map(item => item.value)
+            if (host.querySelector('[data-comparison]') || selectedComparison) showComparison(host, error)
+          }
           label.append(input, document.createTextNode(task.title)); priorities.append(label)
         }
         const comparisonDetails = el('details'); comparisonDetails.append(el('summary', 'Sammenlign planalternativer'), priorities)
@@ -96,9 +106,14 @@ export function createReplanningView(actions) {
   }
 
   function showComparison(host, error) {
-    const comparison = comparePlans(actions.state(), { now: new Date(), priorityTaskIds: comparisonPriorityIds })
+    preview = null; selectedComparison = null; selectedScenarioId = null
+    const accept = dialog.querySelector('[data-accept]')
+    accept.disabled = true
+    const heading = el('h3', 'Sammenlign komplette planer'); heading.dataset.comparison = ''
+    host.replaceChildren(heading, el('p', 'Velg et alternativ før du kan bruke planen.'))
+    error.textContent = ''
+    const comparison = comparePlans(actions.state(), { now: new Date(), priorityTaskIds: comparisonPriorityIds, rules })
     if (!comparison.ok) { error.textContent = comparison.error; return }
-    host.replaceChildren(el('h3', 'Sammenlign komplette planer'), el('p', 'Alle alternativene er beregnet fra samme lagrede grunnlag. Ingenting lagres før du velger og bruker ett alternativ.'))
     for (const scenario of comparison.scenarios) {
       const card = el('article', '', 'replan-row'), title = el('h4', scenario.label)
       let missing = `${scenario.missingMaxMinutes} min mangler`
@@ -107,15 +122,12 @@ export function createReplanningView(actions) {
       }
       const omitted = `${scenario.omittedTasks} ${scenario.omittedTasks === 1 ? 'oppgave' : 'oppgaver'} med utelatt arbeid`
       const blockers = (scenario.blockedTasks || []).map(task => `«${task.title}»: ${task.reason}`)
-      card.append(title, el('p', scenario.preview.ok ? `${scenario.allocatedMinutes} min fordelt · ${scenario.remainingCapacityMinutes} min registrert kapasitet gjenstår · ${missing} · ${scenario.movedSessions} flyttes · ${omitted} · ${scenario.reviewSessions} repetisjonsøkter beholdes.` : scenario.error))
+      card.append(title, el('p', scenario.preview.ok ? `${scenario.allocatedMinutes} min fordelt (${scenario.retainedMinutes} min beholdes, ${scenario.newOrMovableMinutes} min ny eller flyttbar tid) · ${scenario.remainingCapacityMinutes} min registrert kapasitet gjenstår · ${missing} · ${scenario.movedSessions} flyttes · ${omitted} · ${scenario.reviewSessions} repetisjonsøkter beholdes.` : scenario.error))
       if (scenario.deadlineRisk) card.append(el('p', 'Fristrisiko: registrert arbeid er ikke dekket før fristene.', 'plan-problem'))
       if (scenario.identicalTo) card.append(el('p', `Samme resultat som ${comparison.scenarios.find(item => item.id === scenario.identicalTo)?.label || scenario.identicalTo}.`, 'muted'))
-      if (scenario.preview.ok && !scenario.feasible) {
-        let problem = 'Alternativet har kapasitetsmangel; ikke alt arbeid får plass.'
-        if (blockers.length) problem = 'Avklar blokkerte oppgaver før hele planen kan gjennomføres.'
-        else if (scenario.missingMaxMinutes === null && scenario.omittedTasks === 0) problem = 'Det kjente minimumet er dekket. Fullføring er fortsatt usikker.'
-        card.append(el('p', problem, 'plan-problem'))
-      }
+      if (blockers.length) card.append(el('p', 'Avklar blokkerte oppgaver før hele planen kan gjennomføres.', 'plan-problem'))
+      else if (scenario.missingMinMinutes > 0 || scenario.missingMaxMinutes > 0) card.append(el('p', 'Alternativet har kapasitetsmangel; ikke alt arbeid får plass.', 'plan-problem'))
+      for (const warning of scenario.pauseWarnings || []) card.append(el('p', warning, 'plan-problem'))
       for (const message of blockers) card.append(el('p', message, 'plan-problem'))
       for (const note of scenario.uncertainty || []) {
         if (!blockers.some(message => note.startsWith(message))) card.append(el('p', note, 'plan-problem'))
@@ -124,8 +136,10 @@ export function createReplanningView(actions) {
       choose.onclick = () => {
         if (scenario.keep) { close(); return }
         selectedComparison = structuredClone(comparison); selectedScenarioId = scenario.id
-        preview = selectedComparison.scenarios.find(item => item.id === selectedScenarioId).preview; renderPreview(host, error); dialog.querySelector('[data-accept]').disabled = !preview.changes?.length
-        dialog.querySelector('[data-accept]')?.focus()
+        preview = selectedComparison.scenarios.find(item => item.id === selectedScenarioId).preview
+        renderPreview(host, error)
+        accept.disabled = !preview.ok || !preview.changes?.length
+        accept.focus()
       }
       card.append(choose); host.append(card)
     }
@@ -134,10 +148,11 @@ export function createReplanningView(actions) {
   function compute() {
     const state = actions.state(), host = dialog.querySelector('.replanning-preview'), error = dialog.querySelector('[role=alert]')
     if (!host) return
+    if (host.querySelector('[data-comparison]') || selectedComparison) { showComparison(host, error); return }
     error.textContent = ''; host.replaceChildren(); selectedComparison = null; selectedScenarioId = null
     const availability = availabilityFor(state, { now: new Date(), choice: state.workWindows?.length ? 'saved' : choice || 'assumption' })
     const scoped = taskId ? [taskId] : undefined
-    const exploratory = Object.fromEntries(state.tasks.filter(task => (!scoped || scoped.includes(task.id)) && !task.completed && !getRemainingRange(task)).map(task => [task.id, 30]))
+    const exploratory = Object.fromEntries(state.tasks.filter(task => (!scoped || scoped.includes(task.id)) && !task.completed && !getRemainingRange(task)).map(task => [task.id, rules.sessionMinutes]))
     preview = createReplan(state, { rules, exploratory, availability, taskIds: scoped })
     dialog.querySelector('[data-accept]').disabled = !preview.ok || !preview.changes?.length
     if (!preview.ok) { error.textContent = preview.error; return }
@@ -146,6 +161,10 @@ export function createReplanningView(actions) {
 
   function renderPreview(host, error) {
     host.replaceChildren(); error.textContent = ''
+    if (selectedComparison) {
+      const selected = selectedComparison.scenarios.find(item => item.id === selectedScenarioId)
+      host.append(el('h3', `Valgt plan: ${selected.label}`))
+    }
     const conditional = preview.availability?.conditional
     host.append(el('p', conditional ? `Forslag hvis disse tidene passer. ${preview.availability.label}: ${preview.availability.detail}.` : `Forslag innen ${preview.availability?.label || 'registrert tid'}.`, conditional ? 'assumption-note' : ''))
     const created = preview.changes.filter(change => !change.original && change.proposed).length
@@ -165,6 +184,11 @@ export function createReplanningView(actions) {
       const edit = el('button', `Avklar «${blocked.title}»`, 'secondary'); edit.type = 'button'
       edit.onclick = () => { close(); actions.editTask?.(blocked.taskId, blocked.waiting ? 'waitingReason' : 'dependencyIds') }
       host.append(edit)
+    }
+    if (taskId && preview.blockedTasks?.some(blocked => !blocked.waiting)) {
+      host.append(el('p', 'I oppgavevisningen må forutsetningene være bekreftet ferdige. I ukeplanen kan du kontrollere om de har nok tid før denne oppgaven.'))
+      const week = el('button', 'Planlegg uken', 'secondary'); week.type = 'button'
+      week.onclick = () => { close(); actions.weekPlan?.() }; host.append(week)
     }
     if (!preview.changes.length) {
       const active = actions.state().tasks.filter(task => !task.completed && !task.submitted && (!taskId || task.id === taskId))
@@ -232,7 +256,7 @@ export function createReplanningView(actions) {
   }
 
   function apply(error, accept) {
-    if (applying) return
+    if (applying || !preview?.ok || !preview.changes?.length) return
     applying = true; accept.disabled = true
     const result = selectedComparison ? applyComparedPlan(actions.state(), selectedComparison, selectedScenarioId) : applyReplan(actions.state(), preview)
     if (!result.ok) { applying = false; accept.disabled = false; error.textContent = result.error; return }

@@ -229,7 +229,7 @@ describe('integrert arbeid, vurdering, eksport og sammenligning', () => {
     const now = new Date('2026-09-28T08:00:00Z')
     const comparison = comparePlans(state, { now })
     const [current, ...alternatives] = comparison.scenarios
-    expect(current).toMatchObject({ feasible: false, deadlineRisk: true, missingMinMinutes: 241, missingMaxMinutes: null, omittedTasks: 1 })
+    expect(current).toMatchObject({ feasible: false, deadlineRisk: Boolean(deadlineLocal), missingMinMinutes: 241, missingMaxMinutes: null, omittedTasks: 1 })
     for (const scenario of alternatives) {
       expect(scenario).toMatchObject({ feasible: false, deadlineRisk: false, missingMinMinutes: 0, missingMaxMinutes: null, omittedTasks: 0 })
       expect(scenario.allocatedMinutes).toBeGreaterThanOrEqual(241)

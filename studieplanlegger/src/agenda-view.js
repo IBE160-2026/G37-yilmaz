@@ -4,6 +4,7 @@ import { applyCourseColor, courseColorSlot, resolvedCourseId } from './course-co
 import { isExamEvent } from './event-kind.js'
 import { deadlineInstant, isOverdue } from './tasks.js'
 import { inspectDeadline } from './deadline.js'
+import { dayBounds } from './calendar-model.js'
 
 // One data source for the compact agenda, independent of the selected month.
 export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, courseFilter = '', now = new Date() }) {
@@ -13,9 +14,9 @@ export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, course
   const entries = []
   for (const event of planner.events || []) {
     const personal = event.activityKind === 'personal'
-    const sortTime = event.start ? Date.parse(event.start) : personal ? Date.parse(`${event.dateLocal}T12:00:00Z`) : NaN
+    const sortTime = event.start ? Date.parse(event.start) : personal ? dayBounds(event.dateLocal).start : NaN
     const expired = event.end ? Date.parse(event.end) <= +now : personal ? event.dateLocal < today : sortTime <= +now
-    if (event.cancelled || event.deleted || expired || (courseFilter && event.courseId !== courseFilter)) continue
+    if (event.cancelled || event.excluded || event.deleted || expired || !matchesCourse(event, courseFilter, course)) continue
     const start = event.start ? osloLocal(event.start) : `${event.dateLocal}T`, end = event.end ? osloLocal(event.end) : ''
     const subject = courses.find(item => item.id === event.courseId)
     entries.push({ key: `event:${event.id}`, id: event.id, kind: personal ? 'personal' : 'teaching', isExam: isExamEvent(event), title: event.title, sortTime,
@@ -101,7 +102,7 @@ export function createAgenda(host, actions) {
       const detail = [entry.course, entry.location, entry.occurrence, entry.warning, entry.ready ? 'Klar til levering' : ''].filter(Boolean).join(' · ')
       const title = entry.course && !entry.title.toLocaleUpperCase('nb').startsWith(entry.course.toLocaleUpperCase('nb')) ? `${entry.course} · ${entry.title}` : entry.title
       content.append(meta, node('span', 'agenda-item-title', title), node('span', 'agenda-item-details', detail))
-      button.setAttribute('aria-label', `${entry.isExam ? 'Eksamen, ' : ''}${entry.title}, ${entry.date}, ${time}${detail ? `, ${detail}` : ''}`)
+      button.setAttribute('aria-label', `${title}, ${entry.isExam ? 'Eksamen, ' : ''}${entry.date}, ${time}${detail ? `, ${detail}` : ''}`)
       button.append(stamp, content)
       li.append(button)
       list.append(li)

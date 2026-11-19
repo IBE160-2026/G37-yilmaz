@@ -33,5 +33,14 @@ export default defineConfig({
     { name: 'remote-trial-live', testMatch: 'own-trial-imports-live.spec.js' },
     { name: 'remote-live', testMatch: 'live.spec.js', grep: /live HiMolde IT|live public teaching for saved course: himolde|live NTNU course and teaching/ },
     { name: 'remote-persistence', testMatch: 'persistence.spec.js' },
+    {
+      name: 'remote-delivery-regressions',
+      testDir: './e2e',
+      testMatch: [
+        'delivery-accessibility.spec.js', 'delivery-calendar.spec.js', 'connected-document.spec.js',
+        'calendar-viewport-corrections.spec.js', 'own-trial-backup-import-race.spec.js',
+        'simple-planning-flow.spec.js', 'integrated-workflow.spec.js', 'himolde-program-repeat.spec.js',
+      ],
+    },
   ],
 })

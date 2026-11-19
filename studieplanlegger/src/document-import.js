@@ -35,7 +35,7 @@ export async function parseDocumentInput(input, { fileName = input?.name || 'Inn
     signal?.addEventListener('abort', abort, { once: true })
     worker.onmessage = ({ data }) => { if (data?.documentImport !== true) return; data.progress ? onProgress(data.progress) : finish(data.ok ? null : Object.assign(new Error(data.error || 'Dokumentet kunne ikke leses.'), { clarification: data.clarification }), data.parsed) }
     worker.onerror = () => finish(new Error('Dokumentet kunne ikke leses lokalt. Prøv tekst eller et enklere dokument; ingen data er lagret.'))
-    worker.postMessage({ buffer, options: { format, semester, year, encoding, columns } }, [buffer])
+    worker.postMessage({ buffer, options: { format, semester, year, encoding, columns, readAt: Date.now() } }, [buffer])
   })
 }
 

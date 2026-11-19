@@ -568,8 +568,9 @@ replanView = createReplanningView({ state: snapshot, commit: commitState, onClos
     draftId = id; editing = true; ui.open(task)
     queueMicrotask(() => document.querySelector(`#task-form [name="${field}"]`)?.focus())
   },
+  weekPlan() { if (canEdit()) { replanView.open(); refresh() } },
   advanced() { view = 'capacity'; refresh(); document.querySelector('.work-window-form input[name=startLocal]')?.focus() } })
-studySessionView = createStudySessionView({ onClose: refresh, finish(taskId, plannedMinutes, stepId, partial) { workView.open(taskId, undefined, partial ? 'more' : 'done', { plannedMinutes, stepId }); refresh() } })
+studySessionView = createStudySessionView({ onClose: refresh, finish(taskId, plannedMinutes, stepId, partial) { workView.open(taskId, undefined, partial ? 'more' : 'done', { plannedMinutes, stepId, partial }); refresh() } })
 workStepsView = createWorkStepsView({ state: snapshot, commit: commitState, onClose: refresh })
 onboarding = createOnboarding({
   begin() { if (!extras.onboarding) commitState({ ...snapshot(), onboarding: { dismissed: false, completed: false } }, 'Startet oppstart', { history: false }) },

@@ -1,4 +1,4 @@
-import { previewBackup, previewLocalRecovery, downloadBackup, exportBackup } from './backup.js'
+import { BACKUP_SIZE_ERROR, MAX_BACKUP_BYTES, BackupTooLarge, previewBackup, previewLocalRecovery, downloadBackup, exportBackup } from './backup.js'
 import { formatDay, formatDeadline } from './calendar.js'
 import { osloLocal } from './planner.js'
 import { createAppearanceSettings } from './appearance.js'
@@ -53,7 +53,22 @@ export function createDataTools(actions) {
     if (!entries.length) dialog.append(node('p', 'Papirkurven er tom.'))
     dialog.append(button('Lukk', close))
   }
-  const save = button('Eksporter sikkerhetskopi', () => { try { downloadBackup(exportBackup(actions.state())); feedback.textContent = 'Lokal fil er laget. Abonnementslenker og innlogging er utelatt; kilder må kobles til igjen ved gjenoppretting.' } catch (error) { feedback.textContent = error.message } })
+  function saveBackup(withoutUndo = false) {
+    const current = actions.state()
+    smallerCopy.hidden = true
+    const data = withoutUndo && current.history ? { ...current, history: { ...current.history, undo: [] } } : current
+    try {
+      downloadBackup(exportBackup(data))
+      feedback.textContent = `${withoutUndo ? 'Sikkerhetskopi uten Angre-historikk er lastet ned.' : 'Lokal fil er laget.'} Abonnementslenker og innlogging er utelatt. Kilder må kobles til igjen ved gjenoppretting.`
+    } catch (error) {
+      if (!(error instanceof BackupTooLarge)) { feedback.textContent = error.message; return }
+      smallerCopy.hidden = withoutUndo || !current.history?.undo.length
+      const nextStep = !smallerCopy.hidden ? 'Velg eksport uten Angre-historikk for å prøve en mindre kopi.' : serverStorage ? 'Ta en kopi av SQLite-databasen etter at den lokale serveren er stoppet.' : 'Reduser mengden lagrede data før du prøver på nytt.'
+      feedback.textContent = `Ingen fil ble lastet ned. ${BACKUP_SIZE_ERROR} ${nextStep}`
+    }
+  }
+  const save = button('Eksporter sikkerhetskopi', () => saveBackup())
+  const smallerCopy = button('Eksporter uten Angre-historikk', () => saveBackup(true)); smallerCopy.hidden = true
   const input = node('input'); input.type = 'file'; input.accept = '.json,application/json'; input.id = 'backup-file'; input.hidden = true
   const restore = button('Importer sikkerhetskopi', () => { invalidateImport(); feedback.textContent = ''; input.click() })
   input.addEventListener('cancel', () => { invalidateImport(); feedback.textContent = '' })
@@ -64,14 +79,14 @@ export function createDataTools(actions) {
     if (dialog.open) dialog.close()
     feedback.textContent = ''
     const file = input.files[0]; input.value = ''; if (!file) return
-    if (file.size > 20_000_000) { feedback.textContent = 'Filen må være mindre enn 20 MB.'; return }
+    if (file.size > MAX_BACKUP_BYTES) { feedback.textContent = BACKUP_SIZE_ERROR; return }
     try {
       const text = await file.text()
       if (request !== importRequest) return
       const value = previewBackup(text, actions.state())
       if (!value.ok) { feedback.textContent = value.error; return }
       showReplacement(value, file.name)
-    } catch { if (request === importRequest) feedback.textContent = 'Filen kunne ikke leses. Velg sikkerhetskopien på nytt.' }
+    } catch { if (request === importRequest) feedback.textContent = 'Filen kunne ikke leses. Velg sikkerhetskopien på nytt. Eksisterende plan er beholdt.' }
   }
   function showReplacement(value, filename) {
     const baseline = JSON.stringify(actions.state()); open('Forhåndsvis gjenoppretting')
@@ -98,12 +113,13 @@ export function createDataTools(actions) {
       const result = previewLocalRecovery(saved, actions.state())
       if (result.ok) {
         showReplacement(result)
+        if (saved.fallback) dialog.firstChild.after(node('p', 'En eldre, gyldig gjenopprettingskopi er tilgjengelig.'))
         if (saved.previous) dialog.append(button('Vis eldre gjenopprettingskopi', () => { const older = previewLocalRecovery(saved.previous, actions.state()); if (older.ok) showReplacement(older); else feedback.textContent = older.error }))
       } else feedback.textContent = result.error
     } catch (error) { feedback.textContent = error.message }
   })
   const menu = node('details'); menu.className = 'data-menu'; menu.append(node('summary', 'Data og sikkerhetskopi'))
-  const panel = node('div'); panel.append(node('p', 'En full sikkerhetskopi inneholder også Angre-historikk og papirkurv. Den kan derfor inneholde tidligere opplysninger som ikke lenger vises i oppgavene. Oppbevar filen privat.'), trash, save, restore, recovery, input); menu.append(panel)
+  const panel = node('div'); panel.append(node('p', 'En full sikkerhetskopi inneholder også Angre-historikk og papirkurv. Den kan derfor inneholde tidligere opplysninger som ikke lenger vises i oppgavene. Oppbevar filen privat.'), trash, save, smallerCopy, restore, recovery, input); menu.append(panel)
   menu.open = true
   host.append(node('h2', 'Innstillinger'), node('p', storageDescription), undo, menu, feedback)
   host.querySelector('h2').after(createAppearanceSettings())
@@ -138,7 +154,7 @@ export function createDataTools(actions) {
     for (const control of personalization.querySelectorAll('button')) control.disabled = !model.readable || model.editing
     const hasRecovery = !host.hidden && Boolean(actions.recovery())
     const next = JSON.stringify([model.view, model.readable, model.editing, model.history, hasRecovery]); if (next === signature) return; signature = next
-    for (const control of [undo, trash, save]) control.disabled = !model.readable || model.editing
+    for (const control of [undo, trash, save, smallerCopy]) control.disabled = !model.readable || model.editing
     restore.disabled = recovery.disabled = model.editing
     undo.disabled ||= !model.history?.undo.length
     recovery.disabled ||= !hasRecovery

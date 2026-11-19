@@ -146,3 +146,56 @@ test('backup import: a changed baseline still blocks replacement', async ({ page
   await expect(replacement(page).getByRole('alert')).not.toBeEmpty()
   expect(await saved(page)).toEqual(changed)
 })
+
+test('backup import rejects empty, malformed, null and unrelated JSON without touching either copy', async ({ page }) => {
+  await setup(page, { recovery: true })
+  const recovery = () => page.evaluate(() => localStorage.getItem('studieplanlegger:recovery:v1'))
+  const before = [await saved(page), await recovery()]
+  for (const [name, content, message] of [
+    ['tom.json', '', 'Sikkerhetskopien er tom'],
+    ['feil.json', '{', 'inneholder ugyldig JSON'],
+    ['null.json', 'null', 'Ugyldig sikkerhetskopi'],
+    ['annen.json', '{"oppgaver":[]}', 'Ugyldig sikkerhetskopi'],
+  ]) {
+    await select(page, name, content)
+    await finish(page, name)
+    await expect(replacement(page)).not.toBeVisible()
+    await expect(page.locator('#settings-panel > [role="status"]')).toContainText(message)
+    await expect(page.locator('#settings-panel > [role="status"]')).toContainText('Eksisterende plan er beholdt.')
+    expect([await saved(page), await recovery()]).toEqual(before)
+  }
+  await page.reload()
+  expect([await saved(page), await recovery()]).toEqual(before)
+})
+
+test('corrupt archived task links cannot alter either copy and the older valid recovery stays available', async ({ page }) => {
+  await setup(page, { recovery: true })
+  const backupWithConflict = conflictingId => {
+    const plan = { schemaVersion: 1, tasks: [task('A'), task('B')] }
+    plan.workLogs = [{ id: 'log', operationId: 'operation', taskId: 'A', sessionId: 'session', outcome: 'more', at: '2026-09-03T09:30:00Z',
+      actualMinutes: 30, plannedMinutes: 30, remainingMinutes: 10, interrupted: false, historyComplete: false,
+      taskSnapshot: plan.tasks[0], sessionSnapshot: { id: 'session', taskId: conflictingId, dateLocal: '2026-09-03', startTime: '11:00', endTime: '11:30' } }]
+    return plan
+  }
+  const recoveries = await page.evaluate(invalidPlan => {
+    const recoveryKey = 'studieplanlegger:recovery:v1'
+    const journal = { savedAt: '2026-11-04T10:00:00Z', raw: JSON.stringify(invalidPlan), previous: JSON.parse(localStorage.getItem(recoveryKey)) }
+    localStorage.setItem(recoveryKey, JSON.stringify(journal))
+    return JSON.stringify(journal)
+  }, backupWithConflict('B'))
+  const before = await saved(page)
+  for (const id of ['B', 'unknown']) {
+    const file = `${id}.json`
+    await select(page, file, JSON.stringify({ ...JSON.parse(backup('unused')), data: backupWithConflict(id) }))
+    await finish(page, file)
+    await expect(replacement(page)).not.toBeVisible()
+    await expect(page.locator('#settings-panel > [role="status"]')).toContainText('gyldige koblinger')
+    expect(await saved(page)).toEqual(before)
+    expect(await page.evaluate(() => localStorage.getItem('studieplanlegger:recovery:v1'))).toBe(recoveries)
+  }
+  await page.getByRole('button', { name: 'Gjenopprett forrige kopi', exact: true }).click()
+  await expect(replacement(page)).toContainText('En eldre, gyldig gjenopprettingskopi er tilgjengelig.')
+  await replacement(page).getByRole('button', { name: 'Erstatt lokale data', exact: true }).click()
+  await page.reload()
+  expect((await saved(page)).tasks.map(task => task.id)).toEqual(['recovered'])
+})

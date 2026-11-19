@@ -1,6 +1,6 @@
 # Aktiviteter og oppfølging
 
-Oppfølgingen bygger på [retting og dokumentert egenutprøving](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md). Den 4. november ble listen oppdatert etter [fullført personlig sjuscenarioprøve og Start-tillegg](../.docs/implementation-artifacts/owner-trial-2026-11-04.md). Etter prosjekteierens sluttbekreftelse 2026-11-01 er de konkrete omprøvingene bestått som **egenutprøving utført av prosjekteier**; tekniske prøver føres separat. [Leveringsoversikten](../README.md#leveringsoversikt) og [samlede begrensninger med V1-betydning](../studieplanlegger/README.md#kjente-begrensninger-ved-levering) er gjeldende innganger. Eldre loggseksjoner bevarer statusen på sine tidspunkter.
+Oppfølgingen bygger på [retting og dokumentert egenutprøving](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md). Prosjekteieren bekreftet resultatene fra omprøvingene 1. november. Den 4. november ble listen oppdatert etter [fullført personlig sjuscenarioprøve og Start-tillegg](../.docs/implementation-artifacts/owner-trial-2026-11-04.md). Tekniske prøver føres separat. [Leveringsoversikten](../README.md#leveringsoversikt) og [samlede begrensninger med V1-betydning](../studieplanlegger/README.md#kjente-begrensninger-ved-levering) er gjeldende innganger. Eldre loggseksjoner bevarer statusen på sine tidspunkter.
 
 Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere ønske; Manrope-fontnavnene er rettet til TrueType. Se [Sluttrapport og leveringskontroll med datert oppfølging](993-2026-11-01-22-34-20-ajour-sluttleveranse.md). Ingen nye produktpunkter følger av oppryddingen. Oppfølgingen av funn 1–4 er avsluttet. Dagens filer er ikke bevis på ren historikk. Se [oppryddingsrapporten](../.docs/implementation-artifacts/history-cleanup-2026-11-09.md).
 
@@ -10,7 +10,9 @@ Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere øn
 
 - [ ] 2026-11-13 [Epic 4-oppfølging](982-2026-11-12-21-38-19-fristvalg-og-utproving.md) — Den eldre, CSS-skjulte emneagendaens cache bruker dato i stedet for nøyaktig tidspunkt. Et tidsfilter kan derfor forbli utdatert innen samme dag uten endring i data eller emnevalg. A4 retter rekkefølgen; denne separate oppdateringsbegrensningen er ikke lukket.
 
-- [ ] 2026-11-04 [Auditoppfølging](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) — A-04: kontroll av grenbeskyttelse og påkrevd **Ajour quality** på `main` gjenstår.
+- [ ] 2026-11-19 A-04: GitHubs gren-API bekreftet at `main` er ubeskyttet og har null påkrevde kontroller. En administrator må aktivere grenbeskyttelse eller et regelsett dersom teamet vil kreve grønn **Ajour quality** før sammenslåing. [Auditoppfølging](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md)
+
+- [ ] 2026-11-19 Dependabot-PR #30 er åpen. Den endrer fem avhengigheter i pakkemanifest og låsefil. Begge registrerte **Ajour quality**-kontroller feilet. PR-en trenger egen feilavklaring og ny CI før eventuell sammenslåing. [Dependabot-PR #30](https://github.com/IBE160-2026/G37-yilmaz/pull/30)
 
 - [ ] 2026-11-04 [Plattformkontroll](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) — Vercels rate-/samtidighetsgrenser og forbruksvarsler er ikke verifisert. Per-forespørselsbudsjett og same-origin-vern er ikke global ratebegrensning. Ingen betalt tjeneste eller nytt prosjekt er bestilt.
 

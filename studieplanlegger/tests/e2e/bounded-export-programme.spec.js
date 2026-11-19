@@ -18,7 +18,7 @@ async function seedState(page, state, view) {
 async function openProgram(page) {
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
   return page.locator('.program-import')
 }
 async function settleDayCalendarLayout(page) {
@@ -207,10 +207,10 @@ test('actual programme selector uses Norwegian name and tie ordering while prese
   await expect(host.locator('input[name=alternative-z-group][value=z-option]')).toBeChecked()
   await expect(host.locator('input[name=alternative-a-group][value=same-b]')).toBeChecked()
   expect(await raw(page)).toBe(unchanged)
-  await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-  await expect(host.getByRole('button', { name: 'Bekreft programimport', exact: true })).toBeEnabled()
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeEnabled()
   await expect(host.locator('.import-preview article.course-card > h4')).toHaveText(['COURSE-Z Årlig emne', 'COURSE-B Lik B'])
-  await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
   await expect(host.locator('.program-action-status')).toContainText('2 emner er lagret samlet')
   const imported = (await saved(page)).planner.courses
   expect(imported.map(course => course.id)).toEqual(['course-z', 'course-b'])

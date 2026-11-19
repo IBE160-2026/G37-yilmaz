@@ -22,7 +22,7 @@
 
 **Teknisk oppfølging 2026-11-02:** [Oppgave- og stegidentitet](../implementation-artifacts/work-step-identity-2026-11-02.md) avklarer den første Codex-rapportens testantakelse og dokumenterer den separate navngitte Start-flyten, retting og tekniske kontroller. Oppgavearbeid er fortsatt gyldig uten stegkobling. Codex-prøvene erstatter ikke prosjekteierens R-07; eldre daterte resultater beholdes.
 
-PRD-en og brukerhistoriene ble **rekonstruert 2026-10-16** mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae00268`. De beskriver funksjonalitet som allerede var utviklet. Arbeidet fulgte opp lærerens krav om avgrenset V1, sjekkbare kriterier, tekniske detaljer i arkitekturen og synlig kontroll av KI-generert arbeid.
+PRD-en og brukerhistoriene ble **rekonstruert 2026-10-16** mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae00268` fra historikken før oppryddingen. De beskriver funksjonalitet som allerede var utviklet. Arbeidet fulgte opp lærerens krav om avgrenset V1, sjekkbare kriterier, tekniske detaljer i arkitekturen og synlig kontroll av KI-generert arbeid. [Verifiserbar revisjon av brief, PRD og stories 16. oktober](https://github.com/IBE160-2026/G37-yilmaz/commit/79623313e9e96575f79c548d3394665ec18cce38)
 
 **PRD-presisering 2026-11-02:** [Gjeldende PRD](PRD.md) skiller de tre planleggingsfunksjonene og synliggjør eksisterende bruksgrenser og nyttehypoteser. [Scenariooversikten fra 2. november](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) bevarer det daværende dekningsforbeholdet som historikk; [egenutprøvingen 3.–4. november](../implementation-artifacts/owner-trial-2026-11-04.md) lukker dette forbeholdet. Sjuscenariokravet, V1 og tidligere daterte resultater er uendret.
 
@@ -85,7 +85,7 @@ Rapporten bygger på prosjekteierens leverte tekst og egne svar; opplysningen om
 
 ## Vurderingsgrunnlag kontrollert 2026-10-16
 
-- Tilbakemeldingen av 2026-10-06 vurderer brief ved `5e23204` og angir konkrete rettelser for G37.
+- Tilbakemeldingen av 2026-10-06 vurderer brief ved `5e23204` fra historikken før oppryddingen og angir konkrete rettelser for G37. [Faglærerens opprinnelige tilbakemelding](../../tilbakemelding-product-brief.md)
 - «Sensorveiledning IBE160 - Del 1 applikasjon og prosess.pdf», høst 2026, sju sider, er lest i sin helhet som brukerlevert lokalt vedlegg. SHA-256: `a0069856666a32e2e5c886fe1c46ade1d666a99bf800bc42b9e20113adc2e509`. PDF-en er ikke lagt i Git; identifikasjonen gjør det mulig å kontrollere samme utgave uten personlige filstier. Framtidige oppdrag må få tilgang til vedlegget eller relevant offisiell utgave, ikke behandle dette sammendraget som hele kilden.
 - [Vurderingsområdene med bevis og mangler](TRACEABILITY.md#sensorveiledningens-sju-områder) bruker de veiledende vektene uten å sette karakter. Veiledningen vurderer del 1 (70 % av mappen); personlig refleksjon tilhører del 2. Den er et grunnlag for faglig skjønn, ikke en automatisk godkjenning.
 
@@ -140,6 +140,6 @@ Sensorvedlegget «Sensorveiledning IBE160 - Del 1 applikasjon og prosess.pdf», 
 
 ## Historikk og personvern
 
-Commit `1a39aaf450c3ff4a59908fd8caba9de10230b9a6` inneholder historiske filer på `.docs/planning-artifacts/prds/prd-studieplanlegger-2026-09-06/prd.md`, `.docs/planning-artifacts/epics.md` og `.docs/planning-artifacts/briefs/brief-studieplanlegger-2026-09-06/brief.md`. Den gamle lokale PRD-kopien ble fjernet etter prosjekteierens ønske 2026-11-02; [PRD.md](PRD.md) er eneste gjeldende PRD. Øvrige lokale ignorerte historiske kopier beholdes urørt. Gamle krav om obligatorisk emne/frister/tid og bare nettleserlagring er erstattet av registrering med bare tittel og støtte for både publisert nettutgave og lokal Node-/Docker-drift med SQLite; gamle FR/NFR-ID-er er historiske.
+Commit `1a39aaf450c3ff4a59908fd8caba9de10230b9a6` fra historikken før oppryddingen inneholder de opprinnelige filene på `.docs/planning-artifacts/prds/prd-studieplanlegger-2026-09-06/prd.md`, `.docs/planning-artifacts/epics.md` og `.docs/planning-artifacts/briefs/brief-studieplanlegger-2026-09-06/brief.md`. Den gamle lokale PRD-kopien ble fjernet etter prosjekteierens ønske 2026-11-02. [PRD.md](PRD.md) er gjeldende PRD. De gamle FR/NFR-ID-ene er historiske. Dagens app støtter registrering med bare tittel, publisert nettutgave og lokal Node-/Docker-drift med SQLite.
 
 `EPICS-CURRENT.md` brukes fordi den private historiske `epics.md` kolliderer med `EPICS.md` på Windows. Ingen historisk privat fil er omdøpt eller gjort leveringsklar for å fylle et dokumentasjonshull. **Uttrykkelig unntak 2026-11-01:** Prosjekteieren autoriserte først sluttrapporten som Markdown og Word. Word-kopien ble senere fjernet etter prosjekteierens ønske; gjeldende unntak gjelder bare `.docs/submission/reflection-report.md`, med uendret rapporttekst. Eldre private refleksjonsutkast, inkludert `.docs/implementation-artifacts/project-reflection.md`, rårapporter, rålogger, interne notater, personlige testdata, sikkerhetskopier, databaser og runtimefiler forblir lokale/ignorerte. Rapporten er tilgjengelig gjennom GitHub-dokumentasjonen og holdes utenfor appens `public/`, brukergrensesnitt og Vercel-opplastingsutvalg.

@@ -34,7 +34,7 @@ async function choosePeriodWithCourses(host) {
 async function runImport(page, sample) {
   await navigate(page, 'subjects')
   await page.getByRole('button', { name: 'Finn studieprogram', exact: true }).click()
-  await page.getByRole('button', { name: 'Fra lærested', exact: true }).click()
+  await page.getByRole('button', { name: 'Studieprogram', exact: true }).click()
   const host = page.locator('.program-import')
   await host.locator('[name=institution]').selectOption(sample.id)
   await host.locator('[name=programQuery]').fill(sample.query)
@@ -59,10 +59,10 @@ async function runImport(page, sample) {
   const choices = host.locator('.activity-choices input[type=checkbox]')
   await expect.poll(() => choices.count(), { timeout: 30_000 }).toBeGreaterThan(0)
   if (!await host.locator('.activity-choices input[type=checkbox]:checked').count()) await choices.first().check()
-  await host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true }).click()
-  await expect(host.getByRole('button', { name: 'Bekreft programimport', exact: true })).toBeVisible({ timeout: 30_000 })
+  await host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ }).click()
+  await expect(host.getByRole('button', { name: /^Legg til \d+ emner$/ })).toBeVisible({ timeout: 30_000 })
   const preview = await host.locator('.import-preview').innerText()
-  await host.getByRole('button', { name: 'Bekreft programimport', exact: true }).click()
+  await host.getByRole('button', { name: /^Legg til \d+ emner$/ }).click()
   await expect(host.getByRole('status')).toContainText(/lagret/i)
   return { program, cohort, model, period, preview }
 }

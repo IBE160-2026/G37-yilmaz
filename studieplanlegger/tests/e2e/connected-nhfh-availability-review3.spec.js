@@ -43,8 +43,8 @@ test('R11 captured NHFH unavailable academic year blocks both semesters without 
   await host.locator('[name=programCampus]').selectOption('Oslo')
   await host.locator('.activity-choices').getByRole('checkbox').first().check()
   await expect(host.locator('.activity-choices')).toContainText('Studiet tilbys ikke studieåret 2026/2027')
-  const preview = host.getByRole('button', { name: 'Forhåndsvis valgte emner', exact: true })
-  const confirm = host.getByRole('button', { name: 'Bekreft programimport', exact: true })
+  const preview = host.getByRole('button', { name: /^(Forbered og kontroller undervisning for|Forhåndsvis \d+ emner|Velg emner$)/ })
+  const confirm = host.getByRole('button', { name: /^Legg til \d+ emner$/ })
   for (const [year, semester] of [['2026', 'autumn'], ['2027', 'spring']]) {
     await host.locator('[name=clarifiedYear]').fill(year)
     await host.locator('[name=clarifiedSemester]').selectOption(semester)
