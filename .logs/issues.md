@@ -8,6 +8,8 @@ Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere øn
 
 ### Kjente tekniske begrensninger
 
+- [ ] 2026-11-19 [Sluttkontroll etter ce8babe](975-2026-11-19-23-55-00-ajour-sluttkontroll.md) — Originalmatrisens generator og rader, samt de vedleggsspesifikke reproduksjonene for emnefarge og kalendervisning, krever den eksterne testpakken. Den nyere versjonerte matrisen er et separat testgrunnlag.
+
 - [x] 2026-11-13 [Epic 4-oppfølging](982-2026-11-12-21-38-19-fristvalg-og-utproving.md) — K03: Den eldre emneagendaen oppdateres når en frist eller undervisningsslutt passerer. Nettleserprøven flyttet klokken gjennom begge grensene uten omlasting eller endring av emne (løst 2026-11-19). [Leveringsregresjonene](976-2026-11-19-21-31-13-ajour-leveringsregresjoner.md)
 
 - [ ] 2026-11-19 A-04: GitHubs gren-API bekreftet at `main` er ubeskyttet og har null påkrevde kontroller. En administrator må aktivere grenbeskyttelse eller et regelsett dersom teamet vil kreve grønn **Ajour quality** før sammenslåing. [Auditoppfølging](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md)
