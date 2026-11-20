@@ -8,7 +8,7 @@ Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere øn
 
 ### Kjente tekniske begrensninger
 
-- [ ] 2026-11-19 [Sluttkontroll etter ce8babe](975-2026-11-19-23-55-00-ajour-sluttkontroll.md) — Originalmatrisens generator og rader, samt de vedleggsspesifikke reproduksjonene for emnefarge og kalendervisning, krever den eksterne testpakken. Den nyere versjonerte matrisen er et separat testgrunnlag.
+- [ ] 2026-11-20 [Sluttkontroll etter ce8babe](975-2026-11-19-23-55-00-ajour-sluttkontroll.md#oppfølging-2026-11-20) — Den nyere versjonerte matrisen bestod 1 800 alternativer på `a0ea535`. Originalmatrisens generator og avviksrader mangler. De konkrete emnefarge- og kalendertilfellene fra 20. november er gjenskapt. Øvrige vedleggsspesifikke eksempler krever den eksterne testpakken. [Teknisk sluttkontroll](../studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20)
 
 - [x] 2026-11-13 [Epic 4-oppfølging](982-2026-11-12-21-38-19-fristvalg-og-utproving.md) — K03: Den eldre emneagendaen oppdateres når en frist eller undervisningsslutt passerer. Nettleserprøven flyttet klokken gjennom begge grensene uten omlasting eller endring av emne (løst 2026-11-19). [Leveringsregresjonene](976-2026-11-19-21-31-13-ajour-leveringsregresjoner.md)
 
@@ -18,7 +18,7 @@ Sluttrapporten er innarbeidet bare som Markdown etter prosjekteierens senere øn
 
 - [ ] 2026-11-04 [Plattformkontroll](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) — Vercels rate-/samtidighetsgrenser og forbruksvarsler er ikke verifisert. Per-forespørselsbudsjett og same-origin-vern er ikke global ratebegrensning. Ingen betalt tjeneste eller nytt prosjekt er bestilt.
 
-- [ ] 2026-10-29 [KI-assistert mengdetesting](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md) — F03 (fri tekst uten kjent importformat) og F05 (NHH/FHS/Samisk kildevalg) står åpne; ingen generell støtte for alle 25 læresteder er bekreftet. F06 er fulgt opp separat nedenfor.
+- [ ] 2026-10-29 [KI-assistert mengdetesting](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md) — F03 (fri tekst uten kjent importformat) står fremdeles åpent per 20. november fordi originalen mangler. F05 (NHH/FHS/Samisk kildevalg) ligger utenfor avtalt V1. F06 er fulgt opp separat nedenfor.
 
 - [ ] 2026-11-01 [Avgrensede kilder](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md) — NTNUs samlede programkatalog returnerer tomt før filtrering; separate emne-/planendepunkter fungerer. UiTs Applied Computer Science-PDF 941723 har åtte niukersterminer med ECTS-tabell som ikke støttes som semesterfordeling. Begrensningene forklares, men kildene fylles ikke med gjetninger.
 

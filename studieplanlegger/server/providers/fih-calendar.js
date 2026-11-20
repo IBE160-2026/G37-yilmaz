@@ -5,21 +5,26 @@ import { readLdhPdf } from './ldh-pdf.js'
 const studentUrl = 'https://fih.fjellhaug.no/student'
 const sourceGuard = input => restrictedUrl(input, { origin: 'https://fih.fjellhaug.no', paths: [/^\/student\/?$/, /^\/ikt-verkt(?:%C3%B8|ø)y\/webcalfiler\/?$/, /^\/files\/uploads\/Instruksjoner\/[^/]+\.pdf$/] })
 const hash = text => createHash('sha256').update(text).digest('hex')
-// Two attempts for each of the three ordered reads fit within the 50s hosted budget.
+// The two publication checks and the calendar attempts fit within the 50s hosted budget.
 export const FIH_READ_TIMEOUT_MS = 7500
+export const FIH_CALENDAR_RETRY_TIMEOUT_MS = 5000
 const transportTimeouts = new Set(['ERR_PUBLIC_SOURCE_IDLE_TIMEOUT', 'ETIMEDOUT'])
+const calendarTransportErrors = new Set(['ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND', 'EHOSTUNREACH', 'ENETUNREACH', 'EPIPE'])
 
 async function readFihSource(fetchSource, stage, read, { calendar = false } = {}) {
   if (!fetchSource) return read(fetchSource)
-  let lastError, timedOut = false
-  for (const retry of [false, true]) {
+  let lastError, timeoutPhase, timedOut = false
+  for (let index = 0; index < (calendar ? 3 : 2); index++) {
     const outerSignal = fetchSource.signal
     outerSignal?.throwIfAborted()
     const attempt = new AbortController()
     const signal = outerSignal ? AbortSignal.any([outerSignal, attempt.signal]) : attempt.signal
+    const retry = index > 0
+    let phase
     const timedFetch = Object.assign((url, redirects, validate, options) =>
       fetchSource(url, redirects, validate, {
         ...options, signal, freshConnection: calendar || retry, edupageTls12: calendar && !retry,
+        edupageResolve4: calendar && index === 2, onEdupageStage: value => { phase = value },
       }), {
       signal, cacheKey: fetchSource.cacheKey || fetchSource,
     })
@@ -28,15 +33,15 @@ async function readFihSource(fetchSource, stage, read, { calendar = false } = {}
       abort = () => reject(signal.reason)
       signal.addEventListener('abort', abort, { once: true })
     })
-    const timer = setTimeout(() => attempt.abort(), FIH_READ_TIMEOUT_MS)
+    const timer = setTimeout(() => attempt.abort(), calendar && retry ? FIH_CALENDAR_RETRY_TIMEOUT_MS : FIH_READ_TIMEOUT_MS)
     try {
       return await Promise.race([read(timedFetch), aborted])
     } catch (error) {
       outerSignal?.throwIfAborted()
       const code = error?.code ?? error?.cause?.code ?? error?.cause?.cause?.code
       const expired = attempt.signal.aborted || transportTimeouts.has(code)
-      if (!expired && code !== 'ECONNRESET') throw error
-      timedOut ||= expired
+      if (!expired && code !== 'ECONNRESET' && !(calendar && calendarTransportErrors.has(code))) throw error
+      if (expired) { timedOut = true; timeoutPhase = phase }
       lastError = error
     } finally {
       clearTimeout(timer)
@@ -44,7 +49,8 @@ async function readFihSource(fetchSource, stage, read, { calendar = false } = {}
     }
   }
   if (timedOut) {
-    throw Object.assign(new Error(`Det tok for lang tid å hente ${stage}. Prøv igjen eller importer kalenderen som .ics-fil. Lagrede data er beholdt.`), {
+    const detail = timeoutPhase ? ` Siste tidsavbrudd: ${timeoutPhase}.` : ''
+    throw Object.assign(new Error(`Det tok for lang tid å hente ${stage}.${detail} Prøv igjen eller importer kalenderen som .ics-fil. Lagrede data er beholdt.`), {
       status: 'timeout', httpStatus: 504,
     })
   }

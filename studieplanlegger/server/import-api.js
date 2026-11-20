@@ -1,5 +1,5 @@
 import https from 'node:https'
-import { lookup } from 'node:dns/promises'
+import { lookup, resolve4 } from 'node:dns/promises'
 import { load } from 'cheerio'
 import { providerRequest } from './providers/index.js'
 import { safeSourceError, sourceTransportError } from './providers/source-error.js'
@@ -26,7 +26,7 @@ export function isPublicIPv4(address) {
   const [a, b, c] = address.split('.').map(Number)
   return /^\d+\.\d+\.\d+\.\d+$/.test(address) && a > 0 && a < 224 && ![10, 127].includes(a) && !(a === 100 && b >= 64 && b <= 127) && !(a === 169 && b === 254) && !(a === 172 && b >= 16 && b <= 31) && !(a === 192 && (b === 168 || b === 0 || (b === 88 && c === 99))) && !(a === 198 && [18, 19, 51].includes(b)) && !(a === 203 && b === 0 && c === 113)
 }
-export async function fetchPublicBytes(input, redirects = 0, validateUrl, { signal, usnCatalogue, anonymousShare, anonymousSession, freshConnection, edupageTls12, maxBytes = 2_000_000 } = {}) {
+export async function fetchPublicBytes(input, redirects = 0, validateUrl, { signal, usnCatalogue, anonymousShare, anonymousSession, freshConnection, edupageTls12, edupageResolve4, onEdupageStage, maxBytes = 2_000_000 } = {}) {
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 10_000_000) throw new Error('Ugyldig grense for offentlig kildehenting.')
   signal?.throwIfAborted()
   const url = new URL(input.replace(/^webcal:/i, 'https:'))
@@ -45,14 +45,21 @@ export async function fetchPublicBytes(input, redirects = 0, validateUrl, { sign
     if (url.href !== 'https://s293.usn.no/v2/studieplan//' || redirects !== 0 || !/^(20\d{2}|2100)$/.test(String(usnCatalogue.year)) || !['HØST', 'VÅR'].includes(usnCatalogue.semester) || Object.keys(usnCatalogue).some(key => !['year', 'semester'].includes(key))) throw new Error('Ugyldig offentlig USN-katalogsøk.')
     body = JSON.stringify({ faculty: '*', semester: usnCatalogue.semester, year: String(usnCatalogue.year), study: '' })
   }
-  const addresses = await lookup(url.hostname, { family: 4, all: true })
+  const isEdupage = url.origin === 'https://fih.edupage.org' && url.pathname === '/webcal'
+  const report = isEdupage ? onEdupageStage : undefined
+  const alternateDns = isEdupage && edupageResolve4
+  report?.('DNS-oppslag')
+  const addresses = alternateDns
+    ? (await resolve4(url.hostname)).map(address => ({ address, family: 4 }))
+    : await lookup(url.hostname, { family: 4, all: true })
   signal?.throwIfAborted()
   if (!addresses.length || addresses.some(entry => !isPublicIPv4(entry.address))) throw new Error('Lenken må peke til en offentlig kalender, ikke en lokal nettverksadresse.')
+  const address = alternateDns ? addresses.at(-1) : addresses[0]
   const response = await new Promise((resolve, reject) => {
-    const options = { signal, ...(freshConnection ? { agent: false } : {}), headers: { Accept: 'text/calendar,text/html,application/json;q=0.9', 'User-Agent': 'Studieplanlegger/1.0' }, lookup: (_host, options, callback) => options.all ? callback(null, [addresses[0]]) : callback(null, addresses[0].address, 4) }
+    const options = { signal, ...(freshConnection ? { agent: false } : {}), headers: { Accept: 'text/calendar,text/html,application/json;q=0.9', 'User-Agent': 'Studieplanlegger/1.0' }, lookup: (_host, options, callback) => options.all ? callback(null, [address]) : callback(null, address.address, 4) }
     // This verified public calendar was slow to negotiate TLS 1.3. Keep
     // certificate checks and limit the compatibility attempt to this endpoint.
-    if (edupageTls12 && url.origin === 'https://fih.edupage.org' && url.pathname === '/webcal') {
+    if (edupageTls12 && isEdupage) {
       options.minVersion = 'TLSv1.2'
       options.maxVersion = 'TLSv1.2'
     }
@@ -60,7 +67,13 @@ export async function fetchPublicBytes(input, redirects = 0, validateUrl, { sign
     if(cookieJar?.size)options.headers.Cookie=[...cookieJar].map(([key,value])=>`${key}=${value}`).join('; ')
     if(anonymousSession?.referer){options.headers.Referer=anonymousSession.referer;options.headers['X-Requested-With']='XMLHttpRequest'}
     if (body) { options.method = 'POST'; options.headers['Content-Type'] = 'application/json;charset=UTF-8'; options.headers['Content-Length'] = Buffer.byteLength(body) }
-    const request = body ? https.request(url, options, resolve) : https.get(url, options, resolve)
+    const receive = response => { report?.('responsinnhold'); resolve(response) }
+    report?.('TCP-oppkobling')
+    const request = body ? https.request(url, options, receive) : https.get(url, options, receive)
+    if (report) request.once('socket', socket => {
+      socket.once('connect', () => report('TLS-håndtrykk'))
+      socket.once('secureConnect', () => report('responsheadere'))
+    })
     request.setTimeout(12000, () => request.destroy(Object.assign(new Error('Hentingen tok for lang tid. Prøv igjen eller last opp en .ics-fil.'), { code: 'ERR_PUBLIC_SOURCE_IDLE_TIMEOUT' })))
     request.on('error', reject)
     if (body) request.end(body)

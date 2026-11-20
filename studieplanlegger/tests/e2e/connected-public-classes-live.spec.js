@@ -26,6 +26,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
   const pageErrors = []
   page.on('pageerror', error => pageErrors.push(error.message))
   await page.goto('/')
+  await expect(page.locator('#today-label')).not.toBeEmpty()
   expect(await saved()).toBeNull()
   let first
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -82,7 +83,11 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
     const expectedSelection = selectAllActivities ? expectedEvents.length : 1
     expect(await rows.locator('input[data-field=selected]:checked').count()).toBe(attempt ? expectedSelection : 0)
     if (selectAllActivities) {
-      await (await reveal(preview.getByRole('button', { name: 'Velg alle aktiviteter', exact: true }))).click()
+      if (!attempt) await (await reveal(preview.getByRole('button', { name: 'Velg alle aktiviteter', exact: true }))).click()
+      const groups = preview.locator('select[data-control^="course-choice:"]')
+      for (const group of await groups.all()) {
+        if (await group.inputValue() === '?') await (await reveal(group)).selectOption({ label: 'Uten emne' })
+      }
     } else {
       await choice.check()
     }
@@ -99,7 +104,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
     }
     expect(await saved()).toEqual(before)
     await (await reveal(preview.getByRole('button', { name: 'Importer valgte', exact: true }))).click()
-    await expect(form.getByRole('status')).toContainText('Institusjonskalender lagret')
+    await expect(form.getByRole('status').filter({ hasText: 'Institusjonskalender lagret' })).toBeVisible()
     const state = await saved()
     expect(state.planner.courses).toEqual([])
     expect(state.tasks).toEqual([])

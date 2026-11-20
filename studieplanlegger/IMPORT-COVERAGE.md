@@ -2,6 +2,12 @@
 
 **Samordnet 2026-10-25:** Import støtter den lokale oppgave-/planleggingsflyten. Kalender- og personvernrettingene utvider ikke kildeutvalget. [Importavtalen](IMPORT.md) beskriver atferden, mens [verifikasjonsoversikten](VERIFICATION.md) oppsummerer daterte resultater og skiller syntetiske prøver fra faktisk kildetransport. Personvernminimerte kildefixturer bevarer parserkontraktene; de dokumenterer ikke ny live-tilgang, personlig gruppedekning eller studentnytte.
 
+## Leveringskontroll av import 2026-11-20
+
+Den reviderte kandidaten `a0ea535ac8e8668f19f7a38b9f636fd2920312d2` retter import av endrede frister og følger opp tidsavbruddene mot Fjellhaugs BTFL 1. år fra PDF-oversikten for høsten 2026. For dette kildevalget ble tidsavbruddet på `b077401` isolert til EduPage-kallet etter PDF-oppslaget. Dokument- og kildeprøvene med versjonsgrunnlag står i [sluttkontrollen 20. november](VERIFICATION.md#sluttkontroll-2026-11-20).
+
+F03 står åpent i sluttkontrollen fordi originaleksemplet mangler. F05 for NHH, FHS og Samisk høgskole ligger utenfor den avtalte V1-dekningen. Matrisene og kildeobservasjonene nedenfor gjelder sine oppgitte datoer. De nyere resultatene i sluttkontrollen gjelder de angitte eksemplene.
+
 ## Avgrenset kildeoppfølging — 2026-11-01
 
 De faktiske offentlige forespørslene kl. 16:21–16:25 Europe/Oslo ga resultatene nedenfor, separat fra syntetiske UI-prøver. NTNUs samlede programindeks svarte HTTP 200 med null dokumenter før søkefiltrering; komplett 2026-katalog er derfor ikke bekreftet. UI-en sier nå at kilden er tom, gir offentlig kildelenke og viser alternativet for ett emne. Direkte MTDT-kull/plan var fortsatt tilgjengelig, uten bekreftet programcampus. TDT4109-emnesøk ga Trondheim og faktisk lenket undervisning ga **115 beholdte hendelser**. Dette bekrefter det konkrete emneforløpet, ikke full programdekning. [Verifikasjonsoversikten](VERIFICATION.md#begrensninger-og-gjenstående-arbeid) oppsummerer de gjenværende kildebegrensningene.
@@ -221,13 +227,13 @@ Institusjonskalenderen støtter Plandisc som kapasitetsfri informasjon, HØFY og
 
 **Programimportens ene institusjonsrestkrav.** AHO-restkravet er løst med offisielle studieplansider og verifisert anonym transport. Ekko har ingen gjeldende selvstendig program-/kullkatalog etter den dokumenterte fusjonen med ONH; historisk Ekko-import krever et offisielt arkiv eller studentens dokument. De tidligere 403-observasjonene for Nord, UiA, UiO, Molde, NIH og HiØ er erstattet av HTTP 200-kontroller og implementerte adaptere. Skrivekunstakademiets faktiske struktur er implementert uten kunstige underemner. Manuell registrering og dokumentimport er fortsatt alternativer og telles ikke som direkte institusjonsintegrasjon.
 
-**Bevis og gjenstående arbeid.** [VERIFICATION.md](VERIFICATION.md) oppgir daterte nettleser- og serverkontroller. Offentlige fixturer er regresjonsgrunnlag, ikke nye nettleserakseptanser, og lokale rårapporter følger ikke Git-klonen. Nasjonal full dekning (T3), manglende kildefelt og det presise Ekko-restkravet holdes åpne; antall fungerende eksempler lukker ikke disse kravene.
+**Historisk status 20. september 2026 ved `354a9ab9`.** På denne versjonen stod T3, manglende kildefelt og historisk Ekko-import åpne. Offentlige fixturer gir regresjonsgrunnlag. [Verifikasjonen](VERIFICATION.md) oppgir daterte nettleser- og serverkontroller, med nyeste status 20. november øverst.
 
 Den strømlinjeformede importen endrer ikke institusjonsdekningen i tabellen. Den gjenbruker allerede støttede offentlige undervisningskilder: bare ett unikt, eksakt emnekodetreff kan forberedes automatisk, mens nummererte eller mangelfullt identifiserte grupper forblir eksplisitte studentvalg. Lagrede serievalg, utelatelser og nye ventende grupper er kildeavgrenset og beholdes ved oppdatering.
 
-- **T3 / full nasjonal dekning — satt på pause.** Kravet er først oppfylt når ønsket institusjons- og datatypeomfang er eksplisitt avtalt og hver påstått flyt har kilde-, lagrings- og gjentakelseskontroll. Videre utvidelse krever en ny, avgrenset bestilling.
-- **Manglende kildefelt — åpent per rad i matrisen.** Et felt kan bare løftes når en egnet offentlig kilde eller studentens uttrykkelig valgte data dokumenterer det; appen skal ikke utlede campus, gruppe, semester eller personlig plan fra svake signaler.
-- **Ekko — åpent historisk kildekrav.** Det kan lukkes med et offisielt historisk program-/kullarkiv eller et studentdokument som kan importeres med synlig proveniens. Nåværende ONH-tilbud eller Ekko Digitale Fagskole skal ikke ommerkes som den tidligere høyskolen.
+- **T3 / full nasjonal dekning.** Satt på pause 20. september. Per 20. november er nasjonal dekning fortsatt en visjon utenfor V1. [V1-avgrensningen](../brief.md)
+- **Manglende kildefelt.** Status gjelder hver rad i den daterte matrisen. Et felt kan oppdateres når en egnet offentlig kilde eller studentens uttrykkelig valgte data dokumenterer det.
+- **Ekko.** Historisk kildebehov ved 20. september-kontrollen. Historisk import kan bruke et offisielt program-/kullarkiv eller et studentdokument med synlig kilde. Ekko ligger utenfor avtalt V1 per 20. november.
 
 ## Historisk materiale
 

@@ -1,15 +1,15 @@
 import { EventEmitter } from 'node:events'
 import { Readable } from 'node:stream'
 import https from 'node:https'
-import { lookup } from 'node:dns/promises'
+import { lookup, resolve4 } from 'node:dns/promises'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createHostedImportHandler } from '../../server/hosted-import.js'
 import { fetchPublicBytes, fetchPublicText, importMiddleware, readImportBody } from '../../server/import-api.js'
 import { hostedCalendarSource, hostedSourceGuard } from '../../server/hosted-import-policy.js'
-import { FIH_READ_TIMEOUT_MS } from '../../server/providers/fih-calendar.js'
+import { FIH_CALENDAR_RETRY_TIMEOUT_MS, FIH_READ_TIMEOUT_MS } from '../../server/providers/fih-calendar.js'
 import { programProviders } from '../../server/providers/programs.js'
 
-vi.mock('node:dns/promises', () => ({ lookup: vi.fn() }))
+vi.mock('node:dns/promises', () => ({ lookup: vi.fn(), resolve4: vi.fn() }))
 afterEach(() => { vi.restoreAllMocks(); vi.clearAllMocks() })
 
 // All identifiers and course content below are invented security/test data.
@@ -225,13 +225,34 @@ describe('recognized sources and all outgoing fetches', () => {
       return fihCalendar
     })
     const result = await request({ body: fihBody, dependencies: { fetchTextImpl } })
-    expect(reads).toBe(2)
+    expect(reads).toBe(persistent ? 3 : 2)
     if (persistent) {
       expect(result).toMatchObject({ status: 400, body: { status: 'transport-error', error: 'Fikk ikke kontakt med lærestedet. Prøv igjen senere. Lagrede data er beholdt.' } })
       expect(JSON.stringify(result.body)).not.toContain(privateDetail)
     } else {
       expect(result).toMatchObject({ status: 200, body: { sourceKind: 'fih-public-class', className: 'Syntetisk klasse', count: 0 } })
     }
+  })
+
+  it('queries DNS directly after two stalled lookups and pins a verified public address', async () => {
+    vi.useFakeTimers()
+    try {
+      lookup.mockImplementation(() => new Promise(() => {}))
+      resolve4.mockResolvedValueOnce(['8.8.8.8', '93.184.216.34'])
+      const get = vi.spyOn(https, 'get').mockImplementation((url, options, callback) => {
+        options.lookup(url.hostname, { all: true }, (_error, addresses) =>
+          expect(addresses).toEqual([{ address: '93.184.216.34', family: 4 }]))
+        callback(Object.assign(Readable.from([Buffer.from(fihCalendar)]), { statusCode: 200, headers: {} }))
+        return Object.assign(new EventEmitter(), { setTimeout() {} })
+      })
+      const fetchTextImpl = (url, depth, guard, options) => fihListings[url] || fetchPublicText(url, depth, guard, options)
+      const result = request({ body: fihBody, dependencies: { fetchTextImpl } })
+      await vi.advanceTimersByTimeAsync(FIH_READ_TIMEOUT_MS + FIH_CALENDAR_RETRY_TIMEOUT_MS)
+      await expect(result).resolves.toMatchObject({ status: 200, body: { sourceKind: 'fih-public-class' } })
+      expect(lookup).toHaveBeenCalledTimes(2)
+      expect(resolve4).toHaveBeenCalledExactlyOnceWith('fih.edupage.org')
+      expect(get).toHaveBeenCalledOnce()
+    } finally { lookup.mockReset(); vi.useRealTimers() }
   })
 
   it('retries a stalled Fjellhaug DNS lookup without opening a socket for the cancelled attempt', async () => {
@@ -270,11 +291,12 @@ describe('recognized sources and all outgoing fetches', () => {
         return new Promise(() => {})
       }
       const result = request({ body: fihBody, dependencies: { fetchTextImpl } })
-      await vi.advanceTimersByTimeAsync(2 * FIH_READ_TIMEOUT_MS)
+      const calendar = stalledSource === fihCalendarUrl
+      await vi.advanceTimersByTimeAsync(calendar ? FIH_READ_TIMEOUT_MS + 2 * FIH_CALENDAR_RETRY_TIMEOUT_MS : 2 * FIH_READ_TIMEOUT_MS)
       const { status, body } = await result
       expect(status).toBe(504)
       expect(body).toEqual({ status: 'timeout', error: `Det tok for lang tid å hente ${stage}. Prøv igjen eller importer kalenderen som .ics-fil. Lagrede data er beholdt.` })
-      expect(stalledSignals).toHaveLength(2)
+      expect(stalledSignals).toHaveLength(calendar ? 3 : 2)
       expect(stalledSignals.every(signal => signal.aborted)).toBe(true)
     } finally { vi.useRealTimers() }
   })

@@ -56,3 +56,29 @@ Leveransen står åpen fordi originalmatrisen og de andre vedleggsspesifikke rep
 - Den andre gjennomgangen oppgir 40 gjenstående avvik i originalmatrisen på `ce8babe`, ned fra 175. Søket omfattet 83 GitHub-trær fra grener, PR-er og Actions, 34 PR-er, 37 kommentarer og 72 Actions-kjøringer. GitHub viste ingen nedlastbare artefakter eller utgivelsesvedlegg. Den nye matrisen i repoet og det separate 09.30-tilfellet er egne prøver. [Historiske resultater](976-2026-11-19-21-31-13-ajour-leveringsregresjoner.md) · [PR #33](https://github.com/IBE160-2026/G37-yilmaz/pull/33)
 - HiMolde-prøven verifiserte grenen med bacheloroppgave. Grenen med to valgemner viser fortsatt hele den publiserte emnelisten. Originalpakkens konkrete prøver for emnefarge etter tømming av nettleserdata og visning av lange deløkter og korte kalenderhendelser krever de opprinnelige reproduksjonene.
 - F03, F05 og plattformpunktene står i [sakslisten](issues.md). GitHub bekreftet at `main` er ubeskyttet, og at Dependabot #30 er åpen med feilede sjekker. Vercels kontokvoter og macOS er uverifisert.
+
+<a id="oppfølging-2026-11-20"></a>
+
+## 2026-11-20 kl. 13.20 — Codex
+
+### Oppgave
+
+Rette og omprøve de konkrete leveransefunnene, samordne dokumentasjonen og kontrollere at leveranseversjonen samsvarer med GitHub og produksjon. Faglærerens tilbakemelding om sjekkbare kriterier, studentens godkjenning og sporbar kvalitetssikring ligger til grunn. [Faglærertilbakemeldingen](../tilbakemelding-product-brief.md)
+
+### Plan
+
+- Gjenskape nominelle og tvetydige fristimporter, transportavbrudd, kalender- og lagringsfunn, planberegninger og gammel økt-ID.
+- Bruke isolerte nettleserprofiler og testdatabaser. Knytte alle resultater til versjon og prøvemiljø.
+- Kontrollere kommandoveiledning, lenker og historiske opplysninger. Samle resultatene under Leveringsoversikt i README.
+
+### Resultat
+
+Koderettingene og de nye regresjonsprøvene ligger i `a0ea535ac8e8668f19f7a38b9f636fd2920312d2`. Fjellhaug-avbruddene på `b077401` ble isolert til EduPage-oppslaget etter PDF-lesing. Rettingen prøver TLS 1.2 først for den ene kilden. 220 målrettede enhetstester, inkludert de 1 800 alternativene i nyere planmatrise, bestod på den nye kandidaten. Den samlede tekniske oppsummeringen viser hvert funn, omprøving, versjon og resultat. [Sluttkontrollen](../studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20) · [PR #34](https://github.com/IBE160-2026/G37-yilmaz/pull/34)
+
+Loggen med løpenummer 975 ble opprettet på kandidatgrenen i `3bbd5ed`. Henvisningen i README går til denne filen på GitHub. Kl. 13.55 den 19. november gjelder en Git-commit. Mottakstidspunktet i innleveringssystemet fremgår ikke av repoet. [Leveringsstatus](../.docs/planning-artifacts/README.md#leveringsstatus)
+
+### Åpne punkter
+
+- Ny sluttkontroll og publiseringsbevis føres fortløpende med verifisert commit i [PR #34](https://github.com/IBE160-2026/G37-yilmaz/pull/34).
+- Originalgrunnlaget for de tidligere avviksradene og F03 mangler. F05 gjelder kilder utenfor avtalt V1. [Sakslisten](issues.md)
+- GitHub bekreftet ubeskyttet `main` og åpen Dependabot-PR #30 med feilede sjekker. Vercels kontokvoter og varsler og macOS-kjøring er uverifisert. Byggstørrelsesvarselet følges under [sluttkontrollen](../studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20).

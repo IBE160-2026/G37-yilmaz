@@ -56,6 +56,8 @@ Avgrensningen og [rekonstruerte planer fra 16. oktober](.docs/planning-artifacts
 
 ## Leveringsoversikt
 
+**[Sluttkontroll 20. november 2026](studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20).** Her finner sensor resultatene fra omprøvingen av leveransefunnene og kontrollen av publisert versjon. [Prosjektloggen på GitHub](https://github.com/IBE160-2026/G37-yilmaz/blob/main/.logs/975-2026-11-19-23-55-00-ajour-sluttkontroll.md#oppfølging-2026-11-20) · [PR #34](https://github.com/IBE160-2026/G37-yilmaz/pull/34) · [Gjeldende versjonsmarkør](https://ajour-sooty.vercel.app/release.json)
+
 **Teknisk oppfølging 4. november:** [Importrekkefølge og kvalitetskontroller](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) samler de to bekreftede feilene ved overlappende filvalg, retting med regresjonstester, avhengighetskontroll og avgrenset sikkerhets-/nettleseroppfølging. Rapporten angir faktisk test- og publiseringsstatus; tidligere grønne tester alene lukker ikke de nye funnene.
 
 **Prosjekteierens sju scenarier og tilleggsprøven for navngitt Start er bestått 3.–4. november.** [Prøverapporten](.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktisk gjennomføring, rettet prøveutførelse og metodegrenser. Den inkluderer gjenoppretting i et separat, tomt Chrome Gjest-miljø og lukker det tidligere dekningsforbeholdet for SC-07/R-07. Tidligere daterte omprøvinger, SC-07/1200–30 og Outlook-prøven beholder sine resultater. [Automatiske kontroller](studieplanlegger/VERIFICATION.md) er et separat bevisgrunnlag.

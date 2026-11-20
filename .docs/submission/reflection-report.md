@@ -218,7 +218,7 @@ Prosjektrepo: [https://github.com/IBE160-2026/G37-yilmaz](https://github.com/IBE
 
 Publisert applikasjon: [https://ajour-sooty.vercel.app/](https://ajour-sooty.vercel.app/)
 
-Henvisningene nedenfor viser til prosjektmateriale og undervisningsfiler. Prosjektets daterte testresultater og begrensninger finnes i verifikasjonen og prøveplanen.
+Henvisningene nedenfor viser til prosjektmateriale og undervisningsfiler. Rapportteksten beskriver erfaringene fra arbeidet frem til rapportdatoen. Senere tekniske testresultater, begrensninger og samsvar med publisert versjon føres i [sluttkontrollen 20. november 2026](../../studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20). [Gjeldende versjonsmarkør](https://ajour-sooty.vercel.app/release.json)
 
 [1] G37 – Git Happens (2026). README.md; studieplanlegger/README.md; package.json; ARCHITECTURE-SPINE.md. Ajour, prosjektarkiv per 1. november 2026.
 
