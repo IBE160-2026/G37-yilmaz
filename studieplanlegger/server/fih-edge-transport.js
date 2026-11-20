@@ -33,13 +33,13 @@ async function boundedFihText(message, limit, signal) {
   }
 }
 
-export function createFihEdgeFallback(host, deploymentHost, fetchImpl = fetch) {
-  const origin = deploymentOrigin(host, deploymentHost) ?? deploymentOrigin(deploymentHost, deploymentHost)
+export function createFihEdgeFallback(host, deploymentHost, fetchImpl = (...args) => globalThis.fetch(...args)) {
+  const origin = deploymentOrigin(deploymentHost, deploymentHost) ?? deploymentOrigin(host, deploymentHost)
   if (!origin) return undefined
   return async ({ sourceUrl, sourceObjectId, catalogueUrl }, signal) => {
     const timeout = AbortSignal.timeout(13_000)
     const bounded = signal ? AbortSignal.any([signal, timeout]) : timeout
-    const response = await fetchImpl(new URL(fihEdgePath, origin), {
+    const response = await fetchImpl(new URL(fihEdgePath, origin).href, {
       method: 'POST', redirect: 'error', cache: 'no-store',
       signal: bounded,
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourceUrl, sourceObjectId, catalogueUrl }),
@@ -65,7 +65,7 @@ const responseHeaders = {
   'X-Content-Type-Options': 'nosniff',
 }
 
-export function createFihEdgeHandler(deploymentHost, fetchImpl = fetch) {
+export function createFihEdgeHandler(deploymentHost, fetchImpl = (...args) => globalThis.fetch(...args)) {
   return async request => {
     const reply = (status, error) => Response.json({ error }, { status, headers: responseHeaders })
     const route = new URL(request.url)
@@ -83,15 +83,18 @@ export function createFihEdgeHandler(deploymentHost, fetchImpl = fetch) {
     } catch { return reply(400, 'Ugyldig Fjellhaug-valg.') }
     if (!calendar) return reply(400, 'Ugyldig Fjellhaug-valg.')
     const options = { signal, redirect: 'error', cache: 'no-store' }
-    let stage = 'bekreftelsen mot Fjellhaugs publiserte klasseliste'
+    let stage = 'oppslaget av Fjellhaugs publiserte klasseliste'
     try {
-      const listing = await fetchImpl(new URL('/api/import/calendar-sources/fih', origin), options)
+      // Use the fixed public catalogue endpoint. The preview Edge hostname
+      // and the production Node hostname are independently routed.
+      const listing = await fetchImpl(`https://${productionHost}/api/import/calendar-sources/fih`, options)
       if (!listing.ok) return reply(502, `Fjellhaugs publiserte klasseliste svarte med HTTP ${listing.status}.`)
+      stage = 'lesing av Fjellhaugs publiserte klasseliste'
       const { results } = JSON.parse(await boundedFihText(listing, 300_000, signal))
       if (!Array.isArray(results) || !results.some(row => row?.sourceUrl === selected.sourceUrl &&
         row.catalogueUrl === selected.catalogueUrl && row.sourceObjectId === selected.sourceObjectId)) return reply(400, 'Valget finnes ikke i de publiserte Fjellhaug-oversiktene.')
       stage = 'hentingen fra EduPage'
-      const upstream = await fetchImpl(calendar, {
+      const upstream = await fetchImpl(calendar.href, {
         ...options,
         headers: { Accept: 'text/calendar,text/html,application/json;q=0.9', 'User-Agent': 'Studieplanlegger/1.0' },
       })

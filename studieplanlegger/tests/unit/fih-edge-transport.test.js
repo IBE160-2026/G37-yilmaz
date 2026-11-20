@@ -19,8 +19,8 @@ it('uses only the trusted deployment and published calendar with abort and redir
   const nodeFetch = vi.fn((url, options) => handler(new Request(url, options)))
   const fallback = createFihEdgeFallback('synthetic-branch-alias.vercel.app', host, nodeFetch)
   await expect(fallback(selected, new AbortController().signal)).resolves.toBe(calendar)
-  expect(nodeFetch.mock.calls[0][0].href).toBe(edgeUrl)
-  expect(edgeFetch.mock.calls.map(([url]) => url.href)).toEqual([`https://${host}/api/import/calendar-sources/fih`, selected.sourceUrl])
+  expect(nodeFetch.mock.calls[0][0]).toBe(edgeUrl)
+  expect(edgeFetch.mock.calls.map(([url]) => url)).toEqual(['https://ajour-sooty.vercel.app/api/import/calendar-sources/fih', selected.sourceUrl])
   for (const [, options] of [...nodeFetch.mock.calls, ...edgeFetch.mock.calls]) {
     expect(options).toMatchObject({ redirect: 'error', cache: 'no-store', signal: expect.any(AbortSignal) })
   }
