@@ -1,5 +1,6 @@
 import { importMiddleware } from './import-api.js'
 import { hostedImportPolicy } from './hosted-import-policy.js'
+import { createFihEdgeFallback } from './fih-edge-transport.js'
 
 function jsonError(res, status, error) {
   if (res.writableEnded || res.destroyed) return
@@ -12,7 +13,8 @@ function jsonError(res, status, error) {
 export function createHostedImportHandler(dependencies = {}) {
   return async (req, res) => {
     try {
-      await importMiddleware(req, res, () => jsonError(res, 404, 'API-endepunktet finnes ikke.'), { ...dependencies, hostedPolicy: { ...hostedImportPolicy, ...dependencies.hostedPolicy } })
+      const fihFallback = process.env.VERCEL === '1' ? createFihEdgeFallback(req.headers.host, process.env.VERCEL_URL) : undefined
+      await importMiddleware(req, res, () => jsonError(res, 404, 'API-endepunktet finnes ikke.'), { fihFallback, ...dependencies, hostedPolicy: { ...hostedImportPolicy, ...dependencies.hostedPolicy } })
     } catch {
       // Runtime/parser errors must not echo request bodies or source secrets.
       jsonError(res, 400, 'Ugyldig importforespørsel. Bruk filimport eller manuell registrering.')

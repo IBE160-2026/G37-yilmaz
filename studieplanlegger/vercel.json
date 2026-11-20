@@ -21,6 +21,7 @@
       },
       "continue": true
     },
+    { "src": "/api/import/fih-edge", "dest": "/api/fih-edge" },
     { "src": "/api(?:/.*)?", "dest": "/api/handler" },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }

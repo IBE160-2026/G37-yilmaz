@@ -116,7 +116,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
       expect(state.planner).toEqual(first.planner)
       expect(state.importSources[0].id).toBe(first.importSources[0].id)
     } else first = state
-    evidence.runs.push({ responseStatus: response.status(), responseMs, rawSourceEvents: result.count, validPreviewEvents: expectedEvents.length, proposedCourses: expectedCourses.length, unresolvedSourceRows: (result.unresolved || []).length, selectedEvents: expectedSelection, savedEvents: state.planner.events.length, savedCourses: state.planner.courses.length, savedTasks: state.tasks.length, savedSources: state.importSources.length, selectedEvent: selectedFields, sourceId: state.importSources[0].id })
+    evidence.runs.push({ responseStatus: response.status(), responseMs, transport: response.headers()['x-ajour-fjellhaug-transport'] || 'node', rawSourceEvents: result.count, validPreviewEvents: expectedEvents.length, proposedCourses: expectedCourses.length, unresolvedSourceRows: (result.unresolved || []).length, selectedEvents: expectedSelection, savedEvents: state.planner.events.length, savedCourses: state.planner.courses.length, savedTasks: state.tasks.length, savedSources: state.importSources.length, selectedEvent: selectedFields, sourceId: state.importSources[0].id })
     await page.reload()
     expect((await saved()).planner).toEqual(state.planner)
     expect((await saved()).importSources).toEqual(state.importSources)
