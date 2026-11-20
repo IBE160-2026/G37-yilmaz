@@ -8,6 +8,7 @@
   "functions": {
     "api/handler.js": {
       "maxDuration": 60,
+      "regions": ["fra1"],
       "includeFiles": "{server/providers/**,node_modules/pdfjs-dist/legacy/build/**,node_modules/@napi-rs/canvas/**,node_modules/@napi-rs/canvas-*/**}"
     }
   },
