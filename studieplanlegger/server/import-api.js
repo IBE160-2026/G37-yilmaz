@@ -183,7 +183,7 @@ export async function readImportBody(req, { maxBytes = 8192, signal } = {}) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('Oppgi en kalenderlenke.')
   return body
 }
-export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicText, fetchBytesImpl = fetchPublicBytes, providerRequestImpl = providerRequest, hostedPolicy } = {}) {
+export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicText, fetchBytesImpl = fetchPublicBytes, providerRequestImpl = providerRequest, fihFallback, hostedPolicy } = {}) {
   let timer
   const send = (status, data, headers = {}) => {
     clearTimeout(timer)
@@ -257,7 +257,16 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
       if (isPublicTpCalendarUrl(calendarUrl) && new URL(calendarUrl).searchParams.get('type') === 'course') return send(200, await fetchPublicTpCalendar(calendarUrl, { fetchText }))
       if (isPublicPlandiscUrl(calendarUrl)) return send(200, await fetchPlandiscCalendar(calendarUrl, { fetchText }))
       if (new URL(calendarUrl).origin === 'https://ansgarskolenno-my.sharepoint.com') return send(200, await fetchAnsgarCalendar(calendarUrl, { fetchText, fetchBytes }))
-      if (new URL(calendarUrl).origin === 'https://fih.edupage.org') return send(200, await fetchFihCalendar(calendarUrl, { sourceObjectId, catalogueUrl, fetchText, fetchBytes }))
+      if (new URL(calendarUrl).origin === 'https://fih.edupage.org') {
+        let edgeUsed = false
+        const fallback = fihFallback && (async selected => {
+          const calendar = await fihFallback(selected, controller.signal)
+          edgeUsed = true
+          return calendar
+        })
+        const data = await fetchFihCalendar(calendarUrl, { sourceObjectId, catalogueUrl, fetchText, fetchBytes, fallback })
+        return send(200, data, edgeUsed ? { 'X-Ajour-Fjellhaug-Transport': 'edge' } : {})
+      }
       if (/^https:\/\/s3-gustav\.imgix\.net\/hfy\/[^?#]+\.pdf$/.test(calendarUrl)) return send(200, await fetchHfyCalendar(calendarUrl, { fetchText, fetchBytes }))
       if (/^https:\/\/img1\.wsimg\.com\/blobby\/go\/[^?#]+\.pdf$/.test(calendarUrl)) return send(200, await fetchGestaltCalendar(calendarUrl, { sourceObjectId, fetchText, fetchBytes }))
       if (/^https:\/\/www\.politihogskolen\.no\/for-studenter\/eksamen\/eksamensoversikt-(ba|ma)\/?$/.test(calendarUrl)) return send(200, await fetchPhsExamCalendar(calendarUrl, { fetchText }))

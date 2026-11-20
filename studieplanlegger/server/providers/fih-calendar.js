@@ -146,6 +146,16 @@ export async function fetchFihCalendar(input, deps) {
   const selected = rows.find(row => row.sourceUrl === url.href)
   if (!selected) fail('invalid-selection', 'Velg en klassekalender fra FIHs publiserte oversikter.')
   const guard = input => { const next = fihCalendarUrl(input); if (next.href !== url.href) fail('source-changed', 'Klassekalenderen videresendte til en annen kilde.'); return next }
-  const calendar = await readFihSource(deps.fetchText, 'den valgte klassekalenderen fra EduPage', fetch => cachedText(fetch, url.href, guard), { calendar: true })
+  let calendar
+  try {
+    calendar = await readFihSource(deps.fetchText, 'den valgte klassekalenderen fra EduPage', fetch => cachedText(fetch, url.href, guard), { calendar: true })
+  } catch (error) {
+    if (!deps.fallback || !['timeout', 'transport-error'].includes(error.status)) throw error
+    deps.fetchText.signal?.throwIfAborted()
+    try { calendar = await deps.fallback(selected) } catch {
+      deps.fetchText.signal?.throwIfAborted()
+      throw error
+    }
+  }
   return parseFihCalendar(calendar, selected)
 }
