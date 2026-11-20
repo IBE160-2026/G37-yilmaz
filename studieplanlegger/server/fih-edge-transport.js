@@ -83,16 +83,21 @@ export function createFihEdgeHandler(deploymentHost, fetchImpl = fetch) {
     } catch { return reply(400, 'Ugyldig Fjellhaug-valg.') }
     if (!calendar) return reply(400, 'Ugyldig Fjellhaug-valg.')
     const options = { signal, redirect: 'error', cache: 'no-store' }
+    let stage = 'bekreftelsen mot Fjellhaugs publiserte klasseliste'
     try {
       const listing = await fetchImpl(new URL('/api/import/calendar-sources/fih', origin), options)
-      if (!listing.ok) return reply(502, 'Kunne ikke bekrefte publisert Fjellhaug-valg.')
+      if (!listing.ok) return reply(502, `Fjellhaugs publiserte klasseliste svarte med HTTP ${listing.status}.`)
       const { results } = JSON.parse(await boundedFihText(listing, 300_000, signal))
       if (!Array.isArray(results) || !results.some(row => row?.sourceUrl === selected.sourceUrl &&
         row.catalogueUrl === selected.catalogueUrl && row.sourceObjectId === selected.sourceObjectId)) return reply(400, 'Valget finnes ikke i de publiserte Fjellhaug-oversiktene.')
-      const upstream = await fetchImpl(calendar, options)
-      if (!upstream.ok) return reply(502, 'Kunne ikke hente den publiserte Fjellhaug-kalenderen.')
+      stage = 'hentingen fra EduPage'
+      const upstream = await fetchImpl(calendar, {
+        ...options,
+        headers: { Accept: 'text/calendar,text/html,application/json;q=0.9', 'User-Agent': 'Studieplanlegger/1.0' },
+      })
+      if (!upstream.ok) return reply(502, `EduPage svarte med HTTP ${upstream.status}.`)
       const data = await boundedFihText(upstream, maximumCalendarBytes, signal)
       return new Response(data, { headers: { ...responseHeaders, 'Content-Type': 'text/calendar; charset=utf-8' } })
-    } catch { return reply(502, 'Kunne ikke hente den publiserte Fjellhaug-kalenderen.') }
+    } catch { return reply(502, `Reservehentingen stoppet under ${stage}.`) }
   }
 }
