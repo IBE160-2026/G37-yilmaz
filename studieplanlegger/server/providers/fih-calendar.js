@@ -5,15 +5,48 @@ import { readLdhPdf } from './ldh-pdf.js'
 const studentUrl = 'https://fih.fjellhaug.no/student'
 const sourceGuard = input => restrictedUrl(input, { origin: 'https://fih.fjellhaug.no', paths: [/^\/student\/?$/, /^\/ikt-verkt(?:%C3%B8|ø)y\/webcalfiler\/?$/, /^\/files\/uploads\/Instruksjoner\/[^/]+\.pdf$/] })
 const hash = text => createHash('sha256').update(text).digest('hex')
-const retryableRead = new Set(['ERR_PUBLIC_SOURCE_IDLE_TIMEOUT', 'ECONNRESET', 'ETIMEDOUT'])
+// Two attempts for each of the three ordered reads fit within the 50s hosted budget.
+export const FIH_READ_TIMEOUT_MS = 7500
+const transportTimeouts = new Set(['ERR_PUBLIC_SOURCE_IDLE_TIMEOUT', 'ETIMEDOUT'])
 
-async function readFihText(fetchText, href, validate) {
-  try { return await cachedText(fetchText, href, validate) }
-  catch (error) {
-    const code = error?.code ?? error?.cause?.code ?? error?.cause?.cause?.code
-    if (!retryableRead.has(code)) throw error
-    return fetchText(href, 0, validate, { freshConnection: true })
+async function readFihSource(fetchSource, stage, read, { fresh = false } = {}) {
+  if (!fetchSource) return read(fetchSource)
+  let lastError, timedOut = false
+  for (const freshConnection of [fresh, true]) {
+    const outerSignal = fetchSource.signal
+    outerSignal?.throwIfAborted()
+    const attempt = new AbortController()
+    const signal = outerSignal ? AbortSignal.any([outerSignal, attempt.signal]) : attempt.signal
+    const timedFetch = Object.assign((url, redirects, validate, options) =>
+      fetchSource(url, redirects, validate, { ...options, signal, freshConnection }), {
+      signal, cacheKey: fetchSource.cacheKey || fetchSource,
+    })
+    let abort
+    const aborted = new Promise((_, reject) => {
+      abort = () => reject(signal.reason)
+      signal.addEventListener('abort', abort, { once: true })
+    })
+    const timer = setTimeout(() => attempt.abort(), FIH_READ_TIMEOUT_MS)
+    try {
+      return await Promise.race([read(timedFetch), aborted])
+    } catch (error) {
+      outerSignal?.throwIfAborted()
+      const code = error?.code ?? error?.cause?.code ?? error?.cause?.cause?.code
+      const expired = attempt.signal.aborted || transportTimeouts.has(code)
+      if (!expired && code !== 'ECONNRESET') throw error
+      timedOut ||= expired
+      lastError = error
+    } finally {
+      clearTimeout(timer)
+      signal.removeEventListener('abort', abort)
+    }
   }
+  if (timedOut) {
+    throw Object.assign(new Error(`Det tok for lang tid å hente ${stage}. Prøv igjen eller importer kalenderen som .ics-fil. Lagrede data er beholdt.`), {
+      status: 'timeout', httpStatus: 504,
+    })
+  }
+  throw lastError
 }
 export function fihCalendarUrl(input) {
   const url = restrictedUrl(input, { origin: 'https://fih.edupage.org', paths: [/^\/webcal$/], keys: ['pwd', 'type', 'studentid'] })
@@ -53,16 +86,18 @@ export function parseFihCalendarPdf(pages, catalogueUrl) {
   return result
 }
 async function publishedOverviews(fetchText) {
-  const $ = load(await readFihText(fetchText, studentUrl, sourceGuard)), sources = new Set()
+  const html = await readFihSource(fetchText, 'Fjellhaugs studentside', fetch => cachedText(fetch, studentUrl, sourceGuard))
+  const $ = load(html), sources = new Set()
   $('a[href]').each((_, anchor) => { if (!/webcalfiler/i.test(clean($(anchor).text()))) return; const url = sourceGuard(new URL($(anchor).attr('href'), studentUrl)); sources.add(url.href) })
   if (!sources.size) fail('source-changed', 'FIHs studentside publiserer ingen klassekalenderoversikt.')
   return sources
 }
 
 async function readOverview(url, { fetchText, fetchBytes }) {
+  const stage = 'den valgte kalenderoversikten fra Fjellhaug'
   return url.endsWith('.pdf')
-    ? parseFihCalendarPdf(await readLdhPdf(fetchBytes, url, sourceGuard), url)
-    : parseFihCalendarHtml(await cachedText(fetchText, url, sourceGuard), url)
+    ? parseFihCalendarPdf(await readFihSource(fetchBytes, stage, fetch => readLdhPdf(fetch, url, sourceGuard)), url)
+    : parseFihCalendarHtml(await readFihSource(fetchText, stage, fetch => cachedText(fetch, url, sourceGuard)), url)
 }
 
 export async function fihCalendarSources(deps) {
@@ -103,5 +138,6 @@ export async function fetchFihCalendar(input, deps) {
   const selected = rows.find(row => row.sourceUrl === url.href)
   if (!selected) fail('invalid-selection', 'Velg en klassekalender fra FIHs publiserte oversikter.')
   const guard = input => { const next = fihCalendarUrl(input); if (next.href !== url.href) fail('source-changed', 'Klassekalenderen videresendte til en annen kilde.'); return next }
-  return parseFihCalendar(await readFihText(deps.fetchText, url.href, guard), selected)
+  const calendar = await readFihSource(deps.fetchText, 'den valgte klassekalenderen fra EduPage', fetch => cachedText(fetch, url.href, guard), { fresh: true })
+  return parseFihCalendar(calendar, selected)
 }

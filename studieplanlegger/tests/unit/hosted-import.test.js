@@ -4,8 +4,9 @@ import https from 'node:https'
 import { lookup } from 'node:dns/promises'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createHostedImportHandler } from '../../server/hosted-import.js'
-import { fetchPublicBytes, importMiddleware, readImportBody } from '../../server/import-api.js'
+import { fetchPublicBytes, fetchPublicText, importMiddleware, readImportBody } from '../../server/import-api.js'
 import { hostedCalendarSource, hostedSourceGuard } from '../../server/hosted-import-policy.js'
+import { FIH_READ_TIMEOUT_MS } from '../../server/providers/fih-calendar.js'
 import { programProviders } from '../../server/providers/programs.js'
 
 vi.mock('node:dns/promises', () => ({ lookup: vi.fn() }))
@@ -16,6 +17,14 @@ const host = 'synthetic-ajour.example.test'
 const calendarUrl = 'https://tp.educloud.no/ntnu/timeplan/ical.php?sem=26h&type=course&id%5B0%5D=SYN729'
 const calendar = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n'
 const ntnuHtml = '<div id="course-details" data-coursecode="SYN729"><h1 class="course-name">Synthetic course</h1><select id="selectedYear"><option selected value="2026">2026/2027</option></select></div>'
+const fihCatalogueUrl = 'https://fih.fjellhaug.no/ikt-verkt%C3%B8y/webcalfiler'
+const fihCalendarUrl = 'https://fih.edupage.org/webcal?pwd=C0DEC0DEC0DEC0DE&type=plan&studentid=-729'
+const fihCalendar = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-WR-CALNAME:Timetable: -729\r\nEND:VCALENDAR\r\n'
+const fihBody = { url: fihCalendarUrl, catalogueUrl: fihCatalogueUrl, sourceObjectId: '-729' }
+const fihListings = {
+  'https://fih.fjellhaug.no/student': `<main><a href="${fihCatalogueUrl}">Webcalfiler</a></main>`,
+  [fihCatalogueUrl]: `<main><a href="${fihCalendarUrl.replaceAll('&', '&amp;')}">Syntetisk klasse</a></main>`,
+}
 
 // Published catalogue shapes with invented records; only the second page fails.
 function partialProgramTransport(institution, secondPage) {
@@ -204,21 +213,18 @@ describe('recognized sources and all outgoing fetches', () => {
   })
 
   it.each([false, true])('retries a guarded Fjellhaug source reset and sanitizes a persistent error (%s)', async persistent => {
-    const catalogueUrl = 'https://fih.fjellhaug.no/ikt-verkt%C3%B8y/webcalfiler'
-    const url = 'https://fih.edupage.org/webcal?pwd=C0DEC0DEC0DEC0DE&type=plan&studentid=-729'
-    const calendar = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nX-WR-CALNAME:Timetable: -729\r\nEND:VCALENDAR\r\n'
     const privateDetail = 'SYNTHETIC_RESET_DETAILS_729'
     let reads = 0
     const fetchTextImpl = vi.fn(async (source, _depth, guard, options) => {
       guard(new URL(source))
-      if (source.endsWith('/student')) return `<main><a href="${catalogueUrl}">Webcalfiler</a></main>`
-      if (source === catalogueUrl) return `<main><a href="${url.replaceAll('&', '&amp;')}">Syntetisk klasse</a></main>`
-      expect(source).toBe(url)
-      if (++reads > 1) expect(options.freshConnection).toBe(true)
+      if (fihListings[source]) return fihListings[source]
+      expect(source).toBe(fihCalendarUrl)
+      expect(options.freshConnection).toBe(true)
+      reads++
       if (reads === 1 || persistent) throw Object.assign(new Error(privateDetail), { code: 'ECONNRESET' })
-      return calendar
+      return fihCalendar
     })
-    const result = await request({ body: { url, catalogueUrl, sourceObjectId: '-729' }, dependencies: { fetchTextImpl } })
+    const result = await request({ body: fihBody, dependencies: { fetchTextImpl } })
     expect(reads).toBe(2)
     if (persistent) {
       expect(result).toMatchObject({ status: 400, body: { status: 'transport-error', error: 'Fikk ikke kontakt med lærestedet. Prøv igjen senere. Lagrede data er beholdt.' } })
@@ -226,6 +232,51 @@ describe('recognized sources and all outgoing fetches', () => {
     } else {
       expect(result).toMatchObject({ status: 200, body: { sourceKind: 'fih-public-class', className: 'Syntetisk klasse', count: 0 } })
     }
+  })
+
+  it('retries a stalled Fjellhaug DNS lookup without opening a socket for the cancelled attempt', async () => {
+    vi.useFakeTimers()
+    try {
+      const addresses = [{ address: '93.184.216.34', family: 4 }]
+      let resolveFirst
+      lookup.mockImplementationOnce(() => new Promise(resolve => { resolveFirst = resolve })).mockResolvedValueOnce(addresses)
+      const get = vi.spyOn(https, 'get').mockImplementation((_url, _options, callback) => {
+        callback(Object.assign(Readable.from([Buffer.from(fihCalendar)]), { statusCode: 200, headers: {} }))
+        return Object.assign(new EventEmitter(), { setTimeout() {} })
+      })
+      const fetchTextImpl = (url, depth, guard, options) => fihListings[url] || fetchPublicText(url, depth, guard, options)
+      const result = request({ body: fihBody, dependencies: { fetchTextImpl } })
+      await vi.advanceTimersByTimeAsync(FIH_READ_TIMEOUT_MS)
+      await expect(result).resolves.toMatchObject({ status: 200, body: { sourceKind: 'fih-public-class', count: 0 } })
+      expect(lookup).toHaveBeenCalledTimes(2)
+      resolveFirst(addresses)
+      await vi.advanceTimersByTimeAsync(0)
+      expect(get).toHaveBeenCalledOnce()
+      expect(get.mock.calls[0][1].agent).toBe(false)
+    } finally { vi.useRealTimers() }
+  })
+
+  it.each([
+    ['https://fih.fjellhaug.no/student', 'Fjellhaugs studentside'],
+    [fihCatalogueUrl, 'den valgte kalenderoversikten fra Fjellhaug'],
+    [fihCalendarUrl, 'den valgte klassekalenderen fra EduPage'],
+  ])('reports a bounded Fjellhaug timeout at %s without source identifiers', async (stalledSource, stage) => {
+    vi.useFakeTimers()
+    try {
+      const stalledSignals = []
+      const fetchTextImpl = (url, _depth, _guard, { signal }) => {
+        if (url !== stalledSource) return fihListings[url] || fihCalendar
+        stalledSignals.push(signal)
+        return new Promise(() => {})
+      }
+      const result = request({ body: fihBody, dependencies: { fetchTextImpl } })
+      await vi.advanceTimersByTimeAsync(2 * FIH_READ_TIMEOUT_MS)
+      const { status, body } = await result
+      expect(status).toBe(504)
+      expect(body).toEqual({ status: 'timeout', error: `Det tok for lang tid å hente ${stage}. Prøv igjen eller importer kalenderen som .ics-fil. Lagrede data er beholdt.` })
+      expect(stalledSignals).toHaveLength(2)
+      expect(stalledSignals.every(signal => signal.aborted)).toBe(true)
+    } finally { vi.useRealTimers() }
   })
 
   it.each(['/api/import/ntnu', '/api/import/providers/ntnu/details'])('injects guarded fetch for NTNU details at %s', async path => {

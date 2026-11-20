@@ -192,14 +192,15 @@ export function importMiddleware(req, res, next, { fetchTextImpl = fetchPublicTe
   }
   const wrapFetch = impl => async (input, redirects, validate, options = {}) => {
     if (limitError) throw limitError
-    controller.signal.throwIfAborted()
+    const signal = options.signal ? AbortSignal.any([controller.signal, options.signal]) : controller.signal
+    signal.throwIfAborted()
     const guard = hostedPolicy ? hostedPolicy.sourceGuard(input, validate) : validate
     guard?.(new URL(String(input).replace(/^webcal:/i, 'https:')))
     if (hostedPolicy && ++fetches > 250) exhaustImport('Importen krever for mange kildeoppslag. Bruk et mindre kildeutvalg eller filimport.')
     let data
-    try { data = await impl(input, redirects, guard, { ...options, signal: controller.signal }) }
+    try { data = await impl(input, redirects, guard, { ...options, signal }) }
     catch (error) { throw sourceTransportError(error) }
-    controller.signal.throwIfAborted()
+    signal.throwIfAborted()
     if (hostedPolicy && (totalBytes += Buffer.byteLength(data)) > 30_000_000) exhaustImport('Importen er for stor. Bruk et mindre kildeutvalg eller filimport.')
     return data
   }
