@@ -140,9 +140,15 @@ export function createTaskList(list, actions) {
         row.deadline.dateTime = task.deadlineLocal || ''
         row.estimate.hidden = task.estimatedMinutes == null
         setText(row.estimate, task.estimatedMinutes == null ? '' : `Opprinnelig anslag: ${task.estimatedMinutes} min`)
-        setText(row.remaining, `Gjenstående arbeid: ${formatEstimateRange(getRemainingRange(task))}`)
+        const remaining = getRemainingRange(task)
+        const activeStep = primaryWorkStep(task)
+        setText(row.remaining, `Gjenstående arbeid: ${formatEstimateRange(remaining)}`)
         row.sessionDuration.hidden = !suggestion
-        setText(row.sessionDuration, suggestion ? `Arbeid nå: ${getSessionMinutes(task, minutes)} min${getActionMinutes(task) > getSessionMinutes(task, minutes) ? ' · deløkt' : ''}. Totalanslaget endres ikke av forslaget.` : '')
+        if (suggestion) {
+          const duration = getSessionMinutes(task, minutes)
+          const partial = getActionMinutes(task) > duration || (!activeStep && remaining?.maxMinutes === null)
+          setText(row.sessionDuration, `Arbeid nå: ${duration} min${partial ? ' · deløkt' : ''}. Totalanslaget endres ikke av forslaget.`)
+        }
         const planned = capacity.find(entry => entry.taskId === task.id)
         row.capacityWarning.hidden = !planned || task.completed || (!planned.reasons.length && !planned.missingMinutes && !planned.missingMinMinutes)
         const deadlineContext = task.deadlineLocal ? ' før fristen' : ''
@@ -153,7 +159,6 @@ export function createTaskList(list, actions) {
             : planned.missingMinutes && task.deadlineLocal ? `Mangler ${planned.missingMinutes} min før fristen. ` : ''
         setText(row.capacityWarning, planned ? `${missing}${planned.reasons.join(' ')}` : '')
         row.overdue.hidden = !isOverdue(task, now)
-        const activeStep = primaryWorkStep(task)
         row.stepBox.hidden = !activeStep
         setText(row.stepText, activeStep?.title || activeStep?.description || '')
         setText(row.stepEstimate, activeStep?.estimatedMinutes ? `${activeStep.estimatedMinutes} min · bare neste steg · inkludert i gjenstående arbeid` : 'Estimat ikke oppgitt · bare neste steg · inkludert i gjenstående arbeid')

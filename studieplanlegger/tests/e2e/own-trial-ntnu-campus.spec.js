@@ -4,6 +4,21 @@ import { searchNtnu } from '../../server/providers/ntnu.js'
 import { parseNtnuPage } from '../../server/import-api.js'
 import { ntnuCampusQuery, ntnuCampusSearch, ntnuCampusHtml } from '../helpers/ntnu-campus-search.js'
 
+test('course search points students to the choices available for each institution', async ({ page }) => {
+  await page.goto('/')
+  await navigate(page, 'subjects')
+  await page.getByRole('button', { name: 'Finn ett emne', exact: true }).click()
+  const guide = page.locator('.import-wizard')
+  const university = page.locator('#course-import-form [name=university]')
+  await expect(guide).toContainText('Søk etter emnekode eller navn.')
+  await university.selectOption('nhh')
+  await expect(guide).toContainText('Velg et studieprogram ovenfor for å finne emner.')
+  await expect(guide).toContainText('«Fra fil eller tekst», «Fra kalenderlenke» eller «Registrer manuelt»')
+  await university.selectOption('ekko')
+  await expect(guide).not.toContainText('Velg et studieprogram ovenfor for å finne emner.')
+  await expect(guide).toContainText('«Fra fil eller tekst», «Fra kalenderlenke» eller «Registrer manuelt»')
+})
+
 for (const campus of ['Gjøvik', 'Trondheim']) test(`NTNU multi-campus search preserves the explicit ${campus} choice through preview, save and repeat`, async ({ page }) => {
   const details = []
   await page.route('**/api/import/providers/ntnu/search?**', async route => route.fulfill({ json: await searchNtnu(ntnuCampusQuery, async () => ntnuCampusSearch) }))

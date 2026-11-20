@@ -22,6 +22,9 @@ test('A02/A04 empty startup writes nothing; a title-only task and explicit unkno
   await page.reload(); await navigate(page, 'all')
   await expect(page.locator('#task-list')).toContainText('Bare en tittel')
   await expect(page.locator('#task-list')).toContainText('Gjenstående arbeid: ukjent')
+  await navigate(page, 'capacity')
+  await expect(page.locator('#capacity-summary')).toContainText('Ukjent samlet arbeidsmengde')
+  await expect(page.locator('#capacity-summary')).toContainText('øvre grense for uplanlagt arbeid er ukjent')
 })
 
 test('A07/A08 planned work records actual and remaining independently; skip creates no work sample', async ({ page }) => {

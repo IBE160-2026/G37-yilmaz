@@ -276,10 +276,19 @@ export function overdueCount(tasks, now) {
   return tasks.filter(task => isOverdue(task, now)).length
 }
 
-export function selectTasksForMinutes(tasks, minutes, { includePartial = false } = {}) {
+export function selectTasksForMinutes(tasks, minutes, { includePartial = false, completeOnly = false } = {}) {
   if (!Number.isSafeInteger(minutes) || minutes <= 0) return []
   return tasks.map((task, index) => ({ task, index }))
-    .filter(({ task }) => canStartTask(task, tasks, { nextStep: Boolean(primaryWorkStep(task)) }) && getRemainingRange(task)?.maxMinutes !== 0 && Number.isSafeInteger(getActionMinutes(task)) && getActionMinutes(task) > 0 && (getActionMinutes(task) <= minutes || includePartial && task.splittable !== false))
+    .filter(({ task }) => {
+      const step = primaryWorkStep(task)
+      const max = getRemainingRange(task)?.maxMinutes
+      if (max === 0 || !canStartTask(task, tasks, { nextStep: !completeOnly && Boolean(step) })) return false
+      const action = getActionMinutes(task)
+      if (!Number.isSafeInteger(action) || action <= 0) return false
+      if (completeOnly) return Number.isSafeInteger(max) && max <= minutes && action <= minutes
+      if (includePartial && task.splittable !== false) return true
+      return action <= minutes && (Boolean(step) || Number.isSafeInteger(max))
+    })
     .map(entry => ({ ...entry, urgency: actionUrgency(entry.task, tasks) }))
     .sort((a, b) => compareDeadlines(a.urgency, b.urgency) || b.urgency.count - a.urgency.count || (b.task.priority ?? 2) - (a.task.priority ?? 2) || a.index - b.index)
     .map(entry => entry.task)

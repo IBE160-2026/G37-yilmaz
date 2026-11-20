@@ -83,6 +83,25 @@ function createPreShapeDatabase(filename, { orphanCourse = false } = {}) {
 }
 
 describe('SQLite state repository', () => {
+  it.each([
+    ['null i oppgavelisten', envelope => { envelope.tasks = [null] }],
+    ['objekt som oppgaveliste', envelope => { envelope.tasks = {} }],
+    ['objekt som emneliste', envelope => { envelope.planner.courses = {} }],
+  ])('avviser %s før SQLite skriver data eller revisjon', (_, corrupt) => {
+    const { db } = database()
+    try {
+      const saved = db.save(state(), 0)
+      const candidate = structuredClone(saved.envelope)
+      corrupt(candidate)
+      expect(() => db.save(candidate, saved.revision)).toThrow(new TypeError('invalid-envelope'))
+      expect(() => db.replace(candidate, saved.revision)).toThrow(new TypeError('invalid-envelope'))
+      expect(db.read()).toEqual(saved)
+      expect(db.recovery()).toBeNull()
+    } finally {
+      db.close()
+    }
+  })
+
   it('upgrades a pre-shape database losslessly and remains idempotent across reopen', () => {
     const directory = mkdtempSync(join(tmpdir(), 'studieplan-pre-shape-')); directories.push(directory)
     const filename = join(directory, 'state.sqlite'), expected = createPreShapeDatabase(filename)

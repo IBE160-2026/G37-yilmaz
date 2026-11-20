@@ -187,6 +187,7 @@ export function createUI(actions) {
   })
   for (const kind of ['overdue', 'ready']) $(`#summary-${kind}`).addEventListener('click', () => actions.summary(kind))
   $('#toggle-alternatives').addEventListener('click', actions.alternatives)
+  $('#complete-only').addEventListener('change', event => actions.completeOnly(event.target.checked))
   $('#time-form').addEventListener('submit', event => { event.preventDefault(); actions.filter(minuteInput.value) })
   for (const button of document.querySelectorAll('[data-minutes]')) button.addEventListener('click', () => {
     minuteInput.value = button.dataset.minutes
@@ -323,7 +324,8 @@ export function createUI(actions) {
     render(model) {
       latestModel = model
       taskForm.render(model)
-      const { tasks, readable, visibleTasks, candidates, view, now, minutes, minuteError, showAlternatives } = model
+      const { tasks, readable, visibleTasks, candidates, view, now, minutes, minuteError, showAlternatives, completeOnly } = model
+      $('#complete-only').checked = completeOnly
       const focused = document.activeElement
       const focusRect = focused.getBoundingClientRect()
       const focusWasVisible = focusRect.bottom > 0 && focusRect.top < innerHeight && focusRect.right > 0 && focusRect.left < innerWidth
@@ -391,6 +393,7 @@ export function createUI(actions) {
     const timeEmptyText = hasNoTasks
       ? hasSubjectContext ? 'Ingen oppgaver enda. Du har undervisning eller emner registrert. Legg til din første oppgave for å få forslag.' : 'Ingen oppgaver ennå – legg til din første oppgave.'
       : allDone ? readyCount ? readyText : 'Alt registrert arbeid er ferdig. Ta en pause, eller legg til en ny oppgave.'
+        : completeOnly ? 'Ingen oppgaver med kjent øvre anslag kan fullføres innen tiden. Fjern avkrysningen for å se forslag til arbeidssteg og deløkter.'
       : suggestionExclusions(tasks, minutes).map(item => `«${item.title}»: ${item.reason}`).join(' ')
     const taskListEmptyText = hasNoTasks
       ? hasSubjectContext ? 'Ingen oppgaver ennå. Legg til den første oppgaven din for å starte planen.' : 'Ingen oppgaver ennå – legg til din første oppgave.'

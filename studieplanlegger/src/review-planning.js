@@ -186,7 +186,9 @@ export function decideReview(state, proposal, decision, { id, sessionId } = {}) 
     if (!value?.dateLocal || !value.startTime || !value.endTime) return { ok: false, error: 'Velg et fullstendig tidspunkt før repetisjonen godkjennes.' }
     const sid = sessionId || crypto.randomUUID()
     record.sessionId = sid
-    const session = { id: sid, ...value, reviewKey: current.reviewKey, reviewTopicId: assessment.topicId, locked: false }
+    const { dateLocal, startTime, endTime, endDateLocal } = value
+    const session = { id: sid, dateLocal, startTime, endTime, ...(endDateLocal === undefined ? {} : { endDateLocal }),
+      reviewKey: current.reviewKey, reviewTopicId: assessment.topicId, locked: false }
     const checked = validateSession(session, next.sessions || [])
     if (!checked.valid) return { ok: false, error: checked.error }
     const interval = extendedSessionInterval(session)

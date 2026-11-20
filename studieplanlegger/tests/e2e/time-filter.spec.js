@@ -17,6 +17,18 @@ const choices = [
 // concrete suggestions instead of turning into a second all-tasks list.
 const expectedIds = ['old-20', 'tie-first-30', 'future-20']
 
+test('480 minutes omits an unknown maximum from the completion filter and offers a marked partial session', async ({ page }) => {
+  const open = { ...task('open', '', null), remainingEstimate: { minMinutes: 241, maxMinutes: null }, splittable: true }
+  await seed(page, [open, task('known', '', 480)])
+  await filter(page, '480')
+  const onlyComplete = page.getByRole('checkbox', { name: 'Bare oppgaver jeg kan fullføre innen tiden' })
+  await onlyComplete.check()
+  expect(await ids(page)).toEqual(['known'])
+  await onlyComplete.uncheck()
+  await showAlternatives(page)
+  await expect(page.locator('[data-task-id="open"] .task-session-duration')).toContainText('241 min · deløkt')
+})
+
 test('30 minutes includes 20/30 across all weeks and overdue tasks, excludes indivisible 31/completed, and orders deadlines before durations', async ({ page }, testInfo) => {
   await seed(page, choices)
   const before = await raw(page)

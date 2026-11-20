@@ -78,8 +78,9 @@ function minutesBefore(intervals, deadline = Infinity) {
 function sumMinutes(entries, field) {
   let total = 0
   for (const entry of entries) {
-    if (total > MAX_MINUTES - entry[field]) return MAX_MINUTES
-    total += entry[field]
+    const minutes = entry[field] ?? 0
+    if (total > MAX_MINUTES - minutes) return MAX_MINUTES
+    total += minutes
   }
   return total
 }
@@ -128,7 +129,6 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
     const entry = entries[index]
     if (task.completed) continue
     if (!Number.isSafeInteger(entry.requiredMinutes) || entry.requiredMinutes < 0) {
-      entry.requiredMinutes = 0
       entry.missingMinMinutes = entry.requiredMinMinutes ?? 0
       entry.missingMaxMinutes = entry.requiredMaxMinutes
       entry.reasons.push(entry.requiredMaxMinutes === null && entry.requiredMinMinutes !== null
@@ -198,11 +198,11 @@ export function deriveCapacity(tasks, sessions = [], now = new Date(), events = 
   const totalRequiredMinutes = sumMinutes(entries, 'requiredMinutes')
   const totalAllocatedMinutes = sumMinutes(entries, 'allocatedMinutes')
   const totalMissingMinutes = sumMinutes(entries, 'missingMinutes')
-  if (entries.reduce((sum, entry) => sum + BigInt(entry.requiredMinutes), 0n) > BigInt(MAX_MINUTES)) {
+  if (entries.reduce((sum, entry) => sum + BigInt(entry.requiredMinutes ?? 0), 0n) > BigInt(MAX_MINUTES)) {
     warnings.push(`Samlet arbeid overstiger ${MAX_MINUTES} min. Totalene for gjenstående og manglende arbeid er begrenset til dette tallet; hver oppgave vises med nøyaktige minutter.`)
   }
-  const openRequired = entries.some(entry => entry.requiredMaxMinutes === null && entry.requiredMinMinutes !== null)
-  const openMissing = entries.some(entry => entry.missingMaxMinutes === null && entry.missingMinMinutes !== null)
+  const openRequired = entries.some(entry => entry.requiredMaxMinutes === null)
+  const openMissing = entries.some(entry => entry.missingMaxMinutes === null)
   return { tasks: entries, unknownTaskCount: tasks.filter(task => getRemainingRange(task)?.maxMinutes == null).length, totalRequiredMinutes,
     totalRequiredMinMinutes: sumMinutes(entries, 'requiredMinMinutes'), totalRequiredMaxMinutes: openRequired ? null : totalRequiredMinutes,
     totalAllocatedMinutes, totalMissingMinutes, totalMissingMinMinutes: sumMinutes(entries, 'missingMinMinutes'), totalMissingMaxMinutes: openMissing ? null : totalMissingMinutes,

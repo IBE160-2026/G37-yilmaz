@@ -52,6 +52,24 @@ test('review approval rejects stale and incomplete slots, and deferral needs a f
   expect(decideReview(state, proposal, { status: 'deferred', deferUntil: '2026-11-21', decidedAt }).ok).toBe(true)
 })
 
+test.each(['approved', 'adjusted'])('a time template keeps the new session identity when a review is %s', status => {
+  const decidedAt = '2026-11-20T08:00:00Z'
+  const state = reviewState('2026-11-21', [window('2026-11-20T08:00:00Z', '2026-11-20T11:00:00Z')])
+  const previous = { id: 'old-session', dateLocal: '2026-11-19', startTime: '09:00', endTime: '09:30', taskId: 'other-task' }
+  const history = [{ sessionId: previous.id, sessionSnapshot: previous, outcome: 'done' }]
+  state.workLogs = history
+  const proposal = review(state, decidedAt)
+  const template = { ...previous, dateLocal: '2026-11-20', startTime: '10:00', endTime: '10:30' }
+  const result = decideReview(state, proposal, { status, session: template, decidedAt }, { sessionId: 'new-review-session' })
+  expect(result.ok).toBe(true)
+  expect(result.state.workLogs).toEqual(history)
+  expect(result.state.sessions).toEqual([{
+    id: 'new-review-session', dateLocal: '2026-11-20', startTime: '10:00', endTime: '10:30', locked: false,
+    reviewKey: proposal.reviewKey, reviewTopicId: assessment.topicId,
+  }])
+  expect(result.state.reviewDecisions[0]).toMatchObject({ status, sessionId: result.state.sessions[0].id })
+})
+
 test('K01 and K02 preserve name-only course work and distinguish source cancellations from local hiding', () => {
   const day = '2026-11-20', courseId = 'course', courseName = 'Syntetisk emne';
   const legacy = { id: 'legacy', title: 'Eldre oppgave', course: courseName, deadlineLocal: day + 'T12:00' }

@@ -15,6 +15,14 @@ const deadlineSamples = [
   ['Oppgave med frist 20.11.2026 kl. 14:00 eller 27.11.2026 kl. 14:00', '2026-11-27T14:00'],
 ]
 
+const deadlineChanges = [
+  ['forlenget', 'Oppgave: Fristen 20.11.2026 kl. 09:00 er forlenget til 27.11.2026 kl. 23:59.'],
+  ['utsatt', 'Oppgave: Fristen 20.11.2026 kl. 09:00 er nå utsatt til 27.11.2026 kl. 23:59.'],
+  ['ny dato', 'Oppgave: Frist 20.11.2026 kl. 09:00 (ny dato: 27.11.2026 kl. 23:59).'],
+  ['fremskyndet', 'Oppgave: Fristen 04.12.2026 kl. 09:00 er fremskyndet til 27.11.2026 kl. 23:59.'],
+]
+const newDeadline = '2026-11-27T23:59'
+
 async function previewDocument(page, format, name, lines) {
   await freeze(page, '2026-11-19T09:00:00+01:00')
   await page.goto('/')
@@ -32,6 +40,42 @@ async function previewDocument(page, format, name, lines) {
 }
 
 for (const format of ['text', 'txt', 'pdf', 'docx']) {
+  for (const [wording, title] of deadlineChanges) {
+    test(`changed deadline (${wording}) from ${format} previews and persists the new deadline`, async ({ page }) => {
+      await previewDocument(page, format, 'syntetisk-ny-frist', [title])
+      const row = page.locator('.document-preview-row')
+      await expect(row).toHaveCount(1)
+      await expect(row.locator('summary').first()).toContainText(title)
+      await expect(row.getByLabel('Dato og klokkeslett i norsk tid', { exact: true })).toHaveValue(newDeadline)
+      await page.getByRole('button', { name: 'Importer valgte', exact: true }).click()
+      await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
+
+      await page.reload()
+      await navigate(page, 'all')
+      await expect(page.locator('#task-list').getByRole('heading', { name: title, exact: true })).toBeVisible()
+      expect((await saved(page)).tasks.map(({ title, deadlineLocal }) => ({ title, deadlineLocal }))).toEqual([{ title, deadlineLocal: newDeadline }])
+    })
+  }
+
+  test(`changed deadline with two possible dates from ${format} requires a choice before saving`, async ({ page }) => {
+    const title = 'Oppgave: Fristen 20.11.2026 kl. 09:00 er forlenget til 27.11.2026 kl. 23:59 eller 28.11.2026 kl. 09:00.'
+    await previewDocument(page, format, 'syntetisk-uklar-ny-frist', [title])
+    const row = page.locator('.document-preview-row')
+    const deadline = row.getByLabel('Dato og klokkeslett i norsk tid', { exact: true })
+    await expect(row.getByLabel('Frist', { exact: true })).toHaveValue('?')
+    await expect(deadline).toHaveValue('')
+    const confirm = page.getByRole('button', { name: 'Importer valgte', exact: true })
+    await confirm.click()
+    await expect(page.locator('.document-preview').getByRole('alert')).toContainText('Ingen del av planen er lagret')
+    expect((await saved(page))?.tasks || []).toEqual([])
+
+    await (await reveal(deadline)).fill(newDeadline)
+    await confirm.click()
+    await expect(page.getByText('Planen er lagret:', { exact: false })).toBeVisible()
+    await page.reload()
+    expect((await saved(page)).tasks).toMatchObject([{ title, deadlineLocal: newDeadline }])
+  })
+
   test('I01 previews, saves, reloads and undoes contextual deadlines from ' + format, async ({ page }) => {
     await previewDocument(page, format, 'syntetiske-frister', deadlineSamples.map(([title]) => title))
     const rows = page.locator('.document-preview-row')

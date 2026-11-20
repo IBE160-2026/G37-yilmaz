@@ -66,8 +66,8 @@ describe('FIH published Edupage class calendars', () => {
       guard(new URL(url))
       if (url.endsWith('/student')) return fixture('student.html')
       if (url === htmlUrl) return html
+      expect(options).toMatchObject({ freshConnection: true, edupageTls12: reads === 0, signal: expect.any(AbortSignal) })
       if (++reads === 1) throw Object.assign(new Error('synthetic idle timeout'), { code: 'ERR_PUBLIC_SOURCE_IDLE_TIMEOUT' })
-      expect(options).toMatchObject({ freshConnection: true, signal: expect.any(AbortSignal) })
       expect(redirects).toBe(0)
       const otherClass = new URL(url)
       otherClass.searchParams.set('studentid', '-999')

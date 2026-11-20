@@ -154,8 +154,8 @@ export function deriveWorkCapacity(tasks, sessions = [], now = new Date(), event
   }
   for (const entry of entries) entry.reasons = [...new Set(entry.reasons)]
   const sum = field => Math.min(Number.MAX_SAFE_INTEGER, entries.reduce((n, e) => n + e[field], 0))
-  const openRequired = entries.some(entry => entry.requiredMaxMinutes === null && entry.requiredMinMinutes !== null)
-  const openMissing = entries.some(entry => entry.missingMaxMinutes === null && entry.missingMinMinutes !== null)
+  const openRequired = entries.some(entry => entry.requiredMaxMinutes === null)
+  const openMissing = entries.some(entry => entry.missingMaxMinutes === null)
   return { tasks: entries, known, unknownTaskCount: tasks.filter(task => getRemainingRange(task)?.maxMinutes == null).length, totalCapacityMinutes,
     totalRequiredMinutes: sum('requiredMinutes'), totalRequiredMinMinutes: sum('requiredMinMinutes'), totalRequiredMaxMinutes: openRequired ? null : sum('requiredMinutes'),
     totalAllocatedMinutes: sum('allocatedMinutes'), totalReservedMinutes: intervalMinutes(reservedCovered), totalMissingMinutes: sum('missingMinutes'),

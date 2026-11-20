@@ -43,15 +43,17 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
     await (await reveal(form.getByLabel('Kalenderår', { exact: true }))).fill('2026')
     await (await reveal(form.getByRole('combobox', { name: 'Kalendersemester', exact: true }))).selectOption('autumn')
     const before = await saved()
+    const requestedAt = Date.now()
     const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/import/calendar') && response.request().method() === 'POST')
     await (await reveal(form.getByRole('button', { name: 'Forhåndsvis institusjonskalender', exact: true }))).click()
     const response = await responsePromise, result = await response.json()
+    const responseMs = Date.now() - requestedAt
     if (sample.kind === 'fih') {
       const catalogue = new URL(response.request().postDataJSON().catalogueUrl)
       expect(catalogue.origin).toBe('https://fih.fjellhaug.no')
       expect(catalogue.pathname).toMatch(/^\/files\/uploads\/Instruksjoner\/[^/]+\.pdf$/)
     }
-    expect(response.status()).toBe(200)
+    expect(response.status(), response.ok() ? undefined : result.error).toBe(200)
     expect(result.sourceKind).toBe(`${sample.kind}-public-class`)
     expect(result.authoritative).toBe(false)
     expect(result.count).toBe((result.calendar.match(/^BEGIN:VEVENT\r?$/gm) || []).length)
@@ -64,6 +66,7 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
     expect(await saved()).toEqual(before)
     const rows = preview.locator('.document-preview-row')
     await expect(rows).toHaveCount(scoped.rows.length)
+    const selectAllActivities = sample.kind === 'fih'
     if (result.unresolved?.length) await expect(preview).toContainText('Uavklart')
     const target = expectedEvents.find(row => sample.selectedTitle ? row.title === sample.selectedTitle : !!row.endLocal)
     expect(target).toBeTruthy()
@@ -76,9 +79,14 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
       end: utc(await selected.getByLabel('Slutt i norsk tid', { exact: true }).inputValue()),
     }
     expect(selectedFields).toEqual({ title: target.title, start: target.originalStart, end: target.originalEnd })
-    expect(await rows.locator('input[data-field=selected]:checked').count()).toBe(attempt)
-    await choice.check()
-    expect(await rows.locator('input[data-field=selected]:checked').count()).toBe(1)
+    const expectedSelection = selectAllActivities ? expectedEvents.length : 1
+    expect(await rows.locator('input[data-field=selected]:checked').count()).toBe(attempt ? expectedSelection : 0)
+    if (selectAllActivities) {
+      await (await reveal(preview.getByRole('button', { name: 'Velg alle aktiviteter', exact: true }))).click()
+    } else {
+      await choice.check()
+    }
+    expect(await rows.locator('input[data-field=selected]:checked').count()).toBe(expectedSelection)
     if (!attempt) {
       await selected.scrollIntoViewIfNeeded()
       await page.screenshot({ path: info.outputPath(`${sample.kind}-class-preview-mobile.png`) })
@@ -96,19 +104,19 @@ for (const sample of samples) test(`live ${sample.kind} public class preview, ex
     expect(state.planner.courses).toEqual([])
     expect(state.tasks).toEqual([])
     expect(state.sessions || []).toEqual([])
-    expect(state.planner.events).toHaveLength(1)
-    expect(state.planner.events[0]).toMatchObject({ ...selectedFields, courseId: '', transparent: false, information: false })
+    expect(state.planner.events).toHaveLength(expectedSelection)
+    expect(state.planner.events).toEqual(expect.arrayContaining([expect.objectContaining({ ...selectedFields, courseId: '', transparent: false, information: false })]))
     expect(state.importSources).toHaveLength(1)
     if (first) {
       expect(state.planner).toEqual(first.planner)
       expect(state.importSources[0].id).toBe(first.importSources[0].id)
     } else first = state
-    evidence.runs.push({ responseStatus: response.status(), rawSourceEvents: result.count, validPreviewEvents: expectedEvents.length, proposedCourses: expectedCourses.length, unresolvedSourceRows: (result.unresolved || []).length, selectedEvents: 1, savedEvents: state.planner.events.length, savedCourses: state.planner.courses.length, savedTasks: state.tasks.length, savedSources: state.importSources.length, selectedEvent: selectedFields, sourceId: state.importSources[0].id, eventId: state.planner.events[0].id })
+    evidence.runs.push({ responseStatus: response.status(), responseMs, rawSourceEvents: result.count, validPreviewEvents: expectedEvents.length, proposedCourses: expectedCourses.length, unresolvedSourceRows: (result.unresolved || []).length, selectedEvents: expectedSelection, savedEvents: state.planner.events.length, savedCourses: state.planner.courses.length, savedTasks: state.tasks.length, savedSources: state.importSources.length, selectedEvent: selectedFields, sourceId: state.importSources[0].id })
     await page.reload()
     expect((await saved()).planner).toEqual(state.planner)
     expect((await saved()).importSources).toEqual(state.importSources)
   }
   expect(pageErrors).toEqual([])
-  evidence.scope = 'Actual public class choice to isolated local app; no fixture responses. Preview writes nothing; one explicit activity is preserved through reload and repeat. No course or personal membership was inferred. Source sharing keys are omitted from this evidence.'
+  evidence.scope = 'Public class choice in an isolated browser without fixture responses. Preview writes nothing. The explicitly selected activities persist through reload and repeat. No course or personal membership was inferred. Source sharing keys are omitted.'
   await info.attach('real-public-class-evidence', { contentType: 'application/json', body: JSON.stringify(evidence, null, 2) })
 })

@@ -14,6 +14,7 @@ export function createCourseColorRegistry(getStorage = () => globalThis.localSto
   let persistedActive = new Set()
   let pendingPersistence = false
   let loaded = false
+  let hasStoredPreferences = false
 
   const sameIds = (left, right) => left.size === right.size && [...left].every(id => right.has(id))
   const sameAssignments = (left, right) => left.size === right.size && [...left].every(([id, slot]) => right.get(id) === slot)
@@ -22,8 +23,15 @@ export function createCourseColorRegistry(getStorage = () => globalThis.localSto
     try {
       const storage = getStorage()
       if (!storage) return null
+      const raw = storage.getItem(COURSE_COLOR_STORAGE_KEY)
+      if (raw === null && hasStoredPreferences) {
+        // Browser data was cleared. Discard history and any pending local writes.
+        assignments.clear()
+        previousActive.clear()
+      }
+      hasStoredPreferences = raw !== null
       let saved
-      try { saved = JSON.parse(storage.getItem(COURSE_COLOR_STORAGE_KEY) || 'null') }
+      try { saved = JSON.parse(raw || 'null') }
       catch (error) {
         if (!(error instanceof SyntaxError)) throw error
       }
@@ -52,6 +60,7 @@ export function createCourseColorRegistry(getStorage = () => globalThis.localSto
     if (!storage || !pendingPersistence) return
     try {
       storage.setItem(COURSE_COLOR_STORAGE_KEY, JSON.stringify({ version: 1, assignments: Object.fromEntries(assignments), activeIds: [...previousActive] }))
+      hasStoredPreferences = true
       persistedAssignments = new Map(assignments)
       persistedActive = new Set(previousActive)
       pendingPersistence = false

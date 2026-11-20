@@ -16,7 +16,7 @@ for (const colorScheme of ['light', 'dark']) {
     await page.goto('/')
     await navigate(page, 'all')
     await expect(page.locator('#compact-agenda [data-agenda-key="task:accessible"]'))
-      .toHaveAccessibleName(/19 nov\.?\s+2026.*Frist.*kl\. 23:00.*Øv på presentasjonen/iu)
+      .toHaveAccessibleName('19 NOV Frist kl. 23:00 Øv på presentasjonen, 2026')
     await navigate(page, 'calendar')
     const calendar = page.locator('#full-calendar')
     for (const view of ['agenda', 'day', 'week', 'month']) {
@@ -26,6 +26,38 @@ for (const colorScheme of ['light', 'dark']) {
     }
   })
 }
+
+test('compact agenda and month teaching list preserve seconds and midnight points', async ({ page }) => {
+  const date = '2026-11-19'
+  const course = { id: 'precision-course', name: 'Syntetisk emne', code: 'SYN100', university: 'Syntetisk', semester: 'autumn', year: 2026 }
+  const source = { id: 'precision-source', courseId: course.id, name: 'Syntetisk kalender', kind: 'file', groups: [], lastUpdated: '2026-11-18T15:00:00Z' }
+  const events = [
+    { id: 'short', title: 'Kort undervisning', courseId: course.id, start: `${date}T09:00:07Z`, end: `${date}T09:00:53Z` },
+    { id: 'midnight', title: 'Tidspunkt ved midnatt', courseId: course.id, sourceId: source.id, start: '2026-11-18T23:00:00Z', end: '2026-11-18T23:00:00Z', point: true },
+  ]
+  const initial = { schemaVersion: 1, tasks: [], planner: { courses: [course], sources: [source], events } }
+  await freeze(page, '2026-11-18T22:30:00Z')
+  await page.addInitScript(({ key, initial }) => localStorage.setItem(key, JSON.stringify(initial)), { key, initial })
+  await page.goto('/')
+  await navigate(page, 'all')
+
+  const checkPrecision = async selector => {
+    const short = page.locator(`${selector}short"]`)
+    const midnight = page.locator(`${selector}midnight"]`)
+    await expect(short).toBeVisible()
+    await expect(midnight).toBeVisible()
+    await expect.soft(short).toContainText('10:00:07–10:00:53')
+    await expect.soft(short).toHaveAccessibleName(/10:00:07–10:00:53/)
+    await expect.soft(midnight).toContainText('00:00')
+    await expect.soft(midnight).toHaveAccessibleName(/00:00/)
+    await expect.soft(midnight).not.toContainText('00:00–00:00')
+    await expect.soft(midnight).not.toHaveAccessibleName(/00:00–00:00/)
+  }
+  await checkPrecision('#compact-agenda [data-agenda-key="event:')
+  await page.getByRole('button', { name: 'Månedsvisning', exact: true }).click()
+  await page.locator(`[data-calendar-date="${date}"]`).click()
+  await checkPrecision('.calendar-teaching [data-calendar-event="')
+})
 
 test('Oslo-perioden, emnefilteret og fristmerket virker også med eldre oppgaver', async ({ page }) => {
   const date = '2027-01-01'

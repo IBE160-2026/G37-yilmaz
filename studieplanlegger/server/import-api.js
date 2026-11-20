@@ -26,7 +26,7 @@ export function isPublicIPv4(address) {
   const [a, b, c] = address.split('.').map(Number)
   return /^\d+\.\d+\.\d+\.\d+$/.test(address) && a > 0 && a < 224 && ![10, 127].includes(a) && !(a === 100 && b >= 64 && b <= 127) && !(a === 169 && b === 254) && !(a === 172 && b >= 16 && b <= 31) && !(a === 192 && (b === 168 || b === 0 || (b === 88 && c === 99))) && !(a === 198 && [18, 19, 51].includes(b)) && !(a === 203 && b === 0 && c === 113)
 }
-export async function fetchPublicBytes(input, redirects = 0, validateUrl, { signal, usnCatalogue, anonymousShare, anonymousSession, freshConnection, maxBytes = 2_000_000 } = {}) {
+export async function fetchPublicBytes(input, redirects = 0, validateUrl, { signal, usnCatalogue, anonymousShare, anonymousSession, freshConnection, edupageTls12, maxBytes = 2_000_000 } = {}) {
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 10_000_000) throw new Error('Ugyldig grense for offentlig kildehenting.')
   signal?.throwIfAborted()
   const url = new URL(input.replace(/^webcal:/i, 'https:'))
@@ -50,6 +50,12 @@ export async function fetchPublicBytes(input, redirects = 0, validateUrl, { sign
   if (!addresses.length || addresses.some(entry => !isPublicIPv4(entry.address))) throw new Error('Lenken må peke til en offentlig kalender, ikke en lokal nettverksadresse.')
   const response = await new Promise((resolve, reject) => {
     const options = { signal, ...(freshConnection ? { agent: false } : {}), headers: { Accept: 'text/calendar,text/html,application/json;q=0.9', 'User-Agent': 'Studieplanlegger/1.0' }, lookup: (_host, options, callback) => options.all ? callback(null, [addresses[0]]) : callback(null, addresses[0].address, 4) }
+    // This verified public calendar was slow to negotiate TLS 1.3. Keep
+    // certificate checks and limit the compatibility attempt to this endpoint.
+    if (edupageTls12 && url.origin === 'https://fih.edupage.org' && url.pathname === '/webcal') {
+      options.minVersion = 'TLSv1.2'
+      options.maxVersion = 'TLSv1.2'
+    }
     const cookieJar=anonymousShare?.cookies||anonymousSession?.cookies
     if(cookieJar?.size)options.headers.Cookie=[...cookieJar].map(([key,value])=>`${key}=${value}`).join('; ')
     if(anonymousSession?.referer){options.headers.Referer=anonymousSession.referer;options.headers['X-Requested-With']='XMLHttpRequest'}

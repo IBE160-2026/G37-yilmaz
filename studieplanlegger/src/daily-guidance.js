@@ -15,8 +15,8 @@ export function knownMinimumShortage(range, availableBeforeMinutes) {
   return Math.max(0, range.minMinutes - availableBeforeMinutes)
 }
 
-export function rankedSuggestions(tasks, minutes) {
-  const candidates = selectTasksForMinutes(tasks, minutes, { includePartial: true })
+export function rankedSuggestions(tasks, minutes, { completeOnly = false } = {}) {
+  const candidates = selectTasksForMinutes(tasks, minutes, { includePartial: true, completeOnly })
   if (candidates.length <= 2) return candidates
   const recommended = candidates[0]
   const shortest = [...candidates.slice(1)].sort((a, b) => getActionMinutes(a) - getActionMinutes(b) || a.id.localeCompare(b.id))[0]

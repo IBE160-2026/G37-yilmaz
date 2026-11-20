@@ -209,6 +209,28 @@ describe('calendar work status requires student choice', () => {
 
 describe('complete timestamp extraction and honest precision', () => {
   it.each([
+    'Oppgave: Fristen 20.11.2026 kl. 09:00 er nå utsatt til fredag.',
+    'Oppgave: Frist 20.11.2026 kl. 09:00 (ny dato: 27.11.2026).',
+    'Oppgave: Fristen 20.11.2026 kl. 09:00 er fremskyndet til 19.11.2026 kl. 09:00 eller fredag.',
+    'Oppgave: Fristen 20.11.2026 kl. 09:00 kan være endret til 27.11.2026 kl. 23:59.',
+  ])('requires a deliberate deadline choice for %s', text => {
+    const parsed = parseDocumentText(text)
+    const state = empty()
+    const draft = preview(state, parsed)
+    expect(draft.rows[0]).toMatchObject({ deadlineMode: '?', deadlineLocal: '' })
+    expect(commit(state, draft).ok).toBe(false)
+  })
+
+  it.each([
+    'Oppgave: Fristen er forlenget fra 20.11.2026 kl. 09:00 til 27.11.2026 kl. 23:59.',
+    'Oppgave: Fristen er 27.11.2026 kl. 23:59, publisert 20.11.2026 kl. 09:00.',
+  ])('keeps the explicitly marked deadline in %s', text => {
+    const state = empty()
+    const parsed = parseDocumentText(text)
+    expect(saved(commit(state, preview(state, parsed))).tasks[0].deadlineLocal).toBe('2026-11-27T23:59')
+  })
+
+  it.each([
     ['Oppgave: Frist 20.11.2026 kl. 09:00 er flyttet til 27.11.2026 kl. 23:59', '2026-11-20T09:00'],
     ['Oppgave publisert 20.11.2026 kl. 09:00, innleveringsfrist 27.11.2026 kl. 23:59', ''],
   ])('updates the unedited old deadline on confirmed reimport of %s', (text, oldDeadline) => {

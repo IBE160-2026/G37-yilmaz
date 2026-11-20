@@ -1,4 +1,4 @@
-import { osloLocal, matchesCourse } from './planner.js'
+import { osloLocal, osloLocalExact, matchesCourse } from './planner.js'
 import { extendedSessionInterval } from './work-capacity.js'
 import { applyCourseColor, courseColorSlot, resolvedCourseId } from './course-colors.js'
 import { isExamEvent } from './event-kind.js'
@@ -17,11 +17,11 @@ export function upcomingAgenda({ tasks = [], sessions = [], planner = {}, course
     const sortTime = event.start ? Date.parse(event.start) : personal ? dayBounds(event.dateLocal).start : NaN
     const expired = event.end ? Date.parse(event.end) <= +now : personal ? event.dateLocal < today : sortTime <= +now
     if (event.cancelled || event.excluded || event.deleted || expired || !matchesCourse(event, courseFilter, course)) continue
-    const start = event.start ? osloLocal(event.start) : `${event.dateLocal}T`, end = event.end ? osloLocal(event.end) : ''
+    const start = event.start ? osloLocalExact(event.start) : `${event.dateLocal}T`, end = event.end && !event.point ? osloLocalExact(event.end) : ''
     const subject = courses.find(item => item.id === event.courseId)
     entries.push({ key: `event:${event.id}`, id: event.id, kind: personal ? 'personal' : 'teaching', isExam: isExamEvent(event), title: event.title, sortTime,
-      date: start.slice(0, 10), time: personal && !event.start || event.allDay ? '' : start.slice(11), endTime: event.end ? end.slice(11) : '',
-      endDate: event.end ? end.slice(0, 10) : '', ongoing: Boolean(event.start && event.end && Date.parse(event.start) <= +now),
+      date: start.slice(0, 10), time: personal && !event.start || event.allDay ? '' : start.slice(11), endTime: end.slice(11),
+      endDate: end.slice(0, 10), ongoing: Boolean(end && Date.parse(event.start) <= +now), point: event.point,
       courseId: event.courseId, course: subject?.code || subject?.name || '', location: event.location || '', allDay: !!event.allDay })
   }
   for (const task of tasks) {
@@ -94,18 +94,18 @@ export function createAgenda(host, actions) {
       })
       const stamp = node('span', 'agenda-date-stamp')
       const date = new Date(`${entry.date}T12:00:00`)
-      const day = entry.date.slice(-2), month = new Intl.DateTimeFormat('nb-NO', { month: 'short' }).format(date).replace('.', '')
+      const day = entry.date.slice(-2), month = new Intl.DateTimeFormat('nb-NO', { month: 'short' }).format(date).replace('.', '').toLocaleUpperCase('nb-NO')
       stamp.append(node('strong', '', day), node('span', '', month))
       const content = node('span', 'agenda-item-content')
       const meta = node('span', 'agenda-item-meta')
-      const time = entry.kind === 'deadline' && entry.allDay ? 'Frist – klokkeslett ikke oppgitt' : entry.kind === 'personal' && !entry.time ? 'Tid ikke oppgitt' : entry.kind === 'personal' && !entry.endTime ? `kl. ${entry.time} · Varighet ikke oppgitt` : entry.allDay ? 'Hele dagen' : `kl. ${entry.time}${entry.endTime ? `–${entry.endDate && entry.endDate !== entry.date ? `${entry.endDate} kl. ` : ''}${entry.endTime}` : ''}`
+      const time = entry.kind === 'deadline' && entry.allDay ? 'Frist – klokkeslett ikke oppgitt' : entry.kind === 'personal' && !entry.time ? 'Tid ikke oppgitt' : entry.kind === 'personal' && !entry.endTime && !entry.point ? `kl. ${entry.time} · Varighet ikke oppgitt` : entry.allDay ? 'Hele dagen' : `kl. ${entry.time}${entry.endTime ? `–${entry.endDate && entry.endDate !== entry.date ? `${entry.endDate} kl. ` : ''}${entry.endTime}` : ''}`
       const kind = entry.isExam ? 'Eksamen' : labels[entry.kind]
       const activityTime = entry.ongoing ? `Pågår · ${time}` : time
       meta.append(node('span', 'agenda-kind', entry.isExam ? `📝 ${kind}` : kind), node('span', '', activityTime))
       const detail = [entry.course, entry.location, entry.occurrence, entry.warning, entry.ready ? 'Klar til levering' : ''].filter(Boolean).join(' · ')
       const title = entry.course && !entry.title.toLocaleUpperCase('nb').startsWith(entry.course.toLocaleUpperCase('nb')) ? `${entry.course} · ${entry.title}` : entry.title
       content.append(meta, node('span', 'agenda-item-title', title), node('span', 'agenda-item-details', detail))
-      button.setAttribute('aria-label', [`${day} ${month} ${entry.date.slice(0, 4)}`, kind, activityTime, title, detail].filter(Boolean).join(', '))
+      button.setAttribute('aria-label', [[day, month, kind, activityTime, title, detail].filter(Boolean).join(' '), entry.date.slice(0, 4)].join(', '))
       button.append(stamp, content)
       li.append(button)
       list.append(li)

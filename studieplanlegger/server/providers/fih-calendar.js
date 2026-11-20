@@ -9,16 +9,18 @@ const hash = text => createHash('sha256').update(text).digest('hex')
 export const FIH_READ_TIMEOUT_MS = 7500
 const transportTimeouts = new Set(['ERR_PUBLIC_SOURCE_IDLE_TIMEOUT', 'ETIMEDOUT'])
 
-async function readFihSource(fetchSource, stage, read, { fresh = false } = {}) {
+async function readFihSource(fetchSource, stage, read, { calendar = false } = {}) {
   if (!fetchSource) return read(fetchSource)
   let lastError, timedOut = false
-  for (const freshConnection of [fresh, true]) {
+  for (const retry of [false, true]) {
     const outerSignal = fetchSource.signal
     outerSignal?.throwIfAborted()
     const attempt = new AbortController()
     const signal = outerSignal ? AbortSignal.any([outerSignal, attempt.signal]) : attempt.signal
     const timedFetch = Object.assign((url, redirects, validate, options) =>
-      fetchSource(url, redirects, validate, { ...options, signal, freshConnection }), {
+      fetchSource(url, redirects, validate, {
+        ...options, signal, freshConnection: calendar || retry, edupageTls12: calendar && !retry,
+      }), {
       signal, cacheKey: fetchSource.cacheKey || fetchSource,
     })
     let abort
@@ -138,6 +140,6 @@ export async function fetchFihCalendar(input, deps) {
   const selected = rows.find(row => row.sourceUrl === url.href)
   if (!selected) fail('invalid-selection', 'Velg en klassekalender fra FIHs publiserte oversikter.')
   const guard = input => { const next = fihCalendarUrl(input); if (next.href !== url.href) fail('source-changed', 'Klassekalenderen videresendte til en annen kilde.'); return next }
-  const calendar = await readFihSource(deps.fetchText, 'den valgte klassekalenderen fra EduPage', fetch => cachedText(fetch, url.href, guard), { fresh: true })
+  const calendar = await readFihSource(deps.fetchText, 'den valgte klassekalenderen fra EduPage', fetch => cachedText(fetch, url.href, guard), { calendar: true })
   return parseFihCalendar(calendar, selected)
 }

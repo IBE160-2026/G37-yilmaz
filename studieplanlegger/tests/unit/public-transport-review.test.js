@@ -37,6 +37,18 @@ beforeEach(() => {
 })
 
 describe('R10 production POST and anonymous-cookie transport contracts', () => {
+  it('uses the TLS compatibility attempt only for the Fjellhaug calendar endpoint', async () => {
+    const calendar = 'https://fih.edupage.org/webcal?pwd=C0DEC0DEC0DEC0DE&type=plan&studentid=-23'
+    responses.push({ status: 200 }, { status: 200 }, { status: 200 })
+    await fetchPublicText(calendar, 0, undefined, { edupageTls12: true })
+    await fetchPublicText(calendar, 0, undefined)
+    await fetchPublicText(first, 0, undefined, { edupageTls12: true })
+    expect(mocks.get.mock.calls[0][1]).toMatchObject({ minVersion: 'TLSv1.2', maxVersion: 'TLSv1.2' })
+    for (const [, options] of mocks.get.mock.calls.slice(1)) {
+      expect(options).not.toHaveProperty('maxVersion')
+    }
+  })
+
   it('loads USN programme records only after production transport sends the required encoded POST body and headers', async () => {
     const page = 'https://www.usn.no/studier/studie-og-emneplaner/'
     const config = { year: '2026', semester: 'HØST', minYear: '2014', maxYear: '2026' }

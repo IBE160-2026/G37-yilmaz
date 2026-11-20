@@ -5,6 +5,41 @@ import { openTpImport, confirmTpImport, preview, courseRows, eventRows, openPrev
 
 const preferenceKey = 'ajour:appearance:v1'
 const colorKey = 'ajour.course-colors.v1'
+
+for (const clearFrom of ['open page', 'another tab']) test(`clearing site data from ${clearFrom} forgets deleted course IDs and colors`, async ({ page, context }) => {
+  await page.goto('/')
+  await navigate(page, 'subjects')
+  await page.locator('#course-new').click()
+  await page.locator('#subject-editor [name="name"]').fill('Syntetisk emne for tømming')
+  await page.locator('#subject-editor [name="code"]').fill('CLEAR101')
+  await page.locator('#subject-editor').getByRole('button', { name: 'Lagre emne', exact: true }).click()
+  const { id } = (await saved(page)).planner.courses[0]
+  expect((await assignments(page))[id]).toEqual(expect.any(Number))
+
+  const other = await context.newPage()
+  await other.goto('/')
+  await navigate(other, 'subjects')
+  await expect(other.locator(`[data-course-id="${id}"]`)).toBeVisible()
+  await page.bringToFront()
+  page.once('dialog', dialog => dialog.accept())
+  await page.getByRole('button', { name: 'Slett emne CLEAR101', exact: true }).click()
+  await expect(page.locator(`[data-course-id="${id}"]`)).toHaveCount(0)
+
+  await other.bringToFront()
+  const clearer = clearFrom === 'open page' ? page : other
+  await clearer.evaluate(() => localStorage.clear())
+  await page.bringToFront()
+  await expect(page.locator(`[data-course-id="${id}"]`)).toHaveCount(0)
+  await other.bringToFront()
+  for (const tab of [page, other]) {
+    await expect.poll(() => tab.evaluate(key => Object.keys(localStorage).filter(name => name === key || name.startsWith('studieplanlegger:')), colorKey)).toEqual([])
+  }
+  await expect(other.locator(`[data-course-id="${id}"]`)).toHaveCount(0)
+  await page.reload()
+  await navigate(page, 'subjects')
+  await expect(page.locator(`[data-course-id="${id}"]`)).toHaveCount(0)
+})
+
 async function boot(page, { theme = 'light', width = 1440, fontSize = 16, state = themeFixture() } = {}) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 })
   await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' })

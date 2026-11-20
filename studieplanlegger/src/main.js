@@ -6,7 +6,7 @@ import './redesign.css'
 import { validateDraft, editTask, deleteTask, setTaskCompleted, setTaskSubmitted,
   setNextStep, clearNextStep, completeNextStep, sortedTasks,
   tasksThisWeek, validateAvailableMinutes, isOverdue } from './tasks.js'
-import { createStorage } from './storage.js'
+import { createStorage, STORAGE_KEY } from './storage.js'
 import { createUI } from './redesigned-ui.js'
 import { deriveCapacity, validateSession } from './capacity.js'
 
@@ -42,6 +42,7 @@ let draftId = null
 let editing = false
 let stepId = null
 let showAlternatives = false
+let completeOnly = false
 let view = 'overview'
 let minutes = 30
 let minuteError = ''
@@ -292,6 +293,10 @@ const ui = createUI({
     refresh()
     ui.focusMinutes()
   },
+  completeOnly(value) {
+    completeOnly = value
+    refresh()
+  },
   cancel() {
     refresh()
     const focusId = editing ? draftId : null
@@ -441,16 +446,17 @@ function persistAction(result, id, action, message, stepActionId = null) {
   }
 }
 function refresh() {
+  if (storage.wasCleared?.()) readStoredState()
   registerCourseColors(planner?.courses || [])
   const now = new Date()
-  const candidates = minuteError ? [] : rankedSuggestions(tasks, minutes)
+  const candidates = minuteError ? [] : rankedSuggestions(tasks, minutes, { completeOnly })
   const pending = sortedTasks(tasks.filter(task => !task.completed || (task.requiresSubmission && !task.submitted)))
   visibleTasks = view === 'week' ? tasksThisWeek(tasks, now)
     : view === 'all' ? sortedTasks(tasks)
       : view === 'overview' ? [...pending.filter(task => isOverdue(task, now)).slice(0, 3),
         ...pending.filter(task => !isOverdue(task, now)).slice(0, 3)] : candidates
   subjects?.render({ tasks, planner, view, now, minutes, minuteError, readable })
-  const model = { ...extras, planner, courseFilter, tasks, sessions, capacity: deriveCapacity(tasks, sessions || [], now, planner?.events || [], extras), readable, visibleTasks, candidates, view, now, minutes, minuteError, showAlternatives, editing: hasEditor() }
+  const model = { ...extras, planner, courseFilter, tasks, sessions, capacity: deriveCapacity(tasks, sessions || [], now, planner?.events || [], extras), readable, visibleTasks, candidates, view, now, minutes, minuteError, showAlternatives, completeOnly, editing: hasEditor() }
   ui.render(model)
   textRegistrationView?.render(model)
   onboarding?.render(model)
@@ -467,16 +473,19 @@ textRegistrationView = createTextRegistrationView(document.querySelector('#text-
     return saved
   },
 })
-function read() {
+function readStoredState() {
   const result = storage.read()
   readable = result.ok
   if (result.ok) { tasks = result.tasks
     planner = result.planner; sessions = result.sessions
     const { ok, tasks: _tasks, planner: _planner, sessions: _sessions, ...rest } = result; extras = rest }
-  refresh()
 }
+function read() { readStoredState(); refresh() }
 read()
 window.addEventListener('focus', refresh)
+window.addEventListener('storage', event => {
+  if ((event.key === null || event.key === STORAGE_KEY) && storage.wasCleared?.()) refresh()
+})
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) refresh()
 })

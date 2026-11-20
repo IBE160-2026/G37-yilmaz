@@ -139,6 +139,15 @@ const relativeCue = /(?<![\p{L}\p{N}\p{M}])(?:innen|senest)(?![\p{L}\p{N}\p{M}])
 const relativeDate = /^(?:mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag|i\s+(?:dag|morgen|kveld|natt)|(?:neste|denne|kommende|førstkommende)\s+(?:uke|måned|helg|mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag)|(?:utgangen|slutten)\s+av\s+(?:dagen|uken|uka|måneden|semesteret)|kl\.?\s*\d{1,2}|\d{1,2}[:.]\d{2}(?![./]\d)|(?:om\s+)?(?:\d+|en|ei|ett)\s+(?:time|timer|dag|dager|døgn|uke|uker|måned|måneder))(?![\p{L}\p{N}\p{M}])/iu
 const openDeadline = /^(?:ikke\s+(?:bestemt|fastsatt|oppgitt|avklart|satt)|ukjent|uavklart|kommer senere)(?![\p{L}\p{N}\p{M}])/iu
 const publicationCue = /(?<![\p{L}\p{N}\p{M}])(?:publisert|published|oppdatert|updated)(?![\p{L}\p{N}\p{M}])\s*:?\s*/iu
+const deadlineChangeVerb = String.raw`(?:(?:(?:er|ble)\s+)?(?:nå\s+)?(?:flyttet|utsatt|endret|forlenget|fremskyndet)|(?:(?:was|has\s+been)\s+)?(?:moved|extended|changed))`
+const deadlineChangeFrom = new RegExp(`^${deadlineChangeVerb}\\s+(?:fra|from)\\s+`, 'iu')
+const deadlineChangeAfter = new RegExp(`^${deadlineChangeVerb}\\b`, 'iu')
+const newDateLabel = /^\(?\s*ny\s+dato\b\s*:?\s*/iu
+
+function hasDeadlineAlternative(tail) {
+  const alternative = tail.match(/^\s*(?:[,;/]\s*)?(?:eller|or)\s+(.+)$/iu)?.[1]
+  return Boolean(alternative && (textDate(alternative) || relativeDate.test(alternative)))
+}
 
 function deadlineYear(publication, candidate, referenceDate) {
   const due = candidate.raw.match(namedDate)
@@ -164,20 +173,25 @@ function taskTextDeadline(value, referenceDate) {
   const cue = cues[0]
   if (cue) {
     const expression = value.slice(cue.index + cue[0].length).replace(/^(?:innen|senest|før)\s+/iu, '')
-    const changePrefix = expression.match(/^(?:(?:(?:er|ble)\s+)?(?:flyttet|utsatt|endret)\s+fra|(?:(?:was|has\s+been)\s+)?(?:moved|extended|changed)\s+from)\s+/iu)?.[0]
+    const changePrefix = expression.match(deadlineChangeFrom)?.[0]
     const tail = expression.slice(changePrefix?.length || 0)
     if (openDeadline.test(tail) || /(?<!\p{L})uten\s+$/iu.test(value.slice(0, cue.index))) return noDeadline
-    let candidate = textDate(tail)
+    const candidate = textDate(tail)
     if (!candidate || candidate.index !== 0) return unresolved(value.slice(cue.index), 'Fristuttrykket gir ingen entydig dato og klokkeslett. Avklar fristen.')
-    const alternative = tail.slice(candidate.end).match(/^\s*(?:[,;/]\s*)?(?:eller|or)\s+(.+)$/iu)?.[1]
-    if (alternative && (textDate(alternative) || relativeDate.test(alternative))) return unresolved(tail, 'Kilden oppgir flere mulige frister. Velg riktig frist.')
-    const afterDate = tail.slice(candidate.end).replace(/^\s*[,;–—]\s*/u, ' ')
-    const replacement = changePrefix
-      ? afterDate.match(/^\s+(?:til|to)\s+(.+)$/iu)?.[1]
-      : afterDate.match(/^\s*(?:(?:(?:er|ble)\s+)?(?:flyttet|utsatt|endret)\s+til|(?:(?:was|has\s+been)\s+)?(?:moved|extended|changed)\s+to)\s+(.+)$/iu)?.[1]
-    if (changePrefix || replacement !== undefined || /^\s+(?:(?:er|ble|was)\s+)?(?:flyttet|utsatt|endret|moved|extended|changed)\b/iu.test(afterDate)) {
-      candidate = textDate(replacement || '')
-      if (!candidate || candidate.index !== 0 || textDate(replacement.slice(candidate.end))) return unresolved(expression, 'Den nye fristen er ikke entydig. Velg riktig frist.')
+    const afterDate = tail.slice(candidate.end).replace(/^[\s,;–—]*/u, '')
+    const change = afterDate.match(deadlineChangeAfter)?.[0]
+    const label = afterDate.match(newDateLabel)?.[0]
+    if (changePrefix || change || label) {
+      const replacement = label ? afterDate.slice(label.length) : afterDate.slice(change?.length || 0).match(/^\s*(?:til|to)\s+(.+)$/iu)?.[1] || ''
+      const newDate = textDate(replacement)
+      if (!newDate || newDate.index !== 0) return unresolved(expression, 'Den nye fristen er ikke entydig. Velg riktig frist.')
+      const rest = replacement.slice(newDate.end)
+      if (textDate(rest) || hasDeadlineAlternative(rest)) return unresolved(expression, 'Den nye fristen er ikke entydig. Velg riktig frist.')
+      return parseDocumentDate(newDate.raw)
+    }
+    const secondDate = textDate(afterDate)
+    if (hasDeadlineAlternative(afterDate) || (secondDate && !publicationCue.test(afterDate.slice(0, secondDate.index)))) {
+      return unresolved(tail, 'Kilden oppgir flere mulige frister. Velg riktig frist.')
     }
     const publication = value.slice(0, cue.index).split(publicationCue)[1] || ''
     const namedYear = deadlineYear(publication, candidate, referenceDate)

@@ -179,6 +179,12 @@ for (const status of ['approved', 'adjusted', 'deferred', 'rejected']) test(`opt
   expect(state.topics).toHaveLength(1); expect(state.assessments).toHaveLength(1)
   expect(state.reviewDecisions[0].status).toBe(status)
   expect(state.sessions || []).toHaveLength(['approved', 'adjusted'].includes(status) ? 1 : 0)
+  if (state.sessions?.length) {
+    await page.reload()
+    const reloaded = await saved(page)
+    expect(reloaded.reviewDecisions[0].sessionId).toBe(reloaded.sessions[0].id)
+    expect(reloaded.sessions[0].reviewKey).toBe(reloaded.reviewDecisions[0].reviewKey)
+  }
 })
 
 test('skipping assessment keeps the existing closeout low friction', async ({ page }) => {

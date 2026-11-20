@@ -244,6 +244,7 @@ test('genuine NTNU public import preview/confirm/calendar/detail/reload/repeat a
   // Refresh the genuine saved source through the actual user control. The
   // injected error targets its production calendar transport, not course search.
   const sourceCard = page.locator('#source-list .source-card').filter({ hasText: 'EXPH0100' })
+  await page.clock.setFixedTime(new Date(Date.parse(source.lastAttempt) + 60_000))
   await sourceCard.getByRole('button', { name: 'Oppdater nå', exact: true }).click()
   await expect.poll(async () => (await state(page)).envelope.planner.courses.find(course => course.id === first.course.id).teachingCheck.status).toBe('transport-error')
   const failed = await state(page)

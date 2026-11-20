@@ -71,7 +71,8 @@ export function stateMiddleware(database) {
       send(404, { error: 'not-found' })
     })().catch(error => {
       if (error instanceof RevisionConflict) return send(409, { error: 'stale-revision', revision: error.revision })
-      const known = ['invalid-envelope','invalid-legacy-json','invalid-legacy-envelope','legacy-fingerprint-mismatch','database-not-empty','unreadable-recovery']
+      if (error.message === 'invalid-envelope') return send(400, { error: 'invalid-envelope', message: 'Planen inneholder ugyldige data eller koblinger. Tidligere data er beholdt.' })
+      const known = ['invalid-legacy-json','invalid-legacy-envelope','legacy-fingerprint-mismatch','database-not-empty','unreadable-recovery']
       send(error.statusCode || (known.includes(error.message) ? 400 : 500), { error: known.includes(error.message) ? error.message : 'state-operation-failed' })
     })
   }

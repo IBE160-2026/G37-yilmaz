@@ -21,8 +21,13 @@ export function createImportWizard({ form, previewHost, api, onCourse, feedback,
   if (catalogHelp?.classList.contains('muted')) catalogHelp.hidden = true
   function render() {
     progress.textContent = `Steg ${step} av 4: ${['Institusjon', 'Søk, semester og campus', 'Velg emne eller gruppe', 'Forhåndsvis og importer'][step - 1]}`
-    const provider = institutionById(university.value), capability = provider.capabilities
-    info.textContent = capability.publicTimetable === 'official-entry-only' ? 'Offentlig søk etter emneinformasjon. Semester og campus kontrolleres ved forhåndsvisning. Timeplanlenken er en offisiell inngang, ikke en kalenderfil. Undervisning kan importeres separat fra fil eller kalenderlenke.' : capability.courseSearch !== 'not-verified' ? 'Offentlig emnesøk er implementert. Se kilde og eventuelle mangler før bekreftelse. Personlig tilhørighet og grupper må velges av deg.' : `Direkte emnesøk er ikke implementert. ${provider.datatypes.courseInformation.scope} ${capability.programImport==='implemented-public'?'Programimport er tilgjengelig over. ':''}Dokument, kalender og manuell registrering er tilgjengelig.`
+    const { capabilities } = institutionById(university.value)
+    if (capabilities.courseSearch === 'not-verified') {
+      const programHelp = capabilities.programImport === 'implemented-public' ? 'Velg et studieprogram ovenfor for å finne emner. ' : ''
+      info.textContent = `${programHelp}Bruk «Fra fil eller tekst», «Fra kalenderlenke» eller «Registrer manuelt».`
+    } else {
+      info.textContent = 'Søk etter emnekode eller navn. Kontroller semester, campus og kilde før du bekrefter importen.'
+    }
     for (const field of ['university', 'code', 'semester', 'year', 'campus']) form.elements[field].closest('label').hidden = field === 'university' ? step !== 1 : step !== 2
     campusInput.disabled = university.value === 'uib'; campus.hidden ||= campusInput.disabled
     form.querySelector('button[type=submit]').hidden = step !== 2

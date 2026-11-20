@@ -12,7 +12,7 @@ const courses = Array.from({ length: 12 }, (_, index) => Object.freeze({
 }))
 const backingStore = saved => {
   const values = new Map(saved === undefined ? [] : [[COURSE_COLOR_STORAGE_KEY, saved]])
-  return { getItem: vi.fn(key => values.get(key) ?? null), setItem: vi.fn((key, value) => values.set(key, value)) }
+  return { getItem: vi.fn(key => values.get(key) ?? null), setItem: vi.fn((key, value) => values.set(key, value)), clear: () => values.clear() }
 }
 const slots = (registry, entries = courses) => entries.map(course => registry.slotFor(course.id))
 
@@ -181,6 +181,26 @@ describe('stable local course identities', () => {
     first.sync()
     expect(slots(first, courses.slice(0, 4))).toEqual(slots(pending, courses.slice(0, 4)))
     expect(new Set(slots(first, courses.slice(0, 4))).size).toBe(4)
+  })
+
+  it('forgets retained IDs and pending writes when previously stored preferences are cleared', () => {
+    const storage = backingStore()
+    const first = createCourseColorRegistry(() => storage), second = createCourseColorRegistry(() => storage)
+    first.register(courses)
+    first.register([])
+    expect(second.slotFor(courses[0].id)).toBe(1)
+    const pending = { id: 'synthetic-pending' }
+    storage.setItem.mockImplementationOnce(() => { throw Error('full') })
+    second.register([pending])
+    storage.clear()
+
+    for (const registry of [first, second]) {
+      expect(registry.sync()).toBe(true)
+      expect(registry.slotFor(courses[0].id)).toBeNull()
+      expect(registry.slotFor(pending.id)).toBeNull()
+      registry.register([])
+    }
+    expect(storage.getItem(COURSE_COLOR_STORAGE_KEY)).toBeNull()
   })
 
   it.each(['access', 'read', 'missing'])('recovers from unavailable %s without overwriting unseen persisted IDs', failure => {

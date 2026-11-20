@@ -71,6 +71,25 @@ test('production API explicitly migrates once, persists exact relations and reje
   expect(reloaded.envelope).toEqual(deleted.envelope)
 })
 
+test('production API rejects malformed task and course lists without changing the saved revision', async ({ request }) => {
+  const saved = await (await request.get('/api/state')).json()
+  const envelopes = [
+    { ...saved.envelope, tasks: [null] },
+    { ...saved.envelope, tasks: {} },
+    { ...saved.envelope, planner: { ...saved.envelope.planner, courses: {} } },
+  ]
+  const recovery = await (await request.get('/api/state/recovery')).json()
+  for (const envelope of envelopes) {
+    const data = { envelope, expectedRevision: saved.revision }
+    for (const response of [await request.put('/api/state', { data }), await request.post('/api/state/replace', { data })]) {
+      expect(response.status()).toBe(400)
+      expect(await response.json()).toEqual({ error: 'invalid-envelope', message: 'Planen inneholder ugyldige data eller koblinger. Tidligere data er beholdt.' })
+    }
+    expect(await (await request.get('/api/state')).json()).toEqual(saved)
+    expect(await (await request.get('/api/state/recovery')).json()).toEqual(recovery)
+  }
+})
+
 test('production API restores recovery data and purges work history from live and recoverable state', async ({ page }) => {
   await page.goto('/')
   const initial = await page.evaluate(async () => (await fetch('/api/state')).json())

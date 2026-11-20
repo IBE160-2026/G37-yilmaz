@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { dailyStatus, rankedSuggestions, suggestionExclusions } from '../../src/daily-guidance.js'
 import { capacityNotice } from '../../src/capacity-notice.js'
+import { deriveCapacity } from '../../src/capacity.js'
 import { toInstant } from '../../src/planner.js'
 import { applyComparedPlan, comparePlans } from '../../src/plan-comparison.js'
 import { applyReplan, createReplan } from '../../src/replanning.js'
 import { availabilityFor } from '../../src/study-time.js'
-import { getSessionMinutes } from '../../src/tasks.js'
+import { getSessionMinutes, selectTasksForMinutes, suggestionReason } from '../../src/tasks.js'
 import { deriveWorkCapacity, extendedSessionInterval } from '../../src/work-capacity.js'
 
 const now = new Date('2026-11-19T07:00:00Z')
@@ -173,6 +174,26 @@ describe('delivery plan regressions', () => {
     expect(rankedSuggestions([divisible, exact, indivisible], 30)).toEqual([divisible, exact])
     expect(getSessionMinutes(divisible, 30)).toBe(30)
     expect(suggestionExclusions([indivisible], 30)[0].reason).toContain('hele oppgaven får plass i én økt')
+  })
+
+  it('keeps a title-only task unknown in both capacity totals', () => {
+    const tasks = [{ id: 'title-only', title: 'Bare en tittel' }]
+    for (const capacity of [deriveCapacity(tasks, [], now), deriveWorkCapacity(tasks, [], now, [], [window(540, 1020)])]) {
+      expect(capacity.tasks[0]).toMatchObject({ requiredMinutes: null, requiredMaxMinutes: null, missingMaxMinutes: null })
+      expect(capacity).toMatchObject({ unknownTaskCount: 1, totalRequiredMaxMinutes: null, totalMissingMaxMinutes: null })
+    }
+  })
+
+  it('excludes open-ended effort from completion within 480 minutes and offers a marked partial session', () => {
+    const divisible = task('open', open)
+    const known = task('known', { remainingMinutes: 480 })
+    const unknownWithStep = task('open-step', { ...open, nextStep: { description: 'Les oppgaven', estimatedMinutes: 20 } })
+    const tasks = [divisible, known, unknownWithStep]
+    expect(selectTasksForMinutes([divisible], 480)).toEqual([])
+    expect(rankedSuggestions(tasks, 480, { completeOnly: true })).toEqual([known])
+    expect(rankedSuggestions([divisible], 480)).toEqual([divisible])
+    expect(getSessionMinutes(divisible, 480)).toBe(241)
+    expect(suggestionReason(divisible, 480)).toContain('En deløkt på 241 min')
   })
 
   it('P09 shows the known shortage with 30 minutes available of at least 241', () => {

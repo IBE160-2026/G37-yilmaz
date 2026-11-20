@@ -1,4 +1,4 @@
-import { osloLocal } from './planner.js'
+import { osloLocal, osloLocalExact } from './planner.js'
 import { applyCourseColor } from './course-colors.js'
 import { eventPresentation } from './event-kind.js'
 import { dayBounds } from './calendar-model.js'
@@ -66,12 +66,16 @@ export function createTeachingLayer(host, actions) {
         const presentation = eventPresentation(event)
         let row = rows.get(event.id)
         if (!row) { row = document.createElement('button'); row.type = 'button'; row.dataset.calendarEvent = event.id; row.addEventListener('click', () => actions.editEvent?.(event.id)); rows.set(event.id, row) }
-        const personal = event.activityKind === 'personal', start = event.start ? osloLocal(event.start) : `${event.dateLocal}T`, end = event.end ? osloLocal(event.end) : ''
-        const timing = personal && !event.start ? 'Tid ikke oppgitt' : personal && !event.end ? `${start.slice(11)} · Varighet ikke oppgitt` : event.allDay ? 'Hele dagen' : `${start.slice(11)}–${end.slice(0, 10) === start.slice(0, 10) ? '' : `${end.slice(0, 10)} `}${end.slice(11)}`
+        const personal = event.activityKind === 'personal', start = event.start ? osloLocalExact(event.start) : `${event.dateLocal}T`, end = event.end ? osloLocalExact(event.end) : ''
+        let timing
+        if (personal && !event.start) timing = 'Tid ikke oppgitt'
+        else if (personal && !end) timing = `${start.slice(11)} · Varighet ikke oppgitt`
+        else if (event.allDay) timing = 'Hele dagen'
+        else if (event.point) timing = start.slice(11)
+        else timing = `${start.slice(11)}–${end.slice(0, 10) === start.slice(0, 10) ? '' : `${end.slice(0, 10)} `}${end.slice(11)}`
         row.textContent = `${personal ? 'Egen aktivitet' : `${presentation.symbol} · ${presentation.label}`} · ${code ? `${code} · ` : ''}${event.title} · ${agendaMode ? `${start.slice(0, 10)} ` : ''}${timing} · ${event.location || 'Sted ikke oppgitt'}`
         row.classList.toggle('is-personal', personal)
         row.classList.toggle('is-exam', presentation.isExam)
-        row.setAttribute('aria-label', `${personal ? 'Egen aktivitet' : presentation.label}: ${code ? `${code}, ` : ''}${event.title}`)
         applyCourseColor(row, event.courseId)
         row.disabled = disabled
         if (previous.nextElementSibling !== row) previous.after(row)
