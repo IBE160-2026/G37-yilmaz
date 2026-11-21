@@ -132,6 +132,10 @@ function taskProposal(action, taskLabel, valueInput, tasks, now) {
   const parsed = action === 'deadline' ? parseOsloDeadline(valueInput, now) : parseRemainingMinutes(valueInput)
   const proposal = { action, taskTitle: title, taskId: target.ok ? target.value.id : '', oldValue: target.ok ? (target.value[key] ?? (action === 'deadline' ? '' : null)) : undefined,
     ...(action === 'deadline' ? { deadlineInput: cleanSentence(valueInput), deadlineLocal: parsed.deadlineLocal || '' } : { remainingInput: cleanSentence(valueInput), remainingMinutes: parsed.minutes ?? null }) }
+  if (parsed.needsYearChoice) {
+    proposal.needsYearChoice = true
+    proposal.yearChoices = parsed.yearChoices
+  }
   if (target.reason === 'ambiguous') {
     proposal.taskChoices = target.matches.map(task => ({ ...taskContext(task), oldValue: task[key] ?? (action === 'deadline' ? '' : null) }))
     return failed(proposal, 'Flere oppgaver har nøyaktig dette navnet. Velg riktig oppgave ut fra emne og frist.')
