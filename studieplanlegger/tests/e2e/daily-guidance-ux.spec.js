@@ -94,7 +94,7 @@ test('Oversikt og Planlegg uken viser samme underskudd for arbeid som må gjøre
   await page.reload()
 
   const status = page.locator('#daily-overview').getByRole('status')
-  await expect(status).toContainText('1 time tilgjengelig før fristen')
+  await expect(status).toContainText('Ukeplanen får plass til 0 minutter før fristen')
   await expect(status).toContainText('sammenhengende økt')
   await expect(status).toContainText('1 time mangler')
   await expect(status).not.toContainText('Planen går opp')

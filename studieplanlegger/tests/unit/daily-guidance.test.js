@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { deriveCapacity } from '../../src/capacity.js'
 import { dailyStatus, rankedSuggestions } from '../../src/daily-guidance.js'
 import { closeWork, validWorkLogs } from '../../src/work-log.js'
-import { createReplan, applyReplan } from '../../src/replanning.js'
+import { createReplan, applyReplan, previewStudyPlan } from '../../src/replanning.js'
 import { editTask, getRemainingRange, validTasks } from '../../src/tasks.js'
 
 const now = new Date('2026-09-07T09:00:00+02:00')
@@ -10,6 +10,25 @@ const task = (id, patch = {}) => ({ id, title: `Oppgave ${id}`, course: 'IBE160'
 const session = (id, startTime, endTime, patch = {}) => ({ id, dateLocal: '2026-09-07', startTime, endTime, ...patch })
 
 describe('dagsstatus med intervaller og faktisk kapasitet', () => {
+  it.each([[10, 50, 10], [0, 60, 0]])('bruker ukeplanens økter og underskudd med %i min pause', (breakMinutes, plannedMinutes, missingMinutes) => {
+    const state = {
+      tasks: [task('a', { deadlineLocal: '2026-09-07T11:00', splittable: true })],
+      sessions: [],
+      workWindows: [{ id: 'one-hour', start: '2026-09-07T09:00:00+02:00', end: '2026-09-07T10:00:00+02:00' }],
+      planningPreferences: { minimumMinutes: 15, sessionMinutes: 30, maximumMinutes: 30, breakMinutes },
+    }
+    const before = structuredClone(state)
+    const capacity = deriveCapacity(state.tasks, state.sessions, now, [], state)
+    expect(capacity.tasks[0].availableBeforeMinutes).toBe(60)
+    const preview = previewStudyPlan(state, { now })
+    expect(preview).toMatchObject({ ok: true, allocatedMinutes: { a: plannedMinutes }, totalMissingMinutes: missingMinutes })
+    expect(dailyStatus({ ...state, capacity, now })).toMatchObject({
+      tone: missingMinutes ? 'danger' : 'good', availableMinutes: plannedMinutes,
+      missingMinMinutes: missingMinutes, missingMaxMinutes: missingMinutes,
+    })
+    expect(state).toEqual(before)
+  })
+
   it('viser at det kan mangle opptil 45 minutter for 1–2 timer med 75 minutter ledig', () => {
     const tasks = [task('presentasjon', { title: 'Presentasjonen', estimatedMinutes: undefined, remainingEstimate: { minMinutes: 60, maxMinutes: 120 } })]
     const capacity = deriveCapacity(tasks, [session('ledig', '10:00', '11:15')], now)

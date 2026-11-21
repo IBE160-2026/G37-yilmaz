@@ -4,6 +4,7 @@ import { compareDeadlines } from './deadline.js'
 import { isOverdue } from './tasks.js'
 import { OSLO, osloLocal } from './planner.js'
 import { dailyStatus } from './daily-guidance.js'
+import { planningFingerprint, previewStudyPlan } from './replanning.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
 const pending = task => !task.completed || (task.requiresSubmission && !task.submitted)
 const eventClock = new Intl.DateTimeFormat('nb-NO', { hour: '2-digit', minute: '2-digit', timeZone: OSLO })
@@ -50,11 +51,21 @@ export function createDailyOverview(actions) {
   const el = (tag, text) => { const node = document.createElement(tag); node.textContent = text; return node }
   const button = (text, key, fn) => { const node = el('button', text); node.type = 'button'; node.className = 'secondary'; node.dataset.dailyKey = key; node.onclick = fn; return node }
   let signature = '', statusTask
+  let weekPreviewKey, weekPreview
+  const planPreview = (model, { now }) => {
+    // The controller refreshes every second; complete scheduling uses whole minutes.
+    const key = `${Math.ceil(+now / 60_000)}:${planningFingerprint(model)}`
+    if (key !== weekPreviewKey) {
+      weekPreview = previewStudyPlan(model, { now })
+      weekPreviewKey = key
+    }
+    return weekPreview
+  }
   // Keep the opener node alive while model.editing changes during a dialog.
   const replanControl = button('Se forslag til ny tid', 'status:replan', () => !statusTask ? actions.open() : statusTask.completed ? actions.summary('ready') : actions.replan(statusTask.id))
   return { render(model) {
     grid.hidden = host.hidden = planHost.hidden = model.view !== 'overview' || !model.readable || !(model.tasks.length || model.sessions?.length || model.planner?.courses?.length || model.planner?.events?.length); if (host.hidden) return
-    const now = +model.now, date = calendarToday(model.now), data = dailyOverview(model), entries = calendarEntries(model), status = dailyStatus(model), next = JSON.stringify([date, data, entries, status, model.planner?.courses, model.capacity, model.editing, data.activity && data.activity.start <= +model.now, data.rows.map(row => row.sessions.map(s => [s.start <= +model.now, s.end <= +model.now]))]); if (signature === next) return; signature = next
+    const now = +model.now, date = calendarToday(model.now), data = dailyOverview(model), entries = calendarEntries(model), status = dailyStatus(model, planPreview), next = JSON.stringify([date, data, entries, status, model.planner?.courses, model.capacity, model.editing, data.activity && data.activity.start <= +model.now, data.rows.map(row => row.sessions.map(s => [s.start <= +model.now, s.end <= +model.now]))]); if (signature === next) return; signature = next
     const focused = host.contains(document.activeElement) || planHost.contains(document.activeElement) ? document.activeElement.dataset.dailyKey : null
     const opened = new Set([...planHost.querySelectorAll('details[open]')].map(node => node.dataset.dailyMenu))
     const companion = document.createElement('img'); companion.src = '/brand/notebook.svg'; companion.alt = ''; companion.width = companion.height = 44

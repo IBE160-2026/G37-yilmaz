@@ -125,6 +125,14 @@ Ajour itself does not call a generative-AI service at runtime. Its suggestions a
 
 ## Concrete findings and corrections
 
+### Tidlig eksempel: oppstart med en eldre SQLite-database, 20. september 2026
+
+Målet var å åpne en eldre database og beholde oppgaver, økter og koblinger. En syntetisk database uten kolonnen `state_meta.shape_json` avslørte at oppstarten leste kolonnen før migreringen hadde opprettet den. [Rettingscommiten `3f535bf`](https://github.com/IBE160-2026/G37-yilmaz/commit/3f535bfa121c1fcf080ad67bfcbaa40bf4e18eda) oppretter de manglende kolonnene før bruk og samler oppgraderingen og valideringen i én transaksjon.
+
+De [målrettede migreringstestene](../../studieplanlegger/tests/unit/database-delivery.test.js) kontrollerte blant annet at gamle data og ID-er ble bevart, at databasen kunne åpnes på nytt, og at ugyldige relasjoner utløste full tilbakeføring. Den siste dokumenterte kjøringen i en ren arbeidskopi bestod 1 200 enhetstester, produksjonsbygget og begge nettlesertestene mot Node/SQLite. [Datert testrapport fra rettingscommiten](https://github.com/IBE160-2026/G37-yilmaz/blob/3f535bfa121c1fcf080ad67bfcbaa40bf4e18eda/studieplanlegger/VERIFICATION.md#legacy-shape_json-migration-correction--2026-09-20)
+
+### Andre dokumenterte funn
+
 - Early database review found missing relational `REFERENCES`, incorrect migration eligibility for settings-only state, and insufficient purge coverage. The correction added relational foreign keys, included settings in the authoritative empty-state decision, and tested privacy purge across valid legacy archives as well as live/recovery work history.
 - The Docker base-image transfer initially failed with `local error: tls: bad record MAC`. This was recorded as an observed transport failure rather than assigned an unsupported cause. When the image became available, the real Compose build, health check, browser flow, backup/restore, and same-volume recreation were completed and documented.
 - Technical review found that privacy purge missed work history inside valid legacy archives, database E2E lacked a dedicated repeatable command, skipped Playwright suites could appear successful, `.woff2` lacked an explicit MIME type, and a calendar calculation used `clientTop` instead of `clientLeft`. These findings were corrected and retested before the final clean Docker checks.
