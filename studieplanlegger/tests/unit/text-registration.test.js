@@ -71,10 +71,15 @@ describe('local rule-based text registration', () => {
     expect(parseTextRegistration(`Tannlege 5.11.2026 kl. ${interval}`, { now })).toMatchObject({ ok: false, proposal: { action: 'activity' } })
   })
 
-  it.each([['30 min', 30], ['90 minutter', 90], ['to timer', 120], ['1,5 timer', 90]])('parses bounded work units %s', (input, minutes) => {
-    const result = parseRemainingMinutes(input)
-    if (minutes === undefined) expect(result.ok).toBe(false)
-    else expect(result).toEqual({ ok: true, minutes })
+  it.each([['30 min', 30], ['90 minutter', 90], ['to timer', 120], ['1,5 timer', 90], ['4,1 timer', 246], ['4.1000 timer', 246]])('parses bounded work units %s', (input, minutes) => {
+    expect(parseRemainingMinutes(input)).toEqual({ ok: true, minutes })
+  })
+
+  it('requires whole minutes in work estimates registered from text', () => {
+    const options = { tasks, courses, now }
+    expect(parseTextRegistration('Sett gjenstående arbeid for Les kapittel 4 til 4,1 timer', options)).toMatchObject({ ok: true, proposal: { remainingMinutes: 246 } })
+    expect(parseTextRegistration('Sett gjenstående arbeid for Les kapittel 4 til 1,5 timer', options)).toMatchObject({ ok: true, proposal: { remainingMinutes: 90 } })
+    expect(parseTextRegistration('Sett gjenstående arbeid for Les kapittel 4 til 1,001 timer', options)).toMatchObject({ ok: false, errors: ['Arbeidstiden må bli et helt antall minutter.'] })
   })
 
   it('creates an editable proposal with exact course resolution', () => {

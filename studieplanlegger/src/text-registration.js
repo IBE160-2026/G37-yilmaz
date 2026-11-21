@@ -55,10 +55,19 @@ export function parseOsloDeadline(value, now = new Date()) {
 export function parseRemainingMinutes(value) {
   const normalized = cleanSentence(fold(value)).replace(/^(?:en|ett)\s+(?=time$)/u, '1 ').replace(/^to\s+(?=timer$)/u, '2 ')
   if (!normalized || ['vet ikke', 'ukjent', 'mye'].includes(normalized)) return { ok: true, minutes: null, unknown: true }
-  const match = normalized.match(/^(\d+(?:[.,]\d+)?)\s*(min(?:utt(?:er)?)?|t(?:ime|imer)?)$/u)
+  const match = normalized.match(/^(\d+)(?:[.,](\d+))?\s*(min(?:utt(?:er)?)?|t(?:ime|imer)?)$/u)
   if (!match) return { ok: false, error: 'Bruk minutter eller timer, for eksempel 90 min, to timer eller 1,5 timer.' }
-  const amount = Number(match[1].replace(',', '.')), minutes = match[2].startsWith('t') ? amount * 60 : amount
-  return Number.isSafeInteger(minutes) && minutes >= 0 ? { ok: true, minutes } : { ok: false, error: 'Arbeidstiden må bli et helt antall minutter.' }
+  const [, whole, fraction = '', unit] = match
+  const minutesPerUnit = unit.startsWith('t') ? 60 : 1
+  // A finite decimal that represents whole minutes can have at most two
+  // fractional digits after trailing zeros are ignored (0.05 hours = 3 min).
+  const hundredths = Number(fraction.slice(0, 2).padEnd(2, '0'))
+  const fractionalMinutes = hundredths * minutesPerUnit / 100
+  const minutes = Number(whole) * minutesPerUnit + fractionalMinutes
+  if (/[1-9]/u.test(fraction.slice(2)) || !Number.isInteger(fractionalMinutes) || !Number.isSafeInteger(minutes)) {
+    return { ok: false, error: 'Arbeidstiden må bli et helt antall minutter.' }
+  }
+  return { ok: true, minutes }
 }
 
 export function textRegistrationEditDraft(saved, action, value) {
