@@ -19,6 +19,44 @@ async function boot(page, state, width) {
   expect(await writes(page)).toEqual([])
 }
 
+for (const breakMinutes of [10, 0]) {
+  test(`Oversikt og Ukeplan vurderer samme frist med ${breakMinutes} min pause uten lagring`, async ({ page }) => {
+    const task = { id: 'deadline-fit', title: 'Syntetisk fristprøve', course: '', deadlineLocal: '2026-11-02T11:00',
+      estimatedMinutes: 60, remainingMinutes: 60, completed: false, splittable: true }
+    const state = {
+      ...emptyState(), tasks: [task],
+      workWindows: [{ id: 'one-hour', start: '2026-11-02T09:00:00+01:00', end: '2026-11-02T10:00:00+01:00' }],
+      planningPreferences: { minimumMinutes: 15, sessionMinutes: 30, maximumMinutes: 30, breakMinutes },
+    }
+    await boot(page, state, 1440)
+    const before = await raw(page)
+    await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()
+    const week = page.getByRole('dialog', { name: 'Realistisk planforslag' })
+    const shortage = week.locator('.plan-problem')
+    await expect(week.locator('.proposed-session-time')).toHaveText([
+      /09:00–09:30 · 30 min/,
+      breakMinutes ? /09:40–10:00 · 20 min/ : /09:30–10:00 · 30 min/,
+    ])
+    if (breakMinutes) await expect(shortage).toContainText('10 min mangler før fristen')
+    else await expect(shortage).toHaveCount(0)
+    await week.getByRole('button', { name: 'Ikke nå', exact: true }).click()
+
+    await navigate(page, 'overview')
+    const status = page.locator('#daily-overview').getByRole('status')
+    await expect(status).toContainText(task.title)
+    if (breakMinutes) {
+      await expect(status).toContainText('Ukeplanen får plass til 50 minutter før fristen')
+      await expect(status).toContainText('10 minutter mangler')
+      await expect(status).not.toContainText('Planen går opp')
+    } else {
+      await expect(status).toContainText('Ukeplanen får plass til 1 time før fristen')
+      await expect(status).toContainText('Planen går opp')
+    }
+    expect(await raw(page)).toBe(before)
+    expect(await writes(page)).toEqual([])
+  })
+}
+
 test('ukeplanen planlegger kjent minimum ved Mer enn 4 timer med åtte timer ledig', async ({ page }) => {
   const assignment = { id: 'synthetic-open-estimate', title: 'Syntetisk ukeplan', course: '', estimatedMinutes: 30, remainingMinutes: 30, completed: false }
   const reservation = { id: 'synthetic-reservation', taskId: assignment.id, dateLocal: '2026-11-02', startTime: '08:00', endTime: '08:30' }

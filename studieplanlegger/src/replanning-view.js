@@ -1,7 +1,6 @@
-import { createReplan, applyReplan, replanMoveAlternatives, sameSessionTime } from './replanning.js'
+import { previewStudyPlan, applyReplan, replanMoveAlternatives, sameSessionTime } from './replanning.js'
 import { DEFAULT_PLANNING_RULES } from './planning-rules.js'
-import { getRemainingRange } from './tasks.js'
-import { STUDY_TIME_PRESETS, availabilityFor } from './study-time.js'
+import { STUDY_TIME_PRESETS } from './study-time.js'
 import { extendedSessionInterval } from './work-capacity.js'
 import { comparePlans, applyComparedPlan } from './plan-comparison.js'
 import { applyCourseColor, resolvedCourseId } from './course-colors.js'
@@ -144,10 +143,7 @@ export function createReplanningView(actions) {
     if (!host) return
     if (host.querySelector('[data-comparison]') || selectedComparison) { showComparison(host, error); return }
     error.textContent = ''; host.replaceChildren(); selectedComparison = null; selectedScenarioId = null
-    const availability = availabilityFor(state, { now: new Date(), choice: state.workWindows?.length ? 'saved' : choice || 'assumption' })
-    const scoped = taskId ? [taskId] : undefined
-    const exploratory = Object.fromEntries(state.tasks.filter(task => (!scoped || scoped.includes(task.id)) && !task.completed && !getRemainingRange(task)).map(task => [task.id, rules.sessionMinutes]))
-    preview = createReplan(state, { rules, exploratory, availability, taskIds: scoped })
+    preview = previewStudyPlan(state, { rules, taskId, choice: choice || 'assumption' })
     dialog.querySelector('[data-accept]').disabled = !preview.ok || !preview.changes?.length
     if (!preview.ok) { error.textContent = preview.error; return }
     renderPreview(host, error)

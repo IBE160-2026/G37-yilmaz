@@ -3,7 +3,7 @@ import { taskBlockers, validateDependencyGraph } from './task-dependencies.js'
 import { DEFAULT_PLANNING_RULES, validPlanningRules } from './planning-rules.js'
 import { extendedSessionInterval, unionIntervals, subtractIntervals, wholeMinuteIntervals, windowInterval, intervalMinutes, intersectIntervals, contiguousWorkInterval, validWindows, reservationConflict, reservationWorkIntervals } from './work-capacity.js'
 import { eventBlocksTime, osloLocal, uncertainPersonalTiming } from './planner.js'
-import { validStudyTimePreference } from './study-time.js'
+import { availabilityFor, validStudyTimePreference } from './study-time.js'
 
 const minute = 60000
 export const planningFingerprint = state => JSON.stringify([state.tasks, state.sessions, state.workWindows, state.busyWindows, state.planner?.events, state.planningPreferences, state.studyTimePreference])
@@ -82,6 +82,14 @@ function retainedWork(task, kept, state, { floor, after, limit, windows, busy, b
     intervals.push(...usable)
   }
   return { intervals: unionIntervals(intervals), problems }
+}
+
+export function previewStudyPlan(state, { now = new Date(), rules = state.planningPreferences || DEFAULT_PLANNING_RULES, choice = 'assumption', taskId } = {}) {
+  const availability = availabilityFor(state, { now, choice: state.workWindows?.length ? 'saved' : choice })
+  const exploratory = Object.fromEntries(state.tasks
+    .filter(task => (!taskId || task.id === taskId) && !task.completed && !getRemainingRange(task))
+    .map(task => [task.id, rules.sessionMinutes]))
+  return createReplan(state, { now, rules, exploratory, availability, taskIds: taskId ? [taskId] : undefined })
 }
 
 export function createReplan(state, { now = new Date(), rules = state.planningPreferences || DEFAULT_PLANNING_RULES, exploratory = {}, availability, taskIds, priorityTaskIds = [] } = {}) {
