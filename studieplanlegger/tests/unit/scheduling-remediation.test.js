@@ -145,13 +145,13 @@ describe('R1 short usable sessions and limits of capacity minute totals', () => 
     const before = state({ tasks: [task('work', { remainingMinutes: 60 })], workWindows: [window('hour', '2026-09-20T08:00:00Z', '2026-09-20T09:00:00Z')], planningPreferences: DEFAULT_PLANNING_RULES })
     const capacity = deriveCapacity(before.tasks, [], now, [], before)
     expect(capacity.tasks[0].allocatedMinutes).toBe(60)
-    expect(capacity.tasks[0].reasons.join(' ')).toMatch(/Minuttsummen.*ikke kontrollert som en gjennomførbar plan.*10 min pause/)
+    expect(capacity.tasks[0].reasons.join(' ')).toMatch(/Summen viser hvor mye tid du har.*Planlegg uken.*10 min pause/)
     expect(capacity.tasks[0].reasons.join(' ')).not.toContain('Arbeidet får plass')
     const preview = createReplan(before, { now })
     expect(preview.allocatedMinutes.work).toBe(50)
     expect(preview.problems.join(' ')).toContain('10 min mangler')
     const legacy = deriveCapacity(before.tasks, [{ id: 'legacy', dateLocal: '2026-09-20', startTime: '10:00', endTime: '11:00' }], now, [], { planningPreferences: DEFAULT_PLANNING_RULES })
-    expect(legacy.planningNote).toMatch(/ikke kontrollert som en gjennomførbar plan.*10 min pause/)
+    expect(legacy.planningNote).toMatch(/Planlegg uken.*10 min pause/)
   })
 
   it('applies an explicit indivisible maximum in both modern and legacy capacity callers', () => {

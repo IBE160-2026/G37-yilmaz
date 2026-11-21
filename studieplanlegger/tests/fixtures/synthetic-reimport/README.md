@@ -1,8 +1,8 @@
 ﻿# Synthetic legacy reimport fixture
 
-Created 2026-10-21 solely from the invented three-event CSV embedded in `legacy.json`. No personal input, runtime database, calendar URL or captured browser state was used.
+`legacy.json` was generated on 2026-10-21 from the synthetic three-event CSV it contains.
 
-Generation used the preserved dirty source baseline from immediately before this repair, not HEAD. SHA-256 of its UTF-8 module text:
+The generator used the local source files from just before the fix, including uncommitted changes. These SHA-256 hashes identify the UTF-8 module text.
 
 - `src/document-parsers.js`: `57388b60aa986267ec307618a76d9fcc5e491d10ecac2cf721538db51d2329bb`
 - `src/import-preview.js`: `cb65543861dd9d3e1799a9bf4dfe117c4c851150f697c9c64b2654dad048340c`

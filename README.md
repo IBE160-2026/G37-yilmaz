@@ -1,32 +1,26 @@
-# Ajour — G37 «Git Happens»
+# Ajour
 
-**[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.**
+**[Åpne Ajour på nett](https://ajour-sooty.vercel.app/)** uten konto eller installasjon.
 
-Ajour hjelper deg å gjøre oppgaver og tilgjengelig tid om til en plan, registrere hva du faktisk fikk gjort og justere resten. Du godkjenner import og planendringer selv. Appen bruker faste, forklarbare regler og krever ingen konto.
+Ajour er en studieplanlegger som samler oppgaver, undervisning og ledig studietid. Du får forslag til hva du kan jobbe med nå, og når du kan sette av tid til annet arbeid. Forslagene bygger på opplysningene du legger inn og faste regler. Etter en økt kan du logge tiden du brukte og justere planen.
 
-Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten 2026 (15 studiepoeng). **Gruppe G37 — Git Happens. Medlem: Elias Hemsett Yilmaz.** Repoet inneholder appen og dokumentasjon av utvikling, testing og kvalitetssikring med KI. Appmappen heter `studieplanlegger`.
+Ajour er laget i **IBE160 Programmering med KI** (15 studiepoeng) ved Høgskolen i Molde høsten 2026. **Gruppe G37 – Git Happens. Medlem: Elias Hemsett Yilmaz.** Appkoden ligger i `studieplanlegger/`.
 
 ## Kom i gang
 
-1. Åpne [nettutgaven](https://ajour-sooty.vercel.app/) og legg til en oppgave. Bare tittelen er obligatorisk; emne, frist, tidsanslag og arbeidssteg er valgfrie.
-2. Registrer ledig studietid og opptatte perioder. Kontroller forslaget før du godkjenner en studieøkt.
-3. Etter arbeidet registrerer du faktisk tid og gjenstående anslag hver for seg. Godkjenn eventuelle justeringer av planen; en godkjent omplanlegging kan angres.
+1. Legg til en oppgave med en tittel. Du kan legge til emne, frist, tidsanslag og arbeidssteg senere.
+2. Registrer når du kan studere og når du er opptatt. Se over forslagene før du godkjenner en studieøkt.
+3. Logg tiden du brukte, og anslå hvor mye arbeid som gjenstår. Du velger selv hvilke planendringer du vil godta. En godkjent omplanlegging kan angres.
 
-Hovedflyten er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**. Fullført steg, ferdig oppgave og bekreftet innlevering er separate handlinger. Du kan registrere alt manuelt; import er valgfritt. [Brukerveiledningen](studieplanlegger/README.md#kom-i-gang-og-finn-frem) forklarer skjermbildene, import, kalenderkopi og temaene **System/Lyst/Mørkt**.
-
-**Oppgave eller arbeidssteg:** Planforslag reserverer tid til oppgaven. Når **Start** viser et bestemt arbeidssteg, følger dette steget med til arbeidsutfallet. Gjenstående arbeid gjelder fortsatt hele oppgaven. [Avklaring, retting og teknisk nettleserprøve 2. november](.docs/implementation-artifacts/work-step-identity-2026-11-02.md) skiller disse flytene og dokumenterer testomfanget.
-
-Et fullført avklaringssteg som er merket for å oppheve venting, åpner for videre arbeid når øvrige forutsetninger er oppfylt. [Oppfølgingen 3. november](.docs/implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) dokumenterer denne rettingen og kontroll av lokal server og veiledning.
+Du kan legge inn alt for hånd eller importere opplysninger og se over dem før du lagrer. [Brukerveiledningen](studieplanlegger/README.md#kom-i-gang-og-finn-frem) viser hvordan du bruker appen.
 
 <a id="nettleserutgave--2026-10-29"></a>
 
 ## Ta vare på planen
 
-Nettutgaven lagrer planen i den aktuelle nettleserprofilen på den nøyaktige nettadressen. En annen profil, enhet, localhost eller Vercel-forhåndsvisning har egne data. **Sletting av nettleserdata kan slette planen.** Det finnes ingen konto eller automatisk synkronisering mellom enheter.
+Nettutgaven lagrer planen i nettleserprofilen du bruker, på den aktuelle nettadressen. Sletting av nettleserdata kan slette planen. Planen synkroniseres ikke mellom enheter.
 
-Den faste hovedadressen er **[ajour-sooty.vercel.app](https://ajour-sooty.vercel.app/)**. Bruk denne også i bokmerker og prosjektlenker. Har du allerede data på en annen adresse, eksporter en sikkerhetskopi der før du flytter planen; adressene deler ikke lagring.
-
-Åpne **Innstillinger → Data og sikkerhetskopi** (på mobil under **Mer**) for å eksportere en lokal JSON-fil. Oppbevar kopien trygt, og bruk forhåndsvist gjenoppretting når du vil flytte planen. Gjenoppretting erstatter data etter uttrykkelig bekreftelse. Kalenderlenker kan kreve ny tilkobling fordi tilgangsopplysninger utelates. Kalenderens `.ics`-eksport er en kalenderkopi, ikke en full sikkerhetskopi. [Lagring og sikkerhetskopi](studieplanlegger/README.md#lagring-og-sikkerhetskopi) beskriver forskjellene mellom nettutgaven og lokal drift.
+Åpne **Innstillinger → Data og sikkerhetskopi** (på mobil under **Mer**) for å laste ned en JSON-kopi. Bruk den når du vil gjenopprette planen eller flytte den til en annen nettleser, enhet eller adresse. Se over innholdet før du godkjenner at kopien erstatter planen. Noen kalenderlenker må kobles til på nytt. Kalenderens `.ics`-fil inneholder bare kalenderhendelser. [Lagring og sikkerhetskopi](studieplanlegger/README.md#lagring-og-sikkerhetskopi)
 
 <a id="arkitektur-og-dokumentasjon"></a>
 
@@ -34,51 +28,37 @@ Den faste hovedadressen er **[ajour-sooty.vercel.app](https://ajour-sooty.vercel
 
 | Du vil … | Les her |
 | --- | --- |
-| Bruke Ajour | [Brukerveiledning](studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [slik virker løsningen](.docs/implementation-artifacts/solution-guide.md). |
-| Importere eller forstå kildegrenser | [Importavtale](studieplanlegger/IMPORT.md), [importdekning](studieplanlegger/IMPORT-COVERAGE.md) og [TP CSV-formatkontrakt](.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md). |
-| Se mål, krav og sporbarhet | [Brief](brief.md), [planindeks med PRD og stories](.docs/planning-artifacts/README.md) og [arkitektur](.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md). |
-| Kontrollere tester og kjente begrensninger | [Daterte verifikasjonsresultater](studieplanlegger/VERIFICATION.md), [samlet begrensningsoversikt](studieplanlegger/README.md#kjente-begrensninger-ved-levering) og [åpne punkter](.logs/issues.md). |
-| Vurdere prosess og KI-bruk | [Utviklingsprosess og kvalitetssikring](.docs/implementation-artifacts/development-process.md), [KI-bruk](.docs/implementation-artifacts/development-process.md#use-of-ai-and-bmad) og [konkrete funn og feilrettinger](.docs/implementation-artifacts/development-process.md#concrete-findings-and-corrections). |
-| Forstå historikkoppryddingen | [Delbar oppsummering fra 9. november](.docs/implementation-artifacts/history-cleanup-2026-11-09.md) med utført opprydding, daterte kontroller og avsluttet oppfølging. |
-| Lese refleksjonsrapporten | [Refleksjonsrapport — Markdown](.docs/submission/reflection-report.md), med prosjekteierens erfaringer og oppgitt KI-hjelp til struktur og formulering. |
-| Kjøre eller utvikle lokalt | [Lokale alternativer og oppskrifter](studieplanlegger/README.md#lokal-drift-og-utvikling) og [tester og bygg](studieplanlegger/README.md#tester-og-bygg). |
+| Bruke appen | [Brukerveiledning](studieplanlegger/README.md) og [slik virker løsningen](.docs/implementation-artifacts/solution-guide.md) |
+| Se hva som kan importeres | [Importveiledning](studieplanlegger/IMPORT.md), [importdekning](studieplanlegger/IMPORT-COVERAGE.md) og [TPs CSV-format](.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md) |
+| Se mål, krav og designvalg | [Produktbeskrivelse](brief.md), [planleggingsdokumenter](.docs/planning-artifacts/README.md) og [arkitektur](.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md) |
+| Se tester og kjente begrensninger | [Testresultater](studieplanlegger/VERIFICATION.md), [manuell utprøving](.docs/implementation-artifacts/owner-trial-2026-11-04.md), [kjente begrensninger](studieplanlegger/README.md#kjente-begrensninger) og [åpne saker](.logs/issues.md) |
+| Lese om utvikling og KI-bruk | [Utviklingsprosess, KI-bruk og feilretting](.docs/implementation-artifacts/development-process.md) og [refleksjonsrapport](.docs/submission/reflection-report.md) |
+| Se teknisk oppfølging | [Sluttkontroll 20. november](studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20), [filimport og testoppfølging 4. november](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) og [opprydding i Git-historikken 9. november](.docs/implementation-artifacts/history-cleanup-2026-11-09.md) |
 
 <a id="dette-inneholder-dagens-versjon"></a>
 
-## Avgrenset første versjon
+## Import i første versjon
 
-V1-import gjelder **HiMolde IT 2026–27** med IBE110/IBE430 og enten IBE160 eller IBE102 + IBE152; undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026. **NTNU** omfatter emnemetadata og emnelenket undervisning for ARK1001/EXPH0100 høsten 2026, uten løfte om et komplett program. Full nasjonal dekning er visjon. Det loves ikke full eksamensdekning eller personlig gruppetilhørighet.
-
-Avgrensningen og [rekonstruerte planer fra 16. oktober](.docs/planning-artifacts/README.md) følger opp [faglærerens tilbakemelding](tilbakemelding-product-brief.md). Eksisterende adaptere og funksjoner er beholdt, men utvider ikke leveranseløftet. [Verifikasjonen](studieplanlegger/VERIFICATION.md) bevarer datoene for tidligere rettinger, Ajour-utformingen og nettutgaven som ble godkjent 29. oktober. Teknisk testing dokumenterer ikke generell studentnytte.
-
-<a id="leveringsoversikt--1-november-2026"></a>
-<a id="leveringsoversikt--4-november-2026"></a>
-
-## Leveringsoversikt
-
-**[Sluttkontroll 20. november 2026](studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20).** Her finner sensor resultatene fra omprøvingen av leveransefunnene og kontrollen av publisert versjon. [Prosjektloggen på GitHub](https://github.com/IBE160-2026/G37-yilmaz/blob/main/.logs/975-2026-11-19-23-55-00-ajour-sluttkontroll.md#oppfølging-2026-11-20) · [PR #34](https://github.com/IBE160-2026/G37-yilmaz/pull/34) · [Gjeldende versjonsmarkør](https://ajour-sooty.vercel.app/release.json)
-
-**Teknisk oppfølging 4. november:** [Importrekkefølge og kvalitetskontroller](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) samler de to bekreftede feilene ved overlappende filvalg, retting med regresjonstester, avhengighetskontroll og avgrenset sikkerhets-/nettleseroppfølging. Rapporten angir faktisk test- og publiseringsstatus; tidligere grønne tester alene lukker ikke de nye funnene.
-
-**Prosjekteierens sju scenarier og tilleggsprøven for navngitt Start er bestått 3.–4. november.** [Prøverapporten](.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktisk gjennomføring, rettet prøveutførelse og metodegrenser. Den inkluderer gjenoppretting i et separat, tomt Chrome Gjest-miljø og lukker det tidligere dekningsforbeholdet for SC-07/R-07. Tidligere daterte omprøvinger, SC-07/1200–30 og Outlook-prøven beholder sine resultater. [Automatiske kontroller](studieplanlegger/VERIFICATION.md) er et separat bevisgrunnlag.
-
-Markdown er refleksjonsrapportens eneste format i repoet. [Leveringsstatus](.docs/planning-artifacts/README.md#leveringsstatus) og [vurderingsgrunnlag](.docs/planning-artifacts/README.md#leveringskontroll) står i planindeksen.
-
-- **Historisk personvernoppfølging:** 9. november ble avtalt Git-historikk ryddet og oppfølgingen av funn 1–4 avsluttet. Eldre kopier og gamle PR-referanser kan fortsatt inneholde opprinnelig materiale. [Oppryddingsrapporten](.docs/implementation-artifacts/history-cleanup-2026-11-09.md)
-- **F03, fritekstimport:** Det historiske testtilfellet står åpent fordi originalfilen mangler. [Kjente begrensninger](studieplanlegger/README.md#kjente-begrensninger-ved-levering)
-- **Plattformoppfølging:** GitHub About viser hovedadressen. Grenbeskyttelse og Vercels kontogrenser følges i [sakslisten](.logs/issues.md).
+For **HiMolde IT 2026–27** omfatter første versjon IBE110 og IBE430, med enten IBE160 eller IBE102 og IBE152. Undervisningsimporten er prøvd med IBE110, IBE430 og IBE160 høsten 2026. For **NTNU** er omfanget emneinformasjon og undervisning for ARK1001 og EXPH0100 høsten 2026. Andre kilder har ulik dekning. Se [importdekningen](studieplanlegger/IMPORT-COVERAGE.md) for hva som er testet og hvilke opplysninger du må sjekke selv.
 
 <a id="kjør-den-komplette-lokale-leveransen"></a>
 <a id="tester-og-produksjonsbygg"></a>
 
 ## Lokal kjøring og utvikling
 
-Dette er alternativer til nettutgaven for sensor og utviklere. Vanlig bruk på nett krever ingen av disse installasjonene.
+Med Docker og Compose v2 kan du starte Ajour fra roten av repoet:
+
+```sh
+cd studieplanlegger
+docker compose up --build -d
+```
+
+Åpne `http://127.0.0.1:8088`. Stopp appen med `docker compose down`. SQLite-databasen ligger i et Docker-volum og beholdes når du stopper appen.
 
 | Alternativ | Forutsetning og lagring | Oppskrift |
 | --- | --- | --- |
-| Docker | Docker med Compose v2; lokal Node-installasjon trengs ikke. SQLite i navngitt volum. | [Docker-oppskrift](studieplanlegger/README.md#full-stack-drift-med-docker). |
+| Docker | Docker med Compose v2. SQLite i et navngitt volum. | [Docker-oppskrift](studieplanlegger/README.md#full-stack-drift-med-docker). |
 | Lokal Node-server | Node.js 24. SQLite i en valgt lokal databasefil. | [Node-oppskrift](studieplanlegger/README.md#lokal-node-server-med-sqlite). |
 | Vite-utvikling | Node.js 24. `localStorage` i nettleserprofilen på utviklingsadressen. | [Vite-oppskrift](studieplanlegger/README.md#vite-utvikling-med-nettleserlagring). |
 
-Alle lokale alternativer har manuell registrering og import. Ingen konto, betalte nøkler eller `.env` kreves for standardoppsettet. [Testoppskriftene](studieplanlegger/README.md#tester-og-bygg) skiller enhetstester, bygd nettleserapp og isolert SQLite fra Vercel-kontroll. [Vercel-drift](studieplanlegger/README.md#nettleserdrift-med-vercel--2026-10-29) beskriver det eksisterende gratisprosjektet og kontroll av publisert commit.
+Alle alternativene støtter manuell registrering og import. Standardoppsettet krever ingen konto, nøkler eller `.env`. Se [tester og bygg](studieplanlegger/README.md#tester-og-bygg) for testkommandoer og [Vercel-drift](studieplanlegger/README.md#nettleserdrift-med-vercel--2026-10-29) for oppsettet av nettutgaven.

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Kom ajour. Samle oppgaver, finn neste steg og juster planen når hverdagen endrer seg." />
+    <meta name="description" content="Samle studieoppgaver og frister, sett av tid til arbeidet og juster planen når du trenger det." />
     <meta name="theme-color" content="#FCFAF8" />
     <script src="/theme-init.js"></script>
     <title>Ajour – Kom ajour.</title>
@@ -33,7 +33,7 @@
       </nav>
       <footer>
         <span id="storage-location">Lagret i denne nettleseren</span>
-        <p id="storage-summary">Planen tilhører denne nettadressen. Ta sikkerhetskopi i Innstillinger.</p>
+        <p id="storage-summary">Ta sikkerhetskopi under Innstillinger.</p>
       </footer>
     </aside>
     <div class="page">
@@ -52,7 +52,7 @@
           <p>Aktiver JavaScript i nettleseren for å vise og opprette oppgaver. Lagrede data er ikke endret.</p>
         </noscript>
         <div id="read-error" class="error-panel" role="alert" hidden>
-          <p>Vi får ikke åpnet oppgavene. Lagrede data er beholdt. Prøv å lese dem på nytt.</p>
+          <p>Kunne ikke åpne oppgavene. De lagrede dataene er beholdt.</p>
           <button id="retry-read" type="button">Prøv igjen</button>
         </div>
         <div id="feedback-bar" class="feedback-bar" hidden>
@@ -66,7 +66,6 @@
         <form id="task-form" class="editor panel reveal-section" novalidate hidden aria-labelledby="form-heading">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Gi arbeidet en plass</p>
               <h2 id="form-heading">Ny oppgave</h2>
             </div>
             <span class="form-note">* Obligatoriske felt</span>
@@ -103,7 +102,7 @@
               <p class="field-error" id="deadlineLocal-error"></p>
               <div id="deadlineOccurrence" class="field" hidden>
                 <label for="deadlineDisambiguation">Hvilket klokkeslett mener du?</label>
-                <p id="deadline-occurrence-help" class="muted">Dette klokkeslettet finnes to ganger når klokken stilles tilbake. Velg hvilken forekomst du mener.</p>
+                <p id="deadline-occurrence-help" class="muted">Når klokken stilles tilbake, vises dette klokkeslettet to ganger.</p>
                 <select id="deadlineDisambiguation" name="deadlineDisambiguation" aria-describedby="deadline-occurrence-help deadline-choice-info deadlineDisambiguation-error" disabled>
                   <option value="">Velg første eller andre gang</option>
                 </select>
@@ -122,8 +121,8 @@
             </div>
             <div class="field">
               <label for="remainingMinutes">Totalt gjenstående arbeid (minutter)</label>
-              <input id="remainingMinutes" name="remainingMinutes" type="text" inputmode="numeric" aria-describedby="remainingMinutes-help remainingMinutes-error" placeholder="Tomt bruker hele estimatet" />
-              <p id="remainingMinutes-help" class="muted">Tomt bruker hele estimatet. 0 endrer ikke arbeidsstatus. Oppdater selv etter arbeid eller neste steg.</p>
+              <input id="remainingMinutes" name="remainingMinutes" type="text" inputmode="numeric" aria-describedby="remainingMinutes-help remainingMinutes-error" placeholder="Vet ikke" />
+              <p id="remainingMinutes-help" class="muted">Anslå tiden som er igjen for hele oppgaven. Med 0 minutter igjen er oppgaven fortsatt åpen til du markerer den som ferdig.</p>
               <p class="field-error" id="remainingMinutes-error"></p>
             </div>
           </div>
@@ -131,7 +130,7 @@
             <label class="completion-control" for="requiresSubmission">
               <input id="requiresSubmission" name="requiresSubmission" type="checkbox" aria-describedby="submission-info requiresSubmission-error" />Krever innlevering
             </label>
-            <p id="submission-info" class="muted">Ferdig med arbeidet og levert bekreftes hver for seg.</p>
+            <p id="submission-info" class="muted">Marker oppgaven som levert etter at du har levert den.</p>
             <p id="submission-locked" class="muted" hidden>Angre levering før du endrer innleveringskravet.</p>
             <p class="field-error" id="requiresSubmission-error"></p>
           </div>
@@ -141,10 +140,9 @@
           </div>
         </form>
         <form id="step-form" class="editor panel" novalidate hidden aria-labelledby="step-form-heading">
-          <p class="eyebrow">En liten handling er nok</p>
           <h2 id="step-form-heading">Neste steg</h2>
           <p id="step-task-title" class="muted"></p>
-          <p class="muted">Ett aktivt steg om gangen. Oppgavens status og estimat beholdes når steget er gjort.</p>
+          <p class="muted">Du kan ha ett aktivt steg om gangen. Når steget er gjort, kan du oppdatere oppgaven og tidsanslaget selv.</p>
           <div class="form-grid">
             <div class="field">
               <label for="step-description">Beskrivelse av neste steg</label>
@@ -163,9 +161,8 @@
           </div>
         </form>
         <form id="session-form" class="editor panel" novalidate hidden aria-labelledby="session-form-heading">
-          <p class="eyebrow">Sett av tid til arbeidet</p>
           <h2 id="session-form-heading">Ny studieøkt</h2>
-          <p class="muted">Norsk tid. Slutt må være etter start; velg sluttdato for økter over midnatt. Tvetydige eller ugyldige klokkeslett ved sommertid avvises. Oppgavereservasjoner endrer ikke gjenstående arbeid.</p>
+          <p class="muted">Oppgi start og slutt i norsk tid. Velg sluttdato hvis økten går over midnatt. Ved tidsomstilling må du velge klokkeslett som bare forekommer én gang.</p>
           <div class="form-grid">
             <div class="field">
               <label for="session-dateLocal">Dato for studieøkt</label>
@@ -191,17 +188,15 @@
         <div id="workspace" class="workspace" hidden>
           <div class="work-area">
             <section id="ajour-intro" class="ajour-intro" aria-labelledby="ajour-heading">
-              <div><p class="eyebrow">EN PLAN SOM SPILLER PÅ LAG</p>
+              <div>
                 <h2 id="ajour-heading">Kom ajour.</h2>
-                <p class="ajour-tagline">Planer endrer seg. Det er helt greit.</p>
-                <p class="ajour-description">Samle det du skal gjøre. Finn ditt neste steg.<br />Juster planen når hverdagen skjer.</p>
+                <p class="ajour-description">Samle oppgaver og frister, og finn tid til å jobbe med dem.</p>
               </div>
               <img src="/brand/companion.svg" width="400" height="244" alt="" aria-hidden="true" />
             </section>
             <section id="empty-dashboard" class="empty-dashboard panel reveal-section" hidden aria-live="polite">
               <div class="empty-dashboard-copy">
-                <p class="eyebrow">Kom i gang</p>
-                <h2>Gjør plass til en enklere studieuke.</h2>
+                <h2>Kom i gang med Ajour</h2>
                 <p id="empty-dashboard-text">Samle emner, undervisning og oppgaver. Få oversikt over hva som passer å gjøre nå.</p>
                 <div class="actions">
                   <button id="empty-onboard-task" type="button">Legg til første oppgave</button>
@@ -231,7 +226,6 @@
             <section id="focus-panel" class="focus-panel reveal-section" aria-labelledby="focus-heading" style="--reveal-delay: 90ms">
               <div class="focus-intro">
                 <div>
-                  <p class="eyebrow">Fra oversikt til handling</p>
                   <h2 id="focus-heading">Jeg har tid nå</h2>
                   <p>Hvor lenge vil du jobbe nå?</p>
                 </div>
@@ -290,13 +284,13 @@
             </section>
             <section id="capacity-panel" class="panel reveal-section" hidden aria-labelledby="capacity-heading" style="--reveal-delay: 170ms">
               <div class="section-heading">
-                <div><p class="eyebrow">Arbeid og tilgjengelig tid</p><h2 id="capacity-heading">Kapasitet før fristene</h2></div>
+                <div><h2 id="capacity-heading">Kapasitet før fristene</h2></div>
                   <div class="actions">
                     <button id="compare-plans" type="button" class="secondary">Sammenlign planer</button>
                     <button id="new-session" type="button">Ny studieøkt</button>
                   </div>
               </div>
-              <p class="muted">Forslagene fordeler gjenstående arbeid etter nærmeste frist. Neste steg er en del av oppgaven. Planen bekrefter verken utført arbeid eller levering.</p>
+              <p class="muted">Ajour foreslår å sette av tid til oppgavene med nærmest frist først. Du registrerer selv hva du har gjort eller levert.</p>
               <p id="capacity-summary" class="capacity-summary"></p>
               <p id="capacity-warnings" class="capacity-warning" hidden></p>
               <h3>Studieøktene dine</h3>
@@ -307,12 +301,12 @@
               <ul id="capacity-task-list" class="capacity-task-list"></ul>
             </section>
             <section id="text-registration" class="text-registration panel reveal-section" aria-labelledby="text-registration-heading">
-              <h2 id="text-registration-heading">Legg til nå. Fyll ut resten senere.</h2>
+              <h2 id="text-registration-heading">Legg til fra tekst</h2>
               <p class="muted">En tittel er nok til å komme i gang.</p>
             </section>
             <section id="tasks-panel" class="panel reveal-section" aria-labelledby="tasks-heading" style="--reveal-delay: 130ms">
               <div class="section-heading">
-                <div><p class="eyebrow" id="tasks-eyebrow">Hold fristene i sikte</p><h2 id="tasks-heading">Frister å følge opp</h2></div>
+                <div><h2 id="tasks-heading">Frister å følge opp</h2></div>
                 <button id="overview-all" type="button" class="text-button">Se alle oppgaver <span aria-hidden="true">→</span></button>
               </div>
               <div id="week-info" class="week-info" hidden>
@@ -340,13 +334,12 @@
           <aside id="calendar-panel" class="calendar-panel panel reveal-section" aria-labelledby="calendar-heading" style="--reveal-delay: 160ms">
             <div class="section-heading">
               <div>
-                <p class="eyebrow">Det som venter</p>
                 <h2 id="calendar-heading">Kalender</h2>
               </div>
               <span class="calendar-badge" aria-hidden="true">▦</span>
             </div>
             <div id="calendar-host"></div>
-            <p class="calendar-note">Frist = innlevering eller oppgavefrist. Studieøkt = tid du har satt av til arbeid.</p>
+            <p class="calendar-note">Frister viser når oppgavene skal være klare. Studieøkter viser når du har satt av tid til å jobbe.</p>
           </aside>
         </div>
       </main>
@@ -359,7 +352,7 @@
             <p id="storage-help-description">Planen lagres bare i denne nettleserprofilen på denne nettadressen. Sletting av nettleserdata kan slette planen. Enheter synkroniseres ikke. Bruk sikkerhetskopi for å flytte planen.</p>
             <p id="storage-help-local-server" hidden>Hold den lokale Node- eller Docker-serveren i gang mens du bruker Ajour. Behold databasen eller Docker-volumet ved omstart.</p>
             <p>Sikkerhetskopi finnes under Innstillinger → Data og sikkerhetskopi. Velg «Eksporter sikkerhetskopi» for å lagre en fil, eller «Importer sikkerhetskopi» for å hente den inn.</p>
-            <p>Frister bruker lokal dato og klokkeslett i 24-timersformat. Kalenderen viser frister og studieøkter. Kapasitet foreslår arbeid innen øktene før hver frist; gjenstående tid oppdaterer du selv.</p>
+            <p>Frister bruker norsk tid og 24-timers klokke. Under Kapasitet ser du hvor mye tid som er satt av før fristene. Oppdater selv hvor mye arbeid som gjenstår.</p>
           </div>
         </details>
       </footer>

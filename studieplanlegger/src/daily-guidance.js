@@ -35,9 +35,9 @@ export function suggestionExclusions(tasks, minutes) {
     } else if (getRemainingRange(task)?.maxMinutes === 0) {
       reason = 'Gjenstående arbeid er satt til 0, men oppgaven er ikke markert ferdig. Oppdater anslaget eller marker arbeidet ferdig.'
     } else if (!step && task.splittable === false && getRemainingRange(task)?.maxMinutes === null) {
-      reason = 'Arbeidet kan ikke deles. Oppgi et øvre anslag for å avklare om hele oppgaven får plass i én økt.'
+      reason = 'Oppgi hvor lang tid oppgaven kan ta på det meste, så Ajour kan se om den får plass i én økt.'
     } else if (!Number.isSafeInteger(getActionMinutes(task)) || getActionMinutes(task) <= 0) {
-      reason = 'Tiden for arbeidet er ukjent. Oppgi et gjenstående anslag eller et tidsanslag for neste arbeidssteg.'
+      reason = 'Oppgi hvor mye tid som gjenstår for oppgaven eller neste arbeidssteg.'
     } else {
       reason = `Arbeidet kan ikke deles og trenger ${getActionMinutes(task)} minutter sammenhengende. Velg mer tid, eller aktiver «Kan deles i flere økter» hvis arbeidet kan deles.`
     }
@@ -49,10 +49,10 @@ export function dailyStatus(model) {
   const now = model.now || new Date()
   const pending = sortedTasks(model.tasks.filter(task => !task.completed || task.requiresSubmission && !task.submitted))
   const task = pending.find(item => item.deadlineLocal) || pending[0]
-  if (!task) return { tone: 'neutral', title: 'Ingen åpne oppgaver', text: 'Du har ingen registrerte oppgaver som må vurderes nå.' }
-  if (task.completed && task.requiresSubmission && !task.submitted) return { tone: 'neutral', title: task.title, text: `${task.title} er registrert som ferdig, men levering er ikke bekreftet. Har du levert oppgaven i innleveringssystemet, kan du markere den som levert her.`, taskId: task.id, assessable: true }
+  if (!task) return { tone: 'neutral', title: 'Ingen åpne oppgaver', text: 'Ingen åpne oppgaver.' }
+  if (task.completed && task.requiresSubmission && !task.submitted) return { tone: 'neutral', title: task.title, text: `Oppgaven «${task.title}» er klar til levering. Velg «Bekreft levering» når du har levert den.`, taskId: task.id, assessable: true }
   const range = getRemainingRange(task)
-  if (isOverdue(task, now)) return { tone: 'danger', title: task.title, text: `${task.title} har en frist som er passert. ${range ? `${formatEstimateRange(range)} arbeid er fortsatt registrert, og ingen tilgjengelig tid før fristen gjenstår.` : 'Gjenstående arbeid er ukjent.'}`, taskId: task.id, assessable: Boolean(range), availableMinutes: 0, missingMinMinutes: range?.minMinutes ?? null, missingMaxMinutes: range?.maxMinutes ?? null }
+  if (isOverdue(task, now)) return { tone: 'danger', title: task.title, text: `Fristen for «${task.title}» har gått ut. ${range ? `Du har registrert ${formatEstimateRange(range)} arbeid igjen.` : 'Gjenstående arbeid er ukjent.'}`, taskId: task.id, assessable: Boolean(range), availableMinutes: 0, missingMinMinutes: range?.minMinutes ?? null, missingMaxMinutes: range?.maxMinutes ?? null }
   const entry = model.capacity?.tasks?.find(item => item.taskId === task.id)
   const blockers = taskBlockers(task, model.tasks)
   const openEstimate = range?.maxMinutes === null

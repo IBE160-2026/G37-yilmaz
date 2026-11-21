@@ -1,6 +1,6 @@
-# Offentlige Sámi-kildefixtures
+# Testfiler fra Sámi allaskuvla
 
-HTML-filene er personvernminimerte derivater. Personkontaktavsnitt, profilreferanser og felles kontaktkrom er fjernet. Katalogkort, programtitler, emnekoder, studiepoeng, oppstart, valgstruktur, PDF-lenker og kildeidentitet er bevart; testene evaluerer ikke skript eller eksterne profiler.
+Kontaktavsnitt, lenker til personprofiler og felles kontaktelementer er fjernet fra HTML-filene. Katalogkort, programtitler, emnekoder, studiepoeng, oppstart, emnevalg, PDF-lenker og kildenes identitet er beholdt. Testene leser de lagrede filene uten å kjøre skript eller hente eksterne profiler.
 
 Metadataretting 25.10.2026: det ubrukte `twitter:creator:id`-feltet er fjernet fra alle ni HTML-opptak. Øvrige kildebytes og parserstruktur er bevart. Personvernguarden undersøker også innkapslet JSON/HTML og forfatter-/profilmetadata; institusjonsnavn, faglige navn og kildeattribusjon er beholdt. Kontrollene gjelder disse opptakene, ikke fremtidige live-sider.
 

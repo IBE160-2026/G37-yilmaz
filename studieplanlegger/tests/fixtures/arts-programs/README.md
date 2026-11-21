@@ -1,8 +1,8 @@
-Avgrensede offentlige HTML-snapshots hentet 12. september 2026. Hovedinnholdet er beholdt; skript, stilark og illustrasjoner er fjernet. Dette er lokale kontrakttester, ikke bevis på en aktuell ekstern import.
+HTML-utdrag fra offentlige sider, hentet 12. september 2026. Hovedinnholdet er beholdt, mens skript, stilark og illustrasjoner er fjernet. Testene leser de lagrede utdragene lokalt.
 
 - KHiO programliste: https://khio.no/studieprogrammer (21 publiserte programkort).
-- Bachelor klesdesign/kostymedesign: https://khio.no/studieprogrammer/bakk (plan fra høst2023), med https://khio.no/emner/kk101-2.
-- Master opera: https://khio.no/studieprogrammer/maop (plan fra høst2022), med https://khio.no/emner/op521-1.
+- Bachelor klesdesign/kostymedesign: https://khio.no/studieprogrammer/bakk (plan fra høsten 2023), med https://khio.no/emner/kk101-2.
+- Master opera: https://khio.no/studieprogrammer/maop (plan fra høsten 2022), med https://khio.no/emner/op521-1.
 
 Emnestrukturen er ordnet etter studieår. Kilden oppgir ikke et presist studiesemester eller en egen opptakskulliste. Disse manglene skal beholdes i testdataene.
 

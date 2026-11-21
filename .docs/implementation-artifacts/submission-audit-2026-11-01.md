@@ -1,8 +1,8 @@
-# Avgrenset leveringskontroll — 1. november 2026
+# Kontroll av refleksjonsrapport, filer og Git-historikk — 1. november 2026
 
-Kontrollen gjelder sluttrapport, samordnet dokumentasjon og eksisterende GitHub-/Vercel-leveranse. Utgangspunktet var fersk `origin/main` **`246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`**, kontrollert mot GitHub og produksjonens `/release.json`. Repoet er **offentlig**. En egen arbeidskopi og gren bevarer eldre arbeidsgrener og private lokale filer. Ingen ZIP erstatter Git-checkoutet; brukerens tidligere ZIP-gjennomgang er bakgrunn, ikke denne kontrollens testbevis.
+Kontrollen omfattet refleksjonsrapporten, repoets dokumentasjon og appversjonen på GitHub og Vercel. Utgangspunktet var fersk `origin/main` **`246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`**, kontrollert mot GitHub og produksjonens `/release.json`. Repoet er **offentlig**. En egen arbeidskopi og gren bevarer eldre arbeidsgrener og private lokale filer. Ingen ZIP erstatter Git-checkoutet; brukerens tidligere ZIP-gjennomgang er bakgrunn, ikke denne kontrollens testbevis.
 
-**Senere oppfølging 2026-11-01:** Word-kopien er fjernet fra dagens repo etter prosjekteierens ønske. [Markdown-rapporten](../submission/reflection-report.md) er uendret og er nå eneste rapportformat i repoet. Word-kontrollene, hashen og tellingene nedenfor beskriver den opprinnelige leveringskontrollen. De tidligere anbefalingene om Word-eksport og layoutkontroll gjelder ikke lenger for repoets rapportleveranse.
+**Oppfølging 1. november.** [Refleksjonsrapporten](../submission/reflection-report.md) finnes som Markdown i repoet. Kontrollene av Word-filen, sjekksummen og tellingene nedenfor gjelder den tidligere kopien.
 
 ## Refleksjonsrapport og kildegrunnlag
 
@@ -12,13 +12,13 @@ Kontrollen gjelder sluttrapport, samordnet dokumentasjon og eksisterende GitHub-
 - Rapporten oppgir **3562 ord** i kapittel 2–7; tellemetoden bak dette anslaget er ikke dokumentert. En reproduksjonskontroll som deler synlig tekst på mellomrom gir **3530**, inkludert overskrifter, eller 3404 uten overskrifter. Både det oppgitte anslaget og de reproduserte tellingene ligger innen malens **3000–5000 ord**. Originalens anslag er beholdt.
 - DOCX-pakken er kontrollert for egenskaper, relasjoner, kommentarer, revisjoner, skjult tekst, innbygginger og miniatyrmetadata. Ingen konkrete unødvendige person-/adgangsopplysninger ble funnet. Forfatteren er prosjekteieren; oppgitt student-e-post og forfatteridentitet er bevisst autoriserte opplysninger. De to eksterne relasjonene er vanlige HTTPS-prosjektlenker uten tilgangsparametere. Tom standardbibliografi og et blankt standardminiatyrbilde inneholder ingen person-/lokasjonsmetadata.
 
-AGENTS, lærerens tilbakemelding 6. oktober, gjeldende brief, planindeks, sesjonslogginstruksjonen, rapportmalen og alle sju sider av den identifiserte sensorveiledningen er lest. Sensor-PDF-ens SHA-256 samsvarer med [planindeksen](../planning-artifacts/README.md#vurderingsgrunnlag-kontrollert-2026-10-16). Mal og sensorvedlegg er ikke publisert. Ved kontrollen 1. november var frist, kanal, obligatorisk filformat, personlig sluttlesing og innlevering med kvittering ennå ubekreftet. [Senere leveringsstatus](../planning-artifacts/README.md#leveringsstatus)
+AGENTS, lærerens tilbakemelding 6. oktober, gjeldende brief, planindeks, sesjonslogginstruksjonen, rapportmalen og alle sju sider av den identifiserte sensorveiledningen er lest. Sensor-PDF-ens SHA-256 samsvarer med [planindeksen](../planning-artifacts/README.md#vurderingsgrunnlag-kontrollert-2026-10-16). Mal og sensorvedlegg er ikke publisert.
 
 Rapportmalens SHA-256 er `5ef011358d9567a4b6afa48491db6b1d2275f5ccd3109bed2ac43179a7609c0b`. Den opprinnelige anbefalingen var også å åpne Word-filen og se over sider, overskrifter og sideskift, fordi XML-kontrollen ikke erstattet slik visuell lesing. Word-anbefalingen bortfalt da prosjekteieren valgte å beholde bare Markdown.
 
 ### Kildekart til rapporten
 
-Rapportens kildehenvisninger er uendret. Kartet under identifiserer prosjektfilene i baseline `246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`, som var tilgjengelig ved denne leveringskontrollen. Det påstår ikke at rapportforfatteren brukte akkurat denne commit-utgaven da teksten ble skrevet.
+Rapportens kildehenvisninger er uendret. Kartet under identifiserer prosjektfilene i baseline `246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`, som var tilgjengelig da kontrollen ble gjort. Det påstår ikke at rapportforfatteren brukte akkurat denne commit-utgaven da teksten ble skrevet.
 
 | Rapporthenvisning | Entydige prosjektkilder |
 | --- | --- |
@@ -27,7 +27,7 @@ Rapportens kildehenvisninger er uendret. Kartet under identifiserer prosjektfile
 | [3] Prosess, før/etter-resultater og lisens | [Development process](https://github.com/IBE160-2026/G37-yilmaz/blob/246e4eb19adc4f673d0a3c57484b5f1539f2a7a7/.docs/implementation-artifacts/development-process.md), [VERIFICATION](https://github.com/IBE160-2026/G37-yilmaz/blob/246e4eb19adc4f673d0a3c57484b5f1539f2a7a7/studieplanlegger/VERIFICATION.md), [USER-TRIAL-PLAN](https://github.com/IBE160-2026/G37-yilmaz/blob/246e4eb19adc4f673d0a3c57484b5f1539f2a7a7/.docs/planning-artifacts/USER-TRIAL-PLAN.md) og [Manrope OFL](https://github.com/IBE160-2026/G37-yilmaz/blob/246e4eb19adc4f673d0a3c57484b5f1539f2a7a7/studieplanlegger/public/fonts/OFL.txt). SC-07 og lagring/gjenoppretting har daterte seksjoner 1. november; eldre feil beholdes. |
 | [4]–[5] Undervisningsmateriale | Rapportens egne kildeopplysninger beholdes. Presentasjonen og brief-malen er ikke kontrollert som separate kilder i denne leveringsrunden og publiseres ikke her. |
 
-## Dagens filer og leveringsutvalg
+## Filer som ble kontrollert
 
 Baseline omfatter **805 sporede filer**: 800 tekstfiler, én DOCX, én PDF og tre fontbinærer. Ingen gitleaks/trufflehog var installert; kontrollen brukte en lokal mønsterscanner og repoets eksisterende strukturelle hjelpere i [fixture-privacy.js](../../studieplanlegger/tests/helpers/fixture-privacy.js), med manuell vurdering av treff. Den omfattet nøkler/tokens, cookies/autorisasjon, URL-parametere, private kalender-/møteadresser, brukerbaner, personfelt og dokumentmetadata. HTML-entiteter og URL-koding ble dekodet; **11 ICS-filer** ble kontrollert etter utfolding av logiske linjer. **281 HTML-/JSON-/ICS-/PDF-fixturer** bestod strukturell kontroll uten funn eller parserfeil. PDF-fixturens sju sider og egenskaper ble lest; DOCX-fixturen har bare de tre forventede XML-delene.
 
@@ -78,4 +78,4 @@ Stagingkontrollen leste de **13 gjennomgåtte index-blobbene** før dokumentcomm
 
 Eksisterende Vercel-prosjekt **ajour** er koblet til `IBE160-2026/G37-yilmaz`, produksjonsgren `main`, rot `studieplanlegger`, Node 24 og `npm run build:release`. Prosjektets faktiske **Ajour quality**-sjekk sperrer domenetildeling for både preview og produksjon. GitHub oppgir ingen aktiv grenbeskyttelse på `main`; denne leveransen bruker likevel PR og venter på hele den eksisterende kvalitetssjekken, inkludert nettleser- og SQLite-prøvene. Ingen sperre eller assertion endres.
 
-Et grønt bygg er ikke alene produksjonsbevis. Etter siste commit må full main-SHA sammenlignes med produksjonens `/release.json`, eksisterende automatisk `Ajour deployment smoke` følges, og appen lastes i isolert syntetisk profil. CI-/deploy-resultater finnes i [GitHub Actions](https://github.com/IBE160-2026/G37-yilmaz/actions); datert oppfølging føres i sesjonsloggen. [Brukerveiledning og kjente begrensninger](../../studieplanlegger/README.md), [prøveplan](../planning-artifacts/USER-TRIAL-PLAN.md) og [planindeks](../planning-artifacts/README.md) beholder skillet mellom automatikk, egenutprøving og faktisk innlevering.
+Et grønt bygg er ikke alene produksjonsbevis. Etter siste commit må full main-SHA sammenlignes med produksjonens `/release.json`, eksisterende automatisk `Ajour deployment smoke` følges, og appen lastes i isolert syntetisk profil. CI-/deploy-resultater finnes i [GitHub Actions](https://github.com/IBE160-2026/G37-yilmaz/actions); datert oppfølging føres i sesjonsloggen. [Brukerveiledning og kjente begrensninger](../../studieplanlegger/README.md), [prøveplan](../planning-artifacts/USER-TRIAL-PLAN.md) og [planindeks](../planning-artifacts/README.md) viser hvordan appen brukes, hva som ble prøvd, og hvordan prosjektet er dokumentert.

@@ -1,4 +1,4 @@
-# Ajour: nettinngang og dokumentasjon
+# Ajour på nett og lokal kjøring
 
 ## 2026-11-02 kl. 14:23 — GOplayer007
 
@@ -8,7 +8,7 @@ Gjøre den publiserte nettutgaven til en tydelig inngang for vanlige brukere, sa
 
 ### Plan
 
-- Kontrollere prosjektinstruksjoner, [lærerens tilbakemelding](../tilbakemelding-product-brief.md), [brief](../brief.md), [planindeks](../.docs/planning-artifacts/README.md) og den identifiserte sjusiders sensorveiledningen. Oppgaven følger punktene om tydelig README, kjørbarhet, avgrensning, KI-bruk og sporbar dokumentasjon; ingen nye innleveringskrav er lagt til.
+- Kontrollere prosjektinstruksjoner, [lærerens tilbakemelding](../tilbakemelding-product-brief.md), [brief](../brief.md), [planindeks](../.docs/planning-artifacts/README.md) og den identifiserte sjusiders sensorveiledningen. Oppgaven følger punktene om tydelig README, kjørbarhet, avgrensning, KI-bruk og sporbar dokumentasjon.
 - Arbeide i et separat Git-worktree fra `origin/main` på `8e800effb59b4370f93ec104dba53ca78f6f436d`, og bevare annet lokalt arbeid.
 - Samordne eksisterende dokumenter, kontrollere kommandoer og lenker, gjennomføre uavhengig dokumentgjennomgang og kjøre prosjektets påkrevde kontroller.
 - Bruke eksisterende PR- og Vercel-flyt for prosjektet `ajour`, og kontrollere endelig main mot produksjonens `/release.json` etter integrering.
@@ -34,13 +34,13 @@ Kontrollert lokalt på Node 24.19.0 / npm 11.17.0:
 - Lokal kontroll av alle versjonerte Markdown-filstier og ankre bestod. Dokumenter og fixtures ble kontrollert for sensitive verdier, private stier, metadata og genererte artefakter, med utfolding av ICS-linjer og separat kontroll av PDF-fixturemetadata. Ingen nye funn ble påvist; dette friskmelder ikke Git-historikken.
 - Uavhengig dokumentgjennomgang ble fulgt opp med presise knappetekster, backupgrense, byggestopp ved feil, nullstilling av prøvevariabler og kontroll av publisert commit ved dokumenterte persistensprøver. `git diff --cached --check` bestod for dokumentcommitten og kjøres også for loggcommitten.
 
-Lærerens tilbakemelding og refleksjonsrapportens Markdown-fil er uendret, kontrollert mot utgangspunktet. Ingen appkode, brukergrensesnitt, lagring, avhengigheter, tester eller publiseringsoppsett er endret. Dette er tekniske kontroller og dokumentgjennomgang, ikke ny manuell egenutprøving eller bekreftet skoleinnlevering.
+Lærerens tilbakemelding og refleksjonsrapportens Markdown-fil er uendret, kontrollert mot utgangspunktet. Ingen appkode, brukergrensesnitt, lagring, avhengigheter, tester eller publiseringsoppsett er endret. Gjennomgangen omfattet dokumentasjon og tekniske kontroller.
 
 Loggen registrerer den lokale kontrollen før push. GitHub-kontroller, PR-integrering og den etterfølgende Vercel-publiseringen følges gjennom eksisterende arbeidsflyt; endelig commit-samsvar rapporteres først når det er kontrollert.
 
 ### Åpne punkter
 
-Ingen nye produktpunkter. Eksisterende åpne punkter i [issues.md](issues.md), blant annet historisk F03, importdekning, bundlevarsel, personlig rapportgjennomlesing, faktisk innlevering og historisk eksponering, er bevart. Dokumentasjonsryddingen lukker dem ikke.
+Gjennomgangen fant ingen nye produktfeil. [Sakslisten](issues.md) beskriver historisk F03, importdekning, byggstørrelse og historisk eksponering.
 
 ## 2026-11-09 kl. 21:51 — GOplayer007
 
@@ -56,11 +56,11 @@ Gjøre eksisterende dokumentasjon enkel å finne for sensor, og supplere med en 
 
 ### Resultat
 
-Riktig repo `IBE160-2026/G37-yilmaz` er kontrollert. Main og origin/main peker på den dokumenterte rensede commiten `05054f79d420b5d073799cd0eebf8321d8560e2f`; aktive lokale branches og origin-referanser når de 141 rensede commitene. Arbeidskopien var ren ved start. Ingen ny prosjektkopi, flytting, historikkomskriving eller endring av Git-innstillinger er gjort.
+Riktig repo `IBE160-2026/G37-yilmaz` er kontrollert. Main og origin/main peker på den dokumenterte rensede commiten `05054f79d420b5d073799cd0eebf8321d8560e2f`; de 141 rensede committene kan nås fra aktive lokale grener og `origin`-referanser. Arbeidskopien var ren ved start. Ingen ny prosjektkopi, flytting, historikkomskriving eller endring av Git-innstillinger er gjort.
 
 - README hadde allerede nettside, lokal oppstart, tester, daterte resultater, brief, planindeks med PRD/stories, arkitektur og utviklingsprosess. Eksisterende dokumentasjonstabell er supplert med direkte lenker til KI-bruk, konkrete feilrettinger og den nye oppryddingsoppsummeringen.
-- [Én delbar oppryddingsrapport](../.docs/implementation-artifacts/history-cleanup-2026-11-09.md) er laget i eksisterende dokumentasjonsmappe. Den beskriver rensede felt, bevaring av dagens app og utviklingshistorikk, endrede commit-ID-er/signaturer, tidligere kontroller og gjenstående ansvar uten private verdier eller vedlegg.
-- [Planindeksen](../.docs/planning-artifacts/README.md) og [åpne punkter](issues.md#personlig-sluttkontroll-og-historisk-eksponering) har fått daterte henvisninger. Eldre resultater og statusoppføringer er beholdt; denne sesjonsloggen viderefører det eksisterende dokumentasjonsarbeidet.
+- [Oppryddingsrapporten](../.docs/implementation-artifacts/history-cleanup-2026-11-09.md) er laget i eksisterende dokumentasjonsmappe. Den beskriver rensede felt, bevaring av dagens app og utviklingshistorikk, endrede commit-ID-er/signaturer, tidligere kontroller og gjenstående ansvar uten private verdier eller vedlegg.
+- [Planindeksen](../.docs/planning-artifacts/README.md) og [åpne punkter](issues.md#historisk-eksponering) har fått daterte henvisninger. Eldre resultater og statusoppføringer er beholdt; denne sesjonsloggen viderefører det eksisterende dokumentasjonsarbeidet.
 - Kontroll av dokumentasjonskjeden fra README omfattet 38 Markdown-dokumenter: relative filbaner, overskriftslenker og Git-tilgjengelighet bestod. Ny rapport er ikke ignorert; øvrige lenkemål er allerede sporet. Eksterne nettlenker er ikke kontrollert på nytt i denne økten.
 - Uavhengig kontroll av 13 dokumenterte `npm run`-kommandoer og 12 kjøre-/konfigurasjonsfiler bekreftet oppskriftene mot prosjektets oppsett. Node 24, lokal Node-/Docker-/Vite-oppstart og testkommandoene stemmer; appens README trengte ingen endring. Appkode er ikke feilrettet.
 - Sammenhold mot begge private rapporter og avgrenset kontroll av ny tekst fant ingen sensitive verdier, private vedlegg eller private filstier. `git diff --check` bestod. Ingen private filer er inkludert i endringsutvalget.
@@ -69,7 +69,7 @@ Ingen apptester eller produksjonsbygg er kjørt i denne dokumentasjonsøkten. Ta
 
 ### Åpne punkter
 
-Ingen nye produktpunkter. Eksisterende oppfølging av gamle GitHub-/PR-kopier, tjenesteeiernes vurdering av tilganger og administratorens About-lenke er fortsatt åpen i [issues.md](issues.md#personlig-sluttkontroll-og-historisk-eksponering). Denne dokumentasjonsøkten lukker ingen av disse punktene.
+Ingen nye produktpunkter. Eksisterende oppfølging av gamle GitHub-/PR-kopier, tjenesteeiernes vurdering av tilganger og administratorens About-lenke er fortsatt åpen i [issues.md](issues.md#historisk-eksponering). Denne dokumentasjonsøkten lukker ingen av disse punktene.
 
 ## 2026-11-09 kl. 22:55 — GOplayer007
 
@@ -98,4 +98,4 @@ Tidligere tester og førkontrollen ovenfor er separate resultater. CI-, merge- o
 
 ### Åpne punkter
 
-Ingen nye produktpunkter. Eksisterende eier-/administratoroppfølging i [issues.md](issues.md#personlig-sluttkontroll-og-historisk-eksponering) er uendret; publisering av dokumentasjon lukker ikke disse punktene.
+Ingen nye produktpunkter. Eksisterende eier-/administratoroppfølging i [issues.md](issues.md#historisk-eksponering) er uendret; publisering av dokumentasjon lukker ikke disse punktene.

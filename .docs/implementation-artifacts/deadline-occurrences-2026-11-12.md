@@ -1,6 +1,6 @@
 # Fristvalg ved tidsskifte og kort lokal prøve
 
-Oppdatert 12. november 2026. Oppfølging av konkrete funn fra prosjekteierens gjennomgang og etterfølgende ønske om commit og push. Dette er feilretting innen eksisterende V1. [PRD](../planning-artifacts/PRD.md) og [prøveplan](../planning-artifacts/USER-TRIAL-PLAN.md) eier fortsatt krav og samlet prøveomfang.
+Oppdatert 12. november 2026. Her er funnene fra prosjekteierens gjennomgang, rettingene og testene som dekker dem. [PRD-en](../planning-artifacts/PRD.md) beskriver kravene, og [prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) viser samlet testomfang.
 
 ## Funn og retting
 

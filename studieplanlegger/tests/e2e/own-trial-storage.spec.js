@@ -217,7 +217,7 @@ test('storage: restoring an identical large backup writes nothing and retains th
   await previewBackup(page, legacy)
   await confirmReplacement(page)
   await expect(replacement(page)).not.toBeVisible()
-  await expect(page.locator('#settings-panel')).toContainText('Ingenting er skrevet')
+  await expect(page.locator('#settings-panel')).toContainText('Planen og eventuell tidligere gjenopprettingskopi er beholdt')
   expect(await writes(page)).toEqual([])
   await expectPreservedAfterReload(page, baseline)
   await attachMetrics(info, { before, afterReload: await metrics(page) })

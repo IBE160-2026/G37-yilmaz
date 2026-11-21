@@ -1,20 +1,20 @@
-# Ajour – sluttrapport og leveringskontroll
+# Ajour – refleksjonsrapport og publiseringskontroll
 
 ## 2026-11-01 kl. 22:34 — GOplayer007
 
 ### Oppgave
 
-Ferdigstille den eksisterende GitHub-/Vercel-leveransen med brukerens ferdige refleksjonsrapport, avgrenset fil-/historikkontroll og samordnet dokumentasjon. Oppdraget autoriserer commit, push, PR, integrering etter bestått CI og publisering i eksisterende ajour-prosjekt; ingen nye funksjoner, ny generell egenutprøving eller innlevering på eierens vegne.
+Legge refleksjonsrapporten i repoet, kontrollere de berørte filene og den aktuelle historikken, og oppdatere dokumentasjonen. Publisering i det eksisterende Vercel-prosjektet skulle følge GitHub-flyten og vente på bestått CI.
 
 ### Plan
 
 - Lese AGENTS, lærerfeedback, gjeldende brief/planindeks, identifisert sensorveiledning og rapportmal; videreføre [tidligere dokumenterte egenresultater](994-2026-10-29-20-26-15-ajour-egenutproving-og-mengdetesting.md).
 - Bevare urelaterte arbeidsgrener, private kladder og runtime-data i en egen arbeidskopi fra aktuell main. Bruke BMAD, avgrenset parallell kontroll og uavhengig gjennomgang.
-- Følge [audit og leveringskontroll](../.docs/implementation-artifacts/submission-audit-2026-11-01.md), eksplisitt staging, eksisterende CI og publiseringssperrer. Kontrollere endelig produksjonsmarkør og isolert nettleser etter denne separate loggcommiten.
+- Følge [fil- og historikkontrollen](../.docs/implementation-artifacts/submission-audit-2026-11-01.md), eksplisitt staging, eksisterende CI og publiseringssperrer. Kontrollere endelig produksjonsmarkør og isolert nettleser etter denne separate loggcommiten.
 
 ### Resultat
 
-Utgangspunktet var offentlig repo og main-/produksjonscommit `246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`. Dokumentcommit **`5b7f2d3c1b27dd3ef6a9e7f74f8e4c53c048c205`** er pushet i [PR #11](https://github.com/IBE160-2026/G37-yilmaz/pull/11). Den inkluderte [lesbar rapport](../.docs/submission/reflection-report.md), Word-fil, samordnede README-/plan-/prosessdokumenter, verifikasjon og et presist sluttrapportunntak i `.gitignore`. Word-kopien ble senere fjernet etter prosjekteierens ønske; Markdown er nå eneste rapportformat i repoet. Rapportpunktet i issues er lukket for innarbeiding; personlig sluttgjennomlesing er et eget åpent punkt. Malens 3000–5000 ord er nå kjent; frist, kanal og obligatorisk filformat er fortsatt ubekreftet.
+Utgangspunktet var offentlig repo og main-/produksjonscommit `246e4eb19adc4f673d0a3c57484b5f1539f2a7a7`. Dokumentcommit **`5b7f2d3c1b27dd3ef6a9e7f74f8e4c53c048c205`** er pushet i [PR #11](https://github.com/IBE160-2026/G37-yilmaz/pull/11). Den inkluderte [refleksjonsrapporten](../.docs/submission/reflection-report.md), Word-fil, samordnede README-/plan-/prosessdokumenter, verifikasjon og et unntak for rapporten i `.gitignore`. Word-kopien ble senere fjernet etter prosjekteierens ønske; Markdown er nå eneste rapportformat i repoet. Rapportmalen angir 3000–5000 ord.
 
 Den daværende Word-filen var byte-identisk med vedlegget. Alle 117 avsnitt og 31 nummererte overskrifter samsvarte med Markdown/malen. Den reproduserte tellingen ga 3530 ord i kapittel 2–7 inklusive overskrifter; originalens selvoppgitte 3562 er bevart. Metadata-/pakkeinspeksjon fant ingen konkrete unødvendige opplysninger; godkjent forfatteridentitet/student-e-post og KI-opplysning beholdes. Ingen Word-redigering, ny personlig historie eller PDF ble laget. Disse kontrollene er historiske etter at Word-kopien ble fjernet; rapporten inngår fortsatt bare i GitHub-dokumentasjonen.
 
@@ -26,7 +26,6 @@ Eksisterende `ajour` er GitHub-koblet til main, med Node 24, `build:release` og 
 
 ### Åpne punkter
 
-- Prosjekteierens sluttgjennomlesing, kontroll av offisiell frist/kanal/format og innlevering med kvittering; disse er ikke bekreftet utført.
 - Repo-/kildeeiers vurdering av historisk eksponering og eventuell tilbakekalling; eventuell historikkomskriving krever et særskilt konkret oppdrag.
 - Eksisterende NTNU-/UiT-grenser, F03/F05, nettleserkvote, bundlevarsel og tidligere prøvedekning beholdes i [issues](issues.md). Full nasjonal dekning er fortsatt visjon, ikke et nytt V1-krav.
 
@@ -48,15 +47,14 @@ Utgangspunktet var main og produksjon **`17096603fb79487da4056c336dc976073ad3cf3
 
 De tre fontene var TrueType med signaturen `00010000` og `glyf`/`loca`-tabeller. `git mv` omdøpte dem til `.ttf` med 100 % byteidentitet; CSS, Node-serverens MIME-kart og eksisterende databaseprøve følger de nye adressene. Vektene 400/500/600, `format('truetype')`, OFL-lisensen og støtte for andre MIME-typer er bevart. Testen kontrollerer alle tre svarenes HTTP-status, `font/ttf`, `nosniff` og TrueType-signatur.
 
-[Markdown-rapporten](../.docs/submission/reflection-report.md) er uendret. Word-kopien og bare dens ignoreringsunntak er fjernet. README-er, planindeks, prøveplan, sporbarhet, epics, guider, audit, verifikasjon og statusoversikt presenterer Markdown som eneste gjeldende rapportformat. Historiske Word-kontroller er bevart med vanlig tekst og forklaring om senere eierbestilt fjerning; ingen lenke peker til den slettede filen. Private kladder forblir ignorert. `connected-semester.docx`, `uit-programs/pdf/868803.pdf` og `public-pdf-hung.worker.js` er byte-identiske med utgangspunktet.
+[Markdown-rapporten](../.docs/submission/reflection-report.md) er uendret. Word-kopien og bare dens ignoreringsunntak er fjernet. README-er, planindeks, prøveplan, sporbarhet, epics, guider, audit, verifikasjon og statusoversikt presenterer Markdown som eneste gjeldende rapportformat. Tidligere resultater fra kontrollen av Word-filen står fortsatt i dokumentasjonen. Lenken til filen ble fjernet sammen med filen. Private kladder forblir ignorert. `connected-semester.docx`, `uit-programs/pdf/868803.pdf` og `public-pdf-hung.worker.js` er byte-identiske med utgangspunktet.
 
 Bestått lokalt: låst installasjon, **2529/2529 enhetstester i 147 filer**, produksjonsbygg og **3/3 SQLite-/nettleserprøver**. Etter uavhengig gjennomgang ble fontsignaturassertionen lagt til, og den berørte databasesuiten bestod på nytt med 3/3. Alle tre lokale fontadresser returnerte identiske originalbytes. Isolert Chromium lastet fontene gjennom appens faktiske CSS; tekstmålinger og fontprøvebildet var identiske før og etter. Resultatene er oppsummert i [verifikasjonsoversikten](../studieplanlegger/VERIFICATION.md#dokumenterte-resultater). Ingen ekte profil eller database ble brukt.
 
 Markdown-fil-/ankerlenkekontrollen og gjennomgangen av 332 dokument-/fixturefiler med 11 utfoldede ICS bestod. Stagingkontrollen av oppryddingscommiten ga fire mønstertreff, alle på uendrede emne-/programkodefelt i syntetiske tester; ingen reell tilgangsverdi ble påvist. `git diff --cached --check` bestod. Dette er avgrensede filkontroller, ikke en ny kontroll av Git-historikken eller en generell sikkerhetsgodkjenning.
 
-Ingen CI, publiseringssperre, `build:release`, lagringsformat eller brukerdata er endret. Ingen Outlook-prøve eller generell egenutprøving er gjentatt. **Endelige CI-resultater, merge-SHA, produksjonens `/release.json`, de tre publiserte TTF-adressene og automatisk etterkontroll dokumenteres i [PR #12](https://github.com/IBE160-2026/G37-yilmaz/pull/12) etter denne loggcommiten.** Det unngår å bruke et eldre bygg som bevis for siste leveranse.
+Ingen CI, publiseringssperre, `build:release`, lagringsformat eller brukerdata er endret. Ingen Outlook-prøve eller generell egenutprøving er gjentatt. **Endelige CI-resultater, merge-SHA, produksjonens `/release.json`, de tre publiserte TTF-adressene og automatisk etterkontroll dokumenteres i [PR #12](https://github.com/IBE160-2026/G37-yilmaz/pull/12) etter denne loggcommiten.** Kontrollen knytter resultatene til versjonen som faktisk ble publisert.
 
 ### Åpne punkter
 
 - Ingen nye produktpunkter fra denne oppryddingen. Eksisterende begrensninger, bundlevarsel og historisk eksponering står fortsatt i [issues](issues.md).
-- Prosjekteierens personlige sluttgjennomlesing av Markdown på GitHub og kontroll av offisiell innleveringsbeskjed/innlevering med kvittering er fortsatt ikke bekreftet. Word-layoutkontroll er ikke lenger et restpunkt.

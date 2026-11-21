@@ -1,8 +1,8 @@
 # Offentlige TimeEdit-fixturer
 
-## Personvernminimerte derivater
+## Fjernede personopplysninger
 
-`mf-calendar.ics`, `nih-calendar.ics`, `steiner-calendar.ics` og `volda-calendar.ics` er personvernminimerte derivater. Undervisernavn i de kontrollerte kildefeltene er erstattet med stabile `Testunderviser`-etiketter etter utfolding av logiske RFC 5545-linjer. Rettelsen 25.10.2026 omfatter også de senere personsegmentene i MF-beskrivelsen og personsegmentene i NIH-sammendraget. `nih-schedule.html` beholder 75 tabellrader og den opprinnelige kolonneformen, men den ikke-tomme Foreleser-kolonnen er syntetisert. Hendelses-ID-er, emnekoder, aktivitetstyper, datoer, tider, rom, grupper, feltrekkefølge og kildehenvisninger er bevart.
+I `mf-calendar.ics`, `nih-calendar.ics`, `steiner-calendar.ics` og `volda-calendar.ics` er undervisernavn i de kontrollerte feltene erstattet med faste `Testunderviser`-etiketter etter utfolding av linjene etter RFC 5545. Rettelsen 25.10.2026 omfatter også de senere personsegmentene i MF-beskrivelsen og personsegmentene i NIH-sammendraget. `nih-schedule.html` beholder 75 tabellrader og den opprinnelige kolonneformen, men den ikke-tomme Foreleser-kolonnen er syntetisert. Hendelses-ID-er, emnekoder, aktivitetstyper, datoer, tider, rom, grupper, feltrekkefølge og kildehenvisninger er bevart.
 
 Oppfølgingen 26.10.2026 erstatter også navn og verdier i **begge** NIH-filtrene for Foreleser: sju valg per filter. Det første beholder lenkeformen med inaktive `https://example.invalid/teacher/SYNTHETIC_TEACHER_*.html`-verdier; det andre bruker `SYNTHETIC_TEACHER_*` som syntetiske identifikatorer. Ingen originale personlenker eller person-ID-er er nødvendige for parseren. Den leser valgt emne-ID, `sid`, datogrenser og iCal-lenken; disse og tabellinnholdet er uendret i denne oppfølgingen. De 75 radene omfatter også sidekrom/tabeller for datovelgeren: selve `table.restable` har 62 rader, 30 hendelsesrader med ni kolonner og 27 utfylte Foreleser-felt. Tidligere syntetisert datovelgerinnhold er beholdt.
 

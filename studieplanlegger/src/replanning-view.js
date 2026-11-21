@@ -119,7 +119,7 @@ export function createReplanningView(actions) {
       if (scenario.deadlineRisk) card.append(el('p', 'Fristrisiko: registrert arbeid er ikke dekket før fristene.', 'plan-problem'))
       if (scenario.identicalTo) card.append(el('p', `Samme resultat som ${comparison.scenarios.find(item => item.id === scenario.identicalTo)?.label || scenario.identicalTo}.`, 'muted'))
       if (blockers.length) card.append(el('p', 'Avklar blokkerte oppgaver før hele planen kan gjennomføres.', 'plan-problem'))
-      else if (scenario.missingMinMinutes > 0 || scenario.missingMaxMinutes > 0) card.append(el('p', 'Alternativet har kapasitetsmangel; ikke alt arbeid får plass.', 'plan-problem'))
+      else if (scenario.missingMinMinutes > 0 || scenario.missingMaxMinutes > 0) card.append(el('p', 'Noe av arbeidet får ikke plass før fristene.', 'plan-problem'))
       for (const warning of scenario.pauseWarnings || []) card.append(el('p', warning, 'plan-problem'))
       for (const warning of scenario.overlapWarnings || []) card.append(el('p', warning, 'plan-problem'))
       for (const message of blockers) card.append(el('p', message, 'plan-problem'))
@@ -165,7 +165,7 @@ export function createReplanningView(actions) {
     const moved = preview.changes.filter(change => change.original && change.proposed && !sameTime(change)).length
     const removed = preview.changes.filter(change => change.original && !change.proposed).length
     host.append(el('p', `${created} ${created === 1 ? 'økt' : 'økter'} legges til, ${moved} flyttes og ${removed} fjernes. Øvrige økter beholdes.`))
-    if (preview.changes.some(change => change.proposed && change.exploratory)) host.append(el('p', 'En kort startøkt er foreslått for ukjent arbeidsmengde. Den er ikke et estimat for hele oppgaven og viser ikke at arbeidet rekker fristen.', 'assumption-note'))
+    if (preview.changes.some(change => change.proposed && change.exploratory)) host.append(el('p', 'Ajour foreslår en kort økt for å komme i gang. Oppgi et tidsanslag for hele oppgaven for å se om den rekker fristen.', 'assumption-note'))
     for (const problem of preview.problems) host.append(el('p', problem, 'plan-problem'))
     const uncertainActivities = (actions.state().planner?.events || []).filter(event => uncertainPersonalTiming(event, new Date(preview.createdAt)))
     if (uncertainActivities.length) host.append(el('p', 'Åpne egen aktivitet og oppgi start og slutt når du kjenner dem. Uten disse opplysningene forblir tiden usikker.'))
@@ -174,13 +174,13 @@ export function createReplanningView(actions) {
       edit.onclick = () => { close(); actions.editActivity?.(activity.id) }; host.append(edit)
     }
     for (const blocked of preview.blockedTasks || []) {
-      if (blocked.waiting) host.append(el('p', '«Venter på» beskriver en hindring, ikke et arbeidssteg. Hvis dette er arbeid du selv skal gjøre, kan du legge det til som arbeidssteg og selv rette ventefeltet. Ingen opplysninger endres automatisk.'))
+      if (blocked.waiting) host.append(el('p', 'Hvis du selv kan gjøre noe for å komme videre, legg det til som arbeidssteg og oppdater feltet «Venter på».'))
       const edit = el('button', `Avklar «${blocked.title}»`, 'secondary'); edit.type = 'button'
       edit.onclick = () => { close(); actions.editTask?.(blocked.taskId, blocked.waiting ? 'waitingReason' : 'dependencyIds') }
       host.append(edit)
     }
     if (taskId && preview.blockedTasks?.some(blocked => !blocked.waiting)) {
-      host.append(el('p', 'I oppgavevisningen må forutsetningene være bekreftet ferdige. I ukeplanen kan du kontrollere om de har nok tid før denne oppgaven.'))
+      host.append(el('p', 'Marker oppgavene du må gjøre først som ferdige før du starter denne. I ukeplanen kan du se om de får plass i tide.'))
       const week = el('button', 'Planlegg uken', 'secondary'); week.type = 'button'
       week.onclick = () => { close(); actions.weekPlan?.() }; host.append(week)
     }
@@ -199,7 +199,7 @@ export function createReplanningView(actions) {
       row.append(el('p', sessionLabel(session), 'proposed-session-time'))
       row.append(el('p', change.original ? sameTime(change) ? 'Tidspunktet beholdes.' : `Flyttes fra ${sessionLabel(change.original)}.` : `Arbeid videre på «${change.title}».`))
       if (change.deadlineLocal) row.append(el('p', `Frist: ${formatDeadline(change.deadlineLocal, { year: true, disambiguation: change.deadlineDisambiguation })}.`))
-      if (change.exploratory) row.append(el('p', 'Kort avklaringsøkt; total arbeidsmengde er fortsatt ukjent.', 'assumption-note'))
+      if (change.exploratory) row.append(el('p', 'Kort økt for å komme i gang. Tiden for hele oppgaven er fortsatt ukjent.', 'assumption-note'))
       const move = el('button', 'Flytt', 'secondary'); move.type = 'button'; move.onclick = () => showMoves(row, session, error)
       row.append(move); host.append(row)
     }
@@ -211,7 +211,7 @@ export function createReplanningView(actions) {
     try { alternatives = replanMoveAlternatives(actions.state(), preview, session.id) }
     catch { box.append(el('p', 'Alternativene kunne ikke kontrolleres nå. Du kan velge tidspunkt selv.')) }
     box.append(el('h4', 'Velg et kontrollert alternativ'))
-    if (!alternatives.length) box.append(el('p', 'Ingen andre passende alternativer ble funnet innen registrerte regler og kjente avtaler.'))
+    if (!alternatives.length) box.append(el('p', 'Ingen andre tidspunkt passer med øktlengden, pausene og avtalene dine.'))
     for (const candidate of alternatives) {
       const button = el('button', sessionLabel(candidate), 'secondary'); button.type = 'button'
       button.onclick = () => { replaceSession(candidate); renderPreview(dialog.querySelector('.replanning-preview'), error) }

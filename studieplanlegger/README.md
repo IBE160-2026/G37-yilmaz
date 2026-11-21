@@ -1,28 +1,28 @@
 # Ajour
 
-**[Åpne Ajour i nettleseren](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.** Du trenger verken konto, nøkler eller en betalt tjeneste.
+**[Åpne Ajour i nettleseren](https://ajour-sooty.vercel.app/)**. Du kan bruke appen gratis uten å installere noe eller opprette en konto.
 
-Ajour hjelper deg å gjøre oppgaver og tilgjengelig tid om til en plan: **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**. Du kontrollerer import og forslag før lagring. Appen bruker lokale regler, ikke generativ KI under kjøring.
+Ajour hjelper deg med å planlegge studieoppgaver og finne tid til å jobbe med dem. Du velger hvilke oppgaver og studieøkter som skal inn i planen. Etter en økt kan du registrere hva du fikk gjort og justere planen.
 
-Planen lagres i nettleserprofilen på den nøyaktige nettadressen. Bruk samme adresse og profil, og ta [sikkerhetskopi](#sikkerhetskopi-og-lagring) jevnlig. Data synkroniseres ikke mellom enheter; sletting av nettstedets data eller lukking av et privat nettleservindu kan slette planen.
+Planen lagres i nettleseren på adressen du bruker. Ta [sikkerhetskopi](#sikkerhetskopi-og-lagring) hvis du vil bruke planen på en annen enhet. Du kan miste planen hvis du sletter nettleserdata eller lukker et privat vindu.
 
 | Det du vil gjøre | Gå til |
 | --- | --- |
 | Lage første oppgave og økt | [Kom i gang og finn frem](#kom-i-gang-og-finn-frem) |
 | Ta vare på eller flytte planen | [Sikkerhetskopi og lagring](#sikkerhetskopi-og-lagring) |
-| Hente emner, dokumenter eller kalender | [Importer en bekreftbar plan](#importer-en-bekreftbar-plan) og [filer og kalenderlenker](#importer-filer-og-kalenderlenker) |
+| Hente emner, dokumenter eller kalender | [Importer en plan](#importer-en-plan) og [filer og kalenderlenker](#importer-filer-og-kalenderlenker) |
 | Kjøre appen lokalt eller kontrollere kode | [Lokale driftsformer](#lokale-driftsformer) og [tester og bygg](#tester-og-bygg) |
-| Finne prosjektet og leveringsgrunnlaget | [Leveringsoversikt for G37 i IBE160](../README.md#leveringsoversikt), [planindeks](../.docs/planning-artifacts/README.md) og [daterte kontroller](VERIFICATION.md) |
+| Lese om prosjektet | [Prosjektdokumentasjon](../README.md#finn-dokumentasjonen) og [testresultater](VERIFICATION.md) |
 
 ## Kom i gang og finn frem
 
 1. Åpne [Ajour](https://ajour-sooty.vercel.app/). «Kom i gang» hjelper deg med første emne, oppgave og studieøkt. Du kan hoppe over steg og fortsette senere fra **Innstillinger**.
-2. Opprett en oppgave, for eksempel «Les eksempelkapittel». Bare **tittel** er obligatorisk; emne, frist og arbeid kan stå ukjent.
+2. Opprett en oppgave, for eksempel «Les eksempelkapittel». Du trenger bare å fylle inn **tittel**. Emne, frist og tidsanslag er valgfrie.
 3. Åpne **Se planforslag**, velg når du kan jobbe, og kontroller oppgave, dato, klokkeslett og varighet før **Bruk planen**.
 4. Etter økten åpner du **Planlegg uken** (på mobil via **Mer**), finner økten under **Studieøktene dine** og velger **Avslutt økt**. Velg **Utført**, **Trenger mer tid** eller **Ikke utført**, registrer faktisk tid og gjenstående arbeid hver for seg, og trykk **Lagre utfallet**.
 5. Kontroller eventuelle justeringer før du godkjenner dem. En godkjent planendring kan angres.
 
-Fullført arbeidssteg, ferdig oppgave og bekreftet innlevering er separate handlinger. Planlagt tid betyr ikke utført arbeid, og logget tid dokumenterer ikke mestring.
+Du kan fullføre et arbeidssteg mens resten av oppgaven står åpen. Når du har levert en oppgave, kan du registrere det med **Bekreft levert** i oppgavelisten eller **Bekreft levering** i Oversikt.
 
 - **Oversikt:** dagens aktiviteter, uavklarte frister og ett begrunnet hovedforslag, med alternativer.
 - **Kalender:** undervisning, andre aktiviteter, frister og reserverte studieøkter, vist som dag, uke, måned eller agenda.
@@ -30,21 +30,19 @@ Fullført arbeidssteg, ferdig oppgave og bekreftet innlevering er separate handl
 - **Mine emner:** fag, emnekoblinger og samlet import.
 - **Planlegg uken:** tilgjengelig arbeidstid, faste opptatte tidsrom, kapasitet og planforslag.
 
-På mobil ligger hovedmålene i toppnavigasjonen; øvrige valg ligger under **Mer**. **Innstillinger** samler sikkerhetskopi, angre/papirkurv, oppstart og personlige estimater. Import og manuell registrering kan kombineres; et nylig importert emne kan være forhåndsvalgt for oppgaven.
+På mobil finner du de mest brukte sidene øverst og resten under **Mer**. I **Innstillinger** finner du sikkerhetskopi, angrehistorikk, papirkurv, oppstart og personlige tidsanslag. Du kan legge inn oppgaver selv og importere emner i samme plan. Ajour kan foreslå et emne du nettopp har importert, når du lager en oppgave.
 
 <a id="lagring-og-sikkerhetskopi"></a>
 
 ## Sikkerhetskopi og lagring
 
-Nettutgaven lagrer planen i nettleserprofilen på Ajours nettadresse. Lokal Node- og Docker-drift lagrer planen i SQLite.
-
-Velg **Innstillinger → Data og sikkerhetskopi → Eksporter sikkerhetskopi**, og oppbevar JSON-filen privat utenfor kildekoden. Ved flytting til en annen adresse, profil eller enhet åpner du Ajour der og velger **Innstillinger → Data og sikkerhetskopi → Importer sikkerhetskopi**. Velg filen, kontroller forhåndsvisningen og bekreft med **Erstatt lokale data**. Ta en ny kopi før du erstatter en eksisterende plan; en ukjent kopi kan først prøves i en separat nettleserprofil.
+Velg **Innstillinger → Data og sikkerhetskopi → Eksporter sikkerhetskopi**, og oppbevar JSON-filen på et trygt sted. Ved flytting til en annen adresse, profil eller enhet åpner du Ajour der og velger **Innstillinger → Data og sikkerhetskopi → Importer sikkerhetskopi**. Velg filen, kontroller forhåndsvisningen og bekreft med **Erstatt lokale data**. Ta en ny kopi før du erstatter en plan du vil beholde. Hvis du er usikker på hva en kopi inneholder, kan du prøve den i en egen nettleserprofil.
 
 Forhåndsvisning, import og eksport bruker samme størrelsesgrense på **maks 20 MB (20 000 000 UTF-8-byte)**. Hvis den fulle kopien er for stor, kan du prøve å eksportere uten Angre-historikken. Lokal Node- og Docker-drift kan også sikres ved å ta en separat kopi av SQLite-dataene mens serveren er stoppet. Nettleserens egen lagringskvote gjelder i tillegg ved gjenoppretting i nettutgaven.
 
-En portabel sikkerhetskopi bevarer opplysninger og relasjoner, men utelater kalenderforbindelser og kjente tilgangsnøkler. Kildene må kobles til igjen. **Tema og emnefargepreferanser inngår ikke i sikkerhetskopien.** En full kopi kan inneholde tidligere opplysninger i Angre-historikk og papirkurv. Sletting i appen endrer ikke filer som allerede er lastet ned, og komprimering er ikke kryptering.
+Sikkerhetskopien tar vare på planen og koblingene mellom emner, oppgaver og økter. Kalenderkilder som krever tilgang, må du koble til på nytt etter gjenoppretting. **Tema og emnefargepreferanser inngår ikke i sikkerhetskopien.** En full kopi kan inneholde tidligere opplysninger i Angre-historikk og papirkurv. Sletting i appen endrer ikke filer som allerede er lastet ned, og komprimering er ikke kryptering.
 
-Når gjenopprettingen endrer planen, lagres og kontrolleres en lokal kopi av forrige tilstand først. **Gjenopprett forrige kopi** kan hente den tilbake. I nettutgaven ligger denne kopien i nettstedets nettleserlagring og kan forsvinne sammen med planen når nettleserdata slettes. Den nedlastede JSON-filen oppbevares separat og slettes ikke sammen med nettstedets data. Kalenderens ICS-eksport er bare en kalenderkopi og erstatter ikke en full sikkerhetskopi.
+Før Ajour erstatter planen, lagrer og kontrollerer appen en kopi av den. Bruk **Gjenopprett forrige kopi** hvis du vil ha den gamle planen tilbake. I nettutgaven ligger denne kopien i nettstedets nettleserlagring og kan forsvinne sammen med planen når nettleserdata slettes. Den nedlastede JSON-filen oppbevares separat og slettes ikke sammen med nettstedets data. Kalenderens ICS-eksport er bare en kalenderkopi og erstatter ikke en full sikkerhetskopi.
 
 | Utgave | Hvor planen lagres | Hva du må ta vare på |
 | --- | --- | --- |
@@ -56,17 +54,17 @@ Den synlige eksport-/gjenopprettingsflyten brukes i alle utgaver. En nedlastet a
 
 ## Oppgaver, arbeidssteg og egenvurdering
 
-**Se planforslag** planlegger arbeid på oppgaven, også når den har arbeidssteg. Et steg blir ikke valgt automatisk for disse kalenderøktene. **Start** på oversikten kan derimot vise et bestemt startklart steg. Stegnavnet følger da med til **Hva skjedde?**, og arbeidsloggen bevarer identiteten til akkurat dette steget ved senere navneendring eller omrekkefølge. **Gjenstående arbeid for hele oppgaven** er et nytt anslag du velger selv, separat fra faktiske minutter og stegets fullføring. [Den daterte tekniske kontrollen](../.docs/implementation-artifacts/work-step-identity-2026-11-02.md) forklarer skillet og rettingen.
+**Se planforslag** foreslår når du kan jobbe med oppgaven. Økten lagres først når du godkjenner den. Hvis **Start** på oversikten viser et bestemt steg, vises stegnavnet også når du avslutter økten. Arbeidsloggen kobles til det steget selv om du senere endrer navn eller rekkefølge. Når du oppgir **Gjenstående arbeid for hele oppgaven**, anslår du hvor mye arbeid som gjenstår, uavhengig av tiden du brukte på steget. [Teknisk kontroll av arbeidssteg](../.docs/implementation-artifacts/work-step-identity-2026-11-02.md)
 
 Eldre arbeidslogger uten entydig stegkobling beholdes slik de er. Sikkerhetskopi og lokal SQLite bevarer nye, uttrykkelige stegkoblinger sammen med oppgavekopien fra registreringen; de konstruerer ikke koblinger for eldre arbeid.
 
-En oppgave trenger bare **tittel**. Frist kan være bare dato eller dato med klokkeslett; en dato uten tid beholdes og eksporteres som heldagsfrist. Emne, prioritet, avhengigheter og oppgavetype finnes under «Flere detaljer». Gjenstående arbeid kan være et intervall; «Vet ikke» er ukjent, ikke null, og en åpen øvre grense bevares som åpen. Null minutter markerer ikke oppgaven som ferdig. Ved validerings- eller lagringsfeil beholdes utkastet.
+En oppgave trenger bare **tittel**. Du kan velge en frist med eller uten klokkeslett. En dato uten klokkeslett vises som heldagsfrist i kalendereksporten. Under **Flere detaljer** kan du velge emne, prioritet, oppgaver som må gjøres først, og oppgavetype. Bruk et intervall hvis du bare har et omtrentlig tidsanslag. Kan du bare anslå et minimum, kan du la den øvre grensen stå åpen. Velg **Vet ikke** hvis du er usikker, eller **0** hvis det gjenstår null minutter. Du markerer oppgaven som ferdig med en egen handling. Hvis lagring feiler, kan du rette utkastet og prøve igjen.
 
-Ved overgangen til vintertid kan samme klokkeslett forekomme to ganger. Velg første eller andre forekomst i oppgaveskjemaet før lagring; valget følger fristen i kalenderen, planleggingen og kalendereksporten. Ugyldige klokkeslett får en egen klokkeslettfeil, og et tidspunkt som ikke finnes ved overgangen til sommertid får en forklaring. En eldre frist uten nødvendig forekomstvalg kan avklares ved å redigere oppgaven. Klokkeslett er fortsatt valgfritt.
+Ved overgangen til vintertid kan samme klokkeslett forekomme to ganger. Velg hvilken av de to gangene du mener. Valget brukes i planen, kalenderen og kalendereksporten. Hvis du velger et ugyldig klokkeslett eller en tid som hoppes over ved overgangen til sommertid, forklarer skjemaet hva du må rette. Du kan endre en eldre frist ved å redigere oppgaven.
 
-Arbeidssteg er en ordnet del av oppgaven. Eldre «neste steg» vises også når oppgaven allerede har en stegliste; åpning skriver ingenting. Ved lagring får det en deterministisk ID uten å endre eksisterende ID-er eller rekkefølge. Bare eksplisitt eldre opphav med nøyaktig samme innhold slås sammen; senere fullføring, notater og forutsetninger bevares. Et steg som andre steg bruker som forutsetning kan ikke fjernes før disse koblingene er redigert. Stegestimater legges ikke til oppgavens gjenstående arbeid. Dokumentforslag skiller eksplisitte krav, foreslått arbeidsmåte og uavklarte opplysninger, og skriver ingenting før samlet godkjenning.
+Du kan legge inn arbeidssteg og endre rekkefølgen. Hvis du vil slette et steg som må gjøres før andre steg, må du først fjerne disse koblingene. Oppgi gjenstående tid for hele oppgaven for seg. Tidsanslag for hvert steg brukes bare på steget. Når du henter steg fra et dokument, kan du se hvilke krav som står i dokumentet, hva Ajour foreslår og hva du må avklare før du godkjenner.
 
-Gyldig eldre stegtekst og avledede ID-er beholdes også når de er lengre enn de nyere feltgrensene. Etter sletting med tastatur flyttes fokus til et gjenværende steg eller knappen for å legge til et steg. Ved avvist lagring beholdes utkastet for nytt forsøk.
+Eldre «neste steg» vises også hvis oppgaven allerede har en stegliste. Ved lagring får et slikt steg en fast ID, og de eksisterende stegene beholder rekkefølge, ID, status, notater og forutsetninger. Bare eldre steg med samme opphav og nøyaktig samme innhold slås sammen. Gyldige eldre tekster og ID-er beholdes selv om de er lengre enn dagens feltgrenser. Etter sletting med tastaturet flyttes fokus til et annet steg eller til knappen for å legge til et steg.
 
 Egenvurdering er valgfri og bruker valgene «Trenger hjelp», «Forstår med støtte», «Kan forklare selv» og «Hopp over». Daterte vurderinger kan vises, endres eller slettes, og repetisjonsforslag kan slås av per tema. Ukjent eksamensdato eller manglende kollisjonsfri kapasitet vises som usikkerhet. Repetisjon blir først en vanlig studieøkt etter at studenten godkjenner eller justerer forslaget. Avvisning og utsettelse lagres som beslutninger slik at samme vurdering ikke foreslås flere ganger.
 
@@ -80,27 +78,27 @@ Repetisjonsforhåndsvisningen bruker samme temainnstillinger og oppheving av ubr
 
 Planvinduet kan sammenligne gjeldende kapasitet, redusert kapasitet og prioriterte oppgaver fra samme lagrede revisjon og klokkeslett. Alternativene viser fordelt tid, mangel, flyttinger, utelatelser og usikkerhet. Bare valgt alternativ kan brukes; et forslag med foreldet grunnlag avvises, og den vanlige historikken gjør den sammensatte lagringen angrebar.
 
-Etter lagring åpner **Se planforslag** uten å kreve detaljert tilgjengelighet. Første gang kan studenten velge dagtid på hverdager (09–15), kveld på hverdager (18–20), helg (10–14), «Det varierer» eller detaljert tilpasning. Et valgt gjentakende mønster lagres og gjenbrukes som preferanse; det registreres ikke som bekreftet kapasitet. Uten valg viser appen bare ett tydelig merket, betinget forslag på 30 minutter. Ukjent arbeidsmengde gir en kort startøkt, ikke et anslag for hele oppgaven.
+Du kan åpne **Se planforslag** rett etter lagring. Første gang kan du velge dagtid på hverdager (09–15), kveld på hverdager (18–20), helg (10–14), **Det varierer** eller legge inn egne tider. Ajour husker når du foretrekker å jobbe. Bekreft når du faktisk er ledig før du bruker planen. Hvis du hopper over valget, foreslår Ajour én økt på 30 minutter som forutsetter at du har tid. Hvis du har valgt **Vet ikke** for arbeidsmengde, kan du få forslag om en kort startøkt.
 
 ## Fleksibel tekstregistrering og egne aktiviteter
 
-Trykk **Lag forslag** etter å ha skrevet en kort oppgavetittel, for eksempel «Øve på koding». Tittel er eneste obligatoriske opplysning; emne, frist og arbeid kan stå ukjent. «Uten emne»/«ikke et emne» fjerner emnet, og «vet ikke»/«mye» betyr ukjent arbeid, ikke null. Spørsmål og uklare flytte-, endre- eller sletteønsker lagres ikke automatisk. Korte datoer bruker inneværende Oslo-år; hvis datoen allerede er passert, må år velges uttrykkelig.
+Trykk **Lag forslag** etter å ha skrevet en kort oppgavetittel, for eksempel «Øve på koding». Skriv «uten emne» eller «ikke et emne» for å fjerne emnet fra forslaget. Skriv «vet ikke» eller «mye» når du mangler tidsanslag. Kontroller forslaget før du lagrer. Når du skriver dag og måned uten år, bruker Ajour inneværende år i Oslo. Hvis datoen har passert, må du velge år.
 
 Et kjent intervall som «Tannlege 4.10 kl. 12–13» foreslås som en egen aktivitet uten emne eller importkilde. «Egen aktivitet: Ring banken 4.10» beholder ukjent klokkeslett, og en aktivitet med bare start beholder ukjent varighet. Bare komplette start-/sluttintervaller reserverer kapasitet; ufullstendige tider vises som usikkerhet. Egne aktiviteter kan redigeres eller slettes fra emne-/aktivitetsflaten og tas bare med i kalenderkopien når **Egne aktiviteter** velges uttrykkelig.
 
-## Importer en bekreftbar plan
+## Importer en plan
 
-**Mine emner → Importer** åpner [import av filer og kalenderlenker](#importer-filer-og-kalenderlenker). **Finn studieprogram** åpner den egne programflyten. Den daterte [dekningsoversikten](IMPORT-COVERAGE.md) beskriver 48 programadaptere og 49 læresteder, med kildebegrensninger. Antallet betyr ikke nasjonal dekning; et prøvd program eller emne bekrefter bare den konkrete flyten.
+Åpne **Mine emner → Importer** for å [legge til filer og kalenderlenker](#importer-filer-og-kalenderlenker). Bruk **Finn studieprogram** for å hente emner fra et program. [Importdekningen](IMPORT-COVERAGE.md) beskriver 48 programadaptere, 49 læresteder og hvilke kilder og valg som er testet.
 
 **V1 er avgrenset til HiMolde IT 2026–27 og et NTNU-emneutvalg høst 2026.** HiMolde omfatter IBE110/IBE430 og kildevalget IBE160 eller IBE102 + IBE152; undervisning er prøvd for IBE110/IBE430/IBE160 høsten 2026. NTNU omfatter emnemetadata og emnelenket undervisning for ARK1001/EXPH0100 høsten 2026. Komplett NTNU-program, full eksamensdekning og personlig gruppetilhørighet er ikke lovet. [Briefen](../brief.md#hovedflyt-og-låst-v1) angir det avtalte omfanget; nasjonal dekning er framtidsvisjon.
 
-Velg publisert programutgave, opptakskull, studiesemester og kalendersemester uttrykkelig når kilden trenger dem. Campus vises bare når kilden gir et reelt valg. Påkrevde emner vises separat fra kildepubliserte alternativer; ingen alternativ gren velges for studenten, og studiepoengsum brukes bare som informasjon. Et manglende emne kan søkes opp eller registreres som en tydelig uverifisert post uten at programkonteksten må fylles inn på nytt. Det påbegynte utvalget beholdes ved kildefeil, tilbakegang og omlasting i samme fane, men regnes ikke som importert. Tilgjengelig undervisning kan kontrolleres samlet, men hvert emne beholder statusen «klar», «ingen treff», «feil» eller «krever tilgang», og bare mislykkede kilder prøves på nytt. Gruppemedlemskap utledes aldri fra et treff. Emner og vellykket undervisning lagres med én bekreftelse; kvitteringen sier presist hvor undervisning faktisk ble importert. Offentlig undervisning kan også hentes for et emne som allerede er lagret, selv når programimport mangler.
+Velg publisert programutgave, opptakskull, studiesemester og kalendersemester uttrykkelig når kilden trenger dem. Campus vises bare når kilden gir et reelt valg. Påkrevde emner vises separat fra kildepubliserte alternativer; ingen alternativ gren velges for studenten, og studiepoengsum brukes bare som informasjon. Et manglende emne kan søkes opp eller registreres som en tydelig uverifisert post uten at programkonteksten må fylles inn på nytt. Du kan fortsette med utvalget ditt etter et mislykket oppslag eller etter at du har gått tilbake eller lastet inn fanen på nytt. Det legges til i planen når du bekrefter. Du kan sjekke undervisning for flere emner samtidig. Hvert emne viser om oppslaget er klart, ga ingen treff, feilet eller krever tilgang. Du kan prøve de mislykkede oppslagene på nytt uten å gjenta resten. Velg selv gruppene som gjelder deg. Når du godkjenner, lagres emnene og undervisningen som ble hentet. Oppsummeringen viser hvilke emner som fikk undervisning. Offentlig undervisning kan også hentes for et emne som allerede er lagret, selv når programimport mangler.
 
-Kalenderpanelet har tre valg som åpnes ett om gangen: fil/lenke, offentlig institusjonskalender og undervisning for et lagret emne. Aktiviteter må velges før lagring. Kildeopplysninger og mangler kan åpnes i forhåndsvisningen. Kalenderinformasjon, faktiske undervisningsaktiviteter og innleveringsfrister holdes adskilt.
+Velg om du vil importere en fil eller lenke, hente en offentlig institusjonskalender eller hente undervisning for et lagret emne. I forhåndsvisningen ser du kilden, hva som mangler, og hvilke oppføringer som er informasjon, undervisning eller innleveringsfrister. Velg aktivitetene du vil lagre.
 
-Dokumentimport støtter innlimt tekst, tekstbasert PDF, DOCX, CSV og ICS. Filene leses lokalt, med grenser på 10 MB for PDF/DOCX, 100 PDF-sider og 2 MB for tekst/CSV/ICS. Skannede eller uleselige dokumenter får en forklaring og vei til innlimt tekst/manuell registrering. Appen utfører ikke dokumentinnhold eller laster eksterne dokumentressurser.
+Du kan lime inn tekst eller velge en fil i PDF, DOCX, CSV eller ICS. PDF må inneholde lesbar tekst. Grensen er 10 MB for PDF og DOCX, 100 sider for PDF og 2 MB for tekst, CSV og ICS. Hvis dokumentet er skannet eller uleselig, kan du lime inn teksten eller registrere oppgavene selv. Ajour leser filen på enheten, uten å kjøre skript eller hente eksternt innhold som dokumentet viser til.
 
-Forhåndsvisningen viser forslag til emner, oppgaver, frister og aktiviteter med kildeutdrag. Rett felter, velg bort rader og koble til eksisterende emner. Uklare datoer, manglende år, ufortolkede fristuttrykk og usikre koblinger må avklares eller uttrykkelig utelates. For en frist kan du velge dato, dato uten klokkeslett eller **Uten frist**; ingen valgt rad som krever avklaring kan lagres. Feil åpner den berørte raden og flytter fokus til feltet. Kildevarsler om eksempelvis uleselige PDF-sider bevares etter lagring og vises ved senere oppdatering. Ingenting lagres før bekreftelse.
+Bruk forhåndsvisningen til å se hva Ajour fant, rette felter og koble oppføringer til emner du allerede har. For en frist kan du oppgi dato med eller uten klokkeslett, velge **Uten frist** eller hoppe over oppføringen. Avklar også manglende årstall og usikre emnekoblinger før du lagrer utvalget. Ved feil åpner Ajour raden og flytter fokus til feltet du må rette. Varsler fra kilden, for eksempel om uleselige PDF-sider, vises igjen hvis du senere oppdaterer importen.
 
 Gjentatt import bevarer stabile identiteter og egne endringer. Endrede dokumenter kan kobles til en tidligere kilde; usikkert samsvar og konflikter krever valg. Kalenderlenker valgt som synkronisering oppdateres mens appen er åpen, med ventetid ved kildefeil. Tidligere data beholdes ved feil. Private lenker og tilgangsnøkler lagres lokalt; filer og lenker valgt som øyeblikksbilder oppdateres ikke automatisk. Enkelte offentlige kilder har ustabile ID-er eller ukjent fullstendighet, slik at en flyttet aktivitet må avklares manuelt. Se [importbeskrivelsen](IMPORT.md).
 
@@ -122,21 +120,21 @@ Ugyldige ICS-datoer forklares med berørt kalenderkomponent og antall utelatelse
 
 Kontroller **Blir med** og **Utelates** før eksport, også nøyaktige tider og årsaker. Standard ICS har presisjon på hele sekunder. Oppføringer som trenger brøkdeler av sekunder utelates uttrykkelig fra filforslaget, uten avrunding eller endring av lagret tid. Undervisning/informasjon som ikke reserverer tid faller utenfor det eksisterende undervisningsutvalget og listes som utelatt. Overlappende egne aktiviteter og støttede heldagsdatoer beholder intervall- eller DATE-betydningen sin. Tomt utvalg kan ikke lastes ned. Den gjentatte høsttimen viser de ulike UTC-avvikene i detaljene. TP-aktiviteter i januar beholder høstemnet når kilden uttrykkelig plasserer dem der.
 
-Filer og øyeblikksbilder av lenker er kopier. Bruk den lagrede dokumentkildens oppdateringsvalg for en endret fil fra samme kilde; manglende hendelser slettes ikke automatisk. ICS, PDF, DOCX, CSV og innlimt tekst støttes gjennom samme inngang. CSV oppdager UTF-8/UTF-16 med BOM; Windows-1252 og UTF-16 uten BOM kan velges uttrykkelig. **Ser teksten riktig ut?** viser eksempler før usikker tegnkoding godtas. Ugyldige tegn erstattes aldri stille. Komma, semikolon og tabulator med siterte verdier støttes; XLSX støttes ikke. Uendelige ICS-regler utvides innen det forklarte seksmånedersvinduet, mens uttrykkelige senere RDATE-verdier vurderes separat innen importgrensene. For store inndata avvises. Tilsvarende UTC-/TZID-kanselleringer bruker hendelsens faktiske tidspunkt; en eldre kansellering uten tilstrekkelig identitet forklares uten å gjette eller slette en annen aktivitet. Se [daterte resultater og grenser](VERIFICATION.md).
+En fil eller et øyeblikksbilde av en lenke lagres som en kopi. Når du har en nyere fil fra samme kilde, åpner du kilden i Ajour og velger å oppdatere den. Hendelser som mangler i den nye filen, beholdes. ICS, PDF, DOCX, CSV og innlimt tekst støttes gjennom samme inngang. CSV oppdager UTF-8/UTF-16 med BOM; Windows-1252 og UTF-16 uten BOM kan velges uttrykkelig. **Ser teksten riktig ut?** viser eksempler før usikker tegnkoding godtas. Ugyldige tegn erstattes aldri stille. Komma, semikolon og tabulator med siterte verdier støttes; XLSX støttes ikke. Uendelige ICS-regler utvides innen det forklarte seksmånedersvinduet, mens uttrykkelige senere RDATE-verdier vurderes separat innen importgrensene. For store inndata avvises. Tilsvarende UTC-/TZID-kanselleringer bruker hendelsens faktiske tidspunkt; en eldre kansellering uten tilstrekkelig identitet forklares uten å gjette eller slette en annen aktivitet. Se [daterte resultater og grenser](VERIFICATION.md).
 
 Under **Fra kalenderlenke** kan du hente et **øyeblikksbilde** og avklare emner i samme forhåndsvisning uten først å opprette dem. **Synkronisering for ett lagret emne** beholder den eksisterende oppdateringsavtalen. TP-visning støttes bare for én offentlig emne-/terminoppføring på `tp.educloud.no/<institusjon>/app/schedule` med `semester`, `scheduleType=course` og `course`, hos UiO, UiB, UiT, OsloMet, Nord, INN, UiS, UiA, HiMolde og HiØ (allerede eksisterende TP-adapter). Semester og kildevalg kontrolleres mot publiserte data. Personlige visninger, innlogging og andre nettsider tolkes ikke som kalendere; bruk sidens iCalendar-/ICS-eksport eller last ned en `.ics`-fil. Et kildebytte rydder gammel lenkefeil og hindrer forsinkede svar i å endre den nye importen.
 
 ## Planlegg og oppdater fremdrift
 
-Registrer og bekreft arbeidsvinduer og faste opptatte tidsrom under «Planlegg uken». Undervisning og overlapp trekkes fra kapasiteten; samme opptatte minutt telles én gang. Manglende arbeidsvinduer eller tidsestimater gir usikkerhet, ikke et oppdiktet kapasitetsoverskudd. Minuttsummen er en kapasitetsoversikt; det konkrete planforslaget kontrollerer også øktlengder, pauser og tidsskifte.
+Under **Planlegg uken** kan du legge inn når du har tid til å studere og når du er opptatt. Ajour trekker fra undervisning og annen opptatt tid. Hvert opptatte minutt trekkes fra én gang, også når avtaler overlapper. Når studietid eller tidsanslag mangler, viser Ajour hva som er usikkert. Planforslaget tar også hensyn til øktlengder, pauser og overgangen mellom sommer- og vintertid.
 
-«Status i dag» forklarer registrert arbeid mot reell kapasitet. «Jeg har tid nå» oppdaterer opptil tre begrunnede forslag straks du velger 15, 30, 45, 60 eller egendefinert tid. «Se realistisk forslag» viser konkrete nye, delte eller flyttede reservasjoner, påvirkning på andre oppgaver og eventuelt restunderskudd før du godkjenner. Forslaget respekterer faste aktiviteter, låste studieøkter, frister, avhengigheter, delingsvalg, øktlengder og pauser. Godkjenning og angre behandler planendringen samlet.
+**Status i dag** viser hvor mye arbeid og tid du har registrert. Under **Jeg har tid nå** velger du 15, 30, 45, 60 minutter eller en egen varighet. Du får opptil tre forslag med begrunnelse. **Se realistisk forslag** viser hvilke økter som kan legges til, deles eller flyttes, og hvor mye arbeid det eventuelt fortsatt mangler tid til. Ajour tar hensyn til faste aktiviteter, låste studieøkter, frister, avhengigheter, delingsvalg, øktlengder og pauser. Du kan godkjenne eller angre hele planendringen samlet.
 
 Det oppgavenære forslaget viser oppgave, dag, klokkeslett, varighet og forutsetninger som lesbar tekst. **Flytt** tilbyr først kontrollerte alternativer; dato- og tidsfelt vises først etter **Velg tidspunkt selv**. Flytting endrer bare utkastet. **Bruk planen** kontrollerer grunnlaget på nytt og lagrer nøyaktig de viste øktene; **Ikke nå** skriver ingenting, gjentatt godkjenning lager ingen duplikater, og **Angre** gjenoppretter tilstanden før planendringen. Registrerte arbeidsvinduer og avtaler er autoritative; en tom kalender fremstilles aldri som bekreftet fritid.
 
-Planlagt tid betyr ikke utført arbeid. Etter en planlagt økt eller arbeid registrert i etterkant velger du:
+Når du avslutter en økt eller registrerer arbeid i etterkant, velger du et utfall.
 
-- **Utført:** Når dialogen gjelder et bestemt arbeidssteg, fullføres dette steget. Velg **Hele oppgaven er ferdig** hvis hele arbeidet også er ferdig. Når dialogen gjelder oppgaven uten et valgt steg, markerer **Utført** hele oppgaven som ferdig. Innlevering krever alltid en egen bekreftelse.
+- **Utført:** Når dialogen gjelder et bestemt arbeidssteg, fullføres dette steget. Velg **Hele oppgaven er ferdig** hvis hele arbeidet også er ferdig. Når dialogen gjelder oppgaven uten et valgt steg, markerer **Utført** hele oppgaven som ferdig. Du kan registrere levering etterpå hvis oppgaven krever det.
 - **Trenger mer tid:** oppgi nytt anslag på gjenstående arbeid eller «Vet ikke».
 - **Ikke utført:** ingen faktisk arbeidstid eller fremdrift registreres, og ingen økter flyttes automatisk.
 
@@ -172,19 +170,19 @@ Tolv samordnede emnefarger følger emnets stabile ID, også når to læresteder 
 
 Tema (`ajour:appearance:v1`) og emnefarger (`ajour.course-colors.v1`) er separate nettleserpreferanser per adresse. De inngår **ikke** i databasen eller sikkerhetskopien. En eldre sikkerhetskopi får gyldige standardfarger når preferansene mangler. Utilgjengelig preferanselagring hindrer ikke bruk, men valget kan gå tapt ved omlasting.
 
-## Kjente begrensninger ved levering
+## Kjente begrensninger
 
-V1 er avgrenset til de navngitte HiMolde-/NTNU-prøvene i [briefen](../brief.md). Tabellen beskriver restpunkter og bevisgrenser. Tidligere feil og rettinger er oppsummert i [verifikasjonsoversikten](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert).
+Første versjon omfatter de navngitte HiMolde- og NTNU-prøvene i [prosjektbeskrivelsen](../brief.md). Tidligere feil og rettinger er oppsummert i [verifikasjonsoversikten](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert).
 
-[Auditoppfølgingen 4. november](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) behandler bekreftede feil der et eldre filvalg kunne erstatte et nyere forslag ved arbeidsstegimport eller gjenoppretting. Den samler retting og regresjonstester, eksplisitt avhengighetskontroll og oppdateringsrutine, gradvis utvidelse av Content Security Policy og avgrensede prøver i flere nettlesere. Faktiske kjøreresultater og publiseringsstatus står i rapporten; dette er ikke en generell sikkerhetsattest eller garanti om lik oppførsel i alle nettlesere.
+[Rettinger og tester 4. november](../.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) behandler bekreftede feil der et eldre filvalg kunne erstatte et nyere forslag ved arbeidsstegimport eller gjenoppretting. Den samler retting og regresjonstester, eksplisitt avhengighetskontroll og oppdateringsrutine, gradvis utvidelse av Content Security Policy og avgrensede prøver i flere nettlesere. Faktiske kjøreresultater og publiseringsstatus står i rapporten; dette er ikke en generell sikkerhetsattest eller garanti om lik oppførsel i alle nettlesere.
 
 | Punkt og dokumentert status | Betydning for avtalt V1 og eventuell oppfølging |
 | --- | --- |
 | **NTNU:** Den samlede programkilden returnerte tomt før filtrering. TDT4109 fungerte og ga 115 undervisningshendelser i den tekniske kontrollen 1. november. | Komplett NTNU-programdekning er ikke lovet. Emnesøk og manuell registrering er alternativer. Kontroller katalogen på nytt bare ved et konkret behov eller kildeendring; TDT4109 erstatter ikke de navngitte V1-prøvene. |
 | **UiT:** Den konkrete Applied Computer Science-PDF-en (kilde-ID 941723) har en termin-/ECTS-tabell som ikke kan tolkes som semesterfordeling. Den tidligere H-2025-bildetabellen er også begrenset. | UiT-tabellene er utenfor de navngitte V1-prøvene. Bruk manuell registrering eller en støttet kalender-/filkilde; ingen semesterfordeling gjettes. Se [importdekning](IMPORT-COVERAGE.md). |
 | **Nettleserlagring:** Nettleserens lagringskvote gjelder fortsatt. Store sikkerhetskopier og samtidige redigeringer kan møte grenser selv etter rettingen. | Identisk import unngår unødvendig historikk, men lagringen er ikke ubegrenset. Oppbevar egne backuper og bruk én redigerende fane. Nettleserdata og lokal Node-/SQLite-lagring er forskjellige driftsformer. |
-| **Egenutprøvingens grenser:** Sju scenarier og navngitt Start bestod 3.–4. november, inkludert omlasting og gjenoppretting i et separat, tomt Chrome Gjest-miljø. | [Prøverapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) lukker det tidligere SC-07/R-07-dekningsforbeholdet innen dokumentert omfang. Full omstart av nettleserprosessen og «Gjenopprett forrige kopi» inngikk ikke i prøven. Dette er metodegrenser, ikke nye appfeil; automatiske kontroller står separat. |
-| **F03 – fri tekst uten kjent importformat:** Åpent format-/tydelighetspunkt fra mengderapporten 29. oktober. Rapporten er funnet, men originalen `stress-text-005.txt` er ikke funnet eller omprøvd. | Import av vilkårlig prosa er ikke lovet. Funnet er relevant for forståelig avvisning i V1; manuell oppgaveregistrering og gjenkjente formater er alternativer. Det separate fredags-/fristavviket ble [rettet og kontrollert 2. november](VERIFICATION.md#fristavklaring-oppgavebekreftelse-og-lagringshjelp--2026-11-02); dette lukker ikke historisk F03. |
+| **Egenutprøvingens grenser:** Sju scenarier og navngitt Start bestod 3.–4. november, inkludert omlasting og gjenoppretting i et separat, tomt Chrome Gjest-miljø. | Prøven dekket gjenoppretting i en tom profil (SC-07/R-07). Full omstart av nettleseren og **Gjenopprett forrige kopi** var utenfor prøveoppsettet. [Prøverapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) |
+| **F03 – fri tekst uten kjent importformat:** Åpent format-/tydelighetspunkt fra mengderapporten 29. oktober. Den opprinnelige filen `stress-text-005.txt` mangler, så testen kan ikke gjentas. | Import av vilkårlig prosa er ikke lovet. Funnet er relevant for forståelig avvisning i V1; manuell oppgaveregistrering og gjenkjente formater er alternativer. Det separate fredags-/fristavviket ble [rettet og kontrollert 2. november](VERIFICATION.md#fristavklaring-oppgavebekreftelse-og-lagringshjelp--2026-11-02). |
 | **F05 – NHH/FHS/Samisk kildevalg:** Fortsatt åpent; ingen ny godkjenning av disse kildeflytene. | Kildene ligger utenfor de navngitte V1-prøvene. Dokumenter konkret kilde/år/valg ved senere oppfølging; eksisterende adaptere innebærer ingen generell dekningsgaranti. |
 | **Bundlevarsel:** Bygget varsler om hovedbundle over 500 kB. Bygget 1. november målte 957,30 kB / 292,79 kB gzip, og fristrettingen 2. november målte 959,61 kB / 293,45 kB gzip. [Stegidentitetsrettingen 2. november](VERIFICATION.md#oppgavearbeid-og-navngitt-arbeidssteg--2026-11-02) målte 961,13 kB / 293,89 kB gzip; [oppfølgingen 3. november](../.docs/implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) målte 961,20 kB / 293,91 kB gzip. Byggene bestod. | Varslet stopper ikke bygget, men er relevant for nedlasting og oppstart på tregt nett. Ingen konkret numerisk bundlegrense er avtalt som V1-akseptkrav. Mål ved et dokumentert ytelsesproblem før eventuell oppdeling; varslet er ikke fjernet eller løst her. |
 | **Andre kildegrenser:** BI har ikke automatisk undervisningshenting; kalenderlenker utenfor kildevernet avvises med filalternativ. | Bevar kildevern og manuell/filbasert reserveflyt. Flere integrasjoner er eventuell senere utvikling. |
@@ -198,7 +196,7 @@ AHOs korrekte kildeårstall er beholdt: vår 2031 vises som studiesemester 10 og
 
 ## Lokale driftsformer
 
-Lokal kjøring er et alternativ for sensor, utvikling og egen drift. Bruk nettlenken øverst hvis du bare vil bruke Ajour.
+Velg en av oppskriftene for å teste eller utvikle Ajour på egen maskin. For vanlig bruk kan du åpne nettutgaven øverst.
 
 | Valg | Forutsetning | Startadresse | Lagring |
 | --- | --- | --- | --- |
@@ -209,11 +207,11 @@ Lokal kjøring er et alternativ for sensor, utvikling og egen drift. Bruk nettle
 
 ### Forbered Node og arbeidsmappe
 
-[package.json](package.json), [Dockerfile](Dockerfile) og [CI-workflowen](../.github/workflows/ajour-quality.yml) bruker **Node.js 24.x**. Det tidligere dokumenterte Windows-oppsettet var Node.js 24.19.0 og npm 11.17.0; dette er et datert kontrollgrunnlag, ikke et nytt krav om akkurat disse patchversjonene. Installer Node fra [nodejs.org](https://nodejs.org/) ved behov.
+[package.json](package.json), [Dockerfile](Dockerfile) og [CI-workflowen](../.github/workflows/ajour-quality.yml) bruker **Node.js 24.x**. En tidligere Windows-kontroll brukte Node.js 24.19.0 og npm 11.17.0. Installer Node fra [nodejs.org](https://nodejs.org/) ved behov.
 
 Eksemplene bruker **PowerShell på Windows**. Kjør dem én linje om gangen. `npm.cmd` og `npx.cmd` kaller Windows-programmene direkte; på macOS/Linux brukes `npm` og `npx`, og miljøvariabler må settes med syntaksen til det aktuelle skallet.
 
-Start i repository-roten, mappen som inneholder `brief.md` og `studieplanlegger/`:
+Start i rotmappen, der `brief.md` og mappen `studieplanlegger/` ligger.
 
 ```powershell
 cd studieplanlegger
@@ -222,7 +220,7 @@ npm.cmd --version
 npm.cmd ci
 ```
 
-Alle lokale oppskrifter nedenfor kjøres deretter i **appmappen `studieplanlegger/`**, med mindre noe annet står uttrykkelig. Står du allerede der, skal du ikke kjøre `cd studieplanlegger` på nytt. `npm.cmd ci` installerer låste avhengigheter og trenger normalt internett. Behold `package-lock.json`. Stopp en server du selv startet før pakkeinstallasjon, siden Windows kan låse filer.
+Kjør resten av de lokale oppskriftene i **`studieplanlegger/`**, med mindre en oppskrift ber deg bytte mappe. `npm.cmd ci` installerer låste avhengigheter og trenger normalt internett. Behold `package-lock.json`. Stopp en server du selv startet før pakkeinstallasjon, siden Windows kan låse filer.
 
 ## Lokal Node-server med SQLite
 
@@ -256,9 +254,9 @@ Bruk samme databasefil ved omstart. Ikke slett den eller eventuelle SQLite-sidef
 
 ## Full-stack drift med Docker
 
-Kjør fra **appmappen `studieplanlegger/`**, der [compose.yaml](compose.yaml) ligger. Docker trenger ikke en separat lokal Node-installasjon. Forutsetning: Docker med Compose v2; kontroller med `docker compose version`. Standardoppstart krever ingen miljøfil eller nøkler. Valgfri konfigurasjon står i [.env.example](.env.example): `STUDIEPLAN_PORT` velger den lokale vertsporten (standard 8088), `STUDIEPLAN_SEED` er normalt `false`, og `STUDIEPLAN_SEED_JSON` brukes bare ved uttrykkelig valgt seed til tom database. Kopier eventuelt filen til `.env`; ekte studentdata skal ikke legges i Git. Porten bindes fortsatt til loopback. Ingen bestemt Docker Engine-patchversjon er dokumentert som testkrav.
+Kjør fra **`studieplanlegger/`**, der [compose.yaml](compose.yaml) ligger. Sjekk at Docker har Compose v2 med `docker compose version`. Standardoppsettet fungerer uten lokal Node-installasjon, miljøfil eller nøkler. Valgfri konfigurasjon står i [.env.example](.env.example): `STUDIEPLAN_PORT` velger den lokale vertsporten (standard 8088), `STUDIEPLAN_SEED` er normalt `false`, og `STUDIEPLAN_SEED_JSON` brukes bare ved uttrykkelig valgt seed til tom database. Kopier eventuelt filen til `.env`; ekte studentdata skal ikke legges i Git. Porten bindes fortsatt til loopback. Ingen bestemt Docker Engine-patchversjon er dokumentert som testkrav.
 
-Den komplette leveransen bygger nettleserklient, Node-server og SQLite-database fra de låste npm-avhengighetene. Node-basisbildet bruker den valgte, mutable taggen `node:24-bookworm-slim`. Skjemaet opprettes automatisk, og databasen ligger i et navngitt Docker-volum.
+Docker bygger nettleserappen og Node-serveren fra de låste npm-avhengighetene. Basisbildet `node:24-bookworm-slim` kan oppdateres under samme tagg. Serveren oppretter SQLite-databasen i et navngitt volum.
 
 Start tjenesten fra appmappen:
 
@@ -420,11 +418,11 @@ Manuell registrering og filimport er alternativer ved kildefeil. En allerede las
 
 `node scripts/measure-remote.mjs` bruker `AJOUR_REMOTE_URL` og `AJOUR_REMOTE_DEPLOYMENT` og rapporterer kald oppstart, respons ved navigasjon og avgrenset import. Mobilmålingen er Chromium-emulering med oppgitte nettverks-/CPU-vilkår, ikke en måling på fysisk telefon. Faktiske tall og eventuelle flaskehalser føres i verifikasjonen; bundlevarselet alene utløser ingen ombygging.
 
-## Daterte resultater og leveringsgrunnlag
+## Testresultater og dokumentasjon
 
-[Verifikasjonen](VERIFICATION.md) samler tekniske rettinger, kjøreresultater og bevisgrenser. **Prosjekteierens sju scenarier og tilleggsprøven for navngitt Start bestod 3.–4. november.** [Prøverapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, rettet prøveutførelse, gjenoppretting i et separat, tomt Chrome Gjest-miljø og de øvrige metodegrensene. Det tidligere dekningsforbeholdet for SC-07/R-07 er lukket innen dette omfanget. [Prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) bevarer tidligere daterte resultater, inkludert omprøvingene 1. november, SC-07/1200–30 og Outlook-prøven. Automatiske tester står separat fra prosjekteierens egne observasjoner; ingen av delene dokumenterer generell studentnytte.
+[Testoversikten](VERIFICATION.md) viser hva som ble rettet, hva som ble testet og hva som fortsatt er uavklart. Prosjekteieren gjennomførte og besto sju scenarier samt en ekstra prøve av **Start** med et bestemt arbeidssteg 3.–4. november. Den omfattet gjenoppretting med testdata i en tom Chrome-gjesteøkt (SC-07/R-07). [Prøverapporten](../.docs/implementation-artifacts/owner-trial-2026-11-04.md) beskriver gjennomføringen. [Prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) viser også de nye prøvene 1. november, SC-07/1200–30 og Outlook-prøven. Det er fortsatt åpent hvordan studenter har nytte av Ajour over tid.
 
-[Refleksjonsrapporten](../.docs/submission/reflection-report.md) foreligger bare som Markdown i [GitHub-repoet](https://github.com/IBE160-2026/G37-yilmaz), med oppgitt KI-hjelp til struktur og formulering. Den er et leveringsdokument og følger ikke appens kjøretidsfiler. [Leveringsstatus](../.docs/planning-artifacts/README.md#leveringsstatus)
+[Refleksjonsrapporten](../.docs/submission/reflection-report.md) beskriver prosjekteierens erfaringer og hvilken hjelp KI ga med struktur og formulering.
 
 ### Avgrensede arbeidsflytrettinger — 2026-10-02
 
@@ -440,6 +438,6 @@ Appen bygger videre på [Vites vanilla JavaScript-mal](https://vite.dev/guide/).
 
 Det kuraterte prosjektmaterialet finnes via [planindeksen](../.docs/planning-artifacts/README.md), [arkitekturen](../.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md), [løsningsguiden](../.docs/implementation-artifacts/solution-guide.md) og [utviklingsprosessen](../.docs/implementation-artifacts/development-process.md). Interne arbeidsspesifikasjoner er lokale og inngår ikke i leveransen. Teknisk kontroll er ikke en dokumentert brukermåned eller studentens personlige refleksjon.
 
-Ajour-navnet og utseendet ble samordnet 25.–26. oktober 2026: ordmerket er **ajour**, med «Kom ajour.» og «Planer endrer seg. Det er helt greit.». Lokale SVG-illustrasjoner er gjenskapt fra de to leverte PNG-referansene; en større designpakke var ikke tilgjengelig. Manrope og fontlisensen er beholdt. [Daterte Ajour- og temakontroller](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert) beskriver arbeidet; publiseringen `9d3a169` er historisk og før Ajour.
+Ajour fikk navnet, ordmerket **ajour** og overskriften «Kom ajour.» 25.–26. oktober 2026. På det tidspunktet brukte forsiden også teksten «Planer endrer seg. Det er helt greit.». Lokale SVG-illustrasjoner er gjenskapt fra de to leverte PNG-referansene; en større designpakke var ikke tilgjengelig. Manrope og fontlisensen er beholdt. [Daterte Ajour- og temakontroller](VERIFICATION.md#hva-som-ble-rettet-og-kontrollert) beskriver arbeidet; publiseringen `9d3a169` er historisk og før Ajour.
 
 Navneendringen krever ingen datamigrering. Mappen `studieplanlegger`, lagrings-/backupformatet, miljøvariablene, Docker-tjenesten `studieplan` og volumet `studieplan-data` beholder navnene. Ingen tidligere brukerbetjent fargevelger eller lagret brukerfarge måtte migreres da automatisk kodehash ble erstattet. Planene ble [rekonstruert 16. oktober 2026](../.docs/planning-artifacts/README.md), og presenteres ikke som planer som styrte den eldre utviklingen. Private originaler og generell studentnytte er ikke verifisert.

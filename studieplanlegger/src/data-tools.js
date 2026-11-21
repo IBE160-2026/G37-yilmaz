@@ -102,7 +102,7 @@ export function createDataTools(actions) {
       if (request !== importRequest || !dialog.open) return
       if (JSON.stringify(actions.state()) !== baseline) { error.textContent = 'Dataene er endret etter forhåndsvisningen. Åpne filen på nytt.'; return }
       const result = actions.replace(value.data)
-      if (result.ok) { close(); feedback.textContent = result.unchanged ? 'Sikkerhetskopien inneholder de samme dataene. Ingenting er skrevet, og eventuell tidligere gjenopprettingskopi er beholdt.' : 'Sikkerhetskopien er gjenopprettet. Forrige datasett kan hentes med Gjenopprett forrige kopi.' }
+      if (result.ok) { close(); feedback.textContent = result.unchanged ? 'Sikkerhetskopien inneholder de samme opplysningene som planen din. Planen og eventuell tidligere gjenopprettingskopi er beholdt.' : 'Sikkerhetskopien er gjenopprettet. Forrige datasett kan hentes med Gjenopprett forrige kopi.' }
       else error.textContent = result.error || storageErrorMessage(result, { restore: true })
     }), button('Avbryt', close))
   }

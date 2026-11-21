@@ -32,7 +32,7 @@ for (const width of [1440, 1280, 390]) {
     page.on('pageerror', error => errors.push(error.message))
     await boot(page, width, width === 390 ? 20 : 16)
 
-    await expect(page.getByRole('heading', { name: 'Planen skal passe deg.' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Status i dag' })).toBeVisible()
     await expect(page.locator('#daily-overview').getByRole('status')).toContainText('Presentasjonen har anslagsvis 1–2 timer arbeid igjen')
     await expect(page.locator('#daily-overview').getByRole('status')).toContainText('Det kan mangle opptil 45 minutter')
     await expect(page.getByRole('heading', { name: 'Ditt neste steg' })).toBeVisible()

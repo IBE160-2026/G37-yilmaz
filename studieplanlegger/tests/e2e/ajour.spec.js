@@ -45,7 +45,7 @@ for (const [width, fontSize] of [[1440, 16], [900, 16], [390, 16], [390, 32]]) {
     await boot(page, width, true, fontSize)
     await expect(page).toHaveTitle('Ajour – Kom ajour.')
     await expect(page.locator('#ajour-heading')).toHaveText('Kom ajour.')
-    await expect(page.locator('.ajour-tagline')).toHaveText('Planer endrer seg. Det er helt greit.')
+    await expect(page.locator('.ajour-description')).toHaveText('Samle oppgaver og frister, og finn tid til å jobbe med dem.')
     await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(252, 250, 248)')
     await expect(page.locator('#dashboard-suggestions')).toContainText('Skriv disposisjon')
     await expect(page.locator('#next-plan')).toContainText('Syntetisk eksamen')
@@ -133,7 +133,7 @@ test('empty Ajour captures only a title and preserves a draft, focus and disclos
   await expect(page.locator('#connected-onboarding')).toBeVisible()
   await expect(page.locator('#focus-panel')).toBeHidden()
   await expect(page.locator('#connected-onboarding')).toContainText('En tittel er nok.')
-  await expect(page.locator('#connected-onboarding')).toContainText('Import er valgfritt.')
+  await expect(page.locator('#connected-onboarding')).toContainText('Du kan legge til emner senere.')
   const onboardingControls = await page.locator('.onboarding-actions > button').all()
   for (let i = 1; i < onboardingControls.length; i++) {
     const previous = await onboardingControls[i - 1].boundingBox(), current = await onboardingControls[i].boundingBox()

@@ -1,4 +1,4 @@
-# Tekstregistrering og auditstatus
+# Tekstregistrering og kontroll av historikk
 
 ## 2026-11-04 kl. 20:37 — Codex
 
@@ -23,7 +23,7 @@ Kodecommit: `470968c1b726bb1db630e0fb0d9f92192048fb6d`. [PR #27](https://github.
 - Den eksisterende bygde nettlesersuiten bestod 181 tester før de siste gjennomgangsrettingene; endelig full suite kjøres av PR-ens uendrede kvalitetsløp. 14 isolerte SQLite-prøver og 4 ordinære Firefox/WebKit-prøver bestod lokalt. Målrettede sluttprøver bruker faktisk lagring, bekreftelse og omlasting, fast dato 2026-11-04 og bare syntetiske data i egne nettleserkontekster.
 - Før publisering bestod egen syntetisk produksjonsprofil prosessavslutning, ny oppstart og sikkerhetskopigjenoppretting på baseline. Samme isolerte profil brukes ved kontroll etter publisering; ingen reelle brukerdata berøres.
 - Før kodecommit: 852 tekstfiler og 11 utfoldede ICS-filer bestod avgrenset personvernkontroll; 269 HTML/JSON-fixtures og én PDF hadde ingen treff i de undersøkte kategoriene. 55 Markdown-filer, 949 lokale lenker og 243 ankerreferanser bestod. Staget diff bestod whitespacekontroll. Nye logglenker kontrolleres separat før loggcommit.
-- [Eksisterende audit](../.docs/implementation-artifacts/submission-audit-2026-11-01.md): alle **12 dokumenterte historiske eksempelblobs er fortsatt ref-tilgjengelige**. Dagens tilsvarende filer har andre blobs, men dette beviser ikke ren historikk. Ingen tilgangslenker ble brukt, og gyldighet/tilbakekalling er ikke bekreftet. Serverobjekter, forks og cacher er ikke fullstendig undersøkt.
+- [Tidligere gjennomgang](../.docs/implementation-artifacts/submission-audit-2026-11-01.md): Alle **12 dokumenterte historiske eksempelblobs kunne fortsatt nås via Git-referanser**. De tilsvarende filene i dagens versjon har andre blobs. Ingen tilgangslenker ble brukt, og gyldighet/tilbakekalling er ikke bekreftet. Serverobjekter, forks og cacher er ikke fullstendig undersøkt.
 - About: README bekrefter hovedadressen. Forsøk på å endre bare `homepage` ble avvist med HTTP 404; kontoen har `push`, men ikke `admin`/`maintain`. Ingen Vercel-domener eller brukerdata er endret.
 
 ### Åpne punkter
@@ -31,4 +31,4 @@ Kodecommit: `470968c1b726bb1db630e0fb0d9f92192048fb6d`. [PR #27](https://github.
 - Historisk eksponering står åpen i [issues](issues.md). Eventuell historikkomskriving/force-push krever særskilt godkjenning. Tilbakekalling må avklares med rette tjenesteeier; ingen andres tilgang er tilbakekalt.
 - Administrator må åpne repoets **About → tannhjul → Website**, sette `https://ajour-sooty.vercel.app/` og lagre. Rettighetsblokkeringen står i [issues](issues.md).
 
-Andre eksisterende begrensninger observert under gjennomgangen, uten retting utenfor oppdraget: årvelgeren følger det opprinnelige forslaget selv etter manuelt skrevet år; eksplisitt tekst med sekunder kan falle tilbake til oppgavetekst; aktivitetens datofelt er dato, mens klokkeslett må stå i egne tidsfelt. Disse er ikke innført av rettingen. Eksisterende aria-live-omfang og byggvarsel om stor JavaScript-bunt er beholdt.
+Gjennomgangen viste tre eldre begrensninger. Årvelgeren følger det opprinnelige forslaget selv etter at brukeren har skrevet inn et annet år. Klokkeslett med sekunder kan ende som vanlig oppgavetekst. Aktiviteter har egne felt for dato og klokkeslett. Omfanget av `aria-live`-meldinger og varselet om stor JavaScript-bunt ble beholdt.

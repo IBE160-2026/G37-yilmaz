@@ -34,12 +34,12 @@ export function createTaskForm(form) {
   remainingInput.addEventListener('input', changeRemaining)
   remainingInput.placeholder = 'Vet ikke'
   form.querySelector('label[for="remainingMinutes"]').textContent = 'Totalt gjenstående arbeid (minutter)'
-  form.querySelector('#remainingMinutes-help').textContent = 'Anslå alt arbeidet som gjenstår. Tiden du vil jobbe nå velger du på oversikten. Vet ikke bevarer usikkerheten. 0 markerer ikke oppgaven som ferdig.'
+  form.querySelector('#remainingMinutes-help').textContent = 'Anslå tiden som er igjen for hele oppgaven. Bruk «Vet ikke» for å fjerne et anslag. Med 0 minutter igjen er oppgaven fortsatt åpen til du markerer den som ferdig.'
   const splitChoice = document.createElement('label'); splitChoice.className = 'check-label'; splitChoice.innerHTML = '<input name="splittable" type="checkbox" checked aria-describedby="splittable-help">Kan deles i flere økter'
   const splitHelp = document.createElement('p'); splitHelp.id = 'splittable-help'; splitHelp.className = 'muted'
-  splitHelp.textContent = 'Med oppdeling kan du jobbe for eksempel 30 minutter selv om 1200 minutter gjenstår, uten å lage arbeidssteg. Et øktforslag endrer ikke totalanslaget. Faktisk arbeid og nytt gjenstående anslag registreres hver for seg.'
+  splitHelp.textContent = 'Da kan Ajour foreslå en kort økt selv om oppgaven tar lengre tid. Anslaget endres først når du oppdaterer det selv.'
   form.elements.remainingMinutes.closest('.field').append(splitChoice, splitHelp)
-  const relations = document.createElement('div'); relations.className = 'field field-wide'; relations.innerHTML = '<label>Forutsetninger<select id="dependencyIds" name="dependencyIds" multiple size="4" aria-describedby="dependencyIds-help dependencyIds-error"></select></label><p id="dependencyIds-help" class="muted">Velg eksisterende oppgaver som må være ferdige før denne oppgaven kan startes. Ingen valg betyr at ingen andre oppgaver må gjøres først. Ctrl/⌘ velger flere.</p><button type="button" class="secondary" data-clear-dependencies aria-controls="dependencyIds">Fjern alle forutsetninger</button><p class="muted" role="status" data-dependency-status></p><p id="dependencyIds-error" class="field-error"></p><label>Venter på (valgfritt)<input name="waitingReason" placeholder="For eksempel tilbakemelding fra veileder"></label><label>Oppgavetype (valgfritt)<input name="taskType" placeholder="For eksempel lesing eller oppgaveskriving"></label>'
+  const relations = document.createElement('div'); relations.className = 'field field-wide'; relations.innerHTML = '<label>Forutsetninger<select id="dependencyIds" name="dependencyIds" multiple size="4" aria-describedby="dependencyIds-help dependencyIds-error"></select></label><p id="dependencyIds-help" class="muted">Velg oppgavene du må gjøre først. Hold Ctrl eller ⌘ inne for å velge flere.</p><button type="button" class="secondary" data-clear-dependencies aria-controls="dependencyIds">Fjern alle forutsetninger</button><p class="muted" role="status" data-dependency-status></p><p id="dependencyIds-error" class="field-error"></p><label>Venter på (valgfritt)<input name="waitingReason" placeholder="For eksempel tilbakemelding fra veileder"></label><label>Oppgavetype (valgfritt)<input name="taskType" placeholder="For eksempel lesing eller oppgaveskriving"></label>'
   detailGrid.append(relations)
   const dependencyStatus = relations.querySelector('[data-dependency-status]'); dependencyStatus.hidden = true
   form.elements.dependencyIds.addEventListener('change', () => { dependencyStatus.textContent = ''; dependencyStatus.hidden = true })
@@ -50,7 +50,7 @@ export function createTaskForm(form) {
     dependencyStatus.hidden = false
   }
   const waitingHelp = document.createElement('p'); waitingHelp.id = 'waitingReason-help'; waitingHelp.className = 'muted'
-  waitingHelp.textContent = 'Bruk «Venter på» når noe må avklares før du kan starte, for eksempel tilbakemelding. Oppgaven får ingen startklar økt mens feltet er fylt ut. Arbeid du selv skal gjøre, som lesing, legges til som et arbeidssteg etter lagring. Fjern ventingen selv når hindringen er avklart.'
+  waitingHelp.textContent = 'Fyll ut feltet hvis du for eksempel venter på tilbakemelding. Tøm det når du kan jobbe videre. Legg det du selv skal gjøre, som å lese eller sende et spørsmål, inn som arbeidssteg.'
   form.elements.waitingReason.setAttribute('aria-describedby', waitingHelp.id)
   form.elements.waitingReason.closest('label').after(waitingHelp)
   form.elements.dependencyIds.setAttribute('aria-label', 'Forutsetninger')

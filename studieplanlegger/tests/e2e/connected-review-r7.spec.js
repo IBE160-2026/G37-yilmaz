@@ -81,7 +81,7 @@ test('R7 inline course selection refreshes the visible local estimate before acc
   await form.locator('[name=inlineCode]').fill('NEW')
   await form.getByRole('button', { name: 'Bruk nytt emne', exact: true }).click()
   await expect(estimate).toContainText('Forslag: 60 min.')
-  await expect(estimate).toContainText('fra samme oppgavetype;')
+  await expect(estimate).toContainText('fra samme oppgavetype.')
   await estimate.scrollIntoViewIfNeeded(); await page.screenshot({ path: info.outputPath('inline-course-current-estimate.png') })
   await estimate.getByRole('button', { name: 'Bruk som gjenstående estimat', exact: true }).click()
   await expect(form.locator('[name=remainingMinutes]')).toHaveValue('60')

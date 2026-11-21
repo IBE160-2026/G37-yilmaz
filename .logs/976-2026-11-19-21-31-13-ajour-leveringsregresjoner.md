@@ -1,4 +1,4 @@
-# Leveringsregresjoner i Ajour
+# Regresjonstester for Ajour
 
 ## 2026-11-19 kl. 21.31 — Codex
 
@@ -10,7 +10,7 @@ Rette funnene fra kontrollen av `12c8d3306109785f0b1a682c843f65c6de071aae`, veri
 
 - Reprodusere og rette I01, B01, P01–P03 og U01 først. Bruke lokale syntetiske filer, tomme testprofiler og separat SQLite-database og Compose-volum.
 - Dekke øvrige import-, plan-, kalender- og tilgjengelighetsfunn med regresjoner. Kontrollere omlasting og Angre der brukerflyten endrer lagret tilstand.
-- Bruke den samme leveringskandidaten til bygge-, CI- og forhåndsvisningskontroll. Registrere main-SHA, versjonsmarkøren og resultatene etter publisering i [PR #33](https://github.com/IBE160-2026/G37-yilmaz/pull/33).
+- Bygge og teste samme commit lokalt, i CI og i forhåndsvisningen. Registrere main-SHA, versjonsmarkøren og resultatene etter publisering i [PR #33](https://github.com/IBE160-2026/G37-yilmaz/pull/33).
 
 ### Resultat
 
@@ -24,7 +24,7 @@ Rette funnene fra kontrollen av `12c8d3306109785f0b1a682c843f65c6de071aae`, veri
 | U01–U04 og U06 | Menyen følger oppgavekortets bredde. Brukerprøvene dekker berøring, tastatur og omlasting ved 320, 390 og 1440 CSS-piksler. Dobbel tekststørrelse er prøvd i begge temaer. Synlig knappetekst følger tilgjengelig navn, og kapasitetsrådet viser til Planlegg uken. [Tilgjengelighetsprøvene](../studieplanlegger/tests/e2e/delivery-accessibility.spec.js) |
 | D01–D06 | Samordnet lagrings-, personvern- og oppfølgingsdokumentasjon, korrigerte ical.js-lenken og bevarte historiske referanser. POSIX-oppskriften ble prøvd i Linux med ren pakkeinstallasjon, bygg, helsesjekk, syntetisk skriving og omstart med bevart SQLite-tilstand. macOS ble ikke kjørt. [Brukerveiledningen](../studieplanlegger/README.md#lokal-node-server-med-sqlite) · [Sakslisten](issues.md) |
 
-Rettecommiten `6eaa831ec22ffabc1373d0f3e497104dbbdccc6f` gjelder de oppførte områdene. Oppfølgingen `f215d20874dfdd666683c4e5d65f47330133bf56` gjelder tilgjengelig navn på agendakort (U03). Commit `9f6ead353889ea649b7d9599b4132ff9c5b4e7a1` bevarer studentens valg av øktlengde (P12), kontrollerer godkjenningen ved endring av repetisjon (P10–P11) og oppdaterer den eldre agendaen ved neste tidsgrense (K03). Senere justeringer, testkjøringer og publisert versjon spores i [PR #33](https://github.com/IBE160-2026/G37-yilmaz/pull/33).
+Commit `6eaa831ec22ffabc1373d0f3e497104dbbdccc6f` gjelder de oppførte områdene. Oppfølgingen `f215d20874dfdd666683c4e5d65f47330133bf56` gjelder tilgjengelig navn på agendakort (U03). Commit `9f6ead353889ea649b7d9599b4132ff9c5b4e7a1` bevarer studentens valg av øktlengde (P12), kontrollerer godkjenningen ved endring av repetisjon (P10–P11) og oppdaterer den eldre agendaen ved neste tidsgrense (K03). Senere justeringer, testkjøringer og publisert versjon spores i [PR #33](https://github.com/IBE160-2026/G37-yilmaz/pull/33).
 
 Den rapporterte førkontrollen på `12c8d33` hadde 2 790 beståtte enhetstester. En annen planprøve fant 175 avvik i 1 800 alternativer. Originalens generator og enkeltrader var ikke tilgjengelige. Den nye, versjonerte matrisen prøvde 1 800 plankort og bestod alle kontroller i sitt eget testutvalg. De historiske tallene 700 lokale nettlesertester, 67 utelatte og 93 produksjonsscenarier tilhører den vedlagte gjennomgangen av førversjonen. Kontroller og overlappende utvalg summeres ikke.
 

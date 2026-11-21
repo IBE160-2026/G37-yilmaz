@@ -1,6 +1,6 @@
 # Importrekkefølge og auditoppfølging — 4. november 2026
 
-Den brukerleverte auditrapporten undersøkte `1c00250d2fc025bf3b67d2a526f10a25bc39dc13` og beskrev to kontrollerte feil ved overlappende filvalg. Denne oppfølgingen retter dem innen eksisterende R-02/R-05/R-06: et forsinket svar skal ikke erstatte et nyere utkast. Tidligere grønne tester dekket ikke disse forløpene. Prosjekteierens [beståtte sjuscenarioprøve](owner-trial-2026-11-04.md) beholdes med sitt faktiske omfang; nye automatiske prøver er ikke nye personlige erfaringer.
+Gjennomgangen av `1c00250d2fc025bf3b67d2a526f10a25bc39dc13` fant to feil når en bruker valgte to filer raskt etter hverandre. Rettingene sørger for at et forsinket svar ikke erstatter et nyere utkast (R-02/R-05/R-06). De nye regresjonstestene dekker forløp som tidligere tester ikke prøvde. Prosjekteierens manuelle resultater står i [prøverapporten](owner-trial-2026-11-04.md).
 
 [Faglærertilbakemeldingen](../../tilbakemelding-product-brief.md), [briefen](../../brief.md), [PRD](../planning-artifacts/PRD.md) og planindeksen er lest. Arbeidet følger opp testbarhet, synlig retting av KI-assistert kode og ryddig dokumentasjon. Den identifiserte sensor-PDF-en og private arbeidsspesifikasjoner var ikke tilgjengelige for ny lesing. Ingen nye kurskrav, kilder eller V1-funksjoner er oppfunnet.
 
@@ -33,13 +33,12 @@ Lokal kontroll og GitHub-/publiseringsresultater føres nedenfor når de forelig
 | A-04: `main` uten påkrevd kvalitetskontroll | GitHub `branches/main` viste `protected: false` ved denne kontrollen. Tilkoblingen gir kode-/push-tilgang, men ikke administrasjon; nettleserinnlogging ble ikke fullført. Administrator må beskytte `main`, kreve **Ajour quality**, avvise force-push og sletting, uten et kunstig krav om en annen student som reviewer. Ingen innstilling er endret eller påstått aktivert. |
 | A-05: About-lenke | Avsluttet. GitHub About viser hovedadressen **https://ajour-sooty.vercel.app/**. Ved kontroll 4. november viste About den andre adressen, og forsøket på å oppdatere `homepage` ga HTTP 404 med en konto uten administratorrettigheter. Begge adressene ga HTTP 200 uten omdirigering ved den daterte kontrollen og har separat nettleserlagring. |
 | Vercel misbruks-/forbruksgrenser | Eksisterende same-origin-kontroll og budsjetter per forespørsel er ikke en samlet grense for uavhengige forespørsler. Plattformens rate-/samtidighetsgrenser og forbruksvarsler må kontrolleres i det eksisterende gratisprosjektet. Ingen plattforminnstilling eller betalt tjeneste er aktivert. |
-| Formelle leveringsopplysninger | [Senere leveringsstatus](../planning-artifacts/README.md#leveringsstatus). |
 
 Grenbeskyttelse og plattformgrenser gjenstår som administratoroppfølging.
 
 ## Bevarte grenser
 
-Historisk F03 kan ikke omprøves uten det opprinnelige tekstgrunnlaget. F05 og øvrige kildeformat-/kataloggrenser er fortsatt avgrenset i [brukerveiledningen](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering); de navngitte HiMolde-/NTNU-prøvene utvides ikke. Synkron lokal lagringsadapter, nettleserkvote, én redigerende fane og bundlevarsel er dokumenterte drifts-/arkitekturgrenser. En omfattende asynkron lagringsomlegging eller oppdeling uten målt ytelsesproblem inngår ikke som en skjult «liten retting».
+Historisk F03 kan ikke omprøves uten det opprinnelige tekstgrunnlaget. F05 og øvrige kildeformat-/kataloggrenser er fortsatt avgrenset i [brukerveiledningen](../../studieplanlegger/README.md#kjente-begrensninger); de navngitte HiMolde-/NTNU-prøvene utvides ikke. Synkron lokal lagringsadapter, nettleserkvote, én redigerende fane og bundlevarsel er dokumenterte drifts-/arkitekturgrenser. En omfattende asynkron lagringsomlegging eller oppdeling uten målt ytelsesproblem inngår ikke som en skjult «liten retting».
 
 ## Kontrollresultater
 

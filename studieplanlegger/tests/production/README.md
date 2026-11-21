@@ -1,8 +1,8 @@
 <a id="sequential-production-acceptance"></a>
 
-# Sekvensiell akseptkontroll av lokal Node-/SQLite-drift
+# Test lokal Node- og SQLite-drift
 
-Denne kontrollen gjelder den bygde appen på en lokal Node-server med SQLite, eventuelt i en isolert Docker-container. Den kontrollerer ikke nettutgavens `localStorage` eller hvilken commit Vercel har publisert. [Vercel-kontroll og publiseringsbevis](../../README.md#nettleserdrift-med-vercel--2026-10-29) har egne oppskrifter.
+Prøven kontrollerer den bygde appen på en lokal Node-server med SQLite. Du kan kjøre den med en midlertidig database eller i en isolert Docker-container. Se [kontroll av nettutgaven på Vercel](../../README.md#nettleserdrift-med-vercel--2026-10-29) for nettleserlagring og publisert versjon.
 
 ## Kjør med midlertidig SQLite-database
 
@@ -23,7 +23,7 @@ På andre systemer brukes `npm`/`npx` og miljøvariabelsyntaksen til det aktuell
 
 Testkjøreren oppretter en midlertidig SQLite-database og velger en ledig loopback-port. Den kjører registrering og import i én nettleserprosess, starter sin egen server på nytt med samme database, prøver en ny nettleserkontekst og sikkerhetskopi/gjenoppretting i brukergrensesnittet, stopper serveren og åpner SQLite bare for lesing for å kontrollere integritet og fremmednøkler. Kjøreren beholder mappen med syntetiske testbevis og skriver ut plasseringen. Den bruker eksisterende `dist`, bygger ikke på nytt og starter eller endrer ingen Docker-container.
 
-Faktisk offentlig NTNU-import av **EXPH0100 høsten 2026** er et uttrykkelig tilvalg. Sett variabelen før samme kjøring:
+Sett `RUN_LIVE_TEACHING=1` hvis du også vil teste import av **EXPH0100 høsten 2026** fra NTNUs offentlige kilde.
 
 ```powershell
 $env:RUN_LIVE_TEACHING = '1'
@@ -31,7 +31,7 @@ node tests/run-production-acceptance.mjs
 Remove-Item Env:RUN_LIVE_TEACHING
 ```
 
-Uten tilvalget hoppes importscenarioet over, og det skal ikke rapporteres som bestått. Dette er en teknisk kildeprøve, ikke prosjekteierens manuelle egenutprøving.
+Standardkjøringen hopper over denne kildeprøven.
 
 ## Kjør mot en egen isolert Node-server eller Docker-container
 

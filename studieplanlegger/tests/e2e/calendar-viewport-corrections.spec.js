@@ -55,7 +55,7 @@ test('restoring only calendar scroll restores the viewport and keeps the earlier
   await expect.poll(position).toBe(640)
   await navigate(page, 'settings')
   await importFile()
-  await expect(page.locator('#settings-panel [role=status]')).toContainText('Ingenting er skrevet')
+  await expect(page.locator('#settings-panel [role=status]')).toContainText('Planen og eventuell tidligere gjenopprettingskopi er beholdt')
   await page.getByRole('button', { name: 'Gjenopprett forrige kopi', exact: true }).click()
   await confirm()
   await navigate(page, 'calendar')

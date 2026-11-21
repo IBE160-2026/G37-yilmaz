@@ -1,22 +1,22 @@
-# Import coverage and access requirements
+# Importdekning og tilgangskrav
 
-**Samordnet 2026-10-25:** Import støtter den lokale oppgave-/planleggingsflyten. Kalender- og personvernrettingene utvider ikke kildeutvalget. [Importavtalen](IMPORT.md) beskriver atferden, mens [verifikasjonsoversikten](VERIFICATION.md) oppsummerer daterte resultater og skiller syntetiske prøver fra faktisk kildetransport. Personvernminimerte kildefixturer bevarer parserkontraktene; de dokumenterer ikke ny live-tilgang, personlig gruppedekning eller studentnytte.
+[Importveiledningen](IMPORT.md) forklarer hvordan du henter og oppdaterer emner, kalender og oppgaver. Denne oversikten viser hvilke kilder og konkrete oppslag som ble prøvd. [Testoversikten](VERIFICATION.md) viser hvilke tester som brukte lokale testfiler og hvilke som gjorde faktiske oppslag. Testfilene beholder feltene parserne trenger, med minst mulig personinformasjon.
 
-## Leveringskontroll av import 2026-11-20
+## Importkontroll 2026-11-20
 
-Den reviderte kandidaten `a0ea535ac8e8668f19f7a38b9f636fd2920312d2` retter import av endrede frister og følger opp tidsavbruddene mot Fjellhaugs BTFL 1. år fra PDF-oversikten for høsten 2026. For dette kildevalget ble tidsavbruddet på `b077401` isolert til EduPage-kallet etter PDF-oppslaget. Dokument- og kildeprøvene med versjonsgrunnlag står i [sluttkontrollen 20. november](VERIFICATION.md#sluttkontroll-2026-11-20).
+Commit `a0ea535ac8e8668f19f7a38b9f636fd2920312d2` rettet import av endrede frister og fulgte opp tidsavbrudd ved Fjellhaugs BTFL 1. år høsten 2026. På `b077401` oppsto avbruddet da appen hentet kalenderen fra EduPage etter PDF-oppslaget. [Testene 20. november](VERIFICATION.md#sluttkontroll-2026-11-20) viser hvilke dokumenter, kilder og versjoner som ble prøvd.
 
-F03 står åpent i sluttkontrollen fordi originaleksemplet mangler. F05 for NHH, FHS og Samisk høgskole ligger utenfor den avtalte V1-dekningen. Matrisene og kildeobservasjonene nedenfor gjelder sine oppgitte datoer. De nyere resultatene i sluttkontrollen gjelder de angitte eksemplene.
+F03 står åpent fordi den opprinnelige tekstfilen mangler. F05 gjelder kildevalg for NHH, FHS og Samisk høgskole, som ligger utenfor den avtalte dekningen for første versjon.
 
 ## Avgrenset kildeoppfølging — 2026-11-01
 
-De faktiske offentlige forespørslene kl. 16:21–16:25 Europe/Oslo ga resultatene nedenfor, separat fra syntetiske UI-prøver. NTNUs samlede programindeks svarte HTTP 200 med null dokumenter før søkefiltrering; komplett 2026-katalog er derfor ikke bekreftet. UI-en sier nå at kilden er tom, gir offentlig kildelenke og viser alternativet for ett emne. Direkte MTDT-kull/plan var fortsatt tilgjengelig, uten bekreftet programcampus. TDT4109-emnesøk ga Trondheim og faktisk lenket undervisning ga **115 beholdte hendelser**. Dette bekrefter det konkrete emneforløpet, ikke full programdekning. [Verifikasjonsoversikten](VERIFICATION.md#begrensninger-og-gjenstående-arbeid) oppsummerer de gjenværende kildebegrensningene.
+Disse oppslagene gikk til offentlige kilder kl. 16:21–16:25 Europe/Oslo. NTNUs samlede programindeks svarte HTTP 200 med null dokumenter før søkefiltrering; komplett 2026-katalog er derfor ikke bekreftet. UI-en sier nå at kilden er tom, gir offentlig kildelenke og viser alternativet for ett emne. Direkte MTDT-kull/plan var fortsatt tilgjengelig, uten bekreftet programcampus. TDT4109-emnesøk ga Trondheim og faktisk lenket undervisning ga **115 beholdte hendelser**. Resultatet gjelder TDT4109. [Verifikasjonsoversikten](VERIFICATION.md#begrensninger-og-gjenstående-arbeid) oppsummerer de gjenværende kildebegrensningene.
 
-AHOs arkitekturplan har selv årshoppet høst 2029 → vår 2031. De publiserte årstallene og 44 emneforekomstene beholdes, mens studiesemesternummer følger kalenderavstanden (**1–7, 10, 11**) og manglende 2030-perioder forklares. Dette avklarer det konkrete F06-kildespørsmålet, uten å korrigere originalkilden eller love komplett studieløp.
+AHOs arkitekturplan har selv årshoppet høst 2029 → vår 2031. De publiserte årstallene og 44 emneforekomstene beholdes, mens studiesemesternummer følger kalenderavstanden (**1–7, 10, 11**) og manglende 2030-perioder forklares. F06 gjaldt visningen av dette årshoppet i forhåndsvisningen.
 
 UiTs Applied Computer Science-PDF 941723, publisert som 2026-utgave og revidert 07.09.2026, er faktisk lest: ti sider og en lesbar tabell med åtte terminer. Engelsk forside gjenkjennes. Termin-/ECTS-tabellen støttes fortsatt ikke som semesterfordeling; appen forklarer grensen og lenker til akkurat den valgte PDF-en. Den eldre sykepleieutgaven med bildetabell har en annen, fortsatt bevart begrensning. Ingen kildevern eller grenser er fjernet, og full støtte for alle læresteder er ikke innført.
 
-Tidligere daterte beståttresultater nedenfor beholdes. Outlook-prøven ble senere bekreftet av brukeren 30. oktober og er bestått for den viste flyten; eldre utsagn om åpen Outlook-prøve er historikk. Personlig samlet egenutprøving og refleksjon er fortsatt åpne.
+Outlook-prøven 30. oktober besto for den viste importen. [Prøveplanen](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) beskriver hva prøven dekket.
 
 ## Hel HiMolde-programgjentakelse med syntetiske kilder — 2026-10-29
 
@@ -24,13 +24,13 @@ Det tekniske restpunktet for hel HiMolde-programgjentakelse er kontrollert med s
 
 Prøven velger IBE110/IBE430 og alternativet IBE160, kontrollerer undervisning for alle tre, bekrefter, legger til et eget syntetisk emnenotat, laster om og gjentar hele programflyten. Begge forløp bevarer tre emner, tre kilder og tre hendelser uten duplikater. Emne-/kilde-/hendelses-ID-er, emnenotatet, valgt forelesning og fravalgt seminar beholdes. Ingen lagring skjer før godkjenning; hver bekreftelse gir én samlet skriving, og omlasting beholder eksakt tilstand.
 
-Dette lukker den **syntetiske tekniske gjentakelseskontrollen**. Hel programgjentakelse med faktisk kildetransport er fortsatt ikke dokumentert; de daterte live-prøvene nedenfor har sin egen avgrensning. V1 og importløftet utvides ikke. Egenutprøving/SC-07, personlig refleksjon og faktisk Outlook-prøve er fortsatt ikke gjennomført. [Sporbarheten](../.docs/planning-artifacts/TRACEABILITY.md#hel-himolde-programgjentakelse--2026-10-29) kobler denne kontrollen til eksisterende krav; øvrige kjøringer føres i [verifikasjonen](VERIFICATION.md).
+Denne prøven dekket gjentatt programimport med syntetiske kilder. De daterte oppslagene nedenfor viser hvilke deler som ble prøvd mot offentlige kilder. Gjentatt import av hele programmet med offentlige kilder er fortsatt uavklart. [Krav og testdekning](../.docs/planning-artifacts/TRACEABILITY.md#hel-himolde-programgjentakelse--2026-10-29)
 
 ## Gjeldende v1 og historisk dekning — 2026-10-16
 
-V1 er avgrenset i [briefen](../brief.md) og [PRD](../.docs/planning-artifacts/PRD.md): HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, og NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Nasjonal dekning og tidligere «T3/restkrav» er framtidsvisjon, ikke åpne v1-leveransekrav. Andre adaptere beholdes med sine begrensninger.
+V1 er avgrenset i [briefen](../brief.md) og [PRD](../.docs/planning-artifacts/PRD.md): HiMolde IT 2026–27 med IBE110/IBE430 og enten IBE160 eller IBE102+IBE152, undervisning bare IBE110/IBE430/IBE160 høst 2026, og NTNU ARK1001/EXPH0100 emnemetadata og emnelenket undervisning høst 2026. Ingen komplett NTNU-program-, eksamens- eller personlig gruppedekning loves. Nasjonal dekning og de tidligere «T3/restkravene» hører til framtidsvisjonen. Andre adaptere beholdes med sine begrensninger.
 
-Tabellene og observasjonene nedenfor er bevart datert historikk. Formuleringer om «dagens», «gjeldende», «nye» eller fortsatt nasjonalt leveransekrav gjelder den oppgitte undersøkelsesdatoen og er erstattet av denne avgrensningen for dagens produktløfte. Transportprøvene 2026-10-01 er ikke gjentatt her. Eldre direkte emne-UI-prøver omfatter omlasting/gjentakelse; hele HiMolde-programgjentakelsen ble ikke verifisert og må ikke utledes av emneprøvene. Ny lokal kontraktkontroll 2026-10-16 står i [sporbarheten](../.docs/planning-artifacts/TRACEABILITY.md).
+Tabellene nedenfor gjelder undersøkelsene på de oppgitte datoene. Oppslagene fra 1. oktober ble ikke gjentatt 16. oktober. De tidligere nettlesertestene for enkeltemner dekket omlasting og gjentatt import av emnet. [Krav og tester](../.docs/planning-artifacts/TRACEABILITY.md) viser hvilke lokale tester som ble kjørt 16. oktober.
 
 ## Ny nasjonal kontroll — 2026-10-01
 

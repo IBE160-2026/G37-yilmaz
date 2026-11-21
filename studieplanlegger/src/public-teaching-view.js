@@ -7,7 +7,7 @@ const el=(tag,text)=>{const node=document.createElement(tag);if(text)node.textCo
 export function mountPublicTeaching(host,{getPlanner,api,onPreview,onCheck=async()=>true}){
   const root=el('details'),form=el('form'),message=el('p'),options=el('select'),load=el('button','Forhåndsvis valgt offentlig undervisning')
   root.name='calendar-import-method';root.append(el('summary','Finn offentlig undervisning for et lagret emne'));host.append(root);form.className='subject-fields';message.setAttribute('role','status')
-  root.append(el('p','Velg lærested, ditt lagrede emne og et faktisk timeplanvalg fra kilden. Ingen personlig gruppe eller emnetilknytning bekreftes av navnet. Kalenderen forhåndsvises før du velger aktiviteter og lagrer.'),form,message)
+  root.append(el('p','Velg lærested og et emne du har lagret. Åpne en offentlig timeplan og velg aktivitetene du skal delta på før du lagrer.'),form,message)
   const select=label=>{const wrap=el('label',label),node=el('select');wrap.append(node);form.append(wrap);return node},institution=select('Lærested for offentlig undervisning'),course=select('Lagret emne for undervisning')
   const blank=node=>{const option=el('option','Velg');option.value='';node.replaceChildren(option)};blank(institution);blank(course)
   for(const item of sortByVisibleName(institutions.filter(item=>publicTeachingInstitutions.includes(item.id)))){const option=el('option',item.name);option.value=item.id;institution.append(option)}

@@ -237,7 +237,7 @@ test('SQLite exports 500 events and 11 undo entries to a restorable file and ret
   const recovery = await readRecovery()
   expect(recovery.recovery.data).toEqual(empty)
   await restore(file)
-  await expect(page.locator('#settings-panel > [role=status]')).toContainText('Ingenting er skrevet')
+  await expect(page.locator('#settings-panel > [role=status]')).toContainText('Planen og eventuell tidligere gjenopprettingskopi er beholdt')
   expect(await readState()).toEqual(restored)
   expect(await readRecovery()).toEqual(recovery)
 

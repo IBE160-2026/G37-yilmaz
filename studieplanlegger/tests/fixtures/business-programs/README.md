@@ -1,6 +1,6 @@
-Offentlige BI- og NHH-kildesnapshots hentet 12. september 2026. HTML er avgrenset til den publiserte programmodellen eller hovedinnholdet; bilder, stilark og skript er fjernet. JSON beholder kildefeltene som kontrakttestene bruker. Disse filene tester lokale parserkontrakter og er ikke bevis på en aktuell ekstern import.
+Utdrag fra offentlige BI- og NHH-sider, hentet 12. september 2026. HTML-filene beholder den publiserte programmodellen eller hovedinnholdet. Bilder, stilark og skript er fjernet. JSON-filene beholder kildefeltene som de lokale parsertestene bruker.
 
-NHH-opptakene er personvernminimerte derivater. Forsker-/kontaktkort og profiler som ikke inngår i programmodellen er fjernet. Programfamilier, kullparametre, emneoversikter, studieplassering og kildehenvisninger er bevart.
+Forskerkort, kontaktkort og profiler utenfor programmodellen er fjernet fra NHH-utdragene. Programfamilier, kullparametre, emneoversikter, studieplassering og kildehenvisninger er bevart.
 
 - BI-katalog: https://www.bi.no/api/study-search/?lang=no, lenket av søkeklienten på https://www.bi.no/studiesok/. Kilden oppga 236 treff og returnerte 226; forskjellen er beholdt.
 - BI-programmer: https://www.bi.no/studier-og-kurs/bachelorstudier/okonomi-og-administrasjon/, https://www.bi.no/studier-og-kurs/masterstudier/finance/ og https://www.bi.no/studier-og-kurs/bachelorstudier/digital-business/.

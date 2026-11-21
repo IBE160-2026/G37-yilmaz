@@ -10,14 +10,14 @@ Validere eksisterende arkitektur mot PRD oppdatert 12. november: begreper, bruke
 
 - Bruke `bmad-architecture` med Validate-intent og beholde arkitektur/PRD uendret.
 - Kontrollere brief, planindeks, lærerfeedback 6. oktober og PRD-feedback 12. november, samt sensorveiledningens sju sider med kontrollsum fra planindeksen.
-- Kjøre mekanisk arkitektursjekk og tre uavhengige gjennomganger: rubrikk/krav, samsvar med prosjektet og uforenlige kontraktvalg.
-- Samle og triagere funn i en [valideringsrapport](../.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/validation-2026-11-12.md), med HTML-visning og struktur-/språkkontroll.
+- Kjøre mekanisk arkitektursjekk og tre uavhengige gjennomganger av kravdekning, samsvar med prosjektet og tekniske valg som kan komme i konflikt.
+- Samle og prioritere funn i en [valideringsrapport](../.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/validation-2026-11-12.md), med HTML-visning og struktur-/språkkontroll.
 
 ### Resultat
 
 Rapporten dekker alle tolv PRD-begreper, UJ-1–UJ-4 og R-01–R-08/Q-01–Q-03. Fem nødvendige dokumentrettelser er skilt fra tre valgfrie forbedringer. De to viktigste gjelder planleggingsresultater/betingede forslag og oversikten over begge driftsformer. Øvrige gjelder portable backupgrenser, eksplisitt avgrensning mot språkmodell og pako-omtale mot manifest/låsefil. Dette er dokumentfunn; ingen ny kjøretidsfeil er påvist.
 
-BMAD-lint rapporterte 26 mekaniske utslag: 16 om AD-rekkefølge og 10 om feltetiketter. De er ikke klassifisert som 26 produktfeil. Historiske AD-er, ID-er, avgrenset kildeutvalg og tidligere eier-/tekniske resultater er bevart. Septemberversjoner behandles som datert historikk; ingen ny teknologi velges.
+BMAD-lint rapporterte 26 formateringsfunn. Seksten gjaldt rekkefølgen på beslutningene, og ti gjaldt feltetiketter. Historiske AD-er, ID-er, avgrenset kildeutvalg og tidligere eier-/tekniske resultater er bevart. Septemberversjoner behandles som datert historikk; ingen ny teknologi velges.
 
 Rapportens 27 lokale dokumentlenker bestod. HTML-rapporten ble kontrollert i isolert, midlertidig headless Chromium ved 1440/900/390 px: ingen sideoverflyt, ingen JavaScript-feil eller eksterne forespørsler, fungerende innholdsankere og tastaturstyrte detaljfelt. Utskriftsvisning åpner alle fem funn. Desktopvisningen ble også visuelt inspisert. Ingen produkttester, appkjøring, offentlig transport eller produksjonskontroll ble utført på nytt. Første rapportkontroll ga to falske ankerutslag fordi kontrollskriptet ikke dekodet norske tegn; kontrollen er korrigert og bestod ved omkjøring.
 
@@ -51,7 +51,7 @@ BMAD-lint beholder de samme 26 mekaniske funnene fra før rettingen: 16 om rekke
 
 ### Åpne punkter
 
-Ingen nødvendige rettelser gjenstår innen N1–N5; punktet er lukket i `issues.md`. O1–O3 er fortsatt valgfrie og utvider ikke denne bestillingen. Tidligere åpne produkt-/leveringspunkter er uendret.
+Ingen nødvendige rettelser gjenstår innen N1–N5; punktet er lukket i `issues.md`. O1–O3 er fortsatt valgfrie og utvider ikke denne bestillingen. [Sakslisten](issues.md) viser de øvrige åpne punktene.
 
 ## 2026-11-12 kl. 14:06 — GOplayer007
 

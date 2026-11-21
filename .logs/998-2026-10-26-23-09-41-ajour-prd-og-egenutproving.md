@@ -16,7 +16,7 @@ Oppdatere eksisterende PRD og tilhørende dokumentasjon etter lærerfeedback og 
 
 Arbeidstre og indeks var rene ved start på `2d7be923853fed30173399df6c62765103a69ca5`. Eksisterende PRD er revidert på stedet; rekonstruksjonsdato 2026-10-16, V1 og ID-er er beholdt. Brief, stories, sporbarhet, prøveplan, arkitektur, README-er, løsning, prosess, verifikasjon og åpne punkter er samordnet. Korrigert uriktige dokumentpåstander, også i ett relevant lokalt arbeidsnotat utenfor repositoryet. Lærerens originaltekster og ekte verktøybruk er bevart. Historisk Docker-blokkering peker til senere dokumenterte kontroller.
 
-Research bruker eksisterende lærerfeedback, importdekning og TP CSV-undersøkelse samt tre avgrensede offentlige primærkilder lest 2026-10-26: Google Calendar, Canvas og Microsoft To Do. Sensorvedleggets sju sider er lest med samsvarende kontrollsum. Lærerbildets seks spørsmål er brukt fra prosjekteierens gjengivelse; bildet er ikke separat undersøkt. Ingen intervjuer, prøveutfall eller personlige erfaringer er konstruert.
+Undersøkelsen bygger på lærerens tilbakemelding, importdekningen, undersøkelsen av TP CSV og dokumentasjon fra Google Calendar, Canvas og Microsoft To Do lest 26. oktober 2026. Sensorvedleggets sju sider er lest med samsvarende kontrollsum. Lærerbildets seks spørsmål er brukt fra prosjekteierens gjengivelse; bildet er ikke separat undersøkt. Ingen intervjuer, prøveutfall eller personlige erfaringer er konstruert.
 
 Egenutprøvingen er **planlagt / ikke gjennomført**, kun prosjekteieren, syntetiske data og isolert miljø. Den tidligere studentprøven ble ikke gjennomført eller bestått. Uavhengig gjennomgang førte til et gjennomførbart prøveoppsett: egen framtidig økt til kalender/gjenoppretting, ett isolert oppstartsopplegg og uttrykkelige handlinger før forventede resultater. Målgruppen er uendret.
 
@@ -48,7 +48,7 @@ Kontrollere og committe den ferdige dokument- og navneoppdateringen lokalt. Bruk
 
 Start på `main`, HEAD `2d7be923853fed30173399df6c62765103a69ca5`, tom indeks og de forventede 18 endrede/nye filene. Hovedcommit **`ffcf0a3` — «Samordne Ajour-PRD, egenutproving og produktnavn»** inneholder 16 eksplisitt gjennomgåtte filer. Commitens filutvalg og Git-blobs samsvarer med kontrollmanifestet. Brief og PRD er begge beholdt, med ulike dokumentroller, stabile ID-er, uendret V1 og rekonstruksjonsdato 16. oktober. De tre navnestrengene endrer ingen tekniske kontrakter. Ingen nye produktrettinger var nødvendige; aktuelle statuslenker og kontrollresultater er oppdatert.
 
-Nye kjøringer: **52/52 fokustester**, **2278/2278 enhetstester i 132 filer** og **produksjonsbygg med 87 moduler**, alle exit 0. Tidligere testtall er historikk. Alle 707 versjonerte ikke-Markdown-filer i appen er byteidentiske før/etter test og ved staging. Eksisterende installasjon ble brukt uten avhengighetsendring; gjenværende begrensninger er samlet i [verifikasjonsoversikten](../studieplanlegger/VERIFICATION.md#begrensninger-og-gjenstående-arbeid).
+Nye kjøringer med **52/52 målrettede tester**, **2278/2278 enhetstester i 132 filer** og **produksjonsbygg med 87 moduler**, alle exit 0. Tidligere testtall er historikk. Alle 707 versjonerte ikke-Markdown-filer i appen er byteidentiske før/etter test og ved staging. Eksisterende installasjon ble brukt uten avhengighetsendring; gjenværende begrensninger er samlet i [verifikasjonsoversikten](../studieplanlegger/VERIFICATION.md#begrensninger-og-gjenstående-arbeid).
 
 Uavhengig dokumentkontroll fant ingen nye avvik. Faktiske Markdown-filer har ingen påviste feil fra escaping; 12 PowerShell-kodeblokker er syntaksparset uten kjøring, 0 feil. Sluttkontrollen omfatter 36 Markdown-filer, 488 lokale lenker og 85 ankre, uten manglende mål, samt stabile krav-/storyreferanser. Hele diffen, slettinger og staged whitespace er kontrollert. Personvern-/formatkontrollen omfatter 323 filer, inkludert 298 versjonerte fixturer og 11 utfoldede ICS; ingen nye uavklarte treff i utvalget. Læreroriginalene er uendret. Bare relevante dokumenter, tre serverfiler og kuraterte logger inngår; private data og genererte artefakter er utelatt.
 
@@ -56,7 +56,7 @@ Sesjonsloggen og `issues.md` fullføres i en separat lokal loggcommit etter hove
 
 ### Åpne punkter
 
-Egenutprøving er fortsatt **planlagt / ikke gjennomført**; observasjonsfeltene er tomme. Personlig refleksjon, faktisk Outlook-kontroll og full HiMolde-programgjentakelse gjenstår. Bundlevarselet består som teknisk begrensning. Uidentifisert proposal og overordnet sensorveiledning er kildebegrensninger, ikke nye obligatoriske innleveringskrav. Alle punktene er bevart og gruppert i `issues.md`.
+Egenutprøving er fortsatt **planlagt / ikke gjennomført**; observasjonsfeltene er tomme. Personlig refleksjon, faktisk Outlook-kontroll og full HiMolde-programgjentakelse gjenstår. Bundlevarselet består som teknisk begrensning. Godkjent proposal og overordnet sensorveiledning var ikke identifisert. Alle punktene er bevart og gruppert i `issues.md`.
 
 ## 2026-10-26 kl. 23:37 — GOplayer007
 
@@ -108,7 +108,7 @@ Lærerfeedbacken er lest. Det identifiserte sensorvedlegget var ikke tilgjengeli
 
 ### Åpne punkter
 
-Scenariomatrisens dokumentasjonsgrenser føres under eksisterende punkt om egenutprøvingens omfang i [issues](issues.md). Dette er et dekningsforbehold, ikke en ny feil eller pålagt prøverunde. Nyttehypotesene er akseptert uvisshet i V1. Eksisterende formell sluttkontroll, kildebegrensninger og tekniske begrensninger er beholdt.
+[Sakslisten](issues.md) viser hva egenutprøvingen dekket og hvilke tekniske begrensninger som består. Antakelsene om studentnytte gikk utover det som var testet i V1.
 
 ## 2026-11-02 kl. 19:03 — GOplayer007
 
@@ -209,7 +209,7 @@ Oppdatere Ajours eksisterende PRD etter tilbakemeldingen 12. november, med V1, k
 
 [PRD](../.docs/planning-artifacts/PRD.md) er oppdatert på samme sti, datert 2026-11-12 og satt til `final`. Tilbakemeldingens punkt 4.1–4.5 og mekaniske funn er fulgt opp med fire uttrykkelig hypotetiske brukerreiser, tolv begreper, SC-01–SC-07 ordrett fra briefen, nummererte konsekvenser under eksisterende krav, egne kvalitetskrav og antakelser med mulige signaler og motmål. Tittel og H1 samsvarer. Ingen intervjuer, nyttegevinster eller nye prøveresultater er konstruert.
 
-[Planindeksen](../.docs/planning-artifacts/README.md#prd-revisjonshistorikk) bevarer sju flyttede historikk-/statusavsnitt og hele revisjonstabellen ordrett. R-07s dokumenterte lukking 3.–4. november og de tidligere metode-/dekningsgrensene er bevart. Aktive krav fra de daterte beslutningene står fortsatt i PRD. Arbeidet følger også opp tilbakemeldingen 6. oktober om avgrensning og sjekkbare kriterier. Den lokale sjusiders sensorveiledningen er faktisk lest og kontrollsummen kontrollert; vedlegget og privat filsti er ikke publisert.
+[Planindeksen](../.docs/planning-artifacts/README.md#prd-revisjonshistorikk) bevarer sju flyttede historikk-/statusavsnitt og hele revisjonstabellen ordrett. Den viser også resultatene fra R-07 3.–4. november og hva tidligere prøver dekket. Aktive krav fra de daterte beslutningene står fortsatt i PRD. Arbeidet følger også opp tilbakemeldingen 6. oktober om avgrensning og sjekkbare kriterier. Den lokale sjusiders sensorveiledningen er faktisk lest og kontrollsummen kontrollert; vedlegget og privat filsti er ikke publisert.
 
 Kildeavstemmingen rettet en utilsiktet innsnevring av kalenderimport: bare nettutgaven avviser vilkårlige kalenderadresser; lokal Node/Docker og Vite beholder eksisterende støtte innen kildevernet. Briefens tone er videreført. Den uavhengige PRD-kontrollen fant ingen kritiske, høye eller middels funn. To små brukerreisefunn er rettet med riktig inngang til studieprogramimport og uttrykkelig bekreftelse ved gjenoppretting. Strukturkontrollen fant ingen endringsbehov; språkpasset presiserte ugyldige kalenderdeler og betydningen av Angre.
 
@@ -223,4 +223,4 @@ Filkontrollen omfattet 902 sporede filnavn, 389 dokument-/fixturetekstfiler, 11 
 
 ### Åpne punkter
 
-Ingen nye. Akseptert nytteusikkerhet og eksisterende formelle og tekniske restpunkter i [issues](issues.md) er videreført med uendret ansvar og oppfølgingsvilkår.
+Ingen nye punkter. [Sakslisten](issues.md) viser hvilke tekniske begrensninger som gjenstår.

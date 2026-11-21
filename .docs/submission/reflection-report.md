@@ -50,7 +50,7 @@ Planlegging og utvikling gikk delvis om hverandre. Faglærerens tilbakemelding 6
 
 Tilbakemeldingen gjorde at jeg endret arbeidsmåte. Jeg avgrenset første versjon til dokumenterte eksempler fra enkelte læresteder og flyttet nasjonal dekning til en fremtidig visjon. Senere arbeid handlet mer om kvalitet og sammenheng mellom krav, kode og tester. BMAD-malen skiller nettopp mellom hva første versjon skal levere og hva produktet kan bli senere. Jeg forsto nytten av dette skillet tydeligere etter at mitt eget omfang hadde vokst. [2, 5]
 
-Den siste fasen besto av egenutprøving, feilretting og omprøving. Jeg meldte konkrete avvik, fikk hjelp til retting og prøvde igjen. Til slutt ble dokumentene samordnet med leveransen. Jeg lagret ikke systematisk alle de opprinnelige promptene. Noen korte, daterte utdrag finnes i prosessdokumentet, men de erstatter ikke en fullstendig logg. Dette er en svakhet ved dokumentasjonen jeg ville håndtert annerledes neste gang. [3]
+I den siste fasen testet jeg selv. Jeg meldte fra om konkrete feil, fikk hjelp til å rette dem og prøvde igjen. Til slutt oppdaterte jeg dokumentasjonen slik at den stemte med appen. Jeg lagret ikke systematisk alle de opprinnelige promptene. Noen korte, daterte utdrag finnes i prosessdokumentet, men de erstatter ikke en fullstendig logg. Dette er en svakhet ved dokumentasjonen jeg ville håndtert annerledes neste gang. [3]
 
 ## 3. Utfordringer og løsninger
 
@@ -60,7 +60,7 @@ Den siste fasen besto av egenutprøving, feilretting og omprøving. Jeg meldte k
 
 En av de tydeligste feilene oppsto i «Ditt neste steg». En oppgave hadde 1200 minutter gjenstående, kunne deles opp og hadde ingen blokkeringer. Likevel fikk jeg ingen forslag når jeg valgte 30 minutter. Samtidig kunne kalenderplanleggingen dele den samme oppgaven i 40 økter på 30 minutter. Funksjonene ga dermed ulike svar på om det var mulig å arbeide med oppgaven. [3]
 
-Jeg oppdaget problemet gjennom å prøve løsningen som en student med en stor innlevering. Et totalanslag på 20 timer burde ikke hindre en kort arbeidsøkt. Den tekniske rettingen gjorde at oversikten også kunne foreslå deløkter for startklare, delbare oppgaver. I omprøvingen viste den «Arbeid nå: 30 min · deløkt», samtidig som totalanslaget fortsatt var 1200 minutter og oppgaven var uferdig.
+Jeg oppdaget problemet gjennom å prøve løsningen som en student med en stor innlevering. Et totalanslag på 20 timer burde ikke hindre en kort arbeidsøkt. Den tekniske rettingen gjorde at oversikten også kunne foreslå deløkter for startklare, delbare oppgaver. Da jeg prøvde på nytt, viste den «Arbeid nå: 30 min · deløkt», samtidig som totalanslaget fortsatt var 1200 minutter og oppgaven var uferdig.
 
 KI hjalp med å finne og rette logikken. Mitt bidrag var å oppdage motsetningen og presisere ønsket oppførsel. Jeg lærte at en test må følge brukerens behov på tvers av skjermbilder. At kalenderen kunne dele opp arbeidet, var ikke tilstrekkelig når oversikten fortsatt utelot oppgaven.
 
@@ -68,7 +68,7 @@ KI hjalp med å finne og rette logikken. Mitt bidrag var å oppdage motsetningen
 
 En annen utfordring gjaldt lagring. Gjentatt import av samme fil med 500 aktiviteter kunne vise at ingenting var nytt eller oppdatert, men likevel feile ved lagring. Historikken hadde tidligere vokst betydelig ved en slik import. Gjenoppretting av en sikkerhetskopi på omtrent 6,62 MB stoppet også med en melding om nettleserlagring. De eksisterende dataene var bevart etter feilen og ny innlasting. [3]
 
-Den dokumenterte feilsøkingen viste at importmetadata utløste store Angre-kopier, og at gjenoppretting lagret doble representasjoner. Rettingen unngikk unødvendig lagring ved identisk import og komprimerte gjenopprettingskopien. I min omprøving ga samme 500-fil 525 uendrede elementer, ingen lagringsfeil og null vekst i historikken. Den store sikkerhetskopien kunne faktisk gjenopprettes fra sju til seks oppgaver, med øvrige data bevart etter omlasting. [3]
+Den dokumenterte feilsøkingen viste at importmetadata utløste store Angre-kopier, og at gjenoppretting lagret doble representasjoner. Rettingen unngikk unødvendig lagring ved identisk import og komprimerte gjenopprettingskopien. Da jeg prøvde 500-filen på nytt, fikk jeg 525 uendrede elementer, ingen lagringsfeil og null vekst i historikken. Den store sikkerhetskopien kunne faktisk gjenopprettes fra sju til seks oppgaver, med øvrige data bevart etter omlasting. [3]
 
 Her var jeg avhengig av KI for den tekniske analysen. Samtidig kunne jeg kontrollere konkrete resultater før og etter. Erfaringen viste hvor viktig det er å teste gjentakelser og større datamengder. En vellykket første import sier lite om hva som skjer etter flere importforsøk og mange historikkoppføringer.
 

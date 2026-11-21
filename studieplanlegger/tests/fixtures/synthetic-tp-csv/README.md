@@ -1,6 +1,6 @@
 # Synthetic TP CSV fixtures
 
-Created 2026-10-23 for the bounded CSV import repair, traced through [R-02/R-05/R-06 and their verification](../../../../.docs/planning-artifacts/TRACEABILITY.md).
+Created on 2026-10-23 to test the CSV import fix for [R-02, R-05 and R-06](../../../../.docs/planning-artifacts/TRACEABILITY.md).
 
 Only the 50-column header/order follows the [bounded public format evidence](../../../../.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md). Every row value is independently invented. These fixtures contain no exported student or staff data and do not explain the original reported time row. They verify the recognized field family, not every TP version or institution.
 
@@ -9,4 +9,4 @@ Only the 50-column header/order follows the [bounded public format evidence](../
 
 The first main row has distinct summary and supplementary title text; both must survive as description while its localized teaching title is used for display. Published-group fields are empty, so the fixture makes no claims about membership.
 
-Publication check, 2026-10-25: both files retain a trailing blank CSV record. The parser checks still require 30 and seven activity rows respectively; the blank record must not become an activity. The two `blank line at EOF` whitespace warnings are therefore retained as fixture input, not removed during delivery cleanup.
+Publication check, 2026-10-25: both files retain a trailing blank CSV record. The parser checks still require 30 and seven activity rows respectively; the blank record must not become an activity. The blank records deliberately produce two `blank line at EOF` warnings.

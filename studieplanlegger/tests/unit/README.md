@@ -1,4 +1,4 @@
-Kjør `npm.cmd test` fra `studieplanlegger/`. Vitest finner bare `*.test.js` her og bruker uttrykkelig Europe/Oslo.
+Kjør `npm.cmd test` fra `studieplanlegger/`. Vitest kjører `*.test.js` i denne mappen med tidssonen `Europe/Oslo`.
 
 `tasks.test.js` dekker obligatoriske felt, trimming, kalendervalidering og sommertid, minuttgrenser, lagringskontrakt, ID-er og stabil sortering uten mutasjon. Redigeringsprøvene kontrollerer alle endrede felt, samme validering som oppretting, beholdt ID/fullføringsstatus/listeplass og uendret gammel oppgave ved feil. Sletteprøvene kontrollerer nøyaktig ID, siste oppgave og manglende ID uten mutasjon.
 
@@ -14,4 +14,4 @@ Kjør `npm.cmd test` fra `studieplanlegger/`. Vitest finner bare `*.test.js` her
 
 `capacity-storage.test.js` kontrollerer valgfrie gjenstående minutter og økter, eldre konvolutter uten omskriving, null uten automatisk fullføring, ugyldige felt og atomisk skriving med bevaring ved feil. Disse enhetsprøvene bygger selv lagringskandidater. Den faktiske kontrollerens bevaring av økter gjennom oppgave-, steg-, fullførings- og leveringshandlinger kontrolleres i `tests/e2e/capacity-lifecycle.spec.js`, inkludert mislykket handling, nytt forsøk og omlasting. `tests/e2e/capacity.spec.js` kontrollerer skjemaer, plan, kalender, mobil/fokus og feil gjennom nettleseren.
 
-Testene bruker injisert lagring, aldri personlige nettleserdata. Nettleserflyt, hovedforslag/alternativer, hurtigvalg, dashboard, tomtilstand, kalender/agenda, oppgavemenyer, mobil og tilgjengelig DOM kontrolleres separat i `tests/e2e/`. Gjeldende, faktisk kjørte resultater står i [VERIFICATION.md](../../VERIFICATION.md). Detaljerte eldre feature-rapporter finnes i Git-historikken ved pre-oppryddingscommit `1a39aaf`; de er ikke nye testkjøringer. Prosjektet har ikke egne lint- eller typekontrollskript.
+Testene bruker injisert lagring, aldri personlige nettleserdata. Nettleserflyt, hovedforslag/alternativer, hurtigvalg, dashboard, tomtilstand, kalender/agenda, oppgavemenyer, mobil og tilgjengelig DOM kontrolleres separat i `tests/e2e/`. [Testresultatene](../../VERIFICATION.md) viser hvilke tester som ble kjørt og når. Eldre rapporter om enkeltfunksjoner ligger i Git-historikken ved commit `1a39aaf`. Prosjektet har ikke egne lint- eller typekontrollskript.

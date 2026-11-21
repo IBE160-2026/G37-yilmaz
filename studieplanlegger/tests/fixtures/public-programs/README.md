@@ -1,5 +1,4 @@
-These public-source snapshots were fetched on 2026-09-09 using bounded reads.
-They are deterministic parser regression inputs, not browser acceptance evidence.
+These excerpts were fetched from public pages on 2026-09-09 using bounded reads. The parser tests use the saved files as input.
 
 - NTNU MTDT cohort 2026: public `studyplan` JSON discovered from https://www.ntnu.no/studier/studieplan; fetched 09:43 Europe/Oslo.
 - INN BAPEDD cohort 2026: https://studiekatalog.edutorium.no/inn/nb/program/BAPEDD/2026; fetched 09:40 Europe/Oslo.
@@ -22,7 +21,7 @@ Additional bounded public reads on 2026-09-12 (Europe/Oslo):
 
 The two `timeedit-{nmbu-math100,hvl-dat100}-2026.ics` files preserve existing public autumn-2026 calendar snapshots previously stored under `artifacts/public-*.ics`. The file-picker regression uses these durable fixtures, without making external requests. Their missing group metadata is intentional; they are historical captured-source tests, not live-source checks.
 
-These excerpts contain selected public academic and timetable content. They test source contracts; simulated transport and edited fixtures do not constitute a newly verified external browser import.
+These excerpts preserve selected academic and timetable content. The parser tests use the saved excerpts and simulated network responses.
 
 ## Privacy-minimized derivatives
 

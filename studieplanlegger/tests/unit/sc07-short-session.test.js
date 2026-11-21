@@ -61,7 +61,7 @@ describe('SC-07: total remaining work and a short session', () => {
     expect(reasons.map(item => item.reason)).toEqual([
       expect.stringContaining('Venter på: Syntetisk svar'),
       expect.stringContaining('Venter på «Syntetisk stor oppgave»'),
-      expect.stringContaining('Tiden for arbeidet er ukjent'),
+      expect.stringContaining('Oppgi hvor mye tid som gjenstår'),
       expect.stringContaining('Gjenstående arbeid er satt til 0'),
     ])
     expect(tasks).toEqual(before)

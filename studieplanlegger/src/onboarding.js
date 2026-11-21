@@ -29,16 +29,16 @@ export function createOnboarding(actions) {
     const focused = host.contains(document.activeElement) ? document.activeElement.textContent : null
     host.replaceChildren(el('p', `KOM I GANG · STEG ${shownStep} AV 3`))
     if (shownStep === 1) {
-      host.append(el('h2', 'Start med en oppgave'), el('p', progress.course ? nameFirstLabel(progress.course) : 'En tittel er nok. Du kan legge til eller importere emner senere. Import er valgfritt.'))
+      host.append(el('h2', 'Start med en oppgave'), el('p', progress.course ? nameFirstLabel(progress.course) : 'En tittel er nok. Du kan legge til emner senere.'))
       taskControl.textContent = progress.task ? 'Rediger oppgaven' : 'Legg til oppgave'
       host.append(taskControl, button('Importer emne', () => { actions.begin(); actions.view('subjects'); document.querySelector('#connected-import-open')?.click() }), button('Legg til emne manuelt', () => { actions.begin(); actions.view('subjects'); document.querySelector('#course-new')?.click() }))
     } else if (shownStep === 2) {
-      host.append(el('h2', 'Legg til første oppgave'), el('p', progress.task ? progress.task.title : 'En tittel er nok. Frist, emne og arbeidsmengde kan avklares senere.'))
+      host.append(el('h2', 'Legg til første oppgave'), el('p', progress.task ? progress.task.title : 'En tittel er nok. Du kan fylle ut frist, emne og tidsanslag senere.'))
       taskControl.textContent = progress.task ? 'Rediger oppgaven' : 'Ny oppgave'
       host.append(taskControl, button('Tilbake', () => { shownStep = 1; signature = ''; actions.view('overview') }))
       if (progress.task) host.append(button('Neste', () => { shownStep = 3; signature = ''; actions.view('overview') }))
     } else {
-      host.append(el('h2', 'Finn tid til oppgaven'), el('p', progress.session ? `${progress.session.dateLocal} ${progress.session.startTime}–${progress.session.endTime}` : 'Velg vanlig studietid og se et konkret forslag. Du kan også fortsette å legge inn oppgaver først.'))
+      host.append(el('h2', 'Finn tid til oppgaven'), el('p', progress.session ? `${progress.session.dateLocal} ${progress.session.startTime}–${progress.session.endTime}` : 'Velg når du vanligvis kan studere, så får du et forslag til en økt.'))
       host.append(planControl, button('Detaljert tilgjengelighet', () => { actions.view('capacity'); document.querySelector('.work-window-form input[name=startLocal]')?.focus() }), button('Tilbake', () => { shownStep = 2; signature = ''; actions.view('overview') }), button(progress.session ? 'Fullfør oppstart' : 'Fortsett senere', () => actions.dismiss(Boolean(progress.session))))
     }
     const controls = el('div'); controls.className = 'onboarding-actions'

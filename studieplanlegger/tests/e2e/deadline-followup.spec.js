@@ -17,7 +17,7 @@ test('leveringsmeldingen gjelder både før og etter fristen', async ({ page }) 
   await seed(page, [delivery], { view: 'overview', now: '2026-09-07T11:59:00+02:00' })
   const status = page.locator('#daily-overview').getByRole('status')
   const assignment = page.locator(`[data-daily-row="task:${delivery.id}"]`)
-  const expectedStatus = `${delivery.title} er registrert som ferdig, men levering er ikke bekreftet. Har du levert oppgaven i innleveringssystemet, kan du markere den som levert her.`
+  const expectedStatus = `Oppgaven «${delivery.title}» er klar til levering. Velg «Bekreft levering» når du har levert den.`
   await expect(assignment.getByText('Frist i dag kl. 12:00', { exact: true })).toBeVisible()
   await expect(status).toHaveText(expectedStatus)
   await expect(status).toBeVisible()
@@ -42,7 +42,7 @@ for (const [choice, offset, label, width] of [['earlier', '+02:00', 'første', 1
     const select = page.getByLabel('Hvilket klokkeslett mener du?')
     await expect(select).toBeVisible()
     await expect(select).toHaveValue('')
-    await expect(page.locator('#deadline-occurrence-help')).toContainText('finnes to ganger')
+    await expect(page.locator('#deadline-occurrence-help')).toContainText('vises dette klokkeslettet to ganger')
     await save(page).click()
     await expect(page.locator('#deadlineDisambiguation-error')).toContainText('Velg første eller andre')
     await expect(select).toBeFocused()

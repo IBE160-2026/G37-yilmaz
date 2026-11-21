@@ -89,4 +89,4 @@ Det kjente Start-steget har ID `51111f63-5a97-4a36-a487-c8d92d616850`. I J05 lig
 
 Skjermbildenes opprinnelige filnavn, SHA-256 og pikselmål er også registrert under I01–I17 i oversikten. Filnavnenes tall er identifikatorer, ikke uavhengig bekreftede hendelsestider. Råvedlegg og mellomnotater forblir utenfor Git; den kuraterte oversikten inneholder bare relevant syntetisk identitet, kontrollresultater og bevismetadata.
 
-Denne runden dokumenterer dermed gjennomført egenutprøving for de sju scenarioene og det påkrevde Start-supplementet, med rett utfører og synlige metodegrenser. Den beviser ikke generell studentnytte, alle mulige nettlesere eller datamengder, full nettleseromstart, formell innlevering eller at appen er feilfri.
+Prøven omfattet alle sju scenarier og tillegget for Start med et navngitt steg. Den ble utført av prosjekteieren i Chrome med syntetiske data. Full omstart av nettleseren, andre nettlesere og andre datamengder lå utenfor prøven. Det er fortsatt åpent om andre studenter har nytte av appen.

@@ -37,7 +37,7 @@ Produksjonsdeploy **`dpl_GjdHds8q1dpDzTRHJbzDtQcbXGoE`** ventet uten alias mens 
 
 `e1a4ca9` samler dokumentert evidens i seks eksisterende dokumenter. Dokumentkontrollen bestod **36 dokumenter, 515 lokale lenker og 104 ankre**, og personvernkontrollen **324 dokument-/fixturefiler og 11 utfoldede ICS**, uten funn. Siste Vercel-tørrkontroll omfattet **188 filer**, uten private artefaktstier. Denne separate loggcommiten og dokumentoppfølgingen går gjennom samme PR-/kvalitets-/publiseringsløp. Siste deploys eksakte hash finnes i GitHub/Vercel og commitmarkøren; loggen kan ikke inneholde sin egen commit-hash.
 
-Lærerens punkter om kvalitetssikring, sporbarhet, kontrollerbart KI-arbeid og kjørbarhet er fulgt opp. Det identifiserte sju-siders sensorvedlegget var ikke tilgjengelig i denne økten; ingen ny lesing eller nye krav er oppdiktet. Samtidig separat produktdokumentasjonsarbeid er bevart og ikke integrert på vegne av dette oppdraget.
+Lærerens punkter om kvalitetssikring, sporbarhet, kontrollerbart KI-arbeid og kjørbarhet er fulgt opp. Det identifiserte sju sider lange sensorvedlegget var ikke tilgjengelig i denne økten; tidligere dokumentert lesing ligger til grunn. Samtidig separat produktdokumentasjonsarbeid er bevart og ikke integrert på vegne av dette oppdraget.
 
 ### Åpne punkter
 

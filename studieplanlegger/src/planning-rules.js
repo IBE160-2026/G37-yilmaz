@@ -7,7 +7,7 @@ export function validPlanningRules(value) {
 // of sessions with breaks and representable local endpoints.
 export function capacityPlanningNote(rules) {
   const choices = validPlanningRules(rules) ? ` Valgte øktregler: ${rules.minimumMinutes}–${rules.maximumMinutes} min per økt, vanligvis ${rules.sessionMinutes} min, med ${rules.breakMinutes} min pause.` : ''
-  return `Minuttsummen er en kapasitetsoversikt. Øktlengder, pauser og klokkeslett ved tidsskifte er ikke kontrollert som en gjennomførbar plan.${choices} Bruk Planlegg uken for å kontrollere et konkret forslag.`
+  return `Summen viser hvor mye tid du har. Bruk «Planlegg uken» for å se om arbeidet får plass med øktlengdene og pausene dine, også ved tidsomstilling.${choices}`
 }
 export function validConnectedPreferences(state) {
   if (state.planningPreferences !== undefined && !validPlanningRules(state.planningPreferences)) return false

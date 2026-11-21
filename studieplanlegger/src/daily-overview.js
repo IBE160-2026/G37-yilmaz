@@ -58,11 +58,11 @@ export function createDailyOverview(actions) {
     const focused = host.contains(document.activeElement) || planHost.contains(document.activeElement) ? document.activeElement.dataset.dailyKey : null
     const opened = new Set([...planHost.querySelectorAll('details[open]')].map(node => node.dataset.dailyMenu))
     const companion = document.createElement('img'); companion.src = '/brand/notebook.svg'; companion.alt = ''; companion.width = companion.height = 44
-    host.replaceChildren(companion, el('h2', 'Planen skal passe deg.'), el('p', 'Mistet en økt? Se over et forslag til endring før noe flyttes.'))
+    host.replaceChildren(companion, el('h2', 'Status i dag'))
     const statusCard = el('div', ''); statusCard.className = `daily-status is-${status.tone}`; statusCard.setAttribute('role', 'status'); statusCard.append(el('p', status.text.includes(status.title) ? status.text : `${status.title}: ${status.text}`))
     statusTask = model.tasks.find(task => task.id === status.taskId)
     replanControl.textContent = !statusTask ? 'Legg til oppgave' : statusTask.completed ? 'Se oppgaver til levering' : status.tone === 'danger' ? 'Se realistisk forslag' : 'Se forslag til ny tid'
-    host.append(statusCard, replanControl, el('p', 'Ingenting endres uten at du godkjenner.'))
+    host.append(statusCard, replanControl)
     planHost.replaceChildren(el('h2', 'Neste på planen'))
     const visibleRows = data.rows.slice(0, 3), firstToday = data.rows.find(row => data.today.some(task => task.id === row.task.id))
     if (firstToday && !visibleRows.includes(firstToday)) visibleRows[Math.max(0, visibleRows.length - 1)] = firstToday

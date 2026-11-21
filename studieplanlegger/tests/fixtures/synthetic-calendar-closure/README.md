@@ -1,6 +1,6 @@
 # Independent historical-state fixture
 
-`legacy-term.json` is an invented portable backup. No private calendar, backup or real person supplied its contents. The title, HST682 code, campus, two dates and retained notes/task are synthetic.
+`legacy-term.json` is a synthetic backup. Its course title, HST682 code, campus, two dates, notes and linked task were all invented for the test.
 
 It was generated once on 2026-10-24 with the preserved pre-correction TP adapter, calendar parser and document preview. The January-only TP publication belongs to autumn 2045, but the old code stored its course as spring 2046. The fixture retains that defect. The visible test restores this actual old-format result, then imports the corrected publication and checks stable course/event/source IDs, notes and task links.
 
@@ -10,7 +10,7 @@ Preserved baseline SHA-256:
 - `src/import-preview.js`: `d62a078a7059d4c0b159220ba7a8bdde1382fcc68a59ff07f6522d0fae320276`
 - `server/providers/public-tp.js`: `6b6445e9e1c154c67bfa6235a7aaea7673931c73e5023bc05e32d28257288c86`
 
-The temporary generator and baseline code copies are ignored local evidence, not required to run the regression.
+The test runs from the saved fixture. The generator and copies of the pre-fix code are local files ignored by Git.
 
 `published-term.csv` and `legacy-csv-term.csv` use a separate invented course, SYN974, with a recognized TP CSV header and the published `45h` semester. The first file spans September 2045 and January 2046. The second contains two January activities without an explicit event identifier; one was deliberately excluded.
 

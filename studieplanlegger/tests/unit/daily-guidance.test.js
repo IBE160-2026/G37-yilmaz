@@ -67,7 +67,7 @@ describe('dagsstatus med intervaller og faktisk kapasitet', () => {
 
     const pendingSubmission = task('levering', { completed: true, requiresSubmission: true, submitted: false })
     expect(dailyStatus({ tasks: [pendingSubmission], capacity: deriveCapacity([pendingSubmission], [], now), now })).toMatchObject({ tone: 'neutral', assessable: true })
-    expect(dailyStatus({ tasks: [pendingSubmission], capacity: deriveCapacity([pendingSubmission], [], now), now }).text).toContain('levering er ikke bekreftet')
+    expect(dailyStatus({ tasks: [pendingSubmission], capacity: deriveCapacity([pendingSubmission], [], now), now }).text).toContain('klar til levering')
   })
 
   it('bevarer åpne maksimum som ukjent i kapasitetstotalene', () => {

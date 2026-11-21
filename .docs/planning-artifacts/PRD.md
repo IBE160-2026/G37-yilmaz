@@ -29,7 +29,7 @@ Importløftet er **«HiMolde IT 2026–27 og NTNU emneutvalg høst 2026»**:
 
 - HiMolde-programprøven har IBE110 og IBE430, samt valget **IBE160 eller IBE102 + IBE152**. Undervisningsprøvene gjelder bare IBE110/IBE430/IBE160 høsten 2026.
 - NTNU-prøvene gjelder emnemetadata og emnelenket undervisning for **ARK1001 og EXPH0100 høsten 2026**. Komplett NTNU-program, full eksamensdekning og personlig gruppetilhørighet inngår ikke.
-- [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) skiller lokale kontrakttester, offentlig transport og teknisk UI-kontroll. Eksisterende adaptere og supplerende prøver utvider ikke løftet; [kjente begrensninger](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) gjelder fortsatt.
+- [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) skiller lokale kontrakttester, offentlig transport og teknisk UI-kontroll. Eksisterende adaptere og supplerende prøver utvider ikke løftet; [kjente begrensninger](../../studieplanlegger/README.md#kjente-begrensninger) gjelder fortsatt.
 
 Leveransen beholder dokumentert lokal Node-/Docker-oppstart og den godkjente nettleserutgaven i **ett gratis Vercel-prosjekt**, uten skydatabase, konto eller delte studentdata. Hovedflyten R-01–R-06/R-08 gjelder begge driftsformer. Teknologivalg og driftsmekanismer står i [arkitekturen](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md); R-06 beskriver brukerens lagringsgrenser.
 
@@ -169,7 +169,7 @@ Dette begrunner bevaring, ikke dokumentert nytte eller flere funksjoner. [S-08](
 
 ### Q-01: forståelig og tilgjengelig grensesnitt
 
-Studenten kan lese, navigere og redigere på norsk med tastatur og på ulike skjermstørrelser. Tonen følger briefens «Kom ajour.» og «Planer endrer seg. Det er helt greit.» og støtter justering når planen endrer seg. **SC-01, SC-07 / S-01, S-07; alle UJ-er.**
+Studenten kan lese, navigere og redigere på norsk med tastatur og på ulike skjermstørrelser. Tekstene forklarer hva studenten kan gjøre nå, og hvordan planen kan justeres. **SC-01, SC-07 / S-01, S-07; alle UJ-er.**
 
 1. Felt er merket, tastaturfokus synlig, og status/emnekode uttrykkes i tekst. Farge supplerer tekst; kalender, emnefarger og System/Lyst/Mørkt er lesbare.
 2. Tom oversikt tilbyr registrering med bare tittel og valgfri import. Fylt oversikt samler tidsspørsmål, hurtigvalg, egendefinert tid og Start. På mobil kommer Start etter den korte introduksjonen, jf. [aksepteksemplene](EPICS-CURRENT.md#lokal-ajour-oppfølging--2026-10-26).
@@ -212,7 +212,7 @@ Behovsantakelsene er samlet nedenfor. Signalene er mulige observasjoner ved even
 | Planleggingshjelpen sparer mer arbeid enn registreringen krever. | Opplevd hjelp oppveier registrering og retting / vedlikeholdet oppleves som merarbeid sammenlignet med kalender/Canvas/oppgaveliste. | Netto tidsbesparelse og arbeidsbelastning er ikke målt. Teknisk korrekthet sikrer ikke nytte. |
 | Ett begrunnet neste forslag gjør det lettere å komme i gang. | Studenten bruker forslaget til å starte / avviser det eller må planlegge på nytt. | Forslagsatferd er prøvd innen [dokumentert omfang](USER-TRIAL-PLAN.md); effekt på oppstart og generell studentnytte er ikke etablert. |
 
-Prosjekteieren kan knytte eksisterende egne erfaringer til antakelsene ved personlig sluttgjennomlesing. Ubesvarte nytte- og forståelsesspørsmål er akseptert uvisshet i V1. Prosjekteieren vurderer dem på nytt dersom videre produktarbeid eller brukerundersøkelse bestilles; det føres ingen etterkonstruerte tidsmål eller resultater. Kildedekningens daterte grenser finnes i [importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md); formelle leveringsspørsmål og manglende vurderingsgrunnlag følges opp i [planindeksen](README.md#leveringskontroll).
+Det er fortsatt åpent om studenter opplever appen som nyttig og forstår forslagene. Det kan undersøkes ved videre produktarbeid eller brukertesting. [Importdekningen](../../studieplanlegger/IMPORT-COVERAGE.md) viser hvilke kilder som er kontrollert, og når.
 
 ## Framtidige ideer utenfor V1
 

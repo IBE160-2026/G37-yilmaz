@@ -23,7 +23,7 @@ Lokal tilstands- og importbehandling avviser ugyldig forespørselsadresse med HT
 
 Faktisk lokal kontroll: **2664/2664 enhetstester i 151 filer**, **141/141 undervisningsfixturer**, produksjonsbygg og staged diff-kontroll bestod. Hovedbundle er **961,20 kB / 293,91 kB gzip**; eksisterende størrelsesvarsel består. Uavhengig dokumentkontroll av 50 Markdown-filer fant **858 relative lenker og 224 fragmentreferanser**, uten manglende mål. Tallene gjelder dokumentkontrollen før denne loggen ble lagt til.
 
-To nye nettleserregresjoner er skrevet og statisk gjennomgått. De kunne ikke kjøres lokalt: Chromium manglet, og nedlastingen ga ugyldig arkiv. Dette er en verktøybegrensning og ikke et bestått UI-resultat. GitHub-kontroller skal bekrefte nettleser- og SQLite-nettleserprøvene før integrering. Sensor-PDF var ikke tilgjengelig i denne runden; lærerfeedback er lest. Personlig refleksjon og lærerfeedback er uendret.
+To nye nettleserregresjoner er skrevet og statisk gjennomgått. De kunne ikke kjøres lokalt: Chromium manglet, og nedlastingen ga ugyldig arkiv. De to testene gjenstod til GitHub-kontrollen før integrering. Sensor-PDF var ikke tilgjengelig i denne runden; lærerfeedback er lest. Personlig refleksjon og lærerfeedback er uendret.
 
 ### Åpne punkter
 
@@ -33,7 +33,7 @@ To nye nettleserregresjoner er skrevet og statisk gjennomgått. De kunne ikke kj
 
 ### Resultat
 
-Det tidligere kontrollpunktet ovenfor er fulgt opp. Kandidat `a01391e0ee9df1aaf3626fa8d5aba5540f5c94a8` i [PR #21](https://github.com/IBE160-2026/G37-yilmaz/pull/21) bestod [GitHub-kvalitet](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41694420525): **2664 enhetstester, produksjonsbygg, 155 faktiske Chromium-prøver og 14 SQLite-/nettleserprøver**. De to nye nettleserregresjonene inngikk. Lokal manglende Chromium er dermed fulgt opp med faktisk CI-kjøring, uten å omskrive den lokale historikken.
+Det tidligere kontrollpunktet ovenfor er fulgt opp. Kandidat `a01391e0ee9df1aaf3626fa8d5aba5540f5c94a8` i [PR #21](https://github.com/IBE160-2026/G37-yilmaz/pull/21) bestod [GitHub-kvalitet](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41694420525): **2664 enhetstester, produksjonsbygg, 155 faktiske Chromium-prøver og 14 SQLite-/nettleserprøver**. De to nye nettleserregresjonene inngikk. CI kjørte dermed prøvene som manglet i den lokale kjøringen.
 
 [Forhåndsvisningens kontroll](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41695410618) bestod med **60 runtimeprøver og seks faktiske kildeprøver**. PR #21 ble deretter integrert som **`a58a93d0c65d0fc68bcda9a999ff0018bdbcb393`**. [Main-kvalitet](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41696509142) bestod samme 2664/155/14, og eksisterende Vercel-prosjekt `ajour` rapporterte vellykket produksjonspublisering.
 

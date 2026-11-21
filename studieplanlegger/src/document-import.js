@@ -403,7 +403,7 @@ export function renderDocumentImportPreview(container, preview, { getState, onCo
     const counts = el('p'); recovery.append(counts)
     updateRecovery = () => {
       const missing = missingRows(); recovery.hidden = !missing.length
-      counts.textContent = `${missing.filter(row => row.kind === 'course').length} emner og ${missing.filter(row => row.kind !== 'course').length} aktiviteter/oppgaver mangler. Det kan skyldes en tidligere sletting; historikken forklarer ikke årsaken. Ingen gjenopprettes automatisk. Du kan endre utvalget per oppføring nedenfor.`
+      counts.textContent = `${missing.filter(row => row.kind === 'course').length} emner og ${missing.filter(row => row.kind !== 'course').length} aktiviteter/oppgaver mangler. De kan ha blitt slettet tidligere. Velg nedenfor hvilke du eventuelt vil legge inn igjen.`
     }
     for (const [label, recreate] of [['Behold manglende oppføringer utelatt', false], ['Gjenopprett alle manglende oppføringer', true]]) {
       const button = el('button', label); button.type = 'button'

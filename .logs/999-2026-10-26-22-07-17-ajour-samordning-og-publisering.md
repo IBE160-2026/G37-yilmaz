@@ -4,17 +4,17 @@
 
 ### Oppgave
 
-Samordne ferdig lokal Ajour med lærerens faktiske GitHub-endringer og publisere den kontrollerte leveransen. Ordinær fetch, integrering, eksplisitt staging, commit og push var autorisert; ingen produktutvikling, historikkomskriving eller driftsoppdatering.
+Integrere lærerens GitHub-endringer i den lokale Ajour-versjonen og publisere den kontrollerte versjonen. Ordinær fetch, integrering, eksplisitt staging, commit og push var autorisert; ingen produktutvikling, historikkomskriving eller driftsoppdatering.
 
 ### Plan
 
-- Kontrollere repository, indeks og leveransemanifest; hente og undersøke hele lærerbidraget før integrering.
+- Kontrollere repoet, Git-indeksen og listen over filer før lærerens bidrag hentes og gjennomgås.
 - Bevare begge bidrag, kontrollere en komplett isolert kandidat og publisere ordinært til riktig main.
 - Følge eksisterende [brief](../brief.md), [sporbarhet](../.docs/planning-artifacts/TRACEABILITY.md) og [verifikasjon](../studieplanlegger/VERIFICATION.md). Ingen ny PRD eller rekonstruksjon av gamle økter.
 
 ### Resultat
 
-Lokal main startet på `9d3a169`, uten staged innhold eller pågående Git-operasjon. Faktisk fetch hentet lærercommittene `87081a7` og `1e6af23`; bare `CLAUDE.md` og `.claude/skills/sesjonslogg/SKILL.md` var nye. Fast-forward med `--ff-only --no-autostash` bevarte committene. Alle 740 lokale leveransefiler samsvarte med godkjent manifest både før og etter integrering. Bare eksisterende VERIFICATION er oppdatert i denne økten, i tillegg til lærerfilene og denne korte loggen med issues.
+Lokal main startet på `9d3a169`, uten staged innhold eller pågående Git-operasjon. Faktisk fetch hentet lærercommittene `87081a7` og `1e6af23`; bare `CLAUDE.md` og `.claude/skills/sesjonslogg/SKILL.md` var nye. Fast-forward med `--ff-only --no-autostash` bevarte committene. Alle de 740 lokale Ajour-filene samsvarte med godkjent manifest både før og etter integrering. Bare eksisterende VERIFICATION er oppdatert i denne økten, i tillegg til lærerfilene og denne korte loggen med issues.
 
 Gjennomgåtte commits: [4cd52fb](https://github.com/IBE160-2026/G37-yilmaz/commit/4cd52fbfffa035176412dd18dfaae34044fa4ea4) avgrenser NIH-personvernrettingen til fire filer; [496ba30](https://github.com/IBE160-2026/G37-yilmaz/commit/496ba30435d5490ed00c85241e61d0cdc7964647) samler eksisterende Ajour-UI, navn, tolv emnefarger, mørk modus, ressurser, tester og dokumentasjon. Begge ble pushet ordinært til `IBE160-2026/G37-yilmaz/main`. Direkte `git ls-remote` etter vellykket push bekreftet `496ba30435d5490ed00c85241e61d0cdc7964647`. Lærerens filer er uendret, og lærercommitten er ancestor.
 

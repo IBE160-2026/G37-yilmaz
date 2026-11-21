@@ -1,4 +1,4 @@
-# Ajour: planlegging og leveranseevidens
+# Ajour: planer, krav og tester
 
 **[Åpne Ajour på nett](https://ajour-sooty.vercel.app/) — Ingen installasjon nødvendig.** [Brukerveiledningen](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) forklarer de første stegene og sikkerhetskopi. Nettutgaven lagrer planen i nettleserprofilen på den nøyaktige adressen, uten konto eller synkronisering. [Lokal Node-/Docker-drift med SQLite og Vite-utvikling med nettleserlagring](../../studieplanlegger/README.md#lokal-drift-og-utvikling) er egne alternativer for sensor og utviklere.
 
@@ -8,15 +8,15 @@
 
 **Fristoppfølging 2026-11-12:** [Valg av gjentatt klokkeslett og kort lokal prøve](../implementation-artifacts/deadline-occurrences-2026-11-12.md) knytter konkrete valideringsfunn til rettinger og regresjonstester. Manuelle funn fra den eldre lokale kopien holdes adskilt fra kontrollene av dagens kode. Gjeldende deløktregel, tidligere R-07-evidens og V1 er bevart.
 
-**Epic 4-oppfølging 2026-11-13:** [A1–A7: fristimport, agendaer og verifikasjon](../implementation-artifacts/epic-4-followup-2026-11-13.md) dokumenterer før-/ettertilstand, retting av konfliktvalidering og rekkefølge, reparasjonstilgang og egne forbrukerregresjoner. Arkitekturens historiske regler er merket; den tilbaketrukne månedsprøven, den korte lokale eksempelprøven og den gjennomførte R-07-prøven holdes adskilt.
+**Epic 4-oppfølging 2026-11-13:** [A1–A7: fristimport, agendaer og verifikasjon](../implementation-artifacts/epic-4-followup-2026-11-13.md) dokumenterer hva som ble endret i kontrollen av fristkonflikter og importrekkefølge, hvordan importerte frister kan rettes, og hvilke regresjonstester som ble kjørt. Arkitekturens historiske regler er merket; den tilbaketrukne månedsprøven, den korte lokale eksempelprøven og den gjennomførte R-07-prøven holdes adskilt.
 
 [Brief](../../brief.md) og [PRD](PRD.md) beskriver produktmål, brukerbehov, krav og avgrensninger. Hovedreisen er **oppgave → valgfritt arbeidssteg → godkjent studieøkt → utfall → justering**.
 
 **Historikkoppfølging 2026-11-09:** [Delbar oppsummering av oppryddingen](../implementation-artifacts/history-cleanup-2026-11-09.md) beskriver den publiserte rensingen, bevart appkode og utviklingshistorikk, påvirkede commit-ID-er/signaturer og daterte kontroller. Oppfølgingen av funn 1–4 er avsluttet. Fullstendig sletting av gamle kopier og sperring av tilgang er ikke bekreftet. Tidligere resultater og krav nedenfor er uendret.
 
-**Egenutprøving utført av prosjekteier:** Alle sju scenarier og tilleggsprøven for navngitt Start bestod 3.–4. november. [Prøverapporten](../implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktiske observasjoner, rettet prøveutførelse og metodegrenser. Gjenoppretting er kontrollert i et separat, tomt Chrome Gjest-miljø; det tidligere dekningsforbeholdet for SC-07/R-07/S-07 er lukket innen rapportens omfang. [Omprøvingene 1. november](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), SC-07/1200–30 og Outlook-prøven beholder sine daterte resultater. Ingen andre testpersoner er rekruttert; resultatene dokumenterer prosjekteierens observasjoner, ikke generell studentnytte.
+**Egenutprøving utført av prosjekteier:** Alle sju scenarier og tilleggsprøven for navngitt Start bestod 3.–4. november. [Prøverapporten](../implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer syntetiske data, faktiske observasjoner, rettet prøveutførelse og metodegrenser. Prøven omfattet også gjenoppretting av en sikkerhetskopi i en tom gjesteøkt i Chrome. Den dekker dermed alle scenariene som kreves i SC-07/R-07/S-07. [Omprøvingene 1. november](USER-TRIAL-PLAN.md#egenutprøving-utført-av-prosjekteier--2026-11-01), SC-07/1200–30 og Outlook-prøven beholder sine daterte resultater. Ingen andre testpersoner er rekruttert; resultatene dokumenterer prosjekteierens observasjoner, ikke generell studentnytte.
 
-**Teknisk auditoppfølging 2026-11-04:** [Importrekkefølge og kvalitetskontroller](../implementation-artifacts/import-sequencing-audit-2026-11-04.md) følger opp to bekreftede feil ved overlappende filvalg med retting og regresjonstester. Den omfatter også eksplisitt avhengighetskontroll og oppdateringsrutine, gradvis utvidelse av Content Security Policy og avgrensede prøver i flere nettlesere. Rapporten eier faktisk test-/publiseringsstatus og skiller kodeendringer fra fortsatt nødvendig eier- og administratoroppfølging. Dette følger eksisterende R-02/R-05/R-06 og endrer ikke V1 eller tidligere personlige prøveresultater.
+**Teknisk oppfølging 4. november:** [Importrekkefølge og kvalitetskontroller](../implementation-artifacts/import-sequencing-audit-2026-11-04.md) følger opp to bekreftede feil ved overlappende filvalg med retting og regresjonstester. Den omfatter også eksplisitt avhengighetskontroll og oppdateringsrutine, gradvis utvidelse av Content Security Policy og avgrensede prøver i flere nettlesere. Rapporten viser hva som ble testet og publisert, og hvilke punkter som krever oppfølging fra en administrator. Dette følger eksisterende R-02/R-05/R-06 og endrer ikke V1 eller tidligere personlige prøveresultater.
 
 **Teknisk oppfølging 2026-11-03:** [Avklaringssteg og lokal forespørselsvalidering](../implementation-artifacts/completion-and-local-request-validation-2026-11-03.md) samler retting av ventemarkering, avvisning av ugyldige forespørselsadresser og samordnet brukerveiledning. Resultater og publiseringsstatus er datert i rapporten; dette er tekniske kontroller, adskilt fra de senere personlige R-07-observasjonene.
 
@@ -24,19 +24,18 @@
 
 PRD-en og brukerhistoriene ble **rekonstruert 2026-10-16** mot kodegrunnlag `1a58ffce782fd4e42a7153e21e82fc982ae00268` fra historikken før oppryddingen. De beskriver funksjonalitet som allerede var utviklet. Arbeidet fulgte opp lærerens krav om avgrenset V1, sjekkbare kriterier, tekniske detaljer i arkitekturen og synlig kontroll av KI-generert arbeid. [Verifiserbar revisjon av brief, PRD og stories 16. oktober](https://github.com/IBE160-2026/G37-yilmaz/commit/79623313e9e96575f79c548d3394665ec18cce38)
 
-**PRD-presisering 2026-11-02:** [Gjeldende PRD](PRD.md) skiller de tre planleggingsfunksjonene og synliggjør eksisterende bruksgrenser og nyttehypoteser. [Scenariooversikten fra 2. november](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) bevarer det daværende dekningsforbeholdet som historikk; [egenutprøvingen 3.–4. november](../implementation-artifacts/owner-trial-2026-11-04.md) lukker dette forbeholdet. Sjuscenariokravet, V1 og tidligere daterte resultater er uendret.
+**PRD-presisering 2026-11-02:** [Gjeldende PRD](PRD.md) skiller de tre planleggingsfunksjonene og synliggjør eksisterende bruksgrenser og nyttehypoteser. [Scenariooversikten fra 2. november](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) viser hvilke scenarier som da var prøvd. [Egenutprøvingen 3.–4. november](../implementation-artifacts/owner-trial-2026-11-04.md) dekker alle sju. Sjuscenariokravet, V1 og tidligere daterte resultater er uendret.
 
-## Finn leveransen
+## Finn dokumentasjonen
 
-| Status / behov | Autoritativ inngang |
+| Emne | Hvor du kan lese mer |
 | --- | --- |
 | Produkt, oppstart og bruk | [Ajour på nett](https://ajour-sooty.vercel.app/), [README](../../README.md), [brukerveiledning](../../studieplanlegger/README.md#kom-i-gang-og-finn-frem) og [løsningsguide](../implementation-artifacts/solution-guide.md). Lokal kjøring er valgfri. [Teknisk oppfølging 4. november](../implementation-artifacts/import-sequencing-audit-2026-11-04.md) |
 | Prosjekteierens sju scenarier og navngitt Start bestått | [Prøverapport 4. november](../implementation-artifacts/owner-trial-2026-11-04.md) og [prøveplan med datert historikk](USER-TRIAL-PLAN.md). SC-07/R-07/S-07 er oppfylt innen det dokumenterte omfanget og med rapportens metodeavklaringer. |
 | Automatiske kontroller og publisering | [VERIFICATION](../../studieplanlegger/VERIFICATION.md) skiller automatiske tester, CI og kontroll av publisert commit fra eierens manuelle observasjoner. Funksjonsprøver alene bekrefter ikke produksjonscommit, interne skriveoperasjoner eller full sikkerhet. |
-| Kjente begrensninger | [Samlet begrensningsoversikt](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) med status, V1-betydning og oppfølging; [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) gir kildegrunnlaget. Historisk F03, F05 og bundlevarselet står åpne. Den [rettede fredags-/fristregresjonen 2. november](../../studieplanlegger/VERIFICATION.md#fristavklaring-oppgavebekreftelse-og-lagringshjelp--2026-11-02) lukker ikke historisk F03; originalen `stress-text-005.txt` er ikke funnet eller omprøvd. |
+| Kjente begrensninger | [Samlet begrensningsoversikt](../../studieplanlegger/README.md#kjente-begrensninger) med status, V1-betydning og oppfølging; [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) gir kildegrunnlaget. Historisk F03, F05 og bundlevarselet står åpne. Den [rettede fredags-/fristregresjonen 2. november](../../studieplanlegger/VERIFICATION.md#fristavklaring-oppgavebekreftelse-og-lagringshjelp--2026-11-02) lukker ikke historisk F03; originalen `stress-text-005.txt` er ikke funnet eller omprøvd. |
 | Prosess, krav og sporbarhet | [Utviklingsprosess](../implementation-artifacts/development-process.md), dokumentlisten nedenfor og [sporbarhetsmatrisen](TRACEABILITY.md). |
-| Refleksjonsrapport foreligger | [Lesbar Markdown-rapport](../submission/reflection-report.md), med prosjekteierens uttrykkelige tillatelse til inkludering i repoet. Markdown er rapportens eneste format i dagens repo. |
-| Innlevering | [Leveringsstatus](#leveringsstatus). |
+| Refleksjon | [Refleksjonsrapport](../submission/reflection-report.md) |
 | Eier-/administratoroppfølging | Historisk tilgangsmateriale, GitHub About/grenbeskyttelse og plattformkontroller har egen status i [auditoppfølgingen](../implementation-artifacts/import-sequencing-audit-2026-11-04.md). Hovedadressen er fortsatt `https://ajour-sooty.vercel.app/`; andre adresser har separat nettleserlagring. |
 
 Den siste egenutprøvingen omfatter omlasting og gjenoppretting i et separat, tomt Chrome Gjest-miljø. Full avslutning og omstart av nettleserprosessen og handlingen **Gjenopprett forrige kopi** inngikk ikke i prøven; dette er metodegrenser, ikke nye påviste appfeil. Tidligere tekniske kontroller og verktøyblokkerte sikkerhetsprøver beholder sin egen dato og metode og omgjøres ikke til personlige resultater.
@@ -54,7 +53,7 @@ Sensorvedleggets sju sider er lest på nytt 2026-11-01, med samme SHA-256 som id
 7. [Importavtale og brukerflyt](../../studieplanlegger/IMPORT.md): forhåndsvisning, identiteter, emnevalg, tidspunkt og kildenes grenser.
 8. [Kuratert TP CSV-formatkontrakt, 2026-10-23](../implementation-artifacts/tp-csv-format-contract-2026-10-23.md): offentlig formatgrunnlag og avgrensning mot private originalfiler.
 9. [Daterte kontrollresultater](../../studieplanlegger/VERIFICATION.md): konkrete feil, rettelser, tester og begrensninger. Testkode er lenket fra sporbarheten; interne arbeidsspesifikasjoner beholdes lokalt og er ikke del av den offentlige dokumentkjeden.
-10. [Refleksjonsrapport – Markdown](../submission/reflection-report.md) er prosjekteierens sluttleste rapporttekst med oppgitt KI-hjelp til struktur og formulering.
+10. [Refleksjonsrapport – Markdown](../submission/reflection-report.md) er prosjekteierens rapport med oppgitt KI-hjelp til struktur og formulering.
 
 [Oppstart](../../README.md), [løsningsguide](../implementation-artifacts/solution-guide.md), [utviklingsprosess](../implementation-artifacts/development-process.md), [importdekning](../../studieplanlegger/IMPORT-COVERAGE.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) supplerer planen. [Faglærertilbakemeldingen](../../tilbakemelding-product-brief.md) og alle sju sidene i sensorvedlegget for del 1 er kontrollert ved publiseringsoppfølgingen 2026-10-16. Den overordnede sensorveiledningen er fortsatt uidentifisert.
 
@@ -64,24 +63,15 @@ Sensorvedleggets sju sider er lest på nytt 2026-11-01, med samme SHA-256 som id
 
 [Briefen](../../brief.md), [PRD-en](PRD.md) og [AD-16](architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md#ad-16--browser-deployment-with-bounded-stateless-imports-2026-10-29) beskriver den uttrykkelig godkjente nettleserutgaven i ett gratis Vercel-prosjekt. Hele hovedflyten og lokale Node-/Docker-valg beholdes. Nettutgaven har nettleser-/adresselokal lagring og avgrensede importfunksjoner, uten konto, skydatabase eller synkronisering. Historiske lokalavgrensninger er datert; importløftet og krav-ID-ene endres ikke. [Verifikasjonen fra 29. oktober](../../.logs/997-2026-10-29-13-35-00-ajour-vercel.md) dokumenterer den rundens publisering, adskilt fra tidligere klargjøring og lokale prøver.
 
-<a id="leveringskontroll--2026-11-01"></a>
-<a id="leveringskontroll--2026-11-04"></a>
-
-## Leveringskontroll
-
-### Leveringsstatus
-
-Den 19. november 2026 bekreftet prosjekteieren at oppgaven var levert. Prosjekteieren bekreftet også sluttlesing av refleksjonsrapporten, kontroll av frist, innleveringskanal og filformat, og at det forelå kvittering. Mottakstidspunktet i innleveringssystemet er ukjent ut fra repoets dokumentasjon. [Git-commit fra 19. november 2026 kl. 13.55 (Europe/Oslo)](https://github.com/IBE160-2026/G37-yilmaz/commit/3e19e38939c0b36fa5690af1a2f350cc8a2f8a52)
-
-### Vurderingsgrunnlag og oppfølging
+## Vurderingsgrunnlag og oppfølging
 
 Ved oppfølgingen 4. november ble faglærerens tilbakemelding lest på nytt, og oversikten ble samordnet med prosjekteierens dokumenterte egenutprøving. Sensorvedlegget var da sist dokumentert lest og identifisert 1. november. Godkjent proposal og overordnet sensorveiledning er fortsatt uidentifiserte vurderingskilder. [Faglærerens tilbakemelding fra 6. oktober](../../tilbakemelding-product-brief.md) og [auditrapporten fra 4. november](../implementation-artifacts/import-sequencing-audit-2026-11-04.md)
 
-Sensorveiledningen beskriver vurdering av repoets siste commit før innleveringsfristen (s. 2), kjøring etter README (s. 2 og 5–6), prosess-/KI-spor og relevante manuelle og automatiske tester (s. 2–4). Del 1 teller 70 prosent; personlig refleksjon i del 2 teller 30 prosent (s. 1 og 7). Dette bekrefter vurderingsområdene, ikke at innleveringen allerede er godkjent.
+Sensorveiledningen beskriver vurdering av repoets siste commit før innleveringsfristen (s. 2), kjøring etter README (s. 2 og 5–6), prosess-/KI-spor og relevante manuelle og automatiske tester (s. 2–4). Del 1 teller 70 prosent; personlig refleksjon i del 2 teller 30 prosent (s. 1 og 7).
 
-**Bekreftet rapportgrunnlag:** Den brukerleverte `reflection-report-template (1).md` angir **3000–5000 ord**, med gruppeinformasjon, utviklingsprosess, utfordringer, kritisk KI-vurdering, etiske og teknologiske implikasjoner, konklusjon/personlig refleksjon og valgfrie vedlegg. Malen brukes som arbeidsgrunnlag og legges ikke i repoet. [Sluttrapporten](../submission/reflection-report.md) foreligger bare som redigerbar Markdown-rapport i repoet.
+Rapportmalen angir **3000–5000 ord**, med gruppeinformasjon, utviklingsprosess, utfordringer, kritisk KI-vurdering, etiske og teknologiske implikasjoner, konklusjon/personlig refleksjon og valgfrie vedlegg. Malen brukes som arbeidsgrunnlag og legges ikke i repoet. [Sluttrapporten](../submission/reflection-report.md) foreligger bare som redigerbar Markdown-rapport i repoet.
 
-Rapporten bygger på prosjekteierens leverte tekst og egne svar; opplysningen om KI-hjelp til struktur og formulering beholdes. [Utviklingsprosessen](../implementation-artifacts/development-process.md) er separat dokumentasjon av hendelser og kontroll, og teknisk teststatus erstatter ikke personlig refleksjon.
+Rapporten bygger på prosjekteierens tekst og egne svar, med oppgitt KI-hjelp til struktur og formulering. [Utviklingsprosessen](../implementation-artifacts/development-process.md) er separat dokumentasjon av hendelser og kontroll, og teknisk teststatus erstatter ikke personlig refleksjon.
 
 ## Vurderingsgrunnlag kontrollert 2026-10-16
 
@@ -93,7 +83,7 @@ Godkjent proposal og den overordnede sensorveiledningen som PDF-en viser til, er
 
 ## PRD-revisjonshistorikk
 
-Historikken til og med 4. november ble flyttet fra PRD-en 12. november 2026. Den gjengir de daterte beslutningene og dokumenterte resultatene fra PRD-versjonen 4. november. «Gjeldende» i sitatet viser til den datoen. [Gjeldende produktkrav](PRD.md), [prøveplan](USER-TRIAL-PLAN.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) beholder sine egne roller.
+Historikken til og med 4. november ble flyttet fra PRD-en 12. november 2026. Den samler beslutninger og dokumenterte resultater fra PRD-versjonen 4. november. «Gjeldende» i utdraget viser til den datoen. [Gjeldende produktkrav](PRD.md), [prøveplan](USER-TRIAL-PLAN.md) og [verifikasjon](../../studieplanlegger/VERIFICATION.md) beholder sine egne roller.
 
 ### Rekonstruksjonsgrunnlag
 
@@ -111,9 +101,7 @@ Nettutgaven skal forklare at sletting av nettleserdata kan slette planen, at loc
 
 **Endret prøveopplegg 2026-10-26:** Prosjekteieren har besluttet egenutprøving uten rekruttering av andre testpersoner. Dette erstatter den tidligere planlagte prøven med en ny student; den tidligere prøven ble ikke gjennomført eller bestått. Samme SC-07/R-07/S-07 beholdes. Egenutprøvingen dokumenterer bare prosjekteierens bruk og observasjoner. Personlig refleksjon må fortsatt bygge på prosjekteierens egne erfaringer.
 
-> **Gjeldende dokumentasjonsstatus 2026-11-04:** Prosjekteieren gjennomførte og bestod de sju scenariene og tillegget for navngitt Start 3.–4. november. [Resultatmatrisen](USER-TRIAL-PLAN.md#egenutproving-2026-11-04) og [evidensrapporten](../implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer faktiske observasjoner, korrigert for tidlig utfallsregistrering, tilpassede datoer, temaprøve med åpent tekstutkast og gjenoppretting i en separat tom Chrome-gjesteøkt. R-07 er dermed oppfylt innen dokumentert prøveomfang; kravene og V1 er uendret. Personlig sluttgjennomlesing og formell innlevering er ikke bekreftet.
-
-[Senere leveringsstatus](#leveringsstatus)
+> **Gjeldende dokumentasjonsstatus 2026-11-04:** Prosjekteieren gjennomførte og bestod de sju scenariene og tillegget for navngitt Start 3.–4. november. [Resultatmatrisen](USER-TRIAL-PLAN.md#egenutproving-2026-11-04) og [evidensrapporten](../implementation-artifacts/owner-trial-2026-11-04.md) dokumenterer faktiske observasjoner, korrigert for tidlig utfallsregistrering, tilpassede datoer, temaprøve med åpent tekstutkast og gjenoppretting i en separat tom Chrome-gjesteøkt. R-07 er dermed oppfylt innen dokumentert prøveomfang; kravene og V1 er uendret.
 
 **Historisk dokumentasjonsstatus 2026-11-02:** Full oppfyllelse var da ikke dokumentert. [Datidens scenariooversikt](USER-TRIAL-PLAN.md#scenario-dekning-2026-11-02) bevarer observasjonene og dekningsgrensene; senere prøver gjør ikke de gamle resultatene mer omfattende enn de var.
 

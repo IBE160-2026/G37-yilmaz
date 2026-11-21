@@ -152,13 +152,13 @@ Testene bruker syntetiske data. Et grønt bygg viser at den kontrollerte teknisk
 
 Tekstregistreringen godtar en trygg deklarativ tittel uten kommandoprefiks og viser først et kompakt forslag; emne, frist og arbeid ligger under valgfrie detaljer. Spørsmål og ukjent mutasjonsintensjon avvises. Korte datoer bruker inneværende Oslo-år når datoen ikke er passert; ellers kreves eksplisitt årsvalg. Ukjent arbeid er `null`, og tomt eller eksplisitt fravær av emne oppretter aldri et kunstig emne.
 
-Egne kalenderaktiviteter ligger i `planner.events` med `activityKind: "personal"`, tom `courseId`, `dateLocal` og valgfri `start`/`end`. Bare begge instanser blokkerer kapasitet. Dato alene og start alene vises med eksplisitt usikkerhet på kalender-, agenda- og dagsflater. Kildeoppdatering er isolert gjennom fravær av kildeidentitet, og ICS-eksport krever et eget opt-in-valg og bevarer den lagrede presisjonen.
+Egne kalenderaktiviteter ligger i `planner.events` med `activityKind: "personal"`, tom `courseId`, `dateLocal` og valgfri `start`/`end`. Aktiviteten reduserer tilgjengelig studietid bare når både start og slutt er angitt. Kalenderen, agendaene og dagsoversikten viser når start- eller sluttid mangler. Kildeoppdatering er isolert gjennom fravær av kildeidentitet, og ICS-eksport krever et eget opt-in-valg og bevarer den lagrede presisjonen.
 
-## Datert leveringsstatus og utviklingshistorikk
+## Utprøving og kjente begrensninger
 
-**Prøvestatus 4. november 2026.** Prosjekteieren har bestått alle sju scenarier og navngitt Start-tillegg 3.–4. november, inkludert gjenoppretting i et separat, tomt Chrome Gjest-miljø. [Prøverapporten](owner-trial-2026-11-04.md) lukker det tidligere SC-07/R-07-dekningsforbeholdet innen dokumentert omfang og oppgir rettet prøveutførelse og metodegrenser. Tidligere daterte omprøvinger, SC-07/1200–30 og Outlook-prøven beholder sine resultater. [Begrensningsoversikten](../../studieplanlegger/README.md#kjente-begrensninger-ved-levering) og [leveringsoversikten](../../README.md#leveringsoversikt) viser gjeldende status. [Refleksjonsrapporten](../submission/reflection-report.md) foreligger bare som Markdown.
+Prosjekteieren bestod alle sju scenarier og tilleggsprøven for Start med et navngitt steg 3.–4. november 2026. Det omfattet gjenoppretting av en sikkerhetskopi i en tom gjesteøkt i Chrome. [Prøverapporten](owner-trial-2026-11-04.md) viser fremgangsmåte og resultater. [Prøveplanen](../planning-artifacts/USER-TRIAL-PLAN.md) viser også de tidligere resultatene, blant annet deløktprøven SC-07/1200–30 og Outlook-prøven.
 
-[Planindeksens leveringskontroll](../planning-artifacts/README.md#leveringskontroll) samler leveringsstatus, vurderingsgrunnlag og rapportens avgrensning. [Teknisk verifikasjon](../../studieplanlegger/VERIFICATION.md) samler daterte kontroller og publiseringsbevis. Historisk F03 og personvernoppfølging er ikke lukket av egenutprøvingen; den rettede fredags-/fristregresjonen 2. november lukker heller ikke historisk F03.
+[Testresultatene](../../studieplanlegger/VERIFICATION.md) samler tekniske kontroller og viser hvilke appversjoner som ble prøvd. [Kjente begrensninger](../../studieplanlegger/README.md#kjente-begrensninger) beskriver blant annet friteksttilfellet F03, som fortsatt står åpent fordi originalfilen mangler. [Rapporten om Git-historikken](history-cleanup-2026-11-09.md) beskriver personvernoppfølgingen.
 
 ## Lokal oppfølging — 2026-10-26
 

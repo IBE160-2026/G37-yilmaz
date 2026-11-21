@@ -30,7 +30,7 @@ Prøven brukte syntetiske data i [nettutgaven](https://ajour-sooty.vercel.app/),
 
 Det gjenstår ingen udokumenterte deler av denne R-07-prøven innen oppgitt omfang. Full nettleseromstart, kvotegrenser og «Gjenopprett forrige kopi» var ikke påkrevde trinn i de sju scenariene og er ikke ferdigmeldt av denne prøven. Tema og emnefargepreferanser loves fortsatt ikke overført i sikkerhetskopien. Resultatet er prosjekteierens egenutprøving, ikke dokumentasjon på generell studentnytte, full tilgjengelighet eller sikkerhet.
 
-[Leveringsstatus](README.md#leveringsstatus)
+
 
 ## Teknisk avklaring av oppgave- og stegflyt — 2026-11-02
 
@@ -82,7 +82,7 @@ Vedlagt `ajour-pr8-omproving-2026-11-01.html` og `ajour-pr8-500-bestatt-20261101
 
 Dette dokumenterer **omlasting i samme syntetiske profil**. Full nettleseromstart, separat tom profil, kvotegrenser og «Gjenopprett forrige kopi» ble ikke verifisert i denne omprøvingen. Interne skriveoperasjoner ble ikke målt; funksjonsprøvene alene bekrefter heller ikke produksjonscommit, CI eller full sikkerhet. Tidligere tekniske kontroller av andre tilfeller beholder sin egen metode, dato og utfører. NTNU samlet programkilde, den konkrete UiT-tabellen, F03/F05 og nettleserkvoten er dokumenterte begrensninger, ikke nye beståttresultater.
 
-Den opprinnelige sjuscenariomalen nedenfor bevares som prøveoppskrift og historikk. Manglende observasjoner i den gamle malen fylles ikke med antakelser eller automatiske resultater, og den brukes ikke til å pålegge en ny full prøverunde. Ingen generell studentnytte eller forståelse hos ukjente brukere er påvist. Prosjekteierens leverte refleksjonsrapport beholdes som eget dokument med oppgitt KI-hjelp til struktur og formulering.
+Den opprinnelige sjuscenariomalen nedenfor bevares som prøveoppskrift og historikk. Manglende observasjoner i den gamle malen fylles ikke med antakelser eller automatiske resultater, og den brukes ikke til å pålegge en ny full prøverunde. Ingen generell studentnytte eller forståelse hos ukjente brukere er påvist. Prosjekteierens refleksjonsrapport oppgir KI-hjelp til struktur og formulering.
 
 ## Ny lagrings- og importoppfølging — 2026-11-01
 
@@ -128,7 +128,7 @@ Etter publisert retting: Opprett en syntetisk, startklar oppgave med **1200 minu
 
 Den lokale HTML-stresstestrapporten fra 29. oktober er funnet. Historisk F03 gjelder «Tekst med klokkeslett blir oppgaver fremfor kalenderaktiviteter»: `stress-text-005.txt` med fem aktivitetslinjer og en overskrift ga seks uvalgte oppgaver. Selve tekstfilen er ikke funnet, og denne historiske prøven er ikke omprøvd eller lukket.
 
-Det nye, syntetiske fristtilfellet gjelder dokumentimport av `Les kapittel 4 innen fredag kl. 14`, alene og sammen med `Innlevering syntetisk test, frist 2026-11-06 kl. 14:00`. Tidligere kunne den første valgte oppgaven få tom frist mens bekreftelsen viste at alt var klart. [Fristavklaringen](../../studieplanlegger/IMPORT.md) retter denne avgrensede feilen. [Verifikasjonen](../../studieplanlegger/VERIFICATION.md) oppgir de faktisk gjennomførte automatiske prøvene; dette er ikke nye resultater fra prosjekteierens egenutprøving og innfører ingen generell tolkning av naturlig språk.
+Det nye, syntetiske fristtilfellet gjelder dokumentimport av `Les kapittel 4 innen fredag kl. 14`, alene og sammen med `Innlevering syntetisk test, frist 2026-11-06 kl. 14:00`. Tidligere kunne den første valgte oppgaven få tom frist mens bekreftelsen viste at alt var klart. [Fristavklaringen](../../studieplanlegger/IMPORT.md) retter denne avgrensede feilen. [Verifikasjonen](../../studieplanlegger/VERIFICATION.md) oppgir de faktisk gjennomførte automatiske prøvene; dette er ikke nye resultater fra prosjekteierens egenutprøving. Rettingen gjelder denne fristtypen.
 
 ## Rapporterte funn og omprøving — 2026-10-29
 
@@ -213,7 +213,7 @@ Prosjekteierens sluttbekreftelse 1. november erstattet den tidligere statusen «
 | Full nettleseromstart og «Gjenopprett forrige kopi» | Ikke prøvd i denne egenutprøvingen og ikke påkrevde trinn i de sju scenariene. Omlasting og gjenoppretting i annen tom, isolert instans er bestått. |
 | Personlig refleksjon | [Rapporten foreligger som Markdown](../submission/reflection-report.md). |
 
-Den leverte rapporten inneholder prosjekteierens personlige vurderinger; denne prøveplanen dokumenterer forventet mot faktisk resultat. Rapporten gjør ikke tomme scenariofelt til beståtte tester eller egne erfaringer til bevis for generell studentnytte. Personlige rånotater og eldre private refleksjonsutkast forblir lokale; bare den uttrykkelig autoriserte sluttrapporten er lagt i leveringsdokumentasjonen. Planindeksen oppgir malens 3000–5000 ord og dokumenterer leveringsstatus. [Leveringskontroll](README.md#leveringskontroll)
+Denne prøveplanen viser forventede og faktiske resultater. [Refleksjonsrapporten](../submission/reflection-report.md) beskriver prosjekteierens egne erfaringer. Personlige rånotater og eldre utkast er oppbevart lokalt.
 
 ## Valgfri isolert oppstart før egenutprøvingen
 

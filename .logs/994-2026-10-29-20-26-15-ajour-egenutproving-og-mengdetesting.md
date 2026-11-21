@@ -20,9 +20,9 @@ Siste samlede lokale kontroll før NTNU-oppfølgingen: 2451/2451 enhetstester, 9
 
 `625b2e7` retter en konkret EXPH0100-regresjon funnet av automatisk etterkontroll: publiserte campus tilbys separat og valideres fortsatt mot detaljkilden. Siste låste fullsuite bestod 2453/2453 i 143 filer, produksjonsbygg og 2/2 nye nettleserprøver mot bygget (30,3 s). Rettelsen er separat gjennomgått. Første preview og senere f476604 hadde feilede automatiske kildeprøver; disse er dokumentert som feil. PR #6 er opprettet. Denne loggen skrives før ny preview og integrering; faktisk produksjonsresultat skal etterprøves mot siste commit, og er ikke forhåndsgodkjent her.
 
-UiT-PDF-behandlingen fungerer på Vercel, men H-2025-emnetabellen er et bilde. BI lagrer emner og støtter ikke automatisk undervisningshenting. De tre navngitte NTNU-kalenderne svarte HTTP 200 og null hendelser direkte og gjennom Ajour. HVL DAT100 ga fem varianter med adskilt navn/campus/råetikett. Dette er avgrensede kildeøyeblikksbilder.
+UiT-PDF-behandlingen fungerer på Vercel, men H-2025-emnetabellen er et bilde. BI lagrer emner og støtter ikke automatisk undervisningshenting. De tre navngitte NTNU-kalenderne svarte HTTP 200 og null hendelser direkte og gjennom Ajour. HVL DAT100 ga fem varianter med adskilt navn/campus/råetikett. Dette er avgrensede observasjoner av kildene på testtidspunktet.
 
-Den vedlagte mengderapporten er registrert separat som KI-assistert testing: NHH feilet; NIH ga forhåndsvisning med advarsler. Den er ikke samtidig belastningsprøve, sikkerhetsrevisjon, Outlook-kontroll eller prosjekteierens egenutprøving. Berørte punkter trenger omprøving. Originale lærerfiler og eksisterende CI-/Vercel-sperrer er bevart.
+I den KI-assisterte mengdetesten feilet NHH, mens NIH ga forhåndsvisning med advarsler. Denne rapporten dekker mengdetestene. Belastningsprøve, sikkerhetsrevisjon, Outlook-kontroll og prosjekteierens egenutprøving har eget omfang. Funnene i rapporten måtte prøves på nytt. Originale lærerfiler og eksisterende CI-/Vercel-sperrer er bevart.
 
 ### Åpne punkter
 
@@ -72,13 +72,13 @@ Følge opp lagringsvekst ved identisk 500-import, stor backupgjenoppretting og a
 
 ### Plan
 
-- Lese vedlegg som feilrapport, måle faktiske skriverier og feil med egne syntetiske data, og rette lagring/gjenoppretting først.
+- Lese vedlegg som feilrapport, måle lagringsendringer og gjenskape feil med egne syntetiske data, og rette lagring/gjenoppretting først.
 - Kontrollere NTNU, AHO og den konkrete UiT-PDF-en mot offentlige kilder, med avgrensede norske forklaringer.
 - Uavhengig kodegjennomgang, full lokal kvalitetspakke og deretter kontrollert publisering. [Prøveplan](../.docs/planning-artifacts/USER-TRIAL-PLAN.md) og [verifikasjonsoversikten](../studieplanlegger/VERIFICATION.md) bevarer skillet mellom eierens og agentens prøver.
 
 ### Resultat
 
-`1ecea29362f4cb81ecc1b99c325eb5459facad8c` retter metadatautløst historikkvekst, identiske skriverier, doble recovery-representasjoner og misvisende feilklassifisering. Syntetisk identisk reimport gikk fra **+1 144 543 byte historikk per gang til 0 byte / 0 skriverier**. En eldre formatert backup på **6 843 299 byte** består i tom, identisk og endret stor profil; sistnevnte bruker **360 347 byte** recovery. Både ekte kvotefeil og kontrollerte tilgangs-/ukjente feil bevarer opprinnelige data og tidligere recovery etter omlasting. Ingen gammel historikk er ekstra slettet for å skaffe plass; eksisterende 30-oppføringsgrense beholdes.
+`1ecea29362f4cb81ecc1b99c325eb5459facad8c` retter metadatautløst historikkvekst, identiske skriverier, to lagrede utgaver av samme gjenopprettingskopi og misvisende feilklassifisering. Syntetisk identisk reimport gikk fra **+1 144 543 byte historikk per gang til 0 byte / 0 skriverier**. En eldre formatert backup på **6 843 299 byte** består i tom, identisk og endret stor profil; sistnevnte bruker **360 347 byte** recovery. Både ekte kvotefeil og kontrollerte tilgangs-/ukjente feil bevarer opprinnelige data og tidligere recovery etter omlasting. Ingen gammel historikk er ekstra slettet for å skaffe plass; eksisterende 30-oppføringsgrense beholdes.
 
 Eksport forklarer historisk innhold. Ugyldige/tvetydige klokkeslett avvises fortsatt med norske forklaringer, og identiske kapasitetsgrunner vises én gang. NTNUs publiserte programkatalog svarte faktisk tomt før filtrering; dette forklares uten falsk fullstendighet. TDT4109 ga fortsatt 115 hendelser. AHOs årshopp finnes i kilden; studiesemesteretikettene er rettet til 1–7, 10, 11 uten å endre årstall eller koblinger. UiTs konkrete engelske Applied Computer Science-PDF gjenkjennes, men termin-/ECTS-tabellen støttes ikke som semesterfordeling.
 
@@ -100,17 +100,17 @@ Begge GitHub-kvalitetssjekkene og faktisk Vercel-preview bestod. [Previewkontrol
 
 ### Oppgave
 
-Ferdigstille dokumentasjon og leveringsoversikt etter prosjekteierens bekreftede egenutprøving, avgrenset til dokumentasjon, leveringskontroll og publisering. Prosjekteieren autoriserte commit, push og PR-integrering etter nødvendige kontroller, med bevarte CI-/Vercel-sperrer og uten nye funksjoner eller unødvendig gjentakelse av beståtte prøver.
+Oppdatere og publisere dokumentasjonen etter prosjekteierens egenutprøving. Prosjekteieren autoriserte commit, push og PR-integrering etter nødvendige kontroller, med bevarte CI-/Vercel-sperrer og uten nye funksjoner eller unødvendig gjentakelse av beståtte prøver.
 
 ### Plan
 
 - Lese prosjektinstruksjoner, lærerfeedback, alle sju sider av identifisert sensorveiledning og de faktiske vedleggene som kildemateriale.
-- Samordne eksisterende krav-/prøve-/leveringsdokumenter, føre eierens egne resultater korrekt, bevare teknisk historikk og beskrive gjenværende grenser.
+- Samordne eksisterende krav, prøveplaner og prosjektbeskrivelser, føre eierens egne resultater korrekt, bevare teknisk historikk og beskrive gjenværende grenser.
 - Kontrollere dokumentlenker, filutvalg og påkrevde tester; bruke eksisterende PR-/publiseringsløp og dokumentere faktisk sluttversjon i [PR #10](https://github.com/IBE160-2026/G37-yilmaz/pull/10).
 
 ### Resultat
 
-`eb72b2d` oppdaterer elleve eksisterende Markdown-dokumenter: README-ene, brief, PRD, planindeks, stories, sporbarhet, prøveplan, verifikasjon, løsningsguide og utviklingsprosess. `e908fab` lenker verifikasjonen til publiseringsbeviset i PR #10. Appkode, tester, avhengigheter, data og arbeidsflyter er uendret; annen åpen PR og andre arbeidskopier er bevart.
+`eb72b2d` oppdaterer elleve eksisterende Markdown-dokumenter: README-ene, brief, PRD, planindeks, stories, sporbarhet, prøveplan, verifikasjon, løsningsguide og utviklingsprosess. `e908fab` lenker verifikasjonen til publiseringskontrollen i PR #10. Appkode, tester, avhengigheter, data og arbeidsflyter er uendret; annen åpen PR og andre arbeidskopier er bevart.
 
 De sju oppgitte omprøvingsresultatene føres som **egenutprøving utført av prosjekteier**: identisk 500-import med 525 uendrede, 28 Angre-oppføringer/0 byte vekst, faktisk 6,62 MB-erstatning fra 7 til 6 oppgaver, bevart datasett/historikk/papirkurv/ID-er etter omlasting, tre norske tidsfeilmeldinger, én kapasitetsforklaring og AHO 2031-semester 10/11. SC-07/1200–30 og Outlook 30. oktober beholder bestått. Disse konkrete restpunktene er lukket i `issues.md`; personlig refleksjon er fortsatt åpen.
 
@@ -124,6 +124,6 @@ Ved denne oppfølgingens start viste GitHub main og produksjonens `/release.json
 
 ### Åpne punkter
 
-- Prosjekteieren må skrive personlig refleksjon fra egne erfaringer, kontrollere formell frist/kanal/format og gjennomføre innleveringen. Godkjent proposal og overordnet veiledning er ikke identifisert.
+- Godkjent proposal og overordnet veiledning var ikke identifisert ved denne kontrollen.
 - NTNU-tomkilden, UiTs konkrete termin-/ECTS-tabell, F03/F05, tidligere kildegrenser, nettleserkvote og bundlevarsel står som dokumenterte begrensninger; full nasjonal dekning er ikke et nytt V1-krav.
 - Full nettleseromstart, separat tom profil og forrige-kopi-handlingen inngikk ikke i siste egenutprøving. Tidligere verktøyblokkerte sikkerhetsprøver er ikke gjennomført. Ingen ny full omprøving bestilles av dokumentarbeidet.

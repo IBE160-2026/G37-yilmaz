@@ -173,7 +173,7 @@ describe('delivery plan regressions', () => {
     const divisible = task('divisible', open), exact = task('exact', { remainingMinutes: 241 }), indivisible = task('indivisible', { ...open, splittable: false })
     expect(rankedSuggestions([divisible, exact, indivisible], 30)).toEqual([divisible, exact])
     expect(getSessionMinutes(divisible, 30)).toBe(30)
-    expect(suggestionExclusions([indivisible], 30)[0].reason).toContain('hele oppgaven får plass i én økt')
+    expect(suggestionExclusions([indivisible], 30)[0].reason).toContain('om den får plass i én økt')
   })
 
   it('keeps a title-only task unknown in both capacity totals', () => {

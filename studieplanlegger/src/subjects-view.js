@@ -95,8 +95,8 @@ export function createSubjectsView(actions) {
   if (!existingNav) document.querySelector('#view-capacity')?.after(nav)
   const host = el('section', null, 'panel subjects-panel'); host.id = 'subjects-panel'; host.hidden = true
   document.querySelector('#tasks-panel').after(host)
-  host.innerHTML = `<div class="panel-heading"><div><p class="eyebrow">Emner og undervisning</p><h2>Mine emner</h2></div></div>
-    <p class="muted">Opprett emner selv, eller hent emneinformasjon og kalender. Undervisningen vises i norsk tid.</p>
+  host.innerHTML = `<div class="panel-heading"><div><h2>Mine emner</h2></div></div>
+    <p class="muted">Undervisningen vises i norsk tid.</p>
     <div class="subject-actions"><button type="button" id="course-new">Nytt emne</button><button type="button" id="event-new">Ny undervisning</button></div>
     <p id="subject-message" class="import-message" hidden></p>
     <form id="subject-editor" class="subject-editor" hidden></form>
@@ -115,7 +115,7 @@ export function createSubjectsView(actions) {
         <label class="wide-field">Kalenderlenke (HTTPS eller webcal)<input name="url" type="text" placeholder="https://…" autocomplete="off"></label>
         <button type="submit">Hent kalenderlenke</button>
       </form>
-      <p class="muted">Lenker oppdateres ved oppstart og mens appen er åpen, tidligst hvert 30. minutt. Ved feil øker ventetiden til maksimalt 24 timer. Oppdatering pauses mens du redigerer. Filer er øyeblikksbilder; en lukket app oppdaterer ikke. Private lenker lagres bare lokalt.</p>
+      <p class="muted">Ajour henter oppdateringer fra kalenderabonnementer når du åpner appen og deretter tidligst hvert 30. minutt. Ved feil kan det ta opptil 24 timer før neste forsøk. Oppdateringen venter mens du redigerer. Importerte filer må leses inn på nytt for å få med endringer. Private lenker lagres bare lokalt.</p>
     </section><section id="import-preview" class="import-preview" hidden></section>
     <div id="course-list" class="course-list"></div><h3>Kalenderkilder</h3><div id="source-list"></div>
     <h3>Registrert undervisning</h3><div id="event-list" class="event-list"></div>`

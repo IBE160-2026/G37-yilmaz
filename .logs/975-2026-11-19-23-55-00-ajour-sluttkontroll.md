@@ -4,13 +4,13 @@
 
 ### Oppgave
 
-Følge opp leveransefunnene på `ce8babe2f112ae63a7ebfa30286798dd0eec6d50` med regresjonsprøver, sluttkontroll og versjonssamsvar. Arbeidet følger opp faglærerens krav om sjekkbare kriterier, studentens kontroll og sporbar verifikasjon. De sju sidene i sensorvedlegget for del 1 ble lest med samsvarende SHA-256. [Faglærertilbakemeldingen](../tilbakemelding-product-brief.md) · [Vurderingsgrunnlaget](../.docs/planning-artifacts/README.md#vurderingsgrunnlag-kontrollert-2026-10-16)
+Etterprøve funnene på `ce8babe2f112ae63a7ebfa30286798dd0eec6d50` og kontrollere hvilken versjon som kjører på nettsiden. Arbeidet følger opp faglærerens krav om sjekkbare kriterier, studentens kontroll og sporbar verifikasjon. De sju sidene i sensorvedlegget for del 1 ble lest med samsvarende SHA-256. [Faglærertilbakemeldingen](../tilbakemelding-product-brief.md) · [Vurderingsgrunnlaget](../.docs/planning-artifacts/README.md#vurderingsgrunnlag-kontrollert-2026-10-16)
 
 ### Plan
 
 - Reprodusere frist-, plan- og importfunnene med syntetiske data. Bruke isolerte profiler, databaser og Docker-volumer til lagringsprøvene.
 - Kontrollere endringer i publiserte studiekataloger, kalendere og informasjonslenker separat fra appens lagringslogikk.
-- Knytte testkjøringene til en Git-commit og kontrollere samme commit på GitHub og `/release.json` før leveransen erklæres klar.
+- Knytte testkjøringene til en Git-commit og sammenligne den med GitHub og `/release.json`.
 
 ### Resultat
 
@@ -19,7 +19,7 @@ Følge opp leveransefunnene på `ce8babe2f112ae63a7ebfa30286798dd0eec6d50` med r
 | Dokumentimport og undervisning | Fristetiketter og erstattede datoer, klokkeslett med eksplisitt UTC-forskyvning og sekunder, samt korrigert gjenimport på samme ID når den gamle verdien fortsatt er uendret. Åtte nettleserprøver med de fire innformatene kontrollerte forhåndsvisning, lagring, omlasting og Angre. [Dokumentprøvene](../studieplanlegger/tests/e2e/delivery-document-import.spec.js) · [Identitetsprøvene](../studieplanlegger/tests/unit/connected-document-identity.test.js) |
 | Ukeplan og frister | Skilte kalenderreservasjon fra dekket arbeid, målte fristdekning i de valgte scenarioene og beholdt låste økter ved null gjenstående. Prøvene dekker 09.30-fristen, overlapp, pause, kjent minimumsmangel, vintertid, økt-ID og skadd plan. [Planprøvene](../studieplanlegger/tests/unit/delivery-plan-regressions.test.js) · [Nettleserprøvene](../studieplanlegger/tests/e2e/integrated-workflow.spec.js) |
 | Program og kilder | Deaktivert «Legg til» under henting. Håndterte delte HiMolde-emner, Nord-søk og vårutgaver, ONHs nye PDF-format, UiTs generelle delingsmetadata og Fjellhaugs kildehenting. Oppdaterte valgfri kildeprøving med gjeldende valg. [Importdekning](../studieplanlegger/IMPORT-COVERAGE.md) |
-| Tilgjengelighet og apptekst | Kalenderens synlige ordrekkefølge i tilgjengelige navn i «Alle oppgaver» og de fire kalendervisningene, prøvd i lyst og mørkt tema. Oversatte kildebeskrivelser og kontrollerte elleve nye klikkmål med HTTP 200. FHS' institusjonslenke dokumenterer generell informasjon, og TP-statusen gjelder den separate importkilden. [Kalenderprøvene](../studieplanlegger/tests/e2e/delivery-calendar.spec.js) · [Kildeoversikten](../studieplanlegger/tests/unit/connected-public-programs.test.js) |
+| Tilgjengelighet og apptekst | Kalenderens synlige ordrekkefølge i tilgjengelige navn i «Alle oppgaver» og de fire kalendervisningene, prøvd i lyst og mørkt tema. Oversatte kildebeskrivelser og kontrollerte at elleve nye lenker svarte med HTTP 200. FHS' institusjonslenke dokumenterer generell informasjon, og TP-statusen gjelder den separate importkilden. [Kalenderprøvene](../studieplanlegger/tests/e2e/delivery-calendar.spec.js) · [Kildeoversikten](../studieplanlegger/tests/unit/connected-public-programs.test.js) |
 
 Kodeendringene ligger i `eb7ea22a94fbe9f9b3fccc3eb0c4f9edd1e658c5`. `0dda6b30fbff0056b05fac52f5a9048b2eb5bff2` oppdaterer testforventninger til ordrekkefølge, tidsvisning og live-kildevalg. `196f6a747333eae210bc8e4975f1bbcd8f1ccf62` retter også UiTs campuskontroll i nettleseren og oppdaterer de siste entallsforventningene. Kandidaten er sendt til [utkast-PR #34](https://github.com/IBE160-2026/G37-yilmaz/pull/34).
 
@@ -29,7 +29,7 @@ Den nyere matrisen bestod med sine 1 800 planalternativer. Den separate 09.30-pr
 
 På `196f6a747333eae210bc8e4975f1bbcd8f1ccf62` bestod GitHub enhetssuiten, bygg, 252 Chromium-prøver, fire Firefox-/WebKit-prøver og 15 SQLite-prøver. GitHubs publiseringskontroll mot forhåndsvisningen bestod 67 funksjonsprøver og seks levende V1-prøver. Den separate prøvingen mot samme markør bestod 59 regresjonsprøver og seks V1-prøver, og ytterligere fem kildetransportprøver for HVL, NTNU og UiT. Utvalgene overlapper. Gestalt-gjenimport og tre lesbare UiT-arkiver bestod med testvelgere justert til det synlige grensesnittet. Begge UiT-prøvene med emnetabell som bilde viste riktig veiledning. [GitHub-kvalitet](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/44636228848) · [Publiseringskontroll](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/44637542240) · [Versjonsmarkør](https://ajour-5diis9q3x-ajour1.vercel.app/release.json)
 
-Den ordinære lokale Chromium-kjøringen mot `196f6a7` med korrigerte testforventninger ga 731 beståtte og én bestått etter omprøving. 52 levende kildeprøver og 18 oppsettsavhengige lagringsprøver var utelatt fra denne kjøringen. De 17 separate TP-/CSV-forløpene på `196f6a7` dekket de 18 testene, der fellesprøven for sikkerhetskopi ble kjørt i flere forløp. Kontrollen verifiserte faktisk oppretting, lagring, omstart, gjenoppretting og gjenimport i isolert SQLite. I en tidligere Chromium-kjøring feilet flere testforventninger til gammel visningstekst. UiTs klientkontroll var et reelt appavvik. En separat lokal Firefox-kjøring krasjet før nettleserprøven, mens GitHub-kjøringen på samme SHA bestod både Firefox- og WebKit-prøvene.
+Med oppdaterte testforventninger bestod 731 lokale Chromium-tester på første forsøk mot `196f6a7`, og én bestod ved ny kjøring. 52 levende kildeprøver og 18 oppsettsavhengige lagringsprøver var utelatt fra denne kjøringen. De 17 separate TP-/CSV-forløpene på `196f6a7` dekket de 18 testene, der fellesprøven for sikkerhetskopi ble kjørt i flere forløp. Kontrollen verifiserte faktisk oppretting, lagring, omstart, gjenoppretting og gjenimport i isolert SQLite. I en tidligere Chromium-kjøring feilet flere testforventninger til gammel visningstekst. UiTs klientkontroll var et reelt appavvik. En separat lokal Firefox-kjøring krasjet før nettleserprøven, mens GitHub-kjøringen på samme SHA bestod både Firefox- og WebKit-prøvene.
 
 Isolert Docker-kontroll av `196f6a7` bygde og sammenlignet 189 filer brukt i driften. Den eksporterte 500 hendelser og 11 angreoppføringer. Filen var 13 357 837 UTF-8-byte. En fil på nøyaktig 20 000 000 byte ble gjenopprettet i tom SQLite. 20 000 001 byte og to ugyldige arbeidsloggkoblinger ble avvist. Gjenskaping av containeren med samme testvolum beholdt data, angrehistorikk og reservekopi. SQLite rapporterte `integrity_check` OK og null fremmednøkkelbrudd.
 
@@ -39,17 +39,17 @@ På den eksakte forhåndsvisningen av `3d4c029` var klasselisten tilgjengelig, m
 
 På forhåndsvisningen av `ccefa38` viste begge Fjellhaug-kall `arn1::fra1`. Klasselisten svarte HTTP 200, mens kalenderkallet fortsatt ga HTTP 504 før forhåndsvisning. Den samme direkte ICS-kilden svarte med 48 hendelser på 2,6 sekunder. HiMolde, Nord og ONH bestod på samme forhåndsvisning. Begge UiT-søkene traff et tidsavbrudd før emnevalg. Den tidligere identitets- og campusrettingen var verifisert på `196f6a7`.
 
-`b0774012a2ceeb4320441fe340e55eaebfa09a2a` fjerner regionendringen og avgrenser hvert Fjellhaug-oppslag til 7,5 sekunder per forsøk, inkludert DNS-oppslag og oppkobling. Verifiseringen av studentsiden, den valgte oversikten og kalenderen får ett omforsøk med ny tilkobling. Ved tidsavbrudd viser appen hvilket oppslag som stoppet. 120 målrettede enhetsprøver, produksjonsbygg med eksakt versjonsmarkør og den lokale prøven med faktisk BTFL-kilde bestod. Full lokal enhetssuite bestod 2 873 prøver i 160 filer med en 20-sekunders testgrense på Windows. [Kandidatcommit](https://github.com/IBE160-2026/G37-yilmaz/commit/b0774012a2ceeb4320441fe340e55eaebfa09a2a)
+`b0774012a2ceeb4320441fe340e55eaebfa09a2a` fjerner regionendringen og avgrenser hvert Fjellhaug-oppslag til 7,5 sekunder per forsøk, inkludert DNS-oppslag og oppkobling. Verifiseringen av studentsiden, den valgte oversikten og kalenderen får ett omforsøk med ny tilkobling. Ved tidsavbrudd viser appen hvilket oppslag som ble avbrutt. 120 målrettede enhetsprøver, produksjonsbygg med eksakt versjonsmarkør og den lokale prøven med faktisk BTFL-kilde bestod. Full lokal enhetssuite bestod 2 873 prøver i 160 filer med en 20-sekunders testgrense på Windows. [Kandidatcommit](https://github.com/IBE160-2026/G37-yilmaz/commit/b0774012a2ceeb4320441fe340e55eaebfa09a2a)
 
 Den fulle ordinære Chromium-suiten på `ccefa38` bestod med 732 aktive prøver og 70 utelatte, uten omprøving. Docker-prøven ble gjentatt på samme commit og bestod med 189 sammenlignede driftsfiler, 500 hendelser, 11 angreoppføringer, bytegrensene, de to ugyldige arbeidsloggkoblingene og identisk SQLite-tilstand og reservekopi etter gjenskaping. På `b077401` bestod også 37 målrettede enhetsprøver med den nyere matrisen, det separate 09.30-tilfellet og repetisjonsvinduene. [Planprøvene](../studieplanlegger/tests/unit/delivery-plan-regressions.test.js) · [Repetisjonsprøvene](../studieplanlegger/tests/unit/delivery-review-calendar.test.js)
 
-Fjellhaug bestod den levende omprøvingen på `b077401` kl. 01.33 norsk tid. BTFL 1. år ble valgt fra den publiserte PDF-oversikten, og de to kalenderkallene kjørte i `iad1`, svarte HTTP 200 og returnerte 48 hendelser ved begge forespørsler. Første kall tok 1,28 sekunder, og gjenimportkallet tok 1,04 sekunder. Nettleserprøven bekreftet forhåndsvisning, uttrykkelig aktivitetsvalg, lagring, omlasting, beholdt valg og identisk gjenimport. Offentlig versjonsmarkør samsvarte før og etter prøven.
+Fjellhaug bestod en ny test mot den publiserte kilden på `b077401` kl. 01.33 norsk tid. BTFL 1. år ble valgt fra den publiserte PDF-oversikten, og de to kalenderkallene kjørte i `iad1`, svarte HTTP 200 og returnerte 48 hendelser ved begge forespørsler. Første kall tok 1,28 sekunder, og gjenimportkallet tok 1,04 sekunder. Nettleserprøven bekreftet forhåndsvisning, uttrykkelig aktivitetsvalg, lagring, omlasting, beholdt valg og identisk gjenimport. Offentlig versjonsmarkør samsvarte før og etter prøven.
 
 GitHub-kvaliteten på `b077401` bestod med 2 873 enhetstester, produksjonsbygg, 252 Chromium-prøver, fire Firefox-/WebKit-prøver og 15 SQLite-prøver. Avhengighetskontrollen fant null kjente sårbarheter. Publiseringskontrollen på den eksakte forhåndsvisningen bestod 67 funksjonsprøver og seks levende V1-prøver. En separat kjøring på samme versjonsmarkør bestod 59 regresjonsprøver. HiMolde logistikk/SCM, Nord, ONH og UiT INF-0101 bestod levende nettleserprøver på samme kandidat. UiT FYS-3000 traff først et tidsavbrudd før emnevalg og bestod deretter søk, forhåndsvisning, lagring, omlasting og gjenimport ved omprøving. [GitHub-kvalitet](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/44645167049) · [Publiseringskontroll](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/44646823329) · [Forhåndsvisningens versjonsmarkør](https://ajour-brws71onb-ajour1.vercel.app/release.json)
 
 Filkontrollen sammenlignet 21 offentlige filer fra `b077401` med et isolert Git-bygg uten Windows-konvertering til CRLF. 20 filer var byteidentiske. Startsiden var identisk etter at det ene Vercel-skriptet for tilbakemelding i forhåndsvisningen var fjernet fra sammenligningen.
 
-Leveransen står åpen fordi originalmatrisen og de andre vedleggsspesifikke reproduksjonene mangler. Kandidatgrenen og forhåndsvisningen viste `b0774012a2ceeb4320441fe340e55eaebfa09a2a`. GitHub `main` og den offentlige hovedadressens versjonsmarkør viste `ce8babe2f112ae63a7ebfa30286798dd0eec6d50`. [Hovedadressens versjonsmarkør](https://ajour-sooty.vercel.app/release.json)
+Kandidatgrenen og forhåndsvisningen viste `b0774012a2ceeb4320441fe340e55eaebfa09a2a`. GitHub `main` og den offentlige hovedadressens versjonsmarkør viste `ce8babe2f112ae63a7ebfa30286798dd0eec6d50`. [Hovedadressens versjonsmarkør](https://ajour-sooty.vercel.app/release.json)
 
 ### Åpne punkter
 
@@ -63,19 +63,17 @@ Leveransen står åpen fordi originalmatrisen og de andre vedleggsspesifikke rep
 
 ### Oppgave
 
-Rette og omprøve de konkrete leveransefunnene, samordne dokumentasjonen og kontrollere at leveranseversjonen samsvarer med GitHub og produksjon. Faglærerens tilbakemelding om sjekkbare kriterier, studentens godkjenning og sporbar kvalitetssikring ligger til grunn. [Faglærertilbakemeldingen](../tilbakemelding-product-brief.md)
+Rette feilene, teste på nytt, oppdatere dokumentasjonen og kontrollere at samme versjon ligger på GitHub og på nettsiden. Faglærerens tilbakemelding om sjekkbare kriterier, studentens godkjenning og sporbar kvalitetssikring ligger til grunn. [Faglærertilbakemeldingen](../tilbakemelding-product-brief.md)
 
 ### Plan
 
 - Gjenskape nominelle og tvetydige fristimporter, transportavbrudd, kalender- og lagringsfunn, planberegninger og gammel økt-ID.
 - Bruke isolerte nettleserprofiler og testdatabaser. Knytte alle resultater til versjon og prøvemiljø.
-- Kontrollere kommandoveiledning, lenker og historiske opplysninger. Samle resultatene under Leveringsoversikt i README.
+- Kontrollere kommandoer, lenker og historiske opplysninger. Lenke til testresultatene fra README.
 
 ### Resultat
 
-Koderettingene og de nye regresjonsprøvene ligger i `a0ea535ac8e8668f19f7a38b9f636fd2920312d2`. Fjellhaug-avbruddene på `b077401` ble isolert til EduPage-oppslaget etter PDF-lesing. Rettingen prøver TLS 1.2 først for den ene kilden. 220 målrettede enhetstester, inkludert de 1 800 alternativene i nyere planmatrise, bestod på den nye kandidaten. Den samlede tekniske oppsummeringen viser hvert funn, omprøving, versjon og resultat. [Sluttkontrollen](../studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20) · [PR #34](https://github.com/IBE160-2026/G37-yilmaz/pull/34)
-
-Loggen med løpenummer 975 ble opprettet på kandidatgrenen i `3bbd5ed`. Henvisningen i README går til denne filen på GitHub. Kl. 13.55 den 19. november gjelder en Git-commit. Mottakstidspunktet i innleveringssystemet fremgår ikke av repoet. [Leveringsstatus](../.docs/planning-artifacts/README.md#leveringsstatus)
+Koderettingene og de nye regresjonsprøvene ligger i `a0ea535ac8e8668f19f7a38b9f636fd2920312d2`. Fjellhaug-avbruddene på `b077401` ble isolert til EduPage-oppslaget etter PDF-lesing. Rettingen prøver TLS 1.2 først for den ene kilden. 220 målrettede enhetstester, inkludert de 1 800 alternativene i nyere planmatrise, bestod på den nye kandidaten. Testrapporten viser hva som ble funnet, hvilken versjon som ble testet på nytt, og resultatet. [Sluttkontrollen](../studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20) · [PR #34](https://github.com/IBE160-2026/G37-yilmaz/pull/34)
 
 ### Åpne punkter
 

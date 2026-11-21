@@ -27,8 +27,8 @@ export function personalEstimate(state, task, { kind = 'task' } = {}) {
   const sameCourse = item => task.courseId ? item.task.courseId === task.courseId : Boolean(task.course) && item.task.course === task.course
   const sets = [ { scope: 'samme oppgavetype og emne', values: samples.filter(item => type(item) && sameCourse(item)) }, { scope: 'samme oppgavetype', values: samples.filter(type) }, { scope: 'hele den lokale historikken din', values: samples } ]
   const selected = sets.find(set => set.values.length >= 5)
-  if (!selected) return { available: false, count: samples.length, reason: `Minst 5 ${kind === 'task' ? 'fullførte oppgaver med bekreftet, fullstendig faktisk arbeidstid' : 'utførte økter uten avbrudd'} trengs. Du har ${samples.length}.` }
+  if (!selected) return { available: false, count: samples.length, reason: `Minst 5 ${kind === 'task' ? 'fullførte oppgaver der du har registrert all arbeidstid' : 'utførte økter uten avbrudd'} trengs. Du har ${samples.length}.` }
   const values = selected.values.map(item => item.minutes), value = round(median(values))
   return { available: true, kind, count: values.length, scope: selected.scope, minutes: value, range: [Math.min(...values), Math.max(...values)],
-    explanation: `Forslag: ${value} min. Median av ${values.length} ${kind === 'task' ? 'hele fullførte oppgaver' : 'utførte økter'} fra ${selected.scope}; registrert spenn ${Math.min(...values)}–${Math.max(...values)} min. Velg selv om dette passer.` }
+    explanation: `Forslag: ${value} min. Median av ${values.length} ${kind === 'task' ? 'fullførte oppgaver' : 'utførte økter'} fra ${selected.scope}. Tidene du har registrert varierer fra ${Math.min(...values)} til ${Math.max(...values)} min.` }
 }

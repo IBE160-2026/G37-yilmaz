@@ -22,8 +22,8 @@ export function createStudySessionView(actions) {
       dialog.setAttribute('aria-labelledby', heading.id)
       const range = getRemainingRange(task)
       const partial = getActionMinutes(task) > plannedMinutes || (!step && range?.maxMinutes === null)
-      const context = el('p', `Planlagt varighet: ${plannedMinutes} minutter. ${step ? `Oppgave: ${task.title}. ${partial ? 'Dette er en deløkt på arbeidssteget. ' : ''}Stegets tid er allerede inkludert i oppgavens gjenstående arbeid.` : `${partial ? 'Dette er en deløkt. ' : ''}Totalt gjenstående arbeid: ${formatEstimateRange(range)}.`}`)
-      const note = el('p', 'Start registrerer ikke fremdrift. Du bekrefter selv hva som skjedde når økten avsluttes.', 'muted')
+      const context = el('p', `Planlagt varighet: ${plannedMinutes} minutter. ${step ? `Oppgave: ${task.title}. ${partial ? 'Dette er en deløkt på arbeidssteget. ' : ''}Anslaget for hele oppgaven omfatter også dette steget.` : `${partial ? 'Dette er en deløkt. ' : ''}Totalt gjenstående arbeid: ${formatEstimateRange(range)}.`}`)
+      const note = el('p', 'Når økten er over, kan du registrere hvor lenge du jobbet og hva som gjenstår.', 'muted')
       const actionsRow = el('div', '', 'actions'), start = el('button', 'Start økten'), cancel = el('button', 'Avbryt', 'secondary')
       start.type = cancel.type = 'button'; cancel.onclick = close
       start.onclick = () => {

@@ -27,7 +27,7 @@ export function createWorkStepsView(actions) {
     if (!storedTask) { close(); return }
     const task = migrateLegacyStep(storedTask)
     applyCourseColor(dialog, resolvedCourseId(task))
-    dialog.replaceChildren(el('h2', `Arbeidssteg · ${task.title}`), el('p', 'Stegestimater er kontekst. De legges ikke til oppgavens gjenstående arbeid.', 'muted'))
+    dialog.replaceChildren(el('h2', `Arbeidssteg · ${task.title}`), el('p', 'Tidsanslagene her gjelder hvert steg. Oppdater tidsanslaget for hele oppgaven i selve oppgaven.', 'muted'))
     dialog.firstChild.id = 'work-steps-heading'; dialog.setAttribute('aria-labelledby', 'work-steps-heading')
     const stepError = el('p'); stepError.setAttribute('role', 'alert'); stepError.className = 'work-step-error'
     const list = el('ol', null, 'work-step-list')
@@ -86,7 +86,7 @@ export function createWorkStepsView(actions) {
     const showProposal = (rows, sourceId) => {
       const proposal = pendingProposal?.sourceId === sourceId ? pendingProposal.proposal : createWorkStepProposal({ sourceId, taskId: task.id, rows })
       pendingProposal = { rows: structuredClone(rows), sourceId, proposal }
-      preview.replaceChildren(el('p', 'Velg eksplisitt hvilke rader som skal bli arbeidssteg. Metode og uavklart er ikke valgt automatisk.'))
+      preview.replaceChildren(el('p', 'Velg hvilke punkter som skal bli arbeidssteg. Krav er valgt på forhånd.'))
       for (const entry of proposal.entries) {
         const label = el('label', null, 'check-label'), check = el('input'); check.type = 'checkbox'; check.checked = entry.included; check.onchange = () => { entry.included = check.checked }
         label.append(check, document.createTextNode(`${entry.category === 'requirement' ? 'Krav' : entry.category === 'method' ? 'Metode' : 'Uavklart'}: ${entry.title}`)); preview.append(label)
@@ -130,7 +130,7 @@ export function createWorkStepsView(actions) {
       } catch (error) {
         if (!isCurrent()) return
         importUi.box.open = importOpen = true
-        setStatus(`${error.message || 'Dokumentet kunne ikke leses.'} Lim inn teksten eller legg til steg manuelt; ingen data er lagret.`)
+        setStatus(`${error.message || 'Dokumentet kunne ikke leses.'} Lim inn teksten eller legg til steg selv. Ingen data er lagret.`)
       } finally { if (importController === controller) importController = null }
     }
     importBox.append(summary, area, fileLabel, prepare, importStatus, preview)

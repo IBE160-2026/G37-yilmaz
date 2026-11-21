@@ -4,7 +4,7 @@
 
 ### Oppgave
 
-Avklare den første tekniske rapportens stegkoblingsfunn, undersøke den faktiske Start-flyten og rette påviste feil innen eksisterende V1. Bevare historiske observasjoner og skille teknisk Codex-prøving fra prosjekteierens egenutprøving og R-07.
+Undersøke den første rapporten om koblingen til arbeidssteg, prøve Start og rette feilene. Bevare historiske observasjoner og skille teknisk Codex-prøving fra prosjekteierens egenutprøving og R-07.
 
 ### Plan
 
@@ -19,9 +19,9 @@ Kodecommit `a929c412341a38e786a68b0740f7b80c402a8614` inngår i [PR #19](https:/
 
 Den første Codex-prøven mot `285dfac8e8513ce969da50017531622f40f15a7f`, 2. november kl. 22:00:50–22:40:12 Europe/Oslo, brukte oppgaveplanlegging i scenario 2 og avsluttet denne oppgaveøkten i scenario 3. Oppgave-/øktkoblingen var bevart. Kravet om en ekstra stegkobling i denne flyten var en for sterk testantakelse; rapporten beviste ikke tap av et valgt steg. Originalrapport, daterte resultater og kildeutdrag beholdes. Avklaringen gir ingen beståttstatus til en uprøvd stegflyt.
 
-En separat produksjonsreproduksjon viste den reelle feilen: Start presenterte et navngitt steg, men utfallet mistet entydig stegidentitet. «Trenger mer tid», faktisk 0 minutter og nytt eksakt anslag 75 ble lagret med fortsatt 60 gjenstående. Dette var en kort simulert start, ikke dokumentert studiearbeid i 30 minutter.
+En separat produksjonsreproduksjon viste den reelle feilen: Start presenterte et navngitt steg, men utfallet mistet entydig stegidentitet. «Trenger mer tid», faktisk 0 minutter og nytt eksakt anslag 75 ble lagret med fortsatt 60 gjenstående. Prøven simulerte en kort start.
 
-Rettingen fører det presenterte stegets stabile `stepId` fra Start til utfall og arbeidslogg. Oppgavereservasjoner forblir på oppgavenivå. Faktisk tid og nytt oppgaveanslag lagres separat; stegfullføring, oppgavefullføring og levering er forskjellige handlinger. Loggkoblingen valideres mot `taskSnapshot`, og `taskCompleted` skiller fullføringsomfang ved gjentatt lagring også når resten er null. Eldre logger får ingen gjettede koblinger. Backup bevarer eksplisitte og avledede legacy-ID-er ved anonymisering, også med kollisjoner og historikk; eventuell materialisering av eldre steg skjer bare i eksportkopien.
+Rettingen beholder ID-en til steget som vises ved Start, helt frem til utfall og arbeidslogg. Oppgavereservasjoner forblir på oppgavenivå. Faktisk tid og nytt oppgaveanslag lagres separat; stegfullføring, oppgavefullføring og levering er forskjellige handlinger. Loggkoblingen valideres mot `taskSnapshot`, og `taskCompleted` skiller fullføringsomfang ved gjentatt lagring også når resten er null. Eldre logger får ingen gjettede koblinger. Backup bevarer eksplisitte og avledede legacy-ID-er ved anonymisering, også med kollisjoner og historikk; eventuell materialisering av eldre steg skjer bare i eksportkopien.
 
 Faktisk utførte sluttkontroller på kodekandidaten:
 
@@ -41,8 +41,8 @@ Dokumentasjon og kuraterte syntetiske bevis ble committet i `8669fc41c22584c5ce1
 
 PR #19 ble integrert 3. november kl. 00:19:51 Europe/Oslo som main-commit `b60455b808d3e3a3c92cf52fe8671db3e9c0d67a`, etter grønne push-/PR-kontroller og deploykontroll på siste kandidat `2496b79`. Main bestod nye 2652 enhetstester, 153 nettleserprøver, 14 SQLite-prøver og produksjonsbygg; Vercel kjørte 145 releasekontroller og rapporterte Ready i eksisterende prosjekt `ajour`. Produksjonens `/release.json` var lik main før og etter UI-prøven kl. **00:26:45–00:26:59**. To nye tomme kontekster bevarte kjent stegkobling, separate 0/75 minutter, tre framtidige oppgaveøkter uten gjettet stegkobling og alle data etter UI-gjenoppretting og omlasting. Den publiserte appfilen var byteidentisk med sjuscenariokandidaten. Den etterfølgende [produksjonskontrollen](https://github.com/IBE160-2026/G37-yilmaz/actions/runs/41545400372) bestod **60/60 runtimeprøver og 6/6 avgrensede faktiske kildeprøver**. [Rapportens daterte produksjonsoppføring](../.docs/implementation-artifacts/work-step-identity-2026-11-02.md#produksjon-etter-integrering--2026-11-03) inneholder syntetiske bevis. Senere dokumentcommiter er ikke denne kontrollerte main-SHA-en og må få separat sluttkontroll; denne loggen påstår ikke et resultat for en ennå ukjent commit.
 
-Dette er Codex-utførte tekniske kontroller med syntetiske brukerdata og særskilt oppgitte offentlige kildeoppslag. De er ikke prosjekteierens personlige observasjoner og oppfyller ikke automatisk R-07. Historiske beståtte enkeltprøver, SC-07/1200–30, Outlook-resultatet og dokumenterte dekningsgrenser beholdes. Ingen generell studentnytte eller formell innlevering er bekreftet gjennom denne rettingen.
+Codex gjennomførte de tekniske prøvene med syntetiske brukerdata og de oppgitte offentlige kildeoppslagene. Prosjekteierens prøver, blant annet SC-07/1200–30 og Outlook, har egne daterte resultater. Den tekniske kontrollen målte ikke generell studentnytte.
 
 ### Åpne punkter
 
-- Eksisterende åpne punkter i [issues.md](issues.md), inkludert F03/F05, kilde-/lagringsgrenser, bundlevarsel, personlig sluttkontroll, innlevering og historisk eksponering, beholdes. Denne rettingen lukker dem ikke.
+- [Sakslisten](issues.md) beskriver F03/F05, kilde- og lagringsgrenser, byggstørrelse og historisk eksponering.

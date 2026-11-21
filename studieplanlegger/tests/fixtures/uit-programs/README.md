@@ -1,10 +1,10 @@
-# UiT sine offentlige programkontrakter
+# Testfiler fra UiTs offentlige studiesider
 
-`b-inf.html` er et personvernminimert derivat. Kontaktkort, innebygde portrettbilder og markedsføringsintervjuer er fjernet fordi parseren ikke bruker dem. Programtittel, campus, oppbyggingslenke, dokumentidentitet og offentlige planlenker er bevart.
+I `b-inf.html` er kontaktkort, innebygde portrettbilder og markedsføringsintervjuer fjernet fordi parseren ikke bruker dem. Programtittel, campus, oppbyggingslenke, dokumentidentitet og offentlige planlenker er bevart.
 
 Gjennomgangen 25.10.2026 skilte felles ansattmeny og institusjonelle navigasjonslenker i `b-inf.html`, `b-inf-structure.html` og `catalogue.html` fra individuelle personprofiler; navigasjonen er beholdt. Faglige navn og kildeattribusjon er ikke personvernrestfelt. Den rekursive HTML/JSON-guarden og PDF-metadata-/parserkontraktene gjelder disse daterte opptakene og dokumenterer ikke fremtidige live-sider.
 
-HTML-opptak hentet 12.09.2026. Testene simulerer HTTP-transport, og er separate fra ekte eksterne adapter-/nettleserforløp.
+HTML-utdragene ble hentet 12.09.2026. De lokale testene simulerer HTTP-svar med disse utdragene.
 
 - `catalogue.html`: https://uit.no/utdanning . Alle 276 kort finnes i HTML; den publiserte Isotope-klienten filtrerer lokalt. Katalogens numeriske dokument-ID er ikke en offisiell studiekode.
 - `b-inf.html`: https://uit.no/utdanning/studieprogram/b-inf . Faktisk publisert lenke til `/utdanning/program/oppbygging?studkode=B-INF&p_document_id=279505`.

@@ -1,6 +1,6 @@
-Offentlige PHS-snapshots, hentet 12. september 2026. Hovedinnholdet er beholdt som lokale kontrakttester; dette er ikke i seg selv bevis på ekte import.
+Utdrag fra Politihøgskolens offentlige sider, hentet 12. september 2026. Hovedinnholdet er beholdt til lokale parsertester.
 
-Programsidene er personvernminimerte derivater. Personkontaktseksjonen er fjernet fra bachelor- og masteropptakene, mens programtittel, studiemodell, kull-/planlenker, emnestruktur og valgkrav er bevart.
+Kontaktopplysninger om personer er fjernet fra bachelor- og masterutdragene. Programtittel, studiemodell, lenker til kull og planer, emnestruktur og valgkrav er beholdt.
 
 - Katalog: https://www.politihogskolen.no/studier/master-etter-og-videreutdanninger/ (133 kort, også 17 engelske tilbud).
 - Bachelor: /studier/politiutdanning/, studieplaner/ og studieplaner/2026h.html.
