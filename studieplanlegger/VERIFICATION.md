@@ -1,5 +1,15 @@
 # Verifisering av Ajour
 
+## Fristvurdering og tekstregistrering 2026-11-21
+
+| Retting | Regresjon og resultat |
+| --- | --- |
+| Samme fristvurdering i Oversikt og Ukeplan | På `6467c48` viste Oversikt at planen gikk opp, mens ukeplanleggeren fikk plass til 50 av 60 minutter i tidsrommet 09.00–10.00 med 30 minutters økter, 10 minutters pause og frist kl. 11.00. Regresjonen på `b4d28b3` kontrollerer to økter på 30 og 20 minutter og 10 minutter som mangler i begge visningene. Uten pause får 30 + 30 minutter plass. Nettleserprøven sammenligner den lagrede planen byte for byte og kontrollerer at ingen skrivinger skjer. [Chromium-regresjoner](tests/e2e/own-trial-time-capacity.spec.js) · [Enhetstester](tests/unit/daily-guidance.test.js) |
+| Årsvalg ved fristendring | På den gamle versjonen manglet nedtrekkslisten. En syntetisk «Rapport» med testklokken satt til 21. november 2026 viser nå 2026 og 2027 etter «Endre fristen for Rapport til 5. januar». Prøven velger 2027, lagrer og bekrefter 5. januar 2027 etter omlasting. [Chromium-regresjon](tests/e2e/text-registration-exam.spec.js) |
+| Desimaltimer | Konverteringen regner på heltalls- og desimaldelene hver for seg. Testene kontrollerer 246 minutter for «4,1 timer», 90 minutter for «1,5 timer» og avvisning av «1,001 timer». [Parserprøver](tests/unit/text-registration.test.js) |
+
+På kodeversjon `b4d28b3` bestod hele enhetssuiten med **2 894 tester i 160 filer** og produksjonsbygget med 93 moduler. Vite viste det kjente varselet om store byggepakker. **45/45 Chromium-tester** bestod mot det isolerte produksjonsbygget. Utvalget dekket kapasitet og frist, tekstregistrering, bekreftelse og omlasting, og eksisterende planleggingsflyt i `own-trial-time-capacity`, `text-registration-exam`, `own-trial-text-registration-details`, `simple-planning-flow` og `own-trial-planning`. Prøvene brukte syntetiske data. [GitHub Actions](https://github.com/IBE160-2026/G37-yilmaz/actions) · [Publisert versjonsmarkør](https://ajour-sooty.vercel.app/release.json)
+
 ## Sluttkontroll 2026-11-20
 
 Ved oppstart viste GitHub `main` og hovednettstedets versjonsmarkør `ce8babe2f112ae63a7ebfa30286798dd0eec6d50`. Tidligere kandidat var `b0774012a2ceeb4320441fe340e55eaebfa09a2a`. **Revidert kodekandidat** er `a0ea535ac8e8668f19f7a38b9f636fd2920312d2`. Hver ny prøve nedenfor gjelder denne kandidaten med mindre en annen versjon er oppgitt. Oppfølging av integrering, publisering og nye tester på hovednettstedet ligger i PR #34. Versjonsmarkøren viser hvilken commit nettstedet kjører. [PR #34](https://github.com/IBE160-2026/G37-yilmaz/pull/34) · [Hovednettsted](https://ajour-sooty.vercel.app/) · [Versjonsmarkør](https://ajour-sooty.vercel.app/release.json)

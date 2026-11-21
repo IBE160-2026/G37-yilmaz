@@ -84,6 +84,8 @@ Du kan åpne **Se planforslag** rett etter lagring. Første gang kan du velge da
 
 Trykk **Lag forslag** etter å ha skrevet en kort oppgavetittel, for eksempel «Øve på koding». Skriv «uten emne» eller «ikke et emne» for å fjerne emnet fra forslaget. Skriv «vet ikke» eller «mye» når du mangler tidsanslag. Kontroller forslaget før du lagrer. Når du skriver dag og måned uten år, bruker Ajour inneværende år i Oslo. Hvis datoen har passert, må du velge år.
 
+Årsvalget vises også når du endrer fristen på en oppgave. Skriver du «Endre fristen for Rapport til 5. januar» den 21. november 2026, viser Ajour 2026 og 2027 før du bekrefter. Tidsanslag kan skrives i desimaltimer så lenge de tilsvarer hele minutter: «4,1 timer» gir 246 minutter og «1,5 timer» gir 90 minutter. «1,001 timer» må erstattes med et anslag i hele minutter.
+
 Et kjent intervall som «Tannlege 4.10 kl. 12–13» foreslås som en egen aktivitet uten emne eller importkilde. «Egen aktivitet: Ring banken 4.10» beholder ukjent klokkeslett, og en aktivitet med bare start beholder ukjent varighet. Bare komplette start-/sluttintervaller reserverer kapasitet; ufullstendige tider vises som usikkerhet. Egne aktiviteter kan redigeres eller slettes fra emne-/aktivitetsflaten og tas bare med i kalenderkopien når **Egne aktiviteter** velges uttrykkelig.
 
 ## Importer en plan
@@ -127,6 +129,8 @@ Under **Fra kalenderlenke** kan du hente et **øyeblikksbilde** og avklare emner
 ## Planlegg og oppdater fremdrift
 
 Under **Planlegg uken** kan du legge inn når du har tid til å studere og når du er opptatt. Ajour trekker fra undervisning og annen opptatt tid. Hvert opptatte minutt trekkes fra én gang, også når avtaler overlapper. Når studietid eller tidsanslag mangler, viser Ajour hva som er usikkert. Planforslaget tar også hensyn til øktlengder, pauser og overgangen mellom sommer- og vintertid.
+
+Oversikt og Ukeplan vurderer om oppgaven får plass før fristen med samme regler. Med én ledig time, økter på 30 minutter og 10 minutters pause får en oppgave på 60 minutter plass til 50 minutter. Begge visningene viser at det mangler 10 minutter. Uten pausen får hele oppgaven plass. Åpning av Oversikt endrer ikke planen.
 
 **Status i dag** viser hvor mye arbeid og tid du har registrert. Under **Jeg har tid nå** velger du 15, 30, 45, 60 minutter eller en egen varighet. Du får opptil tre forslag med begrunnelse. **Se realistisk forslag** viser hvilke økter som kan legges til, deles eller flyttes, og hvor mye arbeid det eventuelt fortsatt mangler tid til. Ajour tar hensyn til faste aktiviteter, låste studieøkter, frister, avhengigheter, delingsvalg, øktlengder og pauser. Du kan godkjenne eller angre hele planendringen samlet.
 
