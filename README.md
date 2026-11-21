@@ -14,7 +14,7 @@ Ajour er laget i **IBE160 Programmering med KI** (15 studiepoeng) ved Høgskolen
 
 Du kan legge inn alt for hånd eller importere opplysninger og se over dem før du lagrer. [Brukerveiledningen](studieplanlegger/README.md#kom-i-gang-og-finn-frem) viser hvordan du bruker appen.
 
-Oversikt og Ukeplan tar hensyn til de samme øktlengdene og pausene når de vurderer om en oppgave rekker fristen. I tekstfeltet kan du velge år når en ny frist er tvetydig, og skrive tidsanslag som «4,1 timer». [Slik bruker du tekstfeltet](studieplanlegger/README.md#fleksibel-tekstregistrering-og-egne-aktiviteter)
+Registrer når du kan studere for å få en fristvurdering. Statuskortet i Oversikt åpner planforslaget vurderingen bygger på. I tekstfeltet kan du velge år eller skrive det selv, og skrive tidsanslag som «4,1 timer». [Slik bruker du tekstfeltet](studieplanlegger/README.md#fleksibel-tekstregistrering-og-egne-aktiviteter)
 
 <a id="nettleserutgave--2026-10-29"></a>
 
@@ -33,7 +33,7 @@ Nettutgaven lagrer planen i nettleserprofilen du bruker, på den aktuelle nettad
 | Bruke appen | [Brukerveiledning](studieplanlegger/README.md) og [slik virker løsningen](.docs/implementation-artifacts/solution-guide.md) |
 | Se hva som kan importeres | [Importveiledning](studieplanlegger/IMPORT.md), [importdekning](studieplanlegger/IMPORT-COVERAGE.md) og [TPs CSV-format](.docs/implementation-artifacts/tp-csv-format-contract-2026-10-23.md) |
 | Se mål, krav og designvalg | [Produktbeskrivelse](brief.md), [planleggingsdokumenter](.docs/planning-artifacts/README.md) og [arkitektur](.docs/planning-artifacts/architecture/architecture-studieplanlegger-2026-09-06/ARCHITECTURE-SPINE.md) |
-| Se tester og kjente begrensninger | [Testresultater](studieplanlegger/VERIFICATION.md#fristvurdering-og-tekstregistrering-2026-11-21), [manuell utprøving](.docs/implementation-artifacts/owner-trial-2026-11-04.md), [kjente begrensninger](studieplanlegger/README.md#kjente-begrensninger) og [åpne saker](.logs/issues.md) |
+| Se tester og kjente begrensninger | [Testresultater](studieplanlegger/VERIFICATION.md#planforslag-friststatus-og-årsvalg-2026-11-21), [manuell utprøving](.docs/implementation-artifacts/owner-trial-2026-11-04.md), [kjente begrensninger](studieplanlegger/README.md#kjente-begrensninger) og [åpne saker](.logs/issues.md) |
 | Lese om utvikling og KI-bruk | [Utviklingsprosess, KI-bruk og feilretting](.docs/implementation-artifacts/development-process.md) og [refleksjonsrapport](.docs/submission/reflection-report.md) |
 | Se teknisk oppfølging | [Sluttkontroll 20. november](studieplanlegger/VERIFICATION.md#sluttkontroll-2026-11-20), [filimport og testoppfølging 4. november](.docs/implementation-artifacts/import-sequencing-audit-2026-11-04.md) og [opprydding i Git-historikken 9. november](.docs/implementation-artifacts/history-cleanup-2026-11-09.md) |
 

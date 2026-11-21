@@ -54,39 +54,30 @@ export function dailyStatus(model, planPreview = previewStudyPlan) {
   if (task.completed && task.requiresSubmission && !task.submitted) return { tone: 'neutral', title: task.title, text: `Oppgaven «${task.title}» er klar til levering. Velg «Bekreft levering» når du har levert den.`, taskId: task.id, assessable: true }
   const range = getRemainingRange(task)
   if (isOverdue(task, now)) return { tone: 'danger', title: task.title, text: `Fristen for «${task.title}» har gått ut. ${range ? `Du har registrert ${formatEstimateRange(range)} arbeid igjen.` : 'Gjenstående arbeid er ukjent.'}`, taskId: task.id, assessable: Boolean(range), availableMinutes: 0, missingMinMinutes: range?.minMinutes ?? null, missingMaxMinutes: range?.maxMinutes ?? null }
-  const entry = model.capacity?.tasks?.find(item => item.taskId === task.id)
   const blockers = taskBlockers(task, model.tasks)
   const openEstimate = range?.maxMinutes === null
   const estimateNote = openEstimate ? `${range.minMinutes === 241 ? 'Du har oppgitt mer enn fire timer.' : `Du har oppgitt minst ${range.minMinutes} minutter.`} Øvre anslag er ukjent.` : ''
-  let available = entry?.availableBeforeMinutes
-  let missingMin = openEstimate ? knownMinimumShortage(range, available) : entry?.missingMinMinutes
-  let missingMax = entry?.missingMaxMinutes
-  let reason = !range ? 'Gjenstående arbeid er ukjent.' : !task.deadlineLocal ? 'Fristen er ikke registrert.' : blockers.length ? blockers.map(item => item.reason).join(' ') : ''
-  let scheduled = false
+  const cannotAssess = reason => ({
+    tone: 'neutral', title: task.title, text: ['Kan ikke vurderes ennå.', reason, estimateNote].filter(Boolean).join(' '),
+    taskId: task.id, assessable: false,
+  })
+  if (!range) return cannotAssess('Gjenstående arbeid er ukjent.')
+  if (!task.deadlineLocal) return cannotAssess('Fristen er ikke registrert.')
+  if (!model.workWindows?.length) {
+    return cannotAssess(blockers.map(item => item.reason).join(' ') || 'Registrer når du kan studere under Planlegg uken.')
+  }
 
-  // Confirmed work windows let the same preview as Ukeplan account for pauses,
-  // reservations and task order. Legacy sessions alone still use raw capacity.
-  if (range && task.deadlineLocal && model.workWindows?.length) {
-    const preview = planPreview(model, { now })
-    if (preview.ok && Object.hasOwn(preview.retainedMinutes, task.id)) {
-      const deficit = preview.deficitRanges[task.id]
-      available = preview.allocatedMinutes[task.id] + preview.retainedMinutes[task.id]
-      missingMin = deficit?.minMinutes ?? 0
-      missingMax = openEstimate ? null : deficit?.maxMinutes ?? 0
-      reason = ''
-      scheduled = true
-    } else {
-      reason = preview.error || preview.blockedTasks?.find(item => item.taskId === task.id)?.reason
-        || (range.maxMinutes === 0 ? 'Gjenstående arbeid er satt til 0. Bekreft status for oppgaven.' : 'Fristen må avklares før tiden kan planlegges.')
-    }
+  const preview = planPreview(model, { now })
+  if (!preview.ok || !Object.hasOwn(preview.retainedMinutes, task.id)) {
+    const reason = preview.error || preview.blockedTasks?.find(item => item.taskId === task.id)?.reason
+      || (range.maxMinutes === 0 ? 'Gjenstående arbeid er satt til 0. Bekreft status for oppgaven.' : 'Fristen må avklares før tiden kan planlegges.')
+    return cannotAssess(reason)
   }
-  if (reason || available == null) {
-    reason ||= 'Registrer arbeidstid før fristen.'
-    return { tone: 'neutral', title: task.title, text: ['Kan ikke vurderes ennå.', reason, estimateNote].filter(Boolean).join(' '), taskId: task.id, assessable: false }
-  }
-  const timeBasis = scheduled
-    ? `Ukeplanen får plass til ${formatDuration(available)} før fristen.${blockers.length ? ' Forslaget forutsetter at de andre oppgavene blir ferdige først.' : ''}`
-    : `Du har ${formatDuration(available)} tilgjengelig${openEstimate && task.splittable === false ? ' i den lengste sammenhengende perioden' : ''} før fristen.`
+  const deficit = preview.deficitRanges[task.id]
+  const available = preview.allocatedMinutes[task.id] + preview.retainedMinutes[task.id]
+  const missingMin = deficit?.minMinutes ?? 0
+  const missingMax = openEstimate ? null : deficit?.maxMinutes ?? 0
+  const timeBasis = `Ukeplanen får plass til ${formatDuration(available)} før fristen.${blockers.length ? ' Forslaget forutsetter at de andre oppgavene blir ferdige først.' : ''}`
   if (openEstimate) {
     const text = `${timeBasis} ${missingMin ? `Minst ${missingMin} minutter mangler. ` : ''}${estimateNote}`
     return { tone: missingMin ? 'danger' : 'neutral', title: task.title, text, taskId: task.id, assessable: missingMin > 0, availableMinutes: available, missingMinMinutes: missingMin, missingMaxMinutes: null }

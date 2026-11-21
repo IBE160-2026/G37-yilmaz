@@ -78,6 +78,45 @@ test('changing a past day and month offers both years and saves the chosen deadl
   expect((await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)).tasks).toHaveLength(1)
 })
 
+test('editing a deadline updates the year picker and saves the explicit year after reload', async ({ page }) => {
+  await freeze(page, '2026-11-21T12:00:00+01:00')
+  await installState(page, { tasks: [{ ...baseTask('a'), title: 'Rapport', deadlineLocal: '2026-12-01' }] })
+  const registration = page.locator('#text-registration')
+  await registration.getByLabel('Skriv hva du vil legge til eller endre').fill('Endre fristen for Rapport til 5. januar')
+  await registration.getByRole('button', { name: 'Lag forslag' }).click()
+
+  const deadline = registration.getByLabel('Ny frist')
+  const year = registration.getByLabel('Hvilket år?')
+  const confirm = registration.getByRole('button', { name: 'Lagre endring' })
+  await expect(year).toBeVisible()
+  await expect(year.locator('option')).toHaveText(['Velg år', '2026', '2027'])
+  await expect(confirm).toBeDisabled()
+
+  await deadline.fill('5. januar 2028')
+  await expect(year).toBeHidden()
+  await expect(confirm).toBeEnabled()
+  await expect(registration.getByRole('status')).not.toContainText('Velg år')
+
+  await deadline.fill('5. januar')
+  await expect(year).toBeVisible()
+  await expect(year.locator('option')).toHaveText(['Velg år', '2026', '2027'])
+  await expect(confirm).toBeDisabled()
+  await year.selectOption('2027')
+  await deadline.fill('5. januar 2028')
+  await expect(year).toBeHidden()
+  await expect(confirm).toBeEnabled()
+  expect(await page.evaluate(() => window.writeAttempts.length)).toBe(0)
+  await confirm.click()
+  await expect(registration.getByRole('button', { name: 'Angre' })).toBeVisible()
+
+  await page.reload()
+  await expect(page.locator('#view-all')).toBeVisible()
+  await navigate(page, 'all')
+  const task = page.locator('#task-list > li').filter({ hasText: 'Rapport' })
+  await expect(task.locator('time[datetime="2028-01-05"]')).toHaveText('5. januar 2028')
+  expect((await page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)).tasks).toMatchObject([{ id: 'a', deadlineLocal: '2028-01-05' }])
+})
+
 test('text proposal writes once, is undoable, and exams use shared marking', async ({ page }) => {
   await freeze(page, '2026-09-29T12:00:00+02:00')
   const events = [event('exam', 'Avsluttende prøve', 'exam'), event('prep', 'Eksamensforberedelse')]

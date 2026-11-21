@@ -143,16 +143,47 @@ export function createTextRegistrationView(host, actions) {
       }
       proposal.append(oldLine, field('Nytt gjenstående arbeid', 'remainingInput', current.remainingMinutes != null ? `${current.remainingMinutes} min` : current.remainingInput || ''))
     }
-    if (current.needsYearChoice && current.yearChoices?.length) {
-      const wrapper = node('label', '', 'text-registration-field'); yearSelect = document.createElement('select'); yearSelect.name = 'yearChoice'; yearSelect.append(new Option('Velg år', ''))
-      for (const year of current.yearChoices) yearSelect.append(new Option(String(year), String(year)))
-      wrapper.append(node('span', 'Hvilket år?'), yearSelect); proposal.append(wrapper)
+    const dateName = ['activity', 'ambiguous-date'].includes(current.action) ? 'dateInput' : 'deadlineInput'
+    const dateField = proposal.elements.namedItem(dateName)
+    let updateYearChoice = () => {}
+    if (dateField) {
+      const referenceTime = new Date(current.referenceTime)
+      const readDate = () => parseOsloDeadline(dateField.value, referenceTime)
+      const initialDate = readDate()
+      const yearNotice = [...feedback.children].find(child => initialDate.needsYearChoice && child.textContent === initialDate.error)
+        ?? node('p', '', 'field-error')
+      const wrapper = node('label', '', 'text-registration-field')
+      yearSelect = document.createElement('select')
+      yearSelect.name = 'yearChoice'
+      yearSelect.append(new Option('Velg år', ''))
+      wrapper.append(node('span', 'Hvilket år?'), yearSelect)
+      proposal.append(wrapper)
+      updateYearChoice = () => {
+        const date = readDate()
+        wrapper.hidden = yearSelect.disabled = !date.needsYearChoice
+        if (yearSelect.disabled) yearSelect.value = ''
+        else if (yearSelect.options.length === 1) {
+          for (const year of date.yearChoices) yearSelect.append(new Option(String(year), String(year)))
+        }
+        if (yearSelect.disabled || yearSelect.value) yearNotice.remove()
+        else if (!yearNotice.isConnected) {
+          yearNotice.textContent = date.error
+          feedback.append(yearNotice)
+        }
+      }
     }
     const controls = node('div', '', 'actions'), actionLabel = current.action === 'ambiguous-date' ? 'Velg handling' : current.action === 'activity' ? 'Legg til aktivitet' : current.action === 'create' ? 'Legg til oppgave' : 'Lagre endring', confirm = node('button', actionLabel), cancel = node('button', 'Avbryt', 'secondary')
-    const refreshConfirm = () => { confirm.disabled = Boolean(actionSelect && !actionSelect.value || yearSelect && !yearSelect.value); if (actionSelect) confirm.textContent = actionSelect.value === 'activity' ? 'Legg til aktivitet' : actionSelect.value === 'create' ? 'Legg til oppgave' : 'Velg handling' }
-    actionSelect?.addEventListener('change', refreshConfirm); yearSelect?.addEventListener('change', refreshConfirm); refreshConfirm()
+    const renderSummary = updateSummary
+    updateSummary = () => {
+      updateYearChoice()
+      confirm.disabled = busy || Boolean(actionSelect && !actionSelect.value || yearSelect && !yearSelect.disabled && !yearSelect.value)
+      if (actionSelect) confirm.textContent = actionSelect.value === 'activity' ? 'Legg til aktivitet' : actionSelect.value === 'create' ? 'Legg til oppgave' : 'Velg handling'
+      renderSummary()
+    }
     confirm.type = 'submit'; cancel.type = 'button'; cancel.addEventListener('click', () => { current = null; proposal.hidden = true; feedback.replaceChildren(); input.focus() })
-    controls.append(confirm, cancel); proposal.append(controls); updateSummary(); proposal.hidden = false; (actionSelect || confirm).focus({ preventScroll: true })
+    controls.append(confirm, cancel); proposal.append(controls); updateSummary(); proposal.hidden = false
+    const firstDecision = actionSelect || (yearSelect && !yearSelect.disabled ? yearSelect : confirm)
+    firstDecision.focus({ preventScroll: true })
   }
   for (const eventName of ['input', 'change']) proposal.addEventListener(eventName, () => { if (current) updateSummary() })
   form.addEventListener('submit', event => { event.preventDefault(); show(parseTextRegistration(input.value, { tasks: lastModel.tasks, courses: lastModel.planner?.courses, now: lastModel.now })) })

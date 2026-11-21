@@ -199,7 +199,7 @@ describe('delivery plan regressions', () => {
   it('P09 shows the known shortage with 30 minutes available of at least 241', () => {
     const work = task('minimum', { ...open, deadlineLocal: `${date}T09:30` })
     const capacity = deriveWorkCapacity([work], [], now, [], [window(540, 570)])
-    const status = dailyStatus({ now, capacity, tasks: [work] })
+    const status = dailyStatus({ now, workWindows: [window(540, 570)], tasks: [work] })
     expect(status).toMatchObject({ availableMinutes: 30, missingMinMinutes: 211, missingMaxMinutes: null, assessable: true })
     expect(status.text).toContain('Minst 211 minutter mangler. Du har oppgitt mer enn fire timer. Øvre anslag er ukjent.')
     expect(capacityNotice(work, [], [], now, capacity.tasks[0])).toMatchObject({ tone: 'danger', text: 'Minst 211 minutter mangler.' })
