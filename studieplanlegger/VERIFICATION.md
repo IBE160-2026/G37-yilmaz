@@ -1,5 +1,17 @@
 # Verifisering av Ajour
 
+## Planforslag, friststatus og årsvalg 2026-11-21
+
+Alle tre avvikene ble gjenskapt med syntetiske data på kodeversjonen `6a8d90e`.
+
+| Tilfelle | Før retting | Regresjonskontroll |
+| --- | --- | --- |
+| Statuskortets planforslag | Oversikt viste at Rapport rakk fristen, men knappen åpnet et forslag for Rapport alene som manglet 60 minutter. | Knappen åpner ukeplanforslaget med Rapport kl. 09–10 og Les kapittel flyttet fra kl. 09–10 til kl. 10–11. Åpning og avbrudd gir null lagringsforsøk. Oppgavelisten åpner fortsatt forslag for én uttrykkelig valgt oppgave. [Nettlesertest](tests/e2e/simple-planning-flow.spec.js) |
+| Ufordelt studieøkt | Med en ufordelt økt kl. 09–10 foreslo Ukeplan ingen økt for oppgaven. Oversikt viste grønt når arbeidstidsfeltet manglet, og ba generelt om arbeidstid når listen var tom. | Begge lagringsformene gir nå beskjed om å registrere studietid under Planlegg uken. Prøvene med registrert arbeidstid kontrollerer fortsatt 50 minutter med pause og 60 uten. [Nettlesertester](tests/e2e/own-trial-time-capacity.spec.js) · [Enhetstester](tests/unit/daily-guidance.test.js) |
+| År skrevet i fristfeltet | Årsvelgeren var fortsatt synlig etter at brukeren endret datoen fra «5. januar» til «5. januar 2028». | Med testdato 21. november 2026 forsvinner årsvelgeren ved eksplisitt år og kommer tilbake når året fjernes. Et tidligere valg av 2027 overstyrer ikke 2028. Rapport viser 5. januar 2028 etter lagring og omlasting. [Nettlesertest](tests/e2e/text-registration-exam.spec.js) |
+
+På kodeversjon `e117e83` bestod **2 895 enhetstester i 160 filer**, det ordinære produksjonsbygget (93 moduler) og **95 Chromium-tester** mot det isolerte bygget. Nettleserutvalget omfattet de nye tilfellene og tidligere regresjoner for planlegging, frister, tidsanslag, tekstregistrering og dokumentimport. Vite viste det kjente varselet om store byggepakker. [GitHub Actions](https://github.com/IBE160-2026/G37-yilmaz/actions)
+
 ## Fristvurdering og tekstregistrering 2026-11-21
 
 | Retting | Regresjon og resultat |

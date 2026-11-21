@@ -2,6 +2,12 @@
 
 This document records verifiable facts about how Ajour was developed with AI assistance and BMAD. It is not the student's personal reflection report and does not claim personal learning, user value, or experience that has not been documented.
 
+## Planforslag, friststatus og årstall — 2026-11-21
+
+På `6a8d90e` kunne statuskortet ta høyde for at en annen oppgaves økt ble flyttet, mens knappen åpnet et forslag for bare én oppgave. Kortet åpner nå ukeplanforslaget, som kan flytte den andre økten. Planforslag fra én valgt oppgave kan fortsatt avgrenses. En ufordelt studieøkt kunne gi grønn friststatus i eldre planer uten arbeidstidsfelt. Oversikt ber nå om registrert studietid før den vurderer fristen. Årsvelgeren kunne bli stående etter at studenten skrev et årstall i datofeltet. Forslaget oppdaterer valgene under redigering og bruker årstallet i feltet når det er oppgitt.
+
+[Testoversikten](../../studieplanlegger/VERIFICATION.md#planforslag-friststatus-og-årsvalg-2026-11-21) viser tilfellene som ble gjenskapt og testene som ble kjørt. Nettlesertestene brukte syntetiske oppgaver og isolert lagring.
+
 ## Import sequencing audit follow-up — 2026-11-04
 
 The supplied audit identified two additional defects despite the earlier passing suites: an older work-step document read or backup read could finish after a newer selection and replace its proposal. [The follow-up report](import-sequencing-audit-2026-11-04.md) records the fixes, targeted regression tests, actual execution results and publication status. This is technical follow-up to the existing requirement that delayed responses must not overwrite newer drafts; it does not expand V1 or invalidate the owner's documented seven-scenario trial.
