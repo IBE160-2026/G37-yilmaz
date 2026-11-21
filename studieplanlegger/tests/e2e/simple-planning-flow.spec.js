@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { freeze, navigate, openRowMenu, row } from './helpers.js'
+import { freeze, instrumentWrites, navigate, openRowMenu, raw, row, writes } from './helpers.js'
 
 const key = 'studieplanlegger:v1'
 const stored = page => page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)), key)
@@ -241,11 +241,52 @@ test('varies uses concrete candidates and clears an obsolete recurring pattern',
   expect(after.studyTimePreference).toBeUndefined()
 })
 
-test('danger status opens the affected task and rule edits recompute the visible draft', async ({ page }) => {
+test('Statuskortet åpner planen som flytter lesingen og gir tid til Rapport før fristen', async ({ page }) => {
+  const report = task('report', { title: 'Rapport', remainingMinutes: 60, deadlineLocal: '2026-09-25T10:00' })
+  const reading = task('reading', { title: 'Les kapittel', remainingMinutes: 60, deadlineLocal: '2026-09-25T11:00' })
+  await instrumentWrites(page)
+  await seed(page, {
+    schemaVersion: 1,
+    tasks: [report, reading],
+    sessions: [{ id: 'reading-session', taskId: reading.id, dateLocal: '2026-09-25', startTime: '09:00', endTime: '10:00' }],
+    workWindows: [{ id: 'morning', start: '2026-09-25T07:00:00Z', end: '2026-09-25T09:00:00Z' }],
+    planningPreferences: { sessionMinutes: 60, minimumMinutes: 60, maximumMinutes: 60, breakMinutes: 0 },
+    onboarding: { dismissed: true, completed: true },
+  })
+
+  const overview = page.locator('#daily-overview')
+  await expect(overview.getByRole('status')).toContainText('Rapport')
+  await expect(overview.getByRole('status')).toContainText('Planen går opp')
+  const before = await raw(page)
+  const opener = overview.getByRole('button', { name: 'Se forslag til ny tid', exact: true })
+  await opener.click()
+
+  const preview = page.locator('dialog[open] .replanning-preview')
+  const reportRow = preview.locator('article').filter({ has: page.getByRole('heading', { name: report.title, exact: true }) })
+  const readingRow = preview.locator('article').filter({ has: page.getByRole('heading', { name: reading.title, exact: true }) })
+  await expect(reportRow.locator('.proposed-session-time')).toContainText('09:00–10:00 · 60 min')
+  await expect(readingRow.locator('.proposed-session-time')).toContainText('10:00–11:00 · 60 min')
+  await expect(readingRow).toContainText(/Flyttes fra .*09:00–10:00/)
+  expect(await raw(page)).toBe(before)
+  expect(await writes(page)).toEqual([])
+
+  await page.getByRole('dialog').getByRole('button', { name: 'Ikke nå', exact: true }).click()
+  await expect(opener).toBeFocused()
+  expect(await raw(page)).toBe(before)
+  expect(await writes(page)).toEqual([])
+
+  await navigate(page, 'all')
+  await row(page, reading.title).getByRole('button', { name: /^Se planforslag/ }).click()
+  const scoped = page.getByRole('dialog', { name: 'Planforslag for oppgaven' })
+  await expect(scoped.locator('article h3')).toHaveText([reading.title])
+  await expect(scoped.locator('.proposed-session-time')).toContainText('09:00–10:00 · 60 min')
+})
+
+test('danger status opens the weekly plan and rule edits recompute the visible draft', async ({ page }) => {
   await seed(page, { schemaVersion: 1, tasks: [task('urgent', { remainingMinutes: 60, deadlineLocal: '2026-09-25T12:00' })], sessions: [], onboarding: { dismissed: true, completed: true },
     workWindows: [{ id: 'short', label: 'Kort vindu', start: '2026-09-25T08:00:00Z', end: '2026-09-25T08:30:00Z' }], busyWindows: [] })
   await page.getByRole('button', { name: 'Se realistisk forslag' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Planforslag for oppgaven' })
+  const dialog = page.getByRole('dialog', { name: 'Realistisk planforslag' })
   await expect(dialog).toContainText('Oppgave urgent')
   await expect(dialog.locator('.proposed-session-time')).toContainText('30 min')
   await dialog.locator('.planning-rules').getByText('Øktlengde og pauser').click()

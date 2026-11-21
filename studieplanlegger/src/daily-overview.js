@@ -62,7 +62,7 @@ export function createDailyOverview(actions) {
     return weekPreview
   }
   // Keep the opener node alive while model.editing changes during a dialog.
-  const replanControl = button('Se forslag til ny tid', 'status:replan', () => !statusTask ? actions.open() : statusTask.completed ? actions.summary('ready') : actions.replan(statusTask.id))
+  const replanControl = button('Se forslag til ny tid', 'status:replan', () => !statusTask ? actions.open() : statusTask.completed ? actions.summary('ready') : actions.replan())
   return { render(model) {
     grid.hidden = host.hidden = planHost.hidden = model.view !== 'overview' || !model.readable || !(model.tasks.length || model.sessions?.length || model.planner?.courses?.length || model.planner?.events?.length); if (host.hidden) return
     const now = +model.now, date = calendarToday(model.now), data = dailyOverview(model), entries = calendarEntries(model), status = dailyStatus(model, planPreview), next = JSON.stringify([date, data, entries, status, model.planner?.courses, model.capacity, model.editing, data.activity && data.activity.start <= +model.now, data.rows.map(row => row.sessions.map(s => [s.start <= +model.now, s.end <= +model.now]))]); if (signature === next) return; signature = next
