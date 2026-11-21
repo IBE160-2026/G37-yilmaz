@@ -8,6 +8,8 @@ import { editTask, getRemainingRange, validTasks } from '../../src/tasks.js'
 const now = new Date('2026-09-07T09:00:00+02:00')
 const task = (id, patch = {}) => ({ id, title: `Oppgave ${id}`, course: 'IBE160', deadlineLocal: '2026-09-07T15:00', estimatedMinutes: 60, completed: false, ...patch })
 const session = (id, startTime, endTime, patch = {}) => ({ id, dateLocal: '2026-09-07', startTime, endTime, ...patch })
+const workWindow = (start, end) => ({ id: start, start: `2026-09-07T${start}:00+02:00`, end: `2026-09-07T${end}:00+02:00` })
+const noPause = { minimumMinutes: 15, sessionMinutes: 30, maximumMinutes: 60, breakMinutes: 0 }
 
 describe('dagsstatus med intervaller og faktisk kapasitet', () => {
   it.each([[10, 50, 10], [0, 60, 0]])('bruker ukeplanens økter og underskudd med %i min pause', (breakMinutes, plannedMinutes, missingMinutes) => {
@@ -31,8 +33,7 @@ describe('dagsstatus med intervaller og faktisk kapasitet', () => {
 
   it('viser at det kan mangle opptil 45 minutter for 1–2 timer med 75 minutter ledig', () => {
     const tasks = [task('presentasjon', { title: 'Presentasjonen', estimatedMinutes: undefined, remainingEstimate: { minMinutes: 60, maxMinutes: 120 } })]
-    const capacity = deriveCapacity(tasks, [session('ledig', '10:00', '11:15')], now)
-    const status = dailyStatus({ tasks, capacity, now })
+    const status = dailyStatus({ tasks, now, workWindows: [workWindow('10:00', '11:15')], planningPreferences: noPause })
     expect(status).toMatchObject({ tone: 'danger', availableMinutes: 75, missingMinMinutes: 0, missingMaxMinutes: 45 })
     expect(status.text).toContain('1–2 timer')
     expect(status.text).toContain('Det kan mangle opptil 45 minutter')
@@ -55,20 +56,23 @@ describe('dagsstatus med intervaller og faktisk kapasitet', () => {
       { id: 'a', start: '2026-09-07T08:00:00Z', end: '2026-09-07T08:30:00Z' },
       { id: 'b', start: '2026-09-07T09:00:00Z', end: '2026-09-07T09:30:00Z' },
     ] } },
-  ])('viser samme underskudd som kapasitetsberegningen for to adskilte $label', ({ sessions, options }) => {
+  ])('kan ikke fordele udelelig arbeid over to adskilte $label', ({ sessions, options }) => {
     const tasks = [task('samlet', { splittable: false })]
     const capacity = deriveCapacity(tasks, sessions, now, [], options)
     expect(capacity.tasks[0]).toMatchObject({ allocatedMinutes: 0, availableBeforeMinutes: 60, missingMinMinutes: 60, missingMaxMinutes: 60 })
-    const status = dailyStatus({ tasks, capacity, now })
-    expect(status).toMatchObject({ tone: 'danger', availableMinutes: 60, missingMinMinutes: 60, missingMaxMinutes: 60 })
+  })
+
+  it('viser at udelelig arbeid trenger én sammenhengende økt', () => {
+    const tasks = [task('samlet', { splittable: false })]
+    const status = dailyStatus({ tasks, now, workWindows: [workWindow('10:00', '10:30'), workWindow('11:00', '11:30')], planningPreferences: noPause })
+    expect(status).toMatchObject({ tone: 'danger', availableMinutes: 0, missingMinMinutes: 60, missingMaxMinutes: 60 })
     expect(status.text).toContain('sammenhengende økt')
     expect(status.text).toContain('1 time mangler')
   })
 
   it('viser et ikke-planlagt intervall når øvre anslag ikke får plass i én økt', () => {
     const tasks = [task('samlet', { splittable: false, remainingEstimate: { minMinutes: 30, maxMinutes: 60 } })]
-    const capacity = deriveCapacity(tasks, [session('ledig', '10:00', '10:45')], now)
-    const status = dailyStatus({ tasks, capacity, now })
+    const status = dailyStatus({ tasks, now, workWindows: [workWindow('10:00', '10:45')], planningPreferences: noPause })
     expect(status).toMatchObject({ tone: 'danger', missingMinMinutes: 30, missingMaxMinutes: 60 })
     expect(status.text).toContain('30 minutter–1 time er ikke planlagt')
   })
@@ -80,7 +84,7 @@ describe('dagsstatus med intervaller og faktisk kapasitet', () => {
 
   it('viser at planen går opp og skiller ferdig arbeid fra ubekreftet levering', () => {
     const tasks = [task('kort', { estimatedMinutes: 60 })]
-    const status = dailyStatus({ tasks, capacity: deriveCapacity(tasks, [session('ledig', '10:00', '11:15')], now), now })
+    const status = dailyStatus({ tasks, now, workWindows: [workWindow('10:00', '11:15')], planningPreferences: noPause })
     expect(status).toMatchObject({ tone: 'good', missingMinMinutes: 0, missingMaxMinutes: 0 })
     expect(status.text).toContain('Planen går opp')
 

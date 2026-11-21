@@ -57,6 +57,34 @@ for (const breakMinutes of [10, 0]) {
   })
 }
 
+for (const [label, availability] of [
+  ['eldre plan uten arbeidstidsfelt', {}],
+  ['plan med tom arbeidstidsliste', { workWindows: [] }],
+]) {
+  test(`Oversikt ber om arbeidstid for en ufordelt økt i en ${label}`, async ({ page }) => {
+    const task = { id: 'deadline-without-hours', title: 'Rapport', course: '', deadlineLocal: '2026-11-02T11:00',
+      estimatedMinutes: 60, remainingMinutes: 60, completed: false, splittable: true }
+    const state = {
+      ...emptyState(), tasks: [task],
+      sessions: [{ id: 'unassigned-study-session', dateLocal: '2026-11-02', startTime: '09:00', endTime: '10:00' }],
+      ...availability,
+    }
+    await boot(page, state, 1440)
+    await page.getByRole('button', { name: 'Sammenlign planer', exact: true }).click()
+    const week = page.getByRole('dialog', { name: 'Realistisk planforslag' })
+    await expect(week.locator('.proposed-session-time')).toHaveCount(0)
+    await expect(week.locator('.plan-problem')).toContainText('60 min mangler før fristen')
+    await week.getByRole('button', { name: 'Ikke nå', exact: true }).click()
+
+    await navigate(page, 'overview')
+    const status = page.locator('#daily-overview').getByRole('status')
+    await expect(status).not.toContainText('Planen går opp')
+    await expect(status).toContainText('Registrer når du kan studere under Planlegg uken.')
+    expect(await saved(page)).toEqual(state)
+    expect(await writes(page)).toEqual([])
+  })
+}
+
 test('ukeplanen planlegger kjent minimum ved Mer enn 4 timer med åtte timer ledig', async ({ page }) => {
   const assignment = { id: 'synthetic-open-estimate', title: 'Syntetisk ukeplan', course: '', estimatedMinutes: 30, remainingMinutes: 30, completed: false }
   const reservation = { id: 'synthetic-reservation', taskId: assignment.id, dateLocal: '2026-11-02', startTime: '08:00', endTime: '08:30' }
